@@ -8,212 +8,113 @@
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
   body { background:#f0f2f5; min-height:100vh; }
 
-  /* CONNEXION */
-  #loginScreen {
-    display:flex; align-items:center; justify-content:center;
-    min-height:100vh; background:linear-gradient(135deg,#1e3c72,#2a5298);
-  }
-  .login-box {
-    background:#fff; padding:40px; border-radius:15px;
-    box-shadow:0 20px 60px rgba(0,0,0,0.3); max-width:420px; width:90%;
-  }
+  #loginScreen { display:flex; align-items:center; justify-content:center;
+    min-height:100vh; background:linear-gradient(135deg,#1e3c72,#2a5298); }
+  .login-box { background:#fff; padding:40px; border-radius:15px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3); max-width:420px; width:90%; }
   .login-box h1 { color:#1e3c72; text-align:center; margin-bottom:10px; }
   .login-box p { text-align:center; color:#666; margin-bottom:25px; font-size:14px; }
-  .login-box input {
-    width:100%; padding:13px; border:2px solid #e0e0e0;
-    border-radius:8px; margin-bottom:15px; font-size:15px;
-  }
+  .login-box input { width:100%; padding:13px; border:2px solid #e0e0e0;
+    border-radius:8px; margin-bottom:15px; font-size:15px; }
   .login-box input:focus { outline:none; border-color:#1e3c72; }
-  .login-box button {
-    width:100%; padding:14px; background:#1e3c72; color:#fff;
-    border:none; border-radius:8px; font-size:15px;
-    font-weight:600; cursor:pointer;
-  }
+  .login-box button { width:100%; padding:14px; background:#1e3c72; color:#fff;
+    border:none; border-radius:8px; font-size:15px; font-weight:600; cursor:pointer; }
   .login-box button:hover { background:#2a5298; }
   .login-error { color:#e74c3c; text-align:center; margin-top:10px; font-size:14px; }
 
-  /* DASHBOARD */
   #dashboard { display:none; }
-  header {
-    background:#1e3c72; color:#fff; padding:20px 30px;
+  header { background:#1e3c72; color:#fff; padding:20px 30px;
     display:flex; justify-content:space-between; align-items:center;
-    flex-wrap:wrap; gap:10px;
-  }
+    flex-wrap:wrap; gap:10px; }
   header h1 { font-size:19px; }
-  .logout-btn {
-    background:#e74c3c; color:#fff; border:none;
-    padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600;
-  }
+  .logout-btn { background:#e74c3c; color:#fff; border:none;
+    padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; }
 
-  .stats {
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-    gap:15px; padding:25px 30px;
-  }
-  .stat-card {
-    background:#fff; padding:20px; border-radius:10px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.05);
-    border-left:5px solid #f39c12;
-  }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:15px; padding:25px 30px; }
+  .stat-card { background:#fff; padding:20px; border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.05); border-left:5px solid #f39c12; }
   .stat-card.validees { border-left-color:#27ae60; }
   .stat-card.refusees { border-left-color:#e74c3c; }
   .stat-card.total { border-left-color:#1e3c72; }
   .stat-card .label { color:#666; font-size:13px; margin-bottom:8px; }
   .stat-card .value { color:#1e3c72; font-size:32px; font-weight:bold; }
 
-  .filters {
-    padding:0 30px 20px; display:flex; gap:10px; flex-wrap:wrap;
-  }
-  .filters select, .filters button {
-    padding:10px 18px; border:2px solid #e0e0e0;
-    border-radius:8px; font-size:14px; background:#fff;
-    cursor:pointer; font-weight:600;
-  }
+  .filters { padding:0 30px 20px; display:flex; gap:10px; flex-wrap:wrap; }
+  .filters select, .filters button { padding:10px 18px; border:2px solid #e0e0e0;
+    border-radius:8px; font-size:14px; background:#fff; cursor:pointer; font-weight:600; }
   .filters button { background:#1e3c72; color:#fff; border-color:#1e3c72; }
 
   .demandes-container { padding:0 30px 40px; }
-
-  .demande-item {
-    background:#fff; border-radius:12px; padding:22px;
+  .demande-item { background:#fff; border-radius:12px; padding:22px;
     box-shadow:0 3px 15px rgba(0,0,0,0.08); margin-bottom:18px;
-    border-left:6px solid #f39c12;
-  }
+    border-left:6px solid #f39c12; }
   .demande-item.validee { border-left-color:#27ae60; background:#f8fff9; }
   .demande-item.refusee { border-left-color:#e74c3c; background:#fff8f8; }
 
-  .demande-header {
-    display:flex; justify-content:space-between; align-items:center;
-    flex-wrap:wrap; gap:10px; margin-bottom:18px;
-  }
+  .demande-header { display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:10px; margin-bottom:18px; }
   .demande-header h3 { color:#1e3c72; font-size:18px; }
   .demande-header h3 span { font-weight:400; color:#666; }
-
-  .statut {
-    padding:6px 14px; border-radius:20px; font-size:12px;
-    font-weight:700; text-transform:uppercase;
-  }
+  .statut { padding:6px 14px; border-radius:20px; font-size:12px;
+    font-weight:700; text-transform:uppercase; }
   .statut.en_attente { background:#fef5e7; color:#d68910; border:2px solid #f39c12; }
   .statut.validee { background:#d5f4e6; color:#1e8449; border:2px solid #27ae60; }
   .statut.refusee { background:#fadbd8; color:#922b21; border:2px solid #e74c3c; }
 
-  .demande-grid {
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:14px; margin-bottom:18px;
-  }
+  .demande-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:14px; margin-bottom:18px; }
   .info-item { font-size:14px; color:#555; }
-  .info-item strong {
-    color:#333; display:block; margin-bottom:3px; font-size:12px;
-    text-transform:uppercase; letter-spacing:0.5px;
-  }
+  .info-item strong { color:#333; display:block; margin-bottom:3px; font-size:12px;
+    text-transform:uppercase; letter-spacing:0.5px; }
+  .demande-motif { background:#f8f9fb; padding:14px; border-radius:8px;
+    font-size:14px; color:#555; margin-bottom:18px; border-left:3px solid #1e3c72; }
 
-  .demande-motif {
-    background:#f8f9fb; padding:14px; border-radius:8px;
-    font-size:14px; color:#555; margin-bottom:18px;
-    border-left:3px solid #1e3c72;
-  }
-
-  .actions {
-    display:flex; gap:12px; flex-wrap:wrap; margin-top:10px;
-    padding-top:18px; border-top:1px solid #eee;
-  }
-  .btn {
-    padding:14px 28px; border:none; border-radius:10px;
+  .actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:10px;
+    padding-top:18px; border-top:1px solid #eee; }
+  .btn { padding:14px 28px; border:none; border-radius:10px;
     font-size:15px; font-weight:700; cursor:pointer;
     display:flex; align-items:center; gap:8px;
-    text-transform:uppercase; letter-spacing:0.5px;
-    transition:0.2s;
-  }
-  .btn-valider {
-    background:#27ae60; color:#fff;
-    box-shadow:0 4px 12px rgba(39,174,96,0.3);
-  }
-  .btn-valider:hover {
-    background:#229954; transform:translateY(-2px);
-  }
-  .btn-refuser {
-    background:#e74c3c; color:#fff;
-    box-shadow:0 4px 12px rgba(231,76,60,0.3);
-  }
-  .btn-refuser:hover {
-    background:#c0392b; transform:translateY(-2px);
-  }
-  .btn-suppr {
-    background:#95a5a6; color:#fff; padding:8px 14px;
-    font-size:12px; margin-left:auto;
-  }
+    text-transform:uppercase; letter-spacing:0.5px; transition:0.2s; }
+  .btn-valider { background:#27ae60; color:#fff;
+    box-shadow:0 4px 12px rgba(39,174,96,0.3); }
+  .btn-valider:hover { background:#229954; transform:translateY(-2px); }
+  .btn-refuser { background:#e74c3c; color:#fff;
+    box-shadow:0 4px 12px rgba(231,76,60,0.3); }
+  .btn-refuser:hover { background:#c0392b; transform:translateY(-2px); }
+  .btn-suppr { background:#95a5a6; color:#fff; padding:8px 14px;
+    font-size:12px; margin-left:auto; }
   .btn-suppr:hover { background:#7f8c8d; }
 
-  .resultat {
-    padding:14px; border-radius:8px; font-size:14px; margin-bottom:10px;
-  }
-  .resultat.validee {
-    background:#d5f4e6; color:#1e8449;
-    border-left:4px solid #27ae60;
-  }
-  .resultat.refusee {
-    background:#fadbd8; color:#922b21;
-    border-left:4px solid #e74c3c;
-  }
+  .resultat { padding:14px; border-radius:8px; font-size:14px; margin-bottom:10px; }
+  .resultat.validee { background:#d5f4e6; color:#1e8449; border-left:4px solid #27ae60; }
+  .resultat.refusee { background:#fadbd8; color:#922b21; border-left:4px solid #e74c3c; }
 
-  /* MODALES */
-  .modal-overlay {
-    display:none; position:fixed; top:0; left:0; right:0; bottom:0;
-    background:rgba(0,0,0,0.6); z-index:1000;
-    align-items:center; justify-content:center; padding:20px;
-  }
+  .modal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,0.6); z-index:1000; align-items:center;
+    justify-content:center; padding:20px; }
   .modal-overlay.active { display:flex; }
-  .modal {
-    background:#fff; padding:30px; border-radius:15px;
-    max-width:520px; width:100%; max-height:90vh; overflow-y:auto;
-  }
+  .modal { background:#fff; padding:30px; border-radius:15px;
+    max-width:520px; width:100%; max-height:90vh; overflow-y:auto; }
   .modal h2 { color:#1e3c72; margin-bottom:8px; }
   .modal p.subtitle { color:#666; font-size:14px; margin-bottom:20px; }
-  .modal label {
-    display:block; font-weight:600; margin-bottom:6px;
-    color:#333; font-size:14px; margin-top:14px;
-  }
-  .modal input, .modal textarea {
+  .modal label { display:block; font-weight:600; margin-bottom:6px;
+    color:#333; font-size:14px; margin-top:14px; }
+  .modal input, .modal textarea, .modal select {
     width:100%; padding:12px; border:2px solid #e0e0e0;
-    border-radius:8px; font-size:14px; font-family:inherit;
-  }
-  .modal input:focus, .modal textarea:focus {
-    outline:none; border-color:#1e3c72;
-  }
+    border-radius:8px; font-size:14px; font-family:inherit; background:#fff; }
+  .modal input:focus, .modal textarea:focus, .modal select:focus {
+    outline:none; border-color:#1e3c72; }
   .modal-actions { display:flex; gap:10px; margin-top:22px; }
-  .modal-actions button {
-    flex:1; padding:14px; border:none; border-radius:8px;
-    font-size:15px; font-weight:700; cursor:pointer;
-  }
-  .modal-actions .btn-cancel {
-    background:#ecf0f1; color:#555;
-  }
-  .modal-actions .btn-cancel:hover { background:#d5dbdb; }
+  .modal-actions button { flex:1; padding:14px; border:none; border-radius:8px;
+    font-size:15px; font-weight:700; cursor:pointer; }
+  .modal-actions .btn-cancel { background:#ecf0f1; color:#555; }
 
-  /* Sélecteurs véhicule/chauffeur */
-  .select-chauffeur, .select-vehicule {
-    width:100%; padding:12px; border:2px solid #e0e0e0;
-    border-radius:8px; font-size:14px; background:#fff;
-    cursor:pointer; font-family:inherit;
-  }
-  .select-chauffeur:focus, .select-vehicule:focus {
-    outline:none; border-color:#1e3c72;
-  }
-  .input-other {
-    width:100%; padding:12px; border:2px solid #e0e0e0;
-    border-radius:8px; font-size:14px; margin-top:8px;
-    display:none;
-  }
-  .input-other.show { display:block; }
-
-  .empty {
-    text-align:center; color:#999; padding:60px 20px;
-    font-style:italic; font-size:15px;
-    background:#fff; border-radius:12px;
-  }
+  .empty { text-align:center; color:#999; padding:60px 20px;
+    font-style:italic; font-size:15px; background:#fff; border-radius:12px; }
   .loading { text-align:center; padding:40px; color:#666; }
 
-  @media (max-width:600px) {
-    .btn { padding:12px 20px; font-size:14px; }
-  }
+  @media (max-width:600px) { .btn { padding:12px 20px; font-size:14px; } }
 </style>
 </head>
 <body>
@@ -238,22 +139,10 @@
   </header>
 
   <div class="stats">
-    <div class="stat-card">
-      <div class="label">⏳ En attente</div>
-      <div class="value" id="statAttente">0</div>
-    </div>
-    <div class="stat-card validees">
-      <div class="label">✅ Validées</div>
-      <div class="value" id="statValidees">0</div>
-    </div>
-    <div class="stat-card refusees">
-      <div class="label">❌ Refusées</div>
-      <div class="value" id="statRefusees">0</div>
-    </div>
-    <div class="stat-card total">
-      <div class="label">📊 Total</div>
-      <div class="value" id="statTotal">0</div>
-    </div>
+    <div class="stat-card"><div class="label">⏳ En attente</div><div class="value" id="statAttente">0</div></div>
+    <div class="stat-card validees"><div class="label">✅ Validées</div><div class="value" id="statValidees">0</div></div>
+    <div class="stat-card refusees"><div class="label">❌ Refusées</div><div class="value" id="statRefusees">0</div></div>
+    <div class="stat-card total"><div class="label">📊 Total</div><div class="value" id="statTotal">0</div></div>
   </div>
 
   <div class="filters">
@@ -278,12 +167,27 @@
     <p class="subtitle" id="modalValiderInfo"></p>
 
     <label>👤 Chauffeur à assigner *</label>
-<input type="text" id="selectChauffeur" name="chauffeur" required placeholder="Entrez le nom du chauffeur">
+    <select id="selectChauffeur" onchange="toggleAutre('chauffeur')">
+      <option value="">-- Sélectionnez un chauffeur --</option>
+      <option value="ABAKTOUM">ABAKTOUM</option>
+      <option value="GALILE">GALILE</option>
+      <option value="HAMAD SALLAH">HAMAD SALLAH</option>
+      <option value="BACHIR">BACHIR</option>
+      <option value="AUTRE">➕ Autre (saisir manuellement)</option>
+    </select>
+    <input type="text" id="inputChauffeurAutre" placeholder="Nom du chauffeur"
+      style="display:none; margin-top:8px;">
 
-<label style="margin-top: 15px;">🚗 Véhicule à assigner *</label>
-<input type="text" id="selectVehicule" name="vehicule" required placeholder="Marque, Modèle, Immatriculation">
-    <input type="text" class="input-other" id="inputVehiculeAutre"
-      placeholder="Immatriculation / nom du véhicule">
+    <label>🚙 Véhicule à assigner *</label>
+    <select id="selectVehicule" onchange="toggleAutre('vehicule')">
+      <option value="">-- Sélectionnez un véhicule --</option>
+      <option value="HARDTOP 1234 AB 01">HARDTOP 1234 AB 01</option>
+      <option value="Camionnette 2345 CD 02">Camionnette 2345 CD 02</option>
+      <option value="4x4 Toyota 3456 EF 03">4x4 Toyota 3456 EF 03</option>
+      <option value="AUTRE">➕ Autre (saisir manuellement)</option>
+    </select>
+    <input type="text" id="inputVehiculeAutre" placeholder="Immatriculation"
+      style="display:none; margin-top:8px;">
 
     <label>💬 Message pour l'agent (optionnel)</label>
     <textarea id="inputMessageValider" rows="3"
@@ -291,7 +195,7 @@
 
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
-      <button class="btn-valider" onclick="confirmerValidation()">✅ Valider</button>
+      <button class="btn-valider" onclick="confirmerValidation()">✅ Valider et notifier</button>
     </div>
   </div>
 </div>
@@ -308,25 +212,20 @@
 
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
-      <button class="btn-refuser" onclick="confirmerRefus()">❌ Refuser</button>
+      <button class="btn-refuser" onclick="confirmerRefus()">❌ Refuser et notifier</button>
     </div>
   </div>
 </div>
 
 <script>
-  // ============================================================
-  // ⚠️⚠️⚠️ CONFIGURATION - À MODIFIER ⚠️⚠️⚠️
-  // ============================================================
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
-  const SUPABASE_KEY = "COLLEZ_ICI_VOTRE_CLE_ANON";
-  const FORMSPREE_URL = "https://formspree.io/f/VOTRE_CODE_FORMSPREE";
+  const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
+  const FORMSPREE_URL = "https://formspree.io/f/mbglkyky";
   const ADMIN_PASSWORD = "Logistique2024!";
-  // ============================================================
 
   let demandeEnCours = null;
   let toutesLesDemandes = [];
 
-  // ============ AUTHENTIFICATION ============
   function login() {
     if (document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
       sessionStorage.setItem('admin_logged', 'true');
@@ -335,21 +234,14 @@
       document.getElementById('loginError').textContent = "❌ Mot de passe incorrect";
     }
   }
-
-  function logout() {
-    sessionStorage.removeItem('admin_logged');
-    location.reload();
-  }
-
+  function logout() { sessionStorage.removeItem('admin_logged'); location.reload(); }
   function afficherDashboard() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     chargerDemandes();
   }
-
   if (sessionStorage.getItem('admin_logged') === 'true') afficherDashboard();
 
-  // ============ API SUPABASE ============
   async function apiCall(path, options = {}) {
     const url = SUPABASE_URL + '/rest/v1' + path;
     const headers = {
@@ -406,31 +298,22 @@
 
       if (d.statut === 'en_attente') {
         actionsHtml = `
-          <button class="btn btn-valider" onclick="ouvrirModalValider(${d.id})">
-            ✅ Valider
-          </button>
-          <button class="btn btn-refuser" onclick="ouvrirModalRefuser(${d.id})">
-            ❌ Rejeter
-          </button>
+          <button class="btn btn-valider" onclick="ouvrirModalValider(${d.id})">✅ Valider</button>
+          <button class="btn btn-refuser" onclick="ouvrirModalRefuser(${d.id})">❌ Rejeter</button>
         `;
       } else if (d.statut === 'validee') {
-        resultatHtml = `
-          <div class="resultat validee">
-            <strong>✅ Validée</strong> le ${d.date_validation ? new Date(d.date_validation).toLocaleString('fr-FR') : '-'}<br>
-            👤 Chauffeur : <strong>${d.chauffeur_assigne || '-'}</strong> |
-            🚙 Véhicule : <strong>${d.vehicule_assigne || '-'}</strong>
-            ${d.message_admin ? '<br>💬 ' + d.message_admin : ''}
-          </div>
-        `;
+        resultatHtml = `<div class="resultat validee">
+          <strong>✅ Validée</strong> le ${d.date_validation ? new Date(d.date_validation).toLocaleString('fr-FR') : '-'}<br>
+          👤 Chauffeur : <strong>${d.chauffeur_assigne || '-'}</strong> |
+          🚙 Véhicule : <strong>${d.vehicule_assigne || '-'}</strong>
+          ${d.message_admin ? '<br>💬 ' + d.message_admin : ''}
+        </div>`;
       } else if (d.statut === 'refusee') {
-        resultatHtml = `
-          <div class="resultat refusee">
-            <strong>❌ Refusée</strong> le ${d.date_validation ? new Date(d.date_validation).toLocaleString('fr-FR') : '-'}<br>
-            Motif : <strong>${d.message_admin || '-'}</strong>
-          </div>
-        `;
+        resultatHtml = `<div class="resultat refusee">
+          <strong>❌ Refusée</strong> le ${d.date_validation ? new Date(d.date_validation).toLocaleString('fr-FR') : '-'}<br>
+          Motif : <strong>${d.message_admin || '-'}</strong>
+        </div>`;
       }
-
       actionsHtml += `<button class="btn btn-suppr" onclick="supprimerDemande(${d.id})">🗑️ Supprimer</button>`;
 
       return `
@@ -442,7 +325,6 @@
               d.statut === 'validee' ? '✅ Validée' : '❌ Refusée'
             }</span>
           </div>
-
           <div class="demande-grid">
             <div class="info-item"><strong>📅 Date sortie</strong>${dateStr} à ${d.heure_depart}</div>
             <div class="info-item"><strong>📍 Destination</strong>${d.destination}</div>
@@ -452,93 +334,57 @@
             <div class="info-item"><strong>📞 Contact</strong>${d.contact || 'Non précisé'}</div>
             <div class="info-item"><strong>🏢 Service</strong>${d.service || 'Non précisé'}</div>
           </div>
-
-          <div class="demande-motif">
-            <strong>📝 Motif :</strong> ${d.motif}
-          </div>
-
+          <div class="demande-motif"><strong>📝 Motif :</strong> ${d.motif}</div>
           ${resultatHtml}
-
-          <div style="font-size:12px; color:#999; margin-bottom:12px;">
-            Demande créée le ${createdStr}
-          </div>
-
+          <div style="font-size:12px; color:#999; margin-bottom:12px;">Demande créée le ${createdStr}</div>
           <div class="actions">${actionsHtml}</div>
         </div>
       `;
     }).join('');
   }
 
-  // ============ GESTION DES CHAMPS "AUTRE" ============
-  function toggleChauffeurAutre() {
-    const select = document.getElementById('selectChauffeur');
-    const input = document.getElementById('inputChauffeurAutre');
+  function toggleAutre(type) {
+    const select = document.getElementById(type === 'chauffeur' ? 'selectChauffeur' : 'selectVehicule');
+    const input = document.getElementById(type === 'chauffeur' ? 'inputChauffeurAutre' : 'inputVehiculeAutre');
     if (select.value === 'AUTRE') {
-      input.classList.add('show');
+      input.style.display = 'block';
       input.focus();
     } else {
-      input.classList.remove('show');
+      input.style.display = 'none';
       input.value = '';
     }
   }
 
-  function toggleVehiculeAutre() {
-    const select = document.getElementById('selectVehicule');
-    const input = document.getElementById('inputVehiculeAutre');
-    if (select.value === 'AUTRE') {
-      input.classList.add('show');
-      input.focus();
-    } else {
-      input.classList.remove('show');
-      input.value = '';
-    }
-  }
-
-  // ============ VALIDATION ============
   function ouvrirModalValider(id) {
     demandeEnCours = toutesLesDemandes.find(d => d.id === id);
     if (!demandeEnCours) return;
-
     document.getElementById('modalValiderInfo').textContent =
       `${demandeEnCours.prenom} ${demandeEnCours.nom} → ${demandeEnCours.destination} le ${new Date(demandeEnCours.date_sortie).toLocaleDateString('fr-FR')} à ${demandeEnCours.heure_depart}`;
-
-    // Réinitialiser
     document.getElementById('selectChauffeur').value = '';
     document.getElementById('inputChauffeurAutre').value = '';
-    document.getElementById('inputChauffeurAutre').classList.remove('show');
+    document.getElementById('inputChauffeurAutre').style.display = 'none';
     document.getElementById('selectVehicule').value = '';
     document.getElementById('inputVehiculeAutre').value = '';
-    document.getElementById('inputVehiculeAutre').classList.remove('show');
+    document.getElementById('inputVehiculeAutre').style.display = 'none';
     document.getElementById('inputMessageValider').value = '';
-
     document.getElementById('modalValider').classList.add('active');
   }
 
   async function confirmerValidation() {
-    // Récupérer chauffeur
     const selectChauffeur = document.getElementById('selectChauffeur').value;
-    let chauffeur = selectChauffeur;
-    if (selectChauffeur === 'AUTRE') {
-      chauffeur = document.getElementById('inputChauffeurAutre').value.trim();
-    }
+    let chauffeur = selectChauffeur === 'AUTRE'
+      ? document.getElementById('inputChauffeurAutre').value.trim()
+      : selectChauffeur;
 
-    // Récupérer véhicule
     const selectVehicule = document.getElementById('selectVehicule').value;
-    let vehicule = selectVehicule;
-    if (selectVehicule === 'AUTRE') {
-      vehicule = document.getElementById('inputVehiculeAutre').value.trim();
-    }
+    let vehicule = selectVehicule === 'AUTRE'
+      ? document.getElementById('inputVehiculeAutre').value.trim()
+      : selectVehicule;
 
     const message = document.getElementById('inputMessageValider').value.trim();
 
-    if (!chauffeur) {
-      alert('⚠️ Veuillez sélectionner ou saisir un chauffeur.');
-      return;
-    }
-    if (!vehicule) {
-      alert('⚠️ Veuillez sélectionner ou saisir un véhicule.');
-      return;
-    }
+    if (!chauffeur) { alert('⚠️ Sélectionnez ou saisissez un chauffeur.'); return; }
+    if (!vehicule) { alert('⚠️ Sélectionnez ou saisissez un véhicule.'); return; }
 
     try {
       await apiCall('/demandes?id=eq.' + demandeEnCours.id, {
@@ -554,35 +400,27 @@
 
       fermerModal();
       await chargerDemandes();
-
       await envoyerNotification(demandeEnCours, 'validee', {
         chauffeur, vehicule, message: message || 'Votre demande a été validée.'
       });
-
       alert('✅ Demande validée et notification envoyée à l\'agent !');
     } catch (err) {
       alert('❌ Erreur : ' + err.message);
     }
   }
 
-  // ============ REFUS ============
   function ouvrirModalRefuser(id) {
     demandeEnCours = toutesLesDemandes.find(d => d.id === id);
     if (!demandeEnCours) return;
-
     document.getElementById('modalRefuserInfo').textContent =
       `${demandeEnCours.prenom} ${demandeEnCours.nom} → ${demandeEnCours.destination}`;
-
     document.getElementById('inputMotifRefus').value = '';
     document.getElementById('modalRefuser').classList.add('active');
   }
 
   async function confirmerRefus() {
     const motif = document.getElementById('inputMotifRefus').value.trim();
-    if (!motif) {
-      alert('⚠️ Le motif du refus est obligatoire.');
-      return;
-    }
+    if (!motif) { alert('⚠️ Le motif du refus est obligatoire.'); return; }
 
     try {
       await apiCall('/demandes?id=eq.' + demandeEnCours.id, {
@@ -596,16 +434,13 @@
 
       fermerModal();
       await chargerDemandes();
-
       await envoyerNotification(demandeEnCours, 'refusee', { motif });
-
       alert('❌ Demande refusée et notification envoyée à l\'agent.');
     } catch (err) {
       alert('❌ Erreur : ' + err.message);
     }
   }
 
-  // ============ SUPPRESSION ============
   async function supprimerDemande(id) {
     if (!confirm('Supprimer définitivement cette demande ?')) return;
     try {
@@ -620,29 +455,22 @@
     document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
   }
 
-  // ============ NOTIFICATION EMAIL VIA FORMSPREE ============
   async function envoyerNotification(demande, statut, details) {
-    if (FORMSPREE_URL.includes('VOTRE_CODE')) {
-      console.warn('Formspree non configuré');
-      return;
-    }
-
     let sujet, corps;
-
     if (statut === 'validee') {
       sujet = `✅ DEMANDE VALIDÉE - Sortie du ${new Date(demande.date_sortie).toLocaleDateString('fr-FR')}`;
       corps = `Bonjour ${demande.prenom} ${demande.nom},
 
 ✅ VOTRE DEMANDE DE SORTIE A ÉTÉ VALIDÉE
 
-📋 DÉTAILS DE LA SORTIE :
+📋 DÉTAILS :
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📅 Date : ${new Date(demande.date_sortie).toLocaleDateString('fr-FR')}
 🕐 Heure de départ : ${demande.heure_depart}
 📍 Destination : ${demande.destination}
 ⏱ Durée estimée : ${demande.duree} minutes
 
-🚗 AFFECTATION PAR LE SERVICE LOGISTIQUE :
+🚗 AFFECTATION :
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👤 Chauffeur : ${details.chauffeur}
 🚙 Véhicule : ${details.vehicule}
@@ -660,15 +488,12 @@ Service Logistique`;
 
 ❌ VOTRE DEMANDE DE SORTIE A ÉTÉ REFUSÉE
 
-📋 DEMANDE CONCERNÉE :
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 DEMANDE :
 📅 Date : ${new Date(demande.date_sortie).toLocaleDateString('fr-FR')}
 📍 Destination : ${demande.destination}
 
 ❌ MOTIF DU REFUS :
 ${details.motif}
-
-Vous pouvez soumettre une nouvelle demande.
 
 Cordialement,
 Service Logistique`;
@@ -677,10 +502,7 @@ Service Logistique`;
     try {
       await fetch(FORMSPREE_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
           _subject: sujet,
           _replyto: demande.email,

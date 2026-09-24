@@ -433,4 +433,281 @@
             <strong>✅ Validée</strong> le ${d.date_validation ? new Date(d.date_validation).toLocaleString('fr-FR') : '-'}<br>
             👤 Chauffeur : <strong>${d.chauffeur_assigne || '-'}</strong> |
             🚙 Véhicule : <strong>${d.vehicule_assigne || '-'}</strong>
-            ${d.message
+            ${d.message_admin ? '<br>💬 ' + d.message_admin : ''}
+          </div>
+        `;
+      } else if (d.statut === 'refusee') {
+        resultatHtml = `
+          <div class="resultat refusee">
+            <strong>❌ Refusée</strong> le ${d.date_validation ? new Date(d.date_validation).toLocaleString('fr-FR') : '-'}<br>
+            Motif : <strong>${d.message_admin || '-'}</strong>
+          </div>
+        `;
+      }
+
+      actionsHtml += `<button class="btn btn-suppr" onclick="supprimerDemande(${d.id})">🗑️ Supprimer</button>`;
+
+      return `
+        <div class="demande-item ${d.statut === 'validee' ? 'validee' : d.statut === 'refusee' ? 'refusee' : ''}">
+          <div class="demande-header">
+            <h3>${d.prenom} ${d.nom} <span>— ${d.poste}</span></h3>
+            <span class="statut ${d.statut}">${
+              d.statut === 'en_attente' ? '⏳ En attente' :
+              d.statut === 'validee' ? '✅ Validée' : '❌ Refusée'
+            }</span>
+          </div>
+
+          <div class="demande-grid">
+            <div class="info-item"><strong>📅 Date sortie</strong>${dateStr} à ${d.heure_depart}</div>
+            <div class="info-item"><strong>📍 Destination</strong>${d.destination}</div>
+            <div class="info-item"><strong>⏱ Durée</strong>${d.duree} minutes</div>
+            <div class="info-item"><strong>👥 Passagers</strong>${d.passagers || 'Non précisé'}</div>
+            <div class="info-item"><strong>📧 Email</strong>${d.email}</div>
+            <div class="info-item"><strong>📞 Contact</strong>${d.contact || 'Non précisé'}</div>
+            <div class="info-item"><strong>🏢 Service</strong>${d.service || 'Non précisé'}</div>
+          </div>
+
+          <div class="demande-motif">
+            <strong>📝 Motif :</strong> ${d.motif}
+          </div>
+
+          ${resultatHtml}
+
+          <div style="font-size:12px; color:#999; margin-bottom:12px;">
+            Demande créée le ${createdStr}
+          </div>
+
+          <div class="actions">${actionsHtml}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ============ GESTION DES CHAMPS "AUTRE" ============
+  function toggleChauffeurAutre() {
+    const select = document.getElementById('selectChauffeur');
+    const input = document.getElementById('inputChauffeurAutre');
+    if (select.value === 'AUTRE') {
+      input.classList.add('show');
+      input.focus();
+    } else {
+      input.classList.remove('show');
+      input.value = '';
+    }
+  }
+
+  function toggleVehiculeAutre() {
+    const select = document.getElementById('selectVehicule');
+    const input = document.getElementById('inputVehiculeAutre');
+    if (select.value === 'AUTRE') {
+      input.classList.add('show');
+      input.focus();
+    } else {
+      input.classList.remove('show');
+      input.value = '';
+    }
+  }
+
+  // ============ VALIDATION ============
+  function ouvrirModalValider(id) {
+    demandeEnCours = toutesLesDemandes.find(d => d.id === id);
+    if (!demandeEnCours) return;
+
+    document.getElementById('modalValiderInfo').textContent =
+      `${demandeEnCours.prenom} ${demandeEnCours.nom} → ${demandeEnCours.destination} le ${new Date(demandeEnCours.date_sortie).toLocaleDateString('fr-FR')} à ${demandeEnCours.heure_depart}`;
+
+    // Réinitialiser
+    document.getElementById('selectChauffeur').value = '';
+    document.getElementById('inputChauffeurAutre').value = '';
+    document.getElementById('inputChauffeurAutre').classList.remove('show');
+    document.getElementById('selectVehicule').value = '';
+    document.getElementById('inputVehiculeAutre').value = '';
+    document.getElementById('inputVehiculeAutre').classList.remove('show');
+    document.getElementById('inputMessageValider').value = '';
+
+    document.getElementById('modalValider').classList.add('active');
+  }
+
+  async function confirmerValidation() {
+    // Récupérer chauffeur
+    const selectChauffeur = document.getElementById('selectChauffeur').value;
+    let chauffeur = selectChauffeur;
+    if (selectChauffeur === 'AUTRE') {
+      chauffeur = document.getElementById('inputChauffeurAutre').value.trim();
+    }
+
+    // Récupérer véhicule
+    const selectVehicule = document.getElementById('selectVehicule').value;
+    let vehicule = selectVehicule;
+    if (selectVehicule === 'AUTRE') {
+      vehicule = document.getElementById('inputVehiculeAutre').value.trim();
+    }
+
+    const message = document.getElementById('inputMessageValider').value.trim();
+
+    if (!chauffeur) {
+      alert('⚠️ Veuillez sélectionner ou saisir un chauffeur.');
+      return;
+    }
+    if (!vehicule) {
+      alert('⚠️ Veuillez sélectionner ou saisir un véhicule.');
+      return;
+    }
+
+    try {
+      await apiCall('/demandes?id=eq.' + demandeEnCours.id, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          statut: 'validee',
+          chauffeur_assigne: chauffeur,
+          vehicule_assigne: vehicule,
+          message_admin: message || 'Votre demande a été validée.',
+          date_validation: new Date().toISOString()
+        })
+      });
+
+      fermerModal();
+      await chargerDemandes();
+
+      await envoyerNotification(demandeEnCours, 'validee', {
+        chauffeur, vehicule, message: message || 'Votre demande a été validée.'
+      });
+
+      alert('✅ Demande validée et notification envoyée à l\'agent !');
+    } catch (err) {
+      alert('❌ Erreur : ' + err.message);
+    }
+  }
+
+  // ============ REFUS ============
+  function ouvrirModalRefuser(id) {
+    demandeEnCours = toutesLesDemandes.find(d => d.id === id);
+    if (!demandeEnCours) return;
+
+    document.getElementById('modalRefuserInfo').textContent =
+      `${demandeEnCours.prenom} ${demandeEnCours.nom} → ${demandeEnCours.destination}`;
+
+    document.getElementById('inputMotifRefus').value = '';
+    document.getElementById('modalRefuser').classList.add('active');
+  }
+
+  async function confirmerRefus() {
+    const motif = document.getElementById('inputMotifRefus').value.trim();
+    if (!motif) {
+      alert('⚠️ Le motif du refus est obligatoire.');
+      return;
+    }
+
+    try {
+      await apiCall('/demandes?id=eq.' + demandeEnCours.id, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          statut: 'refusee',
+          message_admin: motif,
+          date_validation: new Date().toISOString()
+        })
+      });
+
+      fermerModal();
+      await chargerDemandes();
+
+      await envoyerNotification(demandeEnCours, 'refusee', { motif });
+
+      alert('❌ Demande refusée et notification envoyée à l\'agent.');
+    } catch (err) {
+      alert('❌ Erreur : ' + err.message);
+    }
+  }
+
+  // ============ SUPPRESSION ============
+  async function supprimerDemande(id) {
+    if (!confirm('Supprimer définitivement cette demande ?')) return;
+    try {
+      await apiCall('/demandes?id=eq.' + id, { method: 'DELETE' });
+      await chargerDemandes();
+    } catch (err) {
+      alert('❌ Erreur : ' + err.message);
+    }
+  }
+
+  function fermerModal() {
+    document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+  }
+
+  // ============ NOTIFICATION EMAIL VIA FORMSPREE ============
+  async function envoyerNotification(demande, statut, details) {
+    if (FORMSPREE_URL.includes('VOTRE_CODE')) {
+      console.warn('Formspree non configuré');
+      return;
+    }
+
+    let sujet, corps;
+
+    if (statut === 'validee') {
+      sujet = `✅ DEMANDE VALIDÉE - Sortie du ${new Date(demande.date_sortie).toLocaleDateString('fr-FR')}`;
+      corps = `Bonjour ${demande.prenom} ${demande.nom},
+
+✅ VOTRE DEMANDE DE SORTIE A ÉTÉ VALIDÉE
+
+📋 DÉTAILS DE LA SORTIE :
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📅 Date : ${new Date(demande.date_sortie).toLocaleDateString('fr-FR')}
+🕐 Heure de départ : ${demande.heure_depart}
+📍 Destination : ${demande.destination}
+⏱ Durée estimée : ${demande.duree} minutes
+
+🚗 AFFECTATION PAR LE SERVICE LOGISTIQUE :
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 Chauffeur : ${details.chauffeur}
+🚙 Véhicule : ${details.vehicule}
+
+💬 MESSAGE :
+${details.message}
+
+Merci de vous présenter au garage 10 minutes avant l'heure de départ.
+
+Cordialement,
+Service Logistique`;
+    } else {
+      sujet = `❌ Réponse à votre demande de sortie`;
+      corps = `Bonjour ${demande.prenom} ${demande.nom},
+
+❌ VOTRE DEMANDE DE SORTIE A ÉTÉ REFUSÉE
+
+📋 DEMANDE CONCERNÉE :
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📅 Date : ${new Date(demande.date_sortie).toLocaleDateString('fr-FR')}
+📍 Destination : ${demande.destination}
+
+❌ MOTIF DU REFUS :
+${details.motif}
+
+Vous pouvez soumettre une nouvelle demande.
+
+Cordialement,
+Service Logistique`;
+    }
+
+    try {
+      await fetch(FORMSPREE_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          _subject: sujet,
+          _replyto: demande.email,
+          "Destinataire": demande.email,
+          "Nom de l'agent": `${demande.prenom} ${demande.nom}`,
+          "Statut": statut === 'validee' ? '✅ Validée' : '❌ Refusée',
+          "Message": corps
+        })
+      });
+    } catch (err) {
+      console.warn('Erreur envoi notification :', err);
+    }
+  }
+</script>
+</body>
+</html>

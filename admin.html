@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin - Validation des Demandes</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
   body { background:#f0f2f5; min-height:100vh; }
@@ -218,10 +219,21 @@
 </div>
 
 <script>
+  // ============================================================
+  // CONFIGURATION - TOUT EST DÉJÀ REMPLI
+  // ============================================================
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
-  const FORMSPREE_URL = "https://formspree.io/f/mbglkyky";
   const ADMIN_PASSWORD = "Logistique2024!";
+
+  // Configuration EmailJS
+  const EMAILJS_PUBLIC_KEY = "SUbWMSdrTf7JugMrS";
+  const EMAILJS_SERVICE_ID = "service_e6k2e76";
+  const EMAILJS_TEMPLATE_ID = "template_264ywqs";
+
+  // Initialisation EmailJS
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+  // ============================================================
 
   let demandeEnCours = null;
   let toutesLesDemandes = [];
@@ -455,8 +467,10 @@
     document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
   }
 
+  // ============ NOTIFICATION EMAIL VIA EMAILJS ============
   async function envoyerNotification(demande, statut, details) {
     let sujet, corps;
+
     if (statut === 'validee') {
       sujet = `✅ DEMANDE VALIDÉE - Sortie du ${new Date(demande.date_sortie).toLocaleDateString('fr-FR')}`;
       corps = `Bonjour ${demande.prenom} ${demande.nom},
@@ -500,20 +514,16 @@ Service Logistique`;
     }
 
     try {
-      await fetch(FORMSPREE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({
-          _subject: sujet,
-          _replyto: demande.email,
-          "Destinataire": demande.email,
-          "Nom de l'agent": `${demande.prenom} ${demande.nom}`,
-          "Statut": statut === 'validee' ? '✅ Validée' : '❌ Refusée',
-          "Message": corps
-        })
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_email: demande.email,
+        subject: sujet,
+        message: corps,
+        name: 'Service Logistique'
       });
+      console.log('✅ Email envoyé à', demande.email);
     } catch (err) {
-      console.warn('Erreur envoi notification :', err);
+      console.error('❌ Erreur envoi email :', err);
+      alert('⚠️ La demande a été enregistrée mais l\'email n\'a pas pu être envoyé.\n\nDétail : ' + (err.text || err.message || JSON.stringify(err)));
     }
   }
 </script>

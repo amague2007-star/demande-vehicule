@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Validation des Demandes</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
+  body { background:#f0f2f5; min-height:100vh; }
+
+  /* CONNEXION */
+  #loginScreen {
+    display:flex; align-items:center; justify-content:center;
+    min-height:100vh; background:linear-gradient(135deg,#1e3c72,#2a5298);
+  }
+  .login-box {
+    background:#fff; padding:40px; border-radius:15px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3); max-width:420px; width:90%;
+  }
+  .login-box h1 { color:#1e3c72; text-align:center; margin-bottom:10px; }
+  .login-box p { text-align:center; color:#666; margin-bottom:25px; font-size:14px; }
+  .login-box input {
+    width:100%; padding:13px; border:2px solid #e0e0e0;
+    border-radius:8px; margin-bottom:15px; font-size:15px;
+  }
+  .login-box input:focus { outline:none; border-color:#1e3c72; }
+  .login-box button {
+    width:100%; padding:14px; background:#1e3c72; color:#fff;
+    border:none; border-radius:8px; font-size:15px;
+    font-weight:600; cursor:pointer;
+  }
+  .login-box button:hover { background:#2a5298; }
+  .login-error { color:#e74c3c; text-align:center; margin-top:10px; font-size:14px; }
+
+  /* DASHBOARD */
+  #dashboard { display:none; }
+  header {
+    background:#1e3c72; color:#fff; padding:20px 30px;
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:10px;
+  }
+  header h1 { font-size:19px; }
+  .logout-btn {
+    background:#e74c3c; color:#fff; border:none;
+    padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600;
+  }
+
+  .stats {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:15px; padding:25px 30px;
+  }
+  .stat-card {
+    background:#fff; padding:20px; border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.05);
+    border-left:5px solid #f39c12;
+  }
+  .stat-card.validees { border-left-color:#27ae60; }
+  .stat-card.refusees { border-left-color:#e74c3c; }
+  .stat-card.total { border-left-color:#1e3c72; }
+  .stat-card .label { color:#666; font-size:13px; margin-bottom:8px; }
+  .stat-card .value { color:#1e3c72; font-size:32px; font-weight:bold; }
+
+  .filters {
+    padding:0 30px 20px; display:flex; gap:10px; flex-wrap:wrap;
+  }
+  .filters select, .filters button {
+    padding:10px 18px; border:2px solid #e0e0e0;
+    border-radius:8px; font-size:14px; background:#fff;
+    cursor:pointer; font-weight:600;
+  }
+  .filters button { background:#1e3c72; color:#fff; border-color:#1e3c72; }
+
+  .demandes-container { padding:0 30px 40px; }
+
+  .demande-item {
+    background:#fff; border-radius:12px; padding:22px;
+    box-shadow:0 3px 15px rgba(0,0,0,0.08); margin-bottom:18px;
+    border-left:6px solid #f39c12;
+  }
+  .demande-item.validee { border-left-color:#27ae60; background:#f8fff9; }
+  .demande-item.refusee { border-left-color:#e74c3c; background:#fff8f8; }
+
+  .demande-header {
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:10px; margin-bottom:18px;
+  }
+  .demande-header h3 { color:#1e3c72; font-size:18px; }
+  .demande-header h3 span { font-weight:400; color:#666; }
+
+  .statut {
+    padding:6px 14px; border-radius:20px; font-size:12px;
+    font-weight:700; text-transform:uppercase;
+  }
+  .statut.en_attente { background:#fef5e7; color:#d68910; border:2px solid #f39c12; }
+  .statut.validee { background:#d5f4e6; color:#1e8449; border:2px solid #27ae60; }
+  .statut.refusee { background:#fadbd8; color:#922b21; border:2px solid #e74c3c; }
+
+  .demande-grid {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:14px; margin-bottom:18px;
+  }
+  .info-item { font-size:14px; color:#555; }
+  .info-item strong {
+    color:#333; display:block; margin-bottom:3px; font-size:12px;
+    text-transform:uppercase; letter-spacing:0.5px;
+  }
+
+  .demande-motif {
+    background:#f8f9fb; padding:14px; border-radius:8px;
+    font-size:14px; color:#555; margin-bottom:18px;
+    border-left:3px solid #1e3c72;
+  }
+
+  .actions {
+    display:flex; gap:12px; flex-wrap:wrap; margin-top:10px;
+    padding-top:18px; border-top:1px solid #eee;
+  }
+  .btn {
+    padding:14px 28px; border:none; border-radius:10px;
+    font-size:15px; font-weight:700; cursor:pointer;
+    display:flex; align-items:center; gap:8px;
+    text-transform:uppercase; letter-spacing:0.5px;
+    transition:0.2s;
+  }
+  .btn-valider {
+    background:#27ae60; color:#fff;
+    box-shadow:0 4px 12px rgba(39,174,96,0.3);
+  }
+  .btn-valider:hover {
+    background:#229954; transform:translateY(-2px);
+  }
+  .btn-refuser {
+    background:#e74c3c; color:#fff;
+    box-shadow:0 4px 12px rgba(231,76,60,0.3);
+  }
+  .btn-refuser:hover {
+    background:#c0392b; transform:translateY(-2px);
+  }
+  .btn-suppr {
+    background:#95a5a6; color:#fff; padding:8px 14px;
+    font-size:12px; margin-left:auto;
+  }
+  .btn-suppr:hover { background:#7f8c8d; }
+
+  .resultat {
+    padding:14px; border-radius:8px; font-size:14px; margin-bottom:10px;
+  }
+  .resultat.validee {
+    background:#d5f4e6; color:#1e8449;
+    border-left:4px solid #27ae60;
+  }
+  .resultat.refusee {
+    background:#fadbd8; color:#922b21;
+    border-left:4px solid #e74c3c;
+  }
+
+  /* MODALES */
+  .modal-overlay {
+    display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,0.6); z-index:1000;
+    align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.active { display:flex; }
+  .modal {
+    background:#fff; padding:30px; border-radius:15px;
+    max-width:520px; width:100%; max-height:90vh; overflow-y:auto;
+  }
+  .modal h2 { color:#1e3c72; margin-bottom:8px; }
+  .modal p.subtitle { color:#666; font-size:14px; margin-bottom:20px; }
+  .modal label {
+    display:block; font-weight:600; margin-bottom:6px;
+    color:#333; font-size:14px; margin-top:14px;
+  }
+  .modal input, .modal textarea {
+    width:100%; padding:12px; border:2px solid #e0e0e0;
+    border-radius:8px; font-size:14px; font-family:inherit;
+  }
+  .modal input:focus, .modal textarea:focus {
+    outline:none; border-color:#1e3c72;
+  }
+  .modal-actions { display:flex; gap:10px; margin-top:22px; }
+  .modal-actions button {
+    flex:1; padding:14px; border:none; border-radius:8px;
+    font-size:15px; font-weight:700; cursor:pointer;
+  }
+  .modal-actions .btn-cancel {
+    background:#ecf0f1; color:#555;
+  }
+  .modal-actions .btn-cancel:hover { background:#d5dbdb; }
+
+  /* Sélecteurs véhicule/chauffeur */
+  .select-chauffeur, .select-vehicule {
+    width:100%; padding:12px; border:2px solid #e0e0e0;
+    border-radius:8px; font-size:14px; background:#fff;
+    cursor:pointer; font-family:inherit;
+  }
+  .select-chauffeur:focus, .select-vehicule:focus {
+    outline:none; border-color:#1e3c72;
+  }
+  .input-other {
+    width:100%; padding:12px; border:2px solid #e0e0e0;
+    border-radius:8px; font-size:14px; margin-top:8px;
+    display:none;
+  }
+  .input-other.show { display:block; }
+
+  .empty {
+    text-align:center; color:#999; padding:60px 20px;
+    font-style:italic; font-size:15px;
+    background:#fff; border-radius:12px;
+  }
+  .loading { text-align:center; padding:40px; color:#666; }
+
+  @media (max-width:600px) {
+    .btn { padding:12px 20px; font-size:14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CONNEXION -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h1>🔐 Admin Logistique</h1>
+    <p>Espace réservé à l'administrateur</p>
+    <input type="password" id="adminPassword" placeholder="Mot de passe"
+      onkeypress="if(event.key==='Enter') login()">
+    <button onclick="login()">Se connecter</button>
+    <div id="loginError" class="login-error"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <header>
+    <h1>🚗 Tableau de bord - Validation des demandes</h1>
+    <button class="logout-btn" onclick="logout()">Déconnexion</button>
+  </header>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="label">⏳ En attente</div>
+      <div class="value" id="statAttente">0</div>
+    </div>
+    <div class="stat-card validees">
+      <div class="label">✅ Validées</div>
+      <div class="value" id="statValidees">0</div>
+    </div>
+    <div class="stat-card refusees">
+      <div class="label">❌ Refusées</div>
+      <div class="value" id="statRefusees">0</div>
+    </div>
+    <div class="stat-card total">
+      <div class="label">📊 Total</div>
+      <div class="value" id="statTotal">0</div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <select id="filtreStatut" onchange="afficherDemandes()">
+      <option value="en_attente" selected>⏳ En attente</option>
+      <option value="validee">✅ Validées</option>
+      <option value="refusee">❌ Refusées</option>
+      <option value="tous">📋 Toutes</option>
+    </select>
+    <button onclick="chargerDemandes()">🔄 Rafraîchir</button>
+  </div>
+
+  <div class="demandes-container" id="demandesContainer">
+    <div class="loading">Chargement des demandes...</div>
+  </div>
+</div>
+
+<!-- MODALE VALIDER -->
+<div class="modal-overlay" id="modalValider">
+  <div class="modal">
+    <h2>✅ Valider cette demande</h2>
+    <p class="subtitle" id="modalValiderInfo"></p>
+
+    <label>👤 Chauffeur à assigner *</label>
+    <select class="select-chauffeur" id="selectChauffeur" onchange="toggleChauffeurAutre()">
+      <option value="">-- Sélectionnez un chauffeur --</option>
+      <option value="Moussa Ibrahim">Moussa Ibrahim</option>
+      <option value="Galile Amadou">Galile Amadou</option>
+      <option value="Abdoul Aziz">Abdoul Aziz</option>
+      <option value="AUTRE">➕ Autre (saisir manuellement)</option>
+    </select>
+    <input type="text" class="input-other" id="inputChauffeurAutre"
+      placeholder="Nom du chauffeur">
+
+    <label>🚙 Véhicule à assigner *</label>
+    <select class="select-vehicule" id="selectVehicule" onchange="toggleVehiculeAutre()">
+      <option value="">-- Sélectionnez un véhicule --</option>
+      <option value="HARDTOP 1234 AB 01">HARDTOP 1234 AB 01</option>
+      <option value="Camionnette 2345 CD 02">Camionnette 2345 CD 02</option>
+      <option value="4x4 Toyota 3456 EF 03">4x4 Toyota 3456 EF 03</option>
+      <option value="AUTRE">➕ Autre (saisir manuellement)</option>
+    </select>
+    <input type="text" class="input-other" id="inputVehiculeAutre"
+      placeholder="Immatriculation / nom du véhicule">
+
+    <label>💬 Message pour l'agent (optionnel)</label>
+    <textarea id="inputMessageValider" rows="3"
+      placeholder="Ex: Présentez-vous au garage 10 minutes avant le départ."></textarea>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
+      <button class="btn-valider" onclick="confirmerValidation()">✅ Valider</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE REFUSER -->
+<div class="modal-overlay" id="modalRefuser">
+  <div class="modal">
+    <h2>❌ Refuser cette demande</h2>
+    <p class="subtitle" id="modalRefuserInfo"></p>
+
+    <label>Motif du refus *</label>
+    <textarea id="inputMotifRefus" rows="4"
+      placeholder="Ex: Aucun véhicule disponible à cette heure."></textarea>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
+      <button class="btn-refuser" onclick="confirmerRefus()">❌ Refuser</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ============================================================
+  // ⚠️⚠️⚠️ CONFIGURATION - À MODIFIER ⚠️⚠️⚠️
+  // ============================================================
+  const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
+  const SUPABASE_KEY = "COLLEZ_ICI_VOTRE_CLE_ANON";
+  const FORMSPREE_URL = "https://formspree.io/f/VOTRE_CODE_FORMSPREE";
+  const ADMIN_PASSWORD = "Logistique2024!";
+  // ============================================================
+
+  let demandeEnCours = null;
+  let toutesLesDemandes = [];
+
+  // ============ AUTHENTIFICATION ============
+  function login() {
+    if (document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
+      sessionStorage.setItem('admin_logged', 'true');
+      afficherDashboard();
+    } else {
+      document.getElementById('loginError').textContent = "❌ Mot de passe incorrect";
+    }
+  }
+
+  function logout() {
+    sessionStorage.removeItem('admin_logged');
+    location.reload();
+  }
+
+  function afficherDashboard() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    chargerDemandes();
+  }
+
+  if (sessionStorage.getItem('admin_logged') === 'true') afficherDashboard();
+
+  // ============ API SUPABASE ============
+  async function apiCall(path, options = {}) {
+    const url = SUPABASE_URL + '/rest/v1' + path;
+    const headers = {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+      ...options.headers
+    };
+    const response = await fetch(url, { ...options, headers });
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error('Erreur ' + response.status + ' : ' + text);
+    }
+    return response.json();
+  }
+
+  async function chargerDemandes() {
+    const container = document.getElementById('demandesContainer');
+    container.innerHTML = '<div class="loading">Chargement...</div>';
+    try {
+      toutesLesDemandes = await apiCall('/demandes?order=created_at.desc');
+      mettreAJourStats();
+      afficherDemandes();
+    } catch (err) {
+      container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>';
+    }
+  }
+
+  function mettreAJourStats() {
+    document.getElementById('statAttente').textContent = toutesLesDemandes.filter(d => d.statut === 'en_attente').length;
+    document.getElementById('statValidees').textContent = toutesLesDemandes.filter(d => d.statut === 'validee').length;
+    document.getElementById('statRefusees').textContent = toutesLesDemandes.filter(d => d.statut === 'refusee').length;
+    document.getElementById('statTotal').textContent = toutesLesDemandes.length;
+  }
+
+  function afficherDemandes() {
+    const filtre = document.getElementById('filtreStatut').value;
+    const container = document.getElementById('demandesContainer');
+    let liste = toutesLesDemandes;
+    if (filtre !== 'tous') liste = liste.filter(d => d.statut === filtre);
+
+    if (liste.length === 0) {
+      container.innerHTML = '<div class="empty">📭 Aucune demande dans cette catégorie</div>';
+      return;
+    }
+
+    container.innerHTML = liste.map(d => {
+      const dateStr = new Date(d.date_sortie).toLocaleDateString('fr-FR');
+      const createdStr = new Date(d.created_at).toLocaleString('fr-FR');
+
+      let actionsHtml = '';
+      let resultatHtml = '';
+
+      if (d.statut === 'en_attente') {
+        actionsHtml = `
+          <button class="btn btn-valider" onclick="ouvrirModalValider(${d.id})">
+            ✅ Valider
+          </button>
+          <button class="btn btn-refuser" onclick="ouvrirModalRefuser(${d.id})">
+            ❌ Rejeter
+          </button>
+        `;
+      } else if (d.statut === 'validee') {
+        resultatHtml = `
+          <div class="resultat validee">
+            <strong>✅ Validée</strong> le ${d.date_validation ? new Date(d.date_validation).toLocaleString('fr-FR') : '-'}<br>
+            👤 Chauffeur : <strong>${d.chauffeur_assigne || '-'}</strong> |
+            🚙 Véhicule : <strong>${d.vehicule_assigne || '-'}</strong>
+            ${d.message

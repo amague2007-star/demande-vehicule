@@ -278,24 +278,10 @@
     <p class="subtitle" id="modalValiderInfo"></p>
 
     <label>👤 Chauffeur à assigner *</label>
-    <select class="select-chauffeur" id="selectChauffeur" onchange="toggleChauffeurAutre()">
-      <option value="">-- Sélectionnez un chauffeur --</option>
-      <option value="Moussa Ibrahim">Moussa Ibrahim</option>
-      <option value="Galile Amadou">Galile Amadou</option>
-      <option value="Abdoul Aziz">Abdoul Aziz</option>
-      <option value="AUTRE">➕ Autre (saisir manuellement)</option>
-    </select>
-    <input type="text" class="input-other" id="inputChauffeurAutre"
-      placeholder="Nom du chauffeur">
+<input type="text" id="selectChauffeur" name="chauffeur" required placeholder="Entrez le nom du chauffeur">
 
-    <label>🚙 Véhicule à assigner *</label>
-    <select class="select-vehicule" id="selectVehicule" onchange="toggleVehiculeAutre()">
-      <option value="">-- Sélectionnez un véhicule --</option>
-      <option value="HARDTOP 1234 AB 01">HARDTOP 1234 AB 01</option>
-      <option value="Camionnette 2345 CD 02">Camionnette 2345 CD 02</option>
-      <option value="4x4 Toyota 3456 EF 03">4x4 Toyota 3456 EF 03</option>
-      <option value="AUTRE">➕ Autre (saisir manuellement)</option>
-    </select>
+<label style="margin-top: 15px;">🚗 Véhicule à assigner *</label>
+<input type="text" id="selectVehicule" name="vehicule" required placeholder="Marque, Modèle, Immatriculation">
     <input type="text" class="input-other" id="inputVehiculeAutre"
       placeholder="Immatriculation / nom du véhicule">
 

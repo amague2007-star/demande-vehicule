@@ -40,6 +40,15 @@
   .loader { display:none; text-align:center; padding:15px;
     color:#1e3c72; font-weight:600; }
   .loader.active { display:block; }
+
+  /* Encadré d'information */
+  .info-box {
+    background:#e8f4fd; border-left:4px solid #2980b9;
+    padding:15px; margin-bottom:25px; border-radius:6px;
+    font-size:14px; color:#1a5276;
+  }
+  .info-box strong { color:#1e3c72; }
+
   @media (max-width:600px) { .form-grid { grid-template-columns:1fr; } }
 </style>
 </head>
@@ -47,12 +56,16 @@
 
 <div class="container">
   <header>
-    <h1>🚗 Gestion des Sorties de Véhicules</h1>
-    <p>Système de demande et suivi logistique</p>
+    <h1>🚗 Demande de Sortie Véhicule</h1>
+    <p>Formulaire de demande au service Logistique</p>
   </header>
 
   <div class="content">
     <div id="messageBox" class="message"></div>
+
+    <div class="info-box">
+      💡 <strong>Information :</strong> Le véhicule et le chauffeur seront attribués par le service Logistique après validation de votre demande. Vous recevrez un email de confirmation.
+    </div>
 
     <form id="formDemande" onsubmit="soumettre(event)">
       <div class="form-grid">
@@ -101,21 +114,17 @@
           <input type="number" id="duree" required min="1" placeholder="Ex: 120">
         </div>
 
-        <div class="form-group">
-          <label>Véhicule souhaité / Type</label>
-          <input type="text" id="vehicule" placeholder="Ex: Camionnette, 4x4...">
-        </div>
-        <div class="form-group">
-          <label>Nombre de passagers</label>
-          <input type="number" id="passagers" min="1" placeholder="Ex: 3">
-        </div>
-
         <div class="form-group full">
           <label>Motif / Objet de la sortie <span class="required">*</span></label>
           <textarea id="motif" required placeholder="Précisez la raison de la sortie..."></textarea>
         </div>
 
-        <div class="form-group full">
+        <div class="form-group">
+          <label>Nombre de passagers</label>
+          <input type="number" id="passagers" min="1" placeholder="Ex: 3">
+        </div>
+
+        <div class="form-group">
           <label>Nom du responsable à valider</label>
           <input type="text" id="responsable" placeholder="Ex: M. le Directeur Logistique">
         </div>
@@ -129,29 +138,13 @@
 
 <script>
   // ============================================================
-  // ⚠️⚠️⚠️ CONFIGURATION - REMPLACEZ LES 3 VALEURS CI-DESSOUS ⚠️⚠️⚠️
+  // ⚠️⚠️⚠️ CONFIGURATION - À MODIFIER ⚠️⚠️⚠️
   // ============================================================
-
-  // 1) URL de votre projet Supabase
-  //    Où la trouver : supabase.com → votre projet → Settings → API → "Project URL"
-  //    Exemple : "https://abcdefgh.supabase.co"
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
-
-  // 2) Clé publique "anon" de Supabase
-  //    Où la trouver : supabase.com → votre projet → Settings → API → "anon public"
-  //    (commence par eyJ... et est très longue)
-  const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
-
-  // 3) URL de votre formulaire Formspree
-  //    Où la trouver : formspree.io → votre formulaire → copier l'URL
-  //    Exemple : "https://formspree.io/f/xyzabcde"
-  const FORMSPREE_URL = "https://formspree.io/f/xvkgqgvb";
-
-  // ============================================================
-  // NE MODIFIEZ RIEN EN DESSOUS DE CETTE LIGNE
+  const SUPABASE_KEY = "COLLEZ_ICI_VOTRE_CLE_ANON";
+  const FORMSPREE_URL = "https://formspree.io/f/VOTRE_CODE_FORMSPREE";
   // ============================================================
 
-  // Mettre la date d'aujourd'hui par défaut
   document.getElementById('dateSortie').valueAsDate = new Date();
 
   function val(id) { return document.getElementById(id).value.trim(); }
@@ -166,16 +159,14 @@
   async function soumettre(e) {
     e.preventDefault();
 
-    // Vérifier que la configuration a été faite
     if (SUPABASE_URL.includes('VOTRE_URL') || FORMSPREE_URL.includes('VOTRE_CODE')) {
-      afficherMessage("⚠️ Configuration incomplète. L'administrateur doit renseigner les clés dans le fichier. Contactez le service logistique.", 'error');
+      afficherMessage("⚠️ Configuration incomplète. Contactez l'administrateur.", 'error');
       return;
     }
 
     const btn = document.getElementById('btnSubmit');
     const loader = document.getElementById('loader');
 
-    // Récupérer les données du formulaire
     const demande = {
       nom: val('nom'),
       prenom: val('prenom'),
@@ -187,13 +178,11 @@
       heure_depart: val('heureDepart'),
       destination: val('destination'),
       duree: parseInt(val('duree')),
-      vehicule_souhaite: val('vehicule'),
       passagers: val('passagers') ? parseInt(val('passagers')) : null,
       motif: val('motif'),
       responsable: val('responsable')
     };
 
-    // Désactiver le bouton et afficher le loader
     btn.disabled = true;
     btn.textContent = '⏳ Envoi en cours...';
     loader.classList.add('active');
@@ -247,7 +236,6 @@
           "Heure de départ": demande.heure_depart,
           "Destination": demande.destination,
           "Durée (min)": demande.duree,
-          "Véhicule souhaité": demande.vehicule_souhaite || '-',
           "Passagers": demande.passagers || '-',
           "Motif": demande.motif,
           "Responsable": demande.responsable || '-'
@@ -264,20 +252,19 @@
       erreurs.push('Notification email : ' + err.message);
     }
 
-    // ---------- 3) AFFICHAGE DU RÉSULTAT ----------
+    // ---------- 3) RÉSULTAT ----------
     if (supabaseOK && formspreeOK) {
-      afficherMessage('✅ Votre demande a bien été enregistrée et envoyée au service Logistique. Vous recevrez un email après validation.', 'success');
+      afficherMessage('✅ Votre demande a bien été envoyée au service Logistique. Vous recevrez un email de confirmation avec le chauffeur et le véhicule attribués.', 'success');
       e.target.reset();
       document.getElementById('dateSortie').valueAsDate = new Date();
     } else if (supabaseOK && !formspreeOK) {
-      afficherMessage("⚠️ Votre demande a été enregistrée dans la base de données, mais la notification email n'a pas pu être envoyée. Le service logistique verra quand même votre demande dans son tableau de bord.", 'warning');
+      afficherMessage("⚠️ Votre demande a été enregistrée, mais la notification email n'a pas pu être envoyée.", 'warning');
       e.target.reset();
       document.getElementById('dateSortie').valueAsDate = new Date();
     } else {
       afficherMessage("❌ Erreur d'envoi : " + erreurs.join(' | ') + ". Vérifiez votre connexion internet et réessayez.", 'error');
     }
 
-    // Réactiver le bouton
     btn.disabled = false;
     btn.textContent = '✅ Envoyer la demande';
     loader.classList.remove('active');

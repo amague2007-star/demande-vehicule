@@ -40,15 +40,11 @@
   .loader { display:none; text-align:center; padding:15px;
     color:#1e3c72; font-weight:600; }
   .loader.active { display:block; }
-
-  /* Encadré d'information */
   .info-box {
     background:#e8f4fd; border-left:4px solid #2980b9;
     padding:15px; margin-bottom:25px; border-radius:6px;
     font-size:14px; color:#1a5276;
   }
-  .info-box strong { color:#1e3c72; }
-
   @media (max-width:600px) { .form-grid { grid-template-columns:1fr; } }
 </style>
 </head>
@@ -137,13 +133,9 @@
 </div>
 
 <script>
-  // ============================================================
-  // ⚠️⚠️⚠️ CONFIGURATION - À MODIFIER ⚠️⚠️⚠️
-  // ============================================================
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
-  const SUPABASE_KEY = "COLLEZ_ICI_VOTRE_CLE_ANON";
-  const FORMSPREE_URL = "https://formspree.io/f/VOTRE_CODE_FORMSPREE";
-  // ============================================================
+  const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
+  const FORMSPREE_URL = "https://formspree.io/f/mbglkyky";
 
   document.getElementById('dateSortie').valueAsDate = new Date();
 
@@ -158,12 +150,6 @@
 
   async function soumettre(e) {
     e.preventDefault();
-
-    if (SUPABASE_URL.includes('VOTRE_URL') || FORMSPREE_URL.includes('VOTRE_CODE')) {
-      afficherMessage("⚠️ Configuration incomplète. Contactez l'administrateur.", 'error');
-      return;
-    }
-
     const btn = document.getElementById('btnSubmit');
     const loader = document.getElementById('loader');
 
@@ -187,11 +173,8 @@
     btn.textContent = '⏳ Envoi en cours...';
     loader.classList.add('active');
 
-    let supabaseOK = false;
-    let formspreeOK = false;
-    let erreurs = [];
+    let supabaseOK = false, formspreeOK = false, erreurs = [];
 
-    // ---------- 1) ENREGISTREMENT DANS SUPABASE ----------
     try {
       const response = await fetch(SUPABASE_URL + '/rest/v1/demandes', {
         method: 'POST',
@@ -203,7 +186,6 @@
         },
         body: JSON.stringify(demande)
       });
-
       if (!response.ok) {
         const errText = await response.text();
         throw new Error('Supabase ' + response.status + ' : ' + errText);
@@ -215,14 +197,10 @@
       erreurs.push('Base de données : ' + err.message);
     }
 
-    // ---------- 2) ENVOI EMAIL VIA FORMSPREE ----------
     try {
       const response = await fetch(FORMSPREE_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
           _subject: `🚗 Nouvelle demande - ${demande.prenom} ${demande.nom} - ${demande.destination}`,
           _replyto: demande.email,
@@ -241,10 +219,7 @@
           "Responsable": demande.responsable || '-'
         })
       });
-
-      if (!response.ok) {
-        throw new Error('Formspree ' + response.status);
-      }
+      if (!response.ok) throw new Error('Formspree ' + response.status);
       formspreeOK = true;
       console.log('✅ Email envoyé via Formspree');
     } catch (err) {
@@ -252,7 +227,6 @@
       erreurs.push('Notification email : ' + err.message);
     }
 
-    // ---------- 3) RÉSULTAT ----------
     if (supabaseOK && formspreeOK) {
       afficherMessage('✅ Votre demande a bien été envoyée au service Logistique. Vous recevrez un email de confirmation avec le chauffeur et le véhicule attribués.', 'success');
       e.target.reset();
@@ -262,7 +236,7 @@
       e.target.reset();
       document.getElementById('dateSortie').valueAsDate = new Date();
     } else {
-      afficherMessage("❌ Erreur d'envoi : " + erreurs.join(' | ') + ". Vérifiez votre connexion internet et réessayez.", 'error');
+      afficherMessage("❌ Erreur d'envoi : " + erreurs.join(' | '), 'error');
     }
 
     btn.disabled = false;

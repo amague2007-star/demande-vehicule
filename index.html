@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Demande de Sortie Véhicule</title>
+<title>ONG ADKOUL - Demande de Sortie Véhicule</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
   body { background:linear-gradient(135deg,#1e3c72,#2a5298); min-height:100vh; padding:20px; }
@@ -17,9 +17,15 @@
   .tab.active { color:#1e3c72; border-bottom-color:#1e3c72; background:#fff; }
   .tab:hover { background:#e8ebef; }
 
-  header { background:#1e3c72; color:#fff; padding:25px; text-align:center; }
-  header h1 { font-size:24px; }
+  header { background:#1e3c72; color:#fff; padding:25px; text-align:center;
+    display:flex; align-items:center; justify-content:center; gap:20px; flex-wrap:wrap; }
+  header img { height:70px; width:70px; object-fit:contain; background:#fff;
+    border-radius:50%; padding:3px; }
+  header .header-text { text-align:left; }
+  header h1 { font-size:22px; }
   header p { font-size:14px; opacity:0.85; margin-top:5px; }
+  header .slogan { font-size:11px; opacity:0.75; margin-top:3px;
+    font-style:italic; letter-spacing:0.5px; }
 
   .content { padding:30px; }
 
@@ -113,6 +119,8 @@
   @media (max-width:600px) {
     .form-grid { grid-template-columns:1fr; }
     .tab { font-size:13px; padding:12px 8px; }
+    header { flex-direction:column; text-align:center; }
+    header .header-text { text-align:center; }
   }
 </style>
 </head>
@@ -120,8 +128,12 @@
 
 <div class="container">
   <header>
-    <h1>🚗 Demande de Sortie Véhicule</h1>
-    <p>Système de demande et suivi logistique</p>
+    <img src="https://amague2007-star.github.io/demande-vehicule/logo.png" alt="Logo ONG ADKOUL" onerror="this.style.display='none'">
+    <div class="header-text">
+      <h1>ONG ADKOUL</h1>
+      <p>Demande de Sortie Véhicule - Service Logistique</p>
+      <p class="slogan">Solidarité • Éducation • Développement</p>
+    </div>
   </header>
 
   <div class="tabs">
@@ -165,7 +177,7 @@
 
           <div class="form-group">
             <label>Email de l'agent <span class="required">*</span></label>
-            <input type="email" id="email" required placeholder="Ex: agent@exemple.com">
+            <input type="email" id="email" required placeholder="Ex: agent@adkoul.org">
           </div>
           <div class="form-group">
             <label>Contact (téléphone)</label>
@@ -218,7 +230,7 @@
       </div>
 
       <div class="search-box">
-        <input type="email" id="searchEmail" placeholder="Votre email (ex: agent@exemple.com)"
+        <input type="email" id="searchEmail" placeholder="Votre email (ex: agent@adkoul.org)"
           onkeypress="if(event.key==='Enter') rechercherDemandes()">
         <button onclick="rechercherDemandes()">🔍 Rechercher</button>
       </div>
@@ -237,6 +249,7 @@
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
   const FORMSPREE_URL = "https://formspree.io/f/mbglkyky";
+  const LOGO_URL = "https://amague2007-star.github.io/demande-vehicule/logo.png";
 
   document.getElementById('dateSortie').valueAsDate = new Date();
 
@@ -299,8 +312,9 @@
         throw new Error('Supabase ' + response.status + ' : ' + errText);
       }
       supabaseOK = true;
+      console.log('✅ Enregistré dans Supabase');
     } catch (err) {
-      console.error('Erreur Supabase:', err);
+      console.error('❌ Erreur Supabase :', err);
       erreurs.push('Base de données : ' + err.message);
     }
 
@@ -329,7 +343,7 @@
       if (!response.ok) throw new Error('Formspree ' + response.status);
       formspreeOK = true;
     } catch (err) {
-      console.error('Erreur Formspree:', err);
+      console.error('❌ Erreur Formspree :', err);
       erreurs.push('Notification email : ' + err.message);
     }
 
@@ -442,7 +456,7 @@
     `;
   }
 
-  // ============ IMPRESSION DU BON DE SORTIE (avec TOUS les champs) ============
+  // ============ IMPRESSION DU BON DE SORTIE ============
   async function imprimerMonBon(id) {
     try {
       const response = await fetch(
@@ -471,25 +485,34 @@
         <html lang="fr">
         <head>
           <meta charset="UTF-8">
-          <title>Bon de Sortie ${numBon}</title>
+          <title>Bon de Sortie ${numBon} - ONG ADKOUL</title>
           <style>
             * { margin:0; padding:0; box-sizing:border-box; font-family:'Arial', sans-serif; }
             body { background:#f0f2f5; padding:20px; }
             .bon { max-width:800px; margin:auto; background:#fff; padding:40px;
               border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.1); }
-            .header { display:flex; justify-content:space-between; align-items:flex-start;
-              border-bottom:3px solid #1e3c72; padding-bottom:20px; margin-bottom:25px; }
-            .header-left h1 { color:#1e3c72; font-size:24px; margin-bottom:5px; }
-            .header-left p { color:#666; font-size:13px; }
+
+            /* EN-TÊTE AVEC LOGO */
+            .header { display:flex; justify-content:space-between; align-items:center;
+              border-bottom:3px solid #1e3c72; padding-bottom:20px; margin-bottom:25px;
+              gap:20px; }
+            .header-logo { display:flex; align-items:center; gap:15px; }
+            .header-logo img { height:80px; width:80px; object-fit:contain; }
+            .header-info h1 { color:#1e3c72; font-size:22px; margin-bottom:3px; }
+            .header-info .subtitle { color:#444; font-size:13px; font-weight:600; }
+            .header-info .slogan { color:#888; font-size:11px; font-style:italic;
+              margin-top:4px; letter-spacing:0.5px; }
             .header-right { text-align:right; }
             .bon-num { font-size:14px; color:#1e3c72; font-weight:bold;
               background:#e8f0fb; padding:8px 15px; border-radius:6px;
               display:inline-block; margin-bottom:8px; }
             .date-creation { font-size:11px; color:#888; display:block; }
+
             .titre-bon { text-align:center; color:#1e3c72; font-size:18px;
               font-weight:bold; letter-spacing:2px; background:#f8f9fb;
               padding:15px; border-radius:6px; margin-bottom:25px;
               border-left:5px solid #1e3c72; }
+
             .section { margin-bottom:20px; }
             .section-titre { background:#1e3c72; color:#fff; padding:8px 15px;
               font-size:13px; font-weight:bold; letter-spacing:1px;
@@ -502,6 +525,7 @@
             .motif-box { background:#f8f9fb; padding:15px; border-radius:6px;
               border-left:4px solid #1e3c72; font-size:13px; color:#333;
               line-height:1.6; white-space:pre-wrap; }
+
             .signatures { display:flex; justify-content:space-between;
               gap:40px; margin-top:50px; }
             .signature-bloc { flex:1; text-align:center; }
@@ -510,13 +534,17 @@
             .signature-sous-titre { font-size:11px; color:#888; margin-bottom:60px; }
             .signature-ligne { border-top:2px solid #333; padding-top:8px;
               font-size:11px; color:#666; min-height:80px; }
+
             .footer { margin-top:40px; padding-top:15px; border-top:1px solid #ddd;
               text-align:center; font-size:10px; color:#999; }
+            .footer strong { color:#1e3c72; }
+
             .btn-print-now { display:block; margin:20px auto 0; background:#1e3c72;
               color:#fff; padding:12px 30px; border:none; border-radius:8px;
               font-size:15px; font-weight:bold; cursor:pointer;
               box-shadow:0 4px 12px rgba(30,60,114,0.3); }
             .btn-print-now:hover { background:#2a5298; }
+
             @media print {
               body { background:#fff; padding:0; }
               .bon { box-shadow:none; padding:20px; }
@@ -528,9 +556,13 @@
         <body>
           <div class="bon">
             <div class="header">
-              <div class="header-left">
-                <h1>🚗 BON DE SORTIE VÉHICULE</h1>
-                <p>Service Logistique — Document officiel</p>
+              <div class="header-logo">
+                <img src="${LOGO_URL}" alt="ONG ADKOUL" onerror="this.style.display='none'">
+                <div class="header-info">
+                  <h1>ONG ADKOUL</h1>
+                  <div class="subtitle">Service Logistique</div>
+                  <div class="slogan">Solidarité • Éducation • Développement</div>
+                </div>
               </div>
               <div class="header-right">
                 <div class="bon-num">N° ${numBon}</div>
@@ -569,7 +601,7 @@
               <div class="ligne"><span class="label">Chauffeur assigné</span><span class="valeur">${d.chauffeur_assigne || '—'}</span></div>
               <div class="ligne"><span class="label">Véhicule assigné</span><span class="valeur">${d.vehicule_assigne || '—'}</span></div>
               <div class="ligne"><span class="label">Nom du responsable (saisi par l'agent)</span><span class="valeur">${d.responsable || '—'}</span></div>
-              <div class="ligne"><span class="label">Validé par</span><span class="valeur">Service Logistique</span></div>
+              <div class="ligne"><span class="label">Validé par</span><span class="valeur">Service Logistique - ONG ADKOUL</span></div>
               <div class="ligne"><span class="label">Date de validation</span><span class="valeur">${validStr}</span></div>
               ${d.message_admin ? `<div class="ligne"><span class="label">Message du service</span><span class="valeur">${d.message_admin}</span></div>` : ''}
             </div>
@@ -588,8 +620,9 @@
             </div>
 
             <div class="footer">
-              Bon de sortie généré automatiquement par le système de gestion logistique<br>
-              Document N° ${numBon} — Toute reproduction non autorisée est interdite
+              <strong>ONG ADKOUL</strong> — Solidarité • Éducation • Développement<br>
+              Bon de sortie N° ${numBon} — Généré automatiquement par le système de gestion logistique<br>
+              Toute reproduction non autorisée est interdite
             </div>
           </div>
 

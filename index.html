@@ -214,7 +214,7 @@
 
           <div class="form-group">
             <label>Nom du responsable à valider</label>
-            <input type="text" id="responsable" placeholder="Ex: M. le Directeur Logistique">
+            <input type="text" id="responsable" placeholder="Ex: M. le Gestionnaire Parc">
           </div>
         </div>
 
@@ -499,7 +499,6 @@
               overflow:hidden;
             }
 
-            /* EN-TÊTE */
             .header { display:flex; justify-content:space-between; align-items:center;
               border-bottom:2px solid #1e3c72; padding-bottom:6px; margin-bottom:8px;
               gap:12px; }
@@ -515,19 +514,16 @@
               display:inline-block; margin-bottom:3px; }
             .date-creation { font-size:8px; color:#888; display:block; }
 
-            /* TITRE */
             .titre-bon { text-align:center; color:#1e3c72; font-size:12px;
               font-weight:bold; letter-spacing:1.5px; background:#f8f9fb;
               padding:5px; border-radius:4px; margin-bottom:8px;
               border-left:3px solid #1e3c72; }
 
-            /* SECTIONS */
             .section { margin-bottom:6px; }
             .section-titre { background:#1e3c72; color:#fff; padding:3px 8px;
               font-size:9.5px; font-weight:bold; letter-spacing:0.8px;
               border-radius:3px; margin-bottom:3px; }
 
-            /* LIGNES 2 COLONNES */
             .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:0 15px; }
             .ligne { display:flex; padding:1.5px 0; border-bottom:1px dotted #e0e0e0;
               font-size:10px; line-height:1.25; }
@@ -536,12 +532,10 @@
             .ligne .valeur { flex:1; color:#111; font-size:10px; font-weight:600;
               word-break:break-word; }
 
-            /* MOTIF */
             .motif-box { background:#f8f9fb; padding:5px 8px; border-radius:3px;
               border-left:3px solid #1e3c72; font-size:9.5px; color:#333;
               line-height:1.3; white-space:pre-wrap; }
 
-            /* SIGNATURES */
             .signatures { display:flex; justify-content:space-between;
               gap:20px; margin-top:auto; padding-top:15px; }
             .signature-bloc { flex:1; text-align:center; }
@@ -550,20 +544,19 @@
             .signature-sous-titre { font-size:8.5px; color:#888; margin-bottom:32px; }
             .signature-ligne { border-top:1px solid #333; padding-top:3px;
               font-size:8px; color:#666; min-height:30px; }
+            /* Bloc sans ligne de signature : juste un espace */
+            .signature-sans-ligne { min-height:60px; }
 
-            /* PIED */
             .footer { margin-top:10px; padding-top:5px; border-top:1px solid #ddd;
               text-align:center; font-size:7.5px; color:#999; line-height:1.3; }
             .footer strong { color:#1e3c72; }
 
-            /* BOUTON IMPRIMER */
             .btn-print-now { display:block; margin:15px auto 30px; background:#1e3c72;
               color:#fff; padding:10px 25px; border:none; border-radius:6px;
               font-size:13px; font-weight:bold; cursor:pointer;
               box-shadow:0 4px 12px rgba(30,60,114,0.3); }
             .btn-print-now:hover { background:#2a5298; }
 
-            /* IMPRESSION A4 */
             @media print {
               html, body { background:#fff; padding:0; margin:0;
                 width:210mm; height:297mm; }
@@ -581,7 +574,6 @@
         <body>
           <div class="bon">
 
-            <!-- EN-TÊTE -->
             <div class="header">
               <div class="header-logo">
                 <img src="${LOGO_URL}" alt="ONG ADKOUL" onerror="this.style.display='none'">
@@ -597,10 +589,8 @@
               </div>
             </div>
 
-            <!-- TITRE -->
             <div class="titre-bon">AUTORISATION DE SORTIE DE VÉHICULE</div>
 
-            <!-- INFORMATIONS AGENT -->
             <div class="section">
               <div class="section-titre">👤 INFORMATIONS DE L'AGENT</div>
               <div class="grid-2">
@@ -613,7 +603,6 @@
               </div>
             </div>
 
-            <!-- DÉTAILS SORTIE -->
             <div class="section">
               <div class="section-titre">📍 DÉTAILS DE LA SORTIE</div>
               <div class="grid-2">
@@ -626,13 +615,11 @@
               </div>
             </div>
 
-            <!-- MOTIF -->
             <div class="section">
               <div class="section-titre">📝 MOTIF / OBJET DE LA SORTIE</div>
               <div class="motif-box">${d.motif}</div>
             </div>
 
-            <!-- AFFECTATION -->
             <div class="section">
               <div class="section-titre">🚗 AFFECTATION</div>
               <div class="grid-2">
@@ -644,7 +631,7 @@
               ${d.message_admin ? `<div class="ligne" style="margin-top:3px;"><span class="label">Message</span><span class="valeur">${d.message_admin}</span></div>` : ''}
             </div>
 
-            <!-- SIGNATURES (poussées vers le bas automatiquement) -->
+            <!-- SIGNATURES -->
             <div class="signatures">
               <div class="signature-bloc">
                 <div class="signature-titre">Signature de l'Agent</div>
@@ -653,12 +640,11 @@
               </div>
               <div class="signature-bloc">
                 <div class="signature-titre">Visa du Service Logistique</div>
-                <div class="signature-sous-titre">Le Responsable Logistique</div>
-                <div class="signature-ligne">Signé le : ____ / ____ / ________</div>
+                <div class="signature-sous-titre">Le Gestionnaire Parc</div>
+                <div class="signature-sans-ligne"></div>
               </div>
             </div>
 
-            <!-- PIED DE PAGE -->
             <div class="footer">
               <strong>ONG ADKOUL</strong> — Solidarité • Éducation • Développement<br>
               Bon de sortie N° ${numBon} — Généré automatiquement — Toute reproduction non autorisée est interdite

@@ -229,7 +229,7 @@
   // Configuration EmailJS
   const EMAILJS_PUBLIC_KEY = "SUbWMSdrTf7JugMrS";
   const EMAILJS_SERVICE_ID = "service_e6k2e76";
-  const EMAILJS_TEMPLATE_ID = "template_264ywqs";
+  const EMAILJS_TEMPLATE_ID = "template_c6oso9u";
 
   // Initialisation EmailJS
   emailjs.init(EMAILJS_PUBLIC_KEY);
@@ -477,40 +477,43 @@
 
 ✅ VOTRE DEMANDE DE SORTIE A ÉTÉ VALIDÉE
 
-📋 DÉTAILS :
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 Détails de la sortie
+────────────────────────
 📅 Date : ${new Date(demande.date_sortie).toLocaleDateString('fr-FR')}
 🕐 Heure de départ : ${demande.heure_depart}
 📍 Destination : ${demande.destination}
 ⏱ Durée estimée : ${demande.duree} minutes
 
-🚗 AFFECTATION :
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚗 Affectation
+────────────────────────
 👤 Chauffeur : ${details.chauffeur}
 🚙 Véhicule : ${details.vehicule}
 
-💬 MESSAGE :
+💬 Message du service
 ${details.message}
 
-Merci de vous présenter au garage 10 minutes avant l'heure de départ.
+⏰ Merci de vous présenter au garage 10 minutes avant l'heure de départ.
 
 Cordialement,
-Service Logistique`;
+Le Service Logistique`;
     } else {
       sujet = `❌ Réponse à votre demande de sortie`;
       corps = `Bonjour ${demande.prenom} ${demande.nom},
 
 ❌ VOTRE DEMANDE DE SORTIE A ÉTÉ REFUSÉE
 
-📋 DEMANDE :
+📋 Demande concernée
+────────────────────────
 📅 Date : ${new Date(demande.date_sortie).toLocaleDateString('fr-FR')}
 📍 Destination : ${demande.destination}
 
-❌ MOTIF DU REFUS :
+❌ Motif du refus
 ${details.motif}
 
+Vous pouvez soumettre une nouvelle demande à tout moment.
+
 Cordialement,
-Service Logistique`;
+Le Service Logistique`;
     }
 
     try {

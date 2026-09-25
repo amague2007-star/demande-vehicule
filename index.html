@@ -312,7 +312,6 @@
         throw new Error('Supabase ' + response.status + ' : ' + errText);
       }
       supabaseOK = true;
-      console.log('✅ Enregistré dans Supabase');
     } catch (err) {
       console.error('❌ Erreur Supabase :', err);
       erreurs.push('Base de données : ' + err.message);
@@ -456,17 +455,12 @@
     `;
   }
 
-  // ============ IMPRESSION DU BON DE SORTIE ============
+  // ============ IMPRESSION DU BON DE SORTIE (UNE SEULE PAGE A4) ============
   async function imprimerMonBon(id) {
     try {
       const response = await fetch(
         SUPABASE_URL + '/rest/v1/demandes?id=eq.' + id,
-        {
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY
-          }
-        }
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
       );
       const data = await response.json();
       if (!data.length) { alert('Demande introuvable.'); return; }
@@ -488,73 +482,88 @@
           <title>Bon de Sortie ${numBon} - ONG ADKOUL</title>
           <style>
             * { margin:0; padding:0; box-sizing:border-box; font-family:'Arial', sans-serif; }
-            body { background:#f0f2f5; padding:20px; }
-            .bon { max-width:800px; margin:auto; background:#fff; padding:40px;
-              border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.1); }
+            body { background:#f0f2f5; padding:10px; }
+            .bon { max-width:800px; margin:auto; background:#fff; padding:18px 22px;
+              border-radius:6px; box-shadow:0 4px 20px rgba(0,0,0,0.1); }
 
-            /* EN-TÊTE AVEC LOGO */
+            /* EN-TÊTE COMPACT */
             .header { display:flex; justify-content:space-between; align-items:center;
-              border-bottom:3px solid #1e3c72; padding-bottom:20px; margin-bottom:25px;
-              gap:20px; }
-            .header-logo { display:flex; align-items:center; gap:15px; }
-            .header-logo img { height:80px; width:80px; object-fit:contain; }
-            .header-info h1 { color:#1e3c72; font-size:22px; margin-bottom:3px; }
-            .header-info .subtitle { color:#444; font-size:13px; font-weight:600; }
-            .header-info .slogan { color:#888; font-size:11px; font-style:italic;
-              margin-top:4px; letter-spacing:0.5px; }
+              border-bottom:2.5px solid #1e3c72; padding-bottom:10px; margin-bottom:12px;
+              gap:15px; }
+            .header-logo { display:flex; align-items:center; gap:12px; }
+            .header-logo img { height:55px; width:55px; object-fit:contain; }
+            .header-info h1 { color:#1e3c72; font-size:19px; margin-bottom:2px; }
+            .header-info .subtitle { color:#444; font-size:11px; font-weight:600; }
+            .header-info .slogan { color:#888; font-size:9px; font-style:italic;
+              margin-top:2px; letter-spacing:0.4px; }
             .header-right { text-align:right; }
-            .bon-num { font-size:14px; color:#1e3c72; font-weight:bold;
-              background:#e8f0fb; padding:8px 15px; border-radius:6px;
-              display:inline-block; margin-bottom:8px; }
-            .date-creation { font-size:11px; color:#888; display:block; }
+            .bon-num { font-size:12px; color:#1e3c72; font-weight:bold;
+              background:#e8f0fb; padding:6px 12px; border-radius:5px;
+              display:inline-block; margin-bottom:5px; }
+            .date-creation { font-size:9px; color:#888; display:block; }
 
-            .titre-bon { text-align:center; color:#1e3c72; font-size:18px;
+            /* TITRE COMPACT */
+            .titre-bon { text-align:center; color:#1e3c72; font-size:14px;
               font-weight:bold; letter-spacing:2px; background:#f8f9fb;
-              padding:15px; border-radius:6px; margin-bottom:25px;
-              border-left:5px solid #1e3c72; }
+              padding:8px; border-radius:5px; margin-bottom:12px;
+              border-left:4px solid #1e3c72; }
 
-            .section { margin-bottom:20px; }
-            .section-titre { background:#1e3c72; color:#fff; padding:8px 15px;
-              font-size:13px; font-weight:bold; letter-spacing:1px;
-              border-radius:4px; margin-bottom:10px; }
-            .ligne { display:flex; padding:7px 0; border-bottom:1px dashed #ddd; }
+            /* SECTIONS COMPACTES */
+            .section { margin-bottom:10px; }
+            .section-titre { background:#1e3c72; color:#fff; padding:5px 10px;
+              font-size:11px; font-weight:bold; letter-spacing:1px;
+              border-radius:3px; margin-bottom:5px; }
+
+            /* LIGNES TRÈS COMPACTES */
+            .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:0 20px; }
+            .ligne { display:flex; padding:3px 0; border-bottom:1px dotted #ddd;
+              font-size:11px; }
             .ligne:last-child { border-bottom:none; }
-            .ligne .label { width:220px; color:#666; font-size:13px; font-weight:500; }
-            .ligne .valeur { flex:1; color:#222; font-size:14px; font-weight:600;
+            .ligne .label { width:130px; color:#666; font-size:11px; font-weight:500; }
+            .ligne .valeur { flex:1; color:#111; font-size:11px; font-weight:600;
               word-break:break-word; }
-            .motif-box { background:#f8f9fb; padding:15px; border-radius:6px;
-              border-left:4px solid #1e3c72; font-size:13px; color:#333;
-              line-height:1.6; white-space:pre-wrap; }
 
+            /* MOTIF */
+            .motif-box { background:#f8f9fb; padding:7px 10px; border-radius:4px;
+              border-left:3px solid #1e3c72; font-size:10.5px; color:#333;
+              line-height:1.4; white-space:pre-wrap; }
+
+            /* SIGNATURES COMPACTES */
             .signatures { display:flex; justify-content:space-between;
-              gap:40px; margin-top:50px; }
+              gap:25px; margin-top:20px; }
             .signature-bloc { flex:1; text-align:center; }
-            .signature-titre { font-size:13px; font-weight:bold; color:#333;
-              margin-bottom:8px; text-transform:uppercase; letter-spacing:1px; }
-            .signature-sous-titre { font-size:11px; color:#888; margin-bottom:60px; }
-            .signature-ligne { border-top:2px solid #333; padding-top:8px;
-              font-size:11px; color:#666; min-height:80px; }
+            .signature-titre { font-size:10.5px; font-weight:bold; color:#333;
+              margin-bottom:4px; text-transform:uppercase; letter-spacing:0.8px; }
+            .signature-sous-titre { font-size:9.5px; color:#888; margin-bottom:35px; }
+            .signature-ligne { border-top:1.5px solid #333; padding-top:4px;
+              font-size:9px; color:#666; min-height:45px; }
 
-            .footer { margin-top:40px; padding-top:15px; border-top:1px solid #ddd;
-              text-align:center; font-size:10px; color:#999; }
+            /* PIED DE PAGE COMPACT */
+            .footer { margin-top:15px; padding-top:8px; border-top:1px solid #ddd;
+              text-align:center; font-size:8.5px; color:#999; line-height:1.4; }
             .footer strong { color:#1e3c72; }
 
-            .btn-print-now { display:block; margin:20px auto 0; background:#1e3c72;
-              color:#fff; padding:12px 30px; border:none; border-radius:8px;
-              font-size:15px; font-weight:bold; cursor:pointer;
+            /* BOUTON IMPRIMER */
+            .btn-print-now { display:block; margin:15px auto 0; background:#1e3c72;
+              color:#fff; padding:10px 25px; border:none; border-radius:6px;
+              font-size:13px; font-weight:bold; cursor:pointer;
               box-shadow:0 4px 12px rgba(30,60,114,0.3); }
             .btn-print-now:hover { background:#2a5298; }
 
+            /* IMPRESSION A4 */
             @media print {
               body { background:#fff; padding:0; }
-              .bon { box-shadow:none; padding:20px; }
+              .bon { box-shadow:none; padding:10mm 12mm; max-width:100%;
+                width:100%; min-height:277mm; }
               .btn-print-now { display:none; }
-              @page { size:A4; margin:15mm; }
+              @page { size:A4; margin:5mm; }
             }
           </style>
         </head>
         <body>
           <div class="bon">
+
+            <!-- EN-TÊTE -->
             <div class="header">
               <div class="header-logo">
                 <img src="${LOGO_URL}" alt="ONG ADKOUL" onerror="this.style.display='none'">
@@ -570,42 +579,54 @@
               </div>
             </div>
 
+            <!-- TITRE -->
             <div class="titre-bon">AUTORISATION DE SORTIE DE VÉHICULE</div>
 
+            <!-- INFORMATIONS AGENT (2 COLONNES) -->
             <div class="section">
               <div class="section-titre">👤 INFORMATIONS DE L'AGENT</div>
-              <div class="ligne"><span class="label">Nom</span><span class="valeur">${d.nom}</span></div>
-              <div class="ligne"><span class="label">Prénom</span><span class="valeur">${d.prenom}</span></div>
-              <div class="ligne"><span class="label">Poste occupé</span><span class="valeur">${d.poste}</span></div>
-              <div class="ligne"><span class="label">Service / Département</span><span class="valeur">${d.service || '—'}</span></div>
-              <div class="ligne"><span class="label">Email</span><span class="valeur">${d.email}</span></div>
-              <div class="ligne"><span class="label">Contact (téléphone)</span><span class="valeur">${d.contact || '—'}</span></div>
+              <div class="grid-2">
+                <div class="ligne"><span class="label">Nom</span><span class="valeur">${d.nom}</span></div>
+                <div class="ligne"><span class="label">Prénom</span><span class="valeur">${d.prenom}</span></div>
+                <div class="ligne"><span class="label">Poste occupé</span><span class="valeur">${d.poste}</span></div>
+                <div class="ligne"><span class="label">Service</span><span class="valeur">${d.service || '—'}</span></div>
+                <div class="ligne"><span class="label">Email</span><span class="valeur">${d.email}</span></div>
+                <div class="ligne"><span class="label">Contact</span><span class="valeur">${d.contact || '—'}</span></div>
+              </div>
             </div>
 
+            <!-- DÉTAILS SORTIE (2 COLONNES) -->
             <div class="section">
               <div class="section-titre">📍 DÉTAILS DE LA SORTIE</div>
-              <div class="ligne"><span class="label">Date de sortie</span><span class="valeur">${dateStr}</span></div>
-              <div class="ligne"><span class="label">Heure de départ</span><span class="valeur">${d.heure_depart}</span></div>
-              <div class="ligne"><span class="label">Destination</span><span class="valeur">${d.destination}</span></div>
-              <div class="ligne"><span class="label">Durée estimée</span><span class="valeur">${d.duree} minutes</span></div>
-              <div class="ligne"><span class="label">Nombre de passagers</span><span class="valeur">${d.passagers || '—'}</span></div>
+              <div class="grid-2">
+                <div class="ligne"><span class="label">Date de sortie</span><span class="valeur">${dateStr}</span></div>
+                <div class="ligne"><span class="label">Heure de départ</span><span class="valeur">${d.heure_depart}</span></div>
+                <div class="ligne"><span class="label">Destination</span><span class="valeur">${d.destination}</span></div>
+                <div class="ligne"><span class="label">Durée estimée</span><span class="valeur">${d.duree} minutes</span></div>
+                <div class="ligne"><span class="label">Passagers</span><span class="valeur">${d.passagers || '—'}</span></div>
+                <div class="ligne"><span class="label">Responsable</span><span class="valeur">${d.responsable || '—'}</span></div>
+              </div>
             </div>
 
+            <!-- MOTIF -->
             <div class="section">
               <div class="section-titre">📝 MOTIF / OBJET DE LA SORTIE</div>
               <div class="motif-box">${d.motif}</div>
             </div>
 
+            <!-- AFFECTATION (2 COLONNES) -->
             <div class="section">
               <div class="section-titre">🚗 AFFECTATION</div>
-              <div class="ligne"><span class="label">Chauffeur assigné</span><span class="valeur">${d.chauffeur_assigne || '—'}</span></div>
-              <div class="ligne"><span class="label">Véhicule assigné</span><span class="valeur">${d.vehicule_assigne || '—'}</span></div>
-              <div class="ligne"><span class="label">Nom du responsable (saisi par l'agent)</span><span class="valeur">${d.responsable || '—'}</span></div>
-              <div class="ligne"><span class="label">Validé par</span><span class="valeur">Service Logistique - ONG ADKOUL</span></div>
-              <div class="ligne"><span class="label">Date de validation</span><span class="valeur">${validStr}</span></div>
-              ${d.message_admin ? `<div class="ligne"><span class="label">Message du service</span><span class="valeur">${d.message_admin}</span></div>` : ''}
+              <div class="grid-2">
+                <div class="ligne"><span class="label">Chauffeur</span><span class="valeur">${d.chauffeur_assigne || '—'}</span></div>
+                <div class="ligne"><span class="label">Véhicule</span><span class="valeur">${d.vehicule_assigne || '—'}</span></div>
+                <div class="ligne"><span class="label">Validé par</span><span class="valeur">Service Logistique</span></div>
+                <div class="ligne"><span class="label">Date de validation</span><span class="valeur">${validStr}</span></div>
+              </div>
+              ${d.message_admin ? `<div class="ligne" style="margin-top:3px;"><span class="label">Message</span><span class="valeur">${d.message_admin}</span></div>` : ''}
             </div>
 
+            <!-- SIGNATURES -->
             <div class="signatures">
               <div class="signature-bloc">
                 <div class="signature-titre">Signature de l'Agent</div>
@@ -619,11 +640,12 @@
               </div>
             </div>
 
+            <!-- PIED DE PAGE -->
             <div class="footer">
               <strong>ONG ADKOUL</strong> — Solidarité • Éducation • Développement<br>
-              Bon de sortie N° ${numBon} — Généré automatiquement par le système de gestion logistique<br>
-              Toute reproduction non autorisée est interdite
+              Bon de sortie N° ${numBon} — Généré automatiquement — Toute reproduction non autorisée est interdite
             </div>
+
           </div>
 
           <button class="btn-print-now" onclick="window.print()">🖨️ Imprimer / Enregistrer en PDF</button>

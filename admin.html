@@ -9,7 +9,6 @@
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
   body { background:#f0f2f5; min-height:100vh; }
 
-  /* LOGIN */
   #loginScreen { display:flex; align-items:center; justify-content:center;
     min-height:100vh; background:linear-gradient(135deg,#1e3c72,#2a5298); }
   .login-box { background:#fff; padding:40px; border-radius:15px;
@@ -28,7 +27,6 @@
   .login-box button:hover { background:#2a5298; }
   .login-error { color:#e74c3c; text-align:center; margin-top:10px; font-size:14px; }
 
-  /* DASHBOARD */
   #dashboard { display:none; }
   header { background:#1e3c72; color:#fff; padding:15px 30px;
     display:flex; justify-content:space-between; align-items:center;
@@ -100,6 +98,13 @@
     font-size:13px; box-shadow:0 4px 12px rgba(44,62,80,0.3); }
   .btn-print-admin:hover { background:#1a252f; transform:translateY(-2px); }
 
+  /* BOUTON WHATSAPP */
+  .btn-whatsapp { background:#25D366; color:#fff; padding:12px 22px;
+    font-size:13px; box-shadow:0 4px 12px rgba(37,211,102,0.4); }
+  .btn-whatsapp:hover { background:#1da851; transform:translateY(-2px); }
+  .btn-whatsapp:disabled { background:#95a5a6; cursor:not-allowed; transform:none;
+    box-shadow:none; opacity:0.7; }
+
   .resultat { padding:14px; border-radius:8px; font-size:14px; margin-bottom:10px; }
   .resultat.validee { background:#d5f4e6; color:#1e8449; border-left:4px solid #27ae60; }
   .resultat.refusee { background:#fadbd8; color:#922b21; border-left:4px solid #e74c3c; }
@@ -143,7 +148,7 @@
 <div id="loginScreen">
   <div class="login-box">
     <div class="login-logo">
-      <img src="https://amague2007-star.github.io/demande-vehicule/logo.webp" alt="ONG ADKOUL" onerror="this.style.display='none'">
+      <img src="https://amague2007-star.github.io/demande-vehicule/logo.png" alt="ONG ADKOUL" onerror="this.style.display='none'">
     </div>
     <h1>ONG ADKOUL</h1>
     <p class="subtitle">Espace Administrateur - Logistique</p>
@@ -159,7 +164,7 @@
 <div id="dashboard">
   <header>
     <div class="header-brand">
-      <img src="https://amague2007-star.github.io/demande-vehicule/logo.webp" alt="ONG ADKOUL" onerror="this.style.display='none'">
+      <img src="https://amague2007-star.github.io/demande-vehicule/logo.png" alt="ONG ADKOUL" onerror="this.style.display='none'">
       <div class="brand-text">
         <h1>ONG ADKOUL — Tableau de bord Logistique</h1>
         <p>Validation des demandes de sortie véhicule</p>
@@ -249,25 +254,67 @@
 
 <script>
   // ============================================================
-  // CONFIGURATION - TOUT EST DÉJÀ REMPLI
+  // CONFIGURATION
   // ============================================================
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
   const ADMIN_PASSWORD = "Logistique2024!";
-  const LOGO_URL = "https://amague2007-star.github.io/demande-vehicule/logo.webp";
+  const LOGO_URL = "https://amague2007-star.github.io/demande-vehicule/logo.png";
 
-  // Configuration EmailJS
   const EMAILJS_PUBLIC_KEY = "SUbWMSdrTf7JugMrS";
   const EMAILJS_SERVICE_ID = "service_e6k2e76";
   const EMAILJS_TEMPLATE_ID = "template_gd96rfl";
 
-  // Initialisation EmailJS
   emailjs.init(EMAILJS_PUBLIC_KEY);
+
+  // ============================================================
+  // NUMÉROS DE TÉLÉPHONE DES CHAUFFEURS
+  // Format international SANS le + (ex: 227XXXXXXXX pour le Niger)
+  // ============================================================
+  const CHAUFFEURS = {
+    "ABAKTOUM": "22789915798",
+    "BACHIR": "22797747561",
+    "GALILE": "22798524300",
+    "HAMAD SALLAH": "22791696980"
+  };
   // ============================================================
 
   let demandeEnCours = null;
   let toutesLesDemandes = [];
 
+  // ============ FUSEAU HORAIRE NIGER (UTC+1) ============
+  function formatNigerDate(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    const nigerDate = new Date(date.getTime() + (60 * 60 * 1000));
+    return nigerDate.toLocaleString('fr-FR', {
+      timeZone: 'UTC',
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  }
+
+  function formatNigerDateShort(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    const nigerDate = new Date(date.getTime() + (60 * 60 * 1000));
+    return nigerDate.toLocaleDateString('fr-FR', {
+      timeZone: 'UTC',
+      day: '2-digit', month: '2-digit', year: 'numeric'
+    });
+  }
+
+  function formatNigerDateLong(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    const nigerDate = new Date(date.getTime() + (60 * 60 * 1000));
+    return nigerDate.toLocaleDateString('fr-FR', {
+      timeZone: 'UTC',
+      weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+    });
+  }
+
+  // ============ AUTHENTIFICATION ============
   function login() {
     if (document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
       sessionStorage.setItem('admin_logged', 'true');
@@ -284,6 +331,7 @@
   }
   if (sessionStorage.getItem('admin_logged') === 'true') afficherDashboard();
 
+  // ============ API SUPABASE ============
   async function apiCall(path, options = {}) {
     const url = SUPABASE_URL + '/rest/v1' + path;
     const headers = {
@@ -332,8 +380,8 @@
     }
 
     container.innerHTML = liste.map(d => {
-      const dateStr = new Date(d.date_sortie).toLocaleDateString('fr-FR');
-      const createdStr = new Date(d.created_at).toLocaleString('fr-FR');
+      const dateStr = formatNigerDateShort(d.date_sortie);
+      const createdStr = formatNigerDate(d.created_at);
 
       let actionsHtml = '';
       let resultatHtml = '';
@@ -344,18 +392,23 @@
           <button class="btn btn-refuser" onclick="ouvrirModalRefuser(${d.id})">❌ Rejeter</button>
         `;
       } else if (d.statut === 'validee') {
+        const aUnNumero = CHAUFFEURS[d.chauffeur_assigne] !== undefined;
         resultatHtml = `<div class="resultat validee">
-          <strong>✅ Validée</strong> le ${d.date_validation ? new Date(d.date_validation).toLocaleString('fr-FR') : '-'}<br>
+          <strong>✅ Validée</strong> le ${formatNigerDate(d.date_validation)} (heure Niger)<br>
           👤 Chauffeur : <strong>${d.chauffeur_assigne || '-'}</strong> |
           🚙 Véhicule : <strong>${d.vehicule_assigne || '-'}</strong>
           ${d.message_admin ? '<br>💬 ' + d.message_admin : ''}
         </div>`;
         actionsHtml = `
           <button class="btn btn-print-admin" onclick="imprimerBonAdmin(${d.id})">🖨️ Imprimer le bon</button>
+          ${aUnNumero 
+            ? `<button class="btn btn-whatsapp" onclick="notifierWhatsApp(${d.id})">💬 Notifier le chauffeur</button>`
+            : `<button class="btn btn-whatsapp" disabled title="Aucun numéro enregistré pour ce chauffeur">💬 Notifier (non configuré)</button>`
+          }
         `;
       } else if (d.statut === 'refusee') {
         resultatHtml = `<div class="resultat refusee">
-          <strong>❌ Refusée</strong> le ${d.date_validation ? new Date(d.date_validation).toLocaleString('fr-FR') : '-'}<br>
+          <strong>❌ Refusée</strong> le ${formatNigerDate(d.date_validation)} (heure Niger)<br>
           Motif : <strong>${d.message_admin || '-'}</strong>
         </div>`;
       }
@@ -381,7 +434,7 @@
           </div>
           <div class="demande-motif"><strong>📝 Motif :</strong> ${d.motif}</div>
           ${resultatHtml}
-          <div style="font-size:12px; color:#999; margin-bottom:12px;">Demande créée le ${createdStr}</div>
+          <div style="font-size:12px; color:#999; margin-bottom:12px;">Demande créée le ${createdStr} (heure Niger)</div>
           <div class="actions">${actionsHtml}</div>
         </div>
       `;
@@ -404,7 +457,7 @@
     demandeEnCours = toutesLesDemandes.find(d => d.id === id);
     if (!demandeEnCours) return;
     document.getElementById('modalValiderInfo').textContent =
-      `${demandeEnCours.prenom} ${demandeEnCours.nom} → ${demandeEnCours.destination} le ${new Date(demandeEnCours.date_sortie).toLocaleDateString('fr-FR')} à ${demandeEnCours.heure_depart}`;
+      `${demandeEnCours.prenom} ${demandeEnCours.nom} → ${demandeEnCours.destination} le ${formatNigerDateShort(demandeEnCours.date_sortie)} à ${demandeEnCours.heure_depart}`;
     document.getElementById('selectChauffeur').value = '';
     document.getElementById('inputChauffeurAutre').value = '';
     document.getElementById('inputChauffeurAutre').style.display = 'none';
@@ -448,7 +501,7 @@
       await envoyerNotification(demandeEnCours, 'validee', {
         chauffeur, vehicule, message: message || 'Votre demande a été validée.'
       });
-      alert('✅ Demande validée et notification envoyée à l\'agent !');
+      alert('✅ Demande validée et email envoyé à l\'agent !\n\n💡 Vous pouvez maintenant cliquer sur le bouton vert 💬 pour notifier le chauffeur via WhatsApp.');
     } catch (err) {
       alert('❌ Erreur : ' + err.message);
     }
@@ -505,14 +558,14 @@
     let sujet, corps;
 
     if (statut === 'validee') {
-      sujet = `✅ DEMANDE VALIDÉE - Sortie du ${new Date(demande.date_sortie).toLocaleDateString('fr-FR')}`;
+      sujet = `✅ DEMANDE VALIDÉE - Sortie du ${formatNigerDateShort(demande.date_sortie)}`;
       corps = `Bonjour ${demande.prenom} ${demande.nom},
 
 ✅ VOTRE DEMANDE DE SORTIE A ÉTÉ VALIDÉE
 
 📋 Détails de la sortie
 ────────────────────────
-📅 Date : ${new Date(demande.date_sortie).toLocaleDateString('fr-FR')}
+📅 Date : ${formatNigerDateShort(demande.date_sortie)}
 🕐 Heure de départ : ${demande.heure_depart}
 📍 Destination : ${demande.destination}
 ⏱ Durée estimée : ${demande.duree} minutes
@@ -538,7 +591,7 @@ Solidarité • Éducation • Développement`;
 
 📋 Demande concernée
 ────────────────────────
-📅 Date : ${new Date(demande.date_sortie).toLocaleDateString('fr-FR')}
+📅 Date : ${formatNigerDateShort(demande.date_sortie)}
 📍 Destination : ${demande.destination}
 
 ❌ Motif du refus
@@ -582,11 +635,9 @@ Solidarité • Éducation • Développement`;
   }
 
   function ouvrirFenetreImpression(d) {
-    const dateStr = new Date(d.date_sortie).toLocaleDateString('fr-FR', {
-      weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
-    });
-    const createdStr = new Date(d.created_at).toLocaleString('fr-FR');
-    const validStr = d.date_validation ? new Date(d.date_validation).toLocaleString('fr-FR') : '-';
+    const dateStr = formatNigerDateLong(d.date_sortie);
+    const createdStr = formatNigerDate(d.created_at);
+    const validStr = formatNigerDate(d.date_validation);
     const numBon = 'BS-' + String(d.id).padStart(5, '0');
 
     const fenetre = window.open('', '_blank');
@@ -598,67 +649,71 @@ Solidarité • Éducation • Développement`;
         <title>Bon de Sortie ${numBon} - ONG ADKOUL</title>
         <style>
           * { margin:0; padding:0; box-sizing:border-box; font-family:'Arial', sans-serif; }
-          body { background:#f0f2f5; padding:20px; }
-          .bon { max-width:800px; margin:auto; background:#fff; padding:40px;
-            border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.1); }
-
+          html, body { background:#f0f2f5; }
+          body { padding:10px; }
+          .bon { width: 194mm; min-height: 273mm; max-height: 273mm;
+            margin: 10px auto; background:#fff; padding: 10mm 12mm;
+            border-radius:6px; box-shadow:0 4px 20px rgba(0,0,0,0.1);
+            display:flex; flex-direction:column; overflow:hidden; }
           .header { display:flex; justify-content:space-between; align-items:center;
-            border-bottom:3px solid #1e3c72; padding-bottom:20px; margin-bottom:25px;
-            gap:20px; }
+            border-bottom:3px solid #1e3c72; padding-bottom:12px; margin-bottom:20px; gap:15px; }
           .header-logo { display:flex; align-items:center; gap:15px; }
-          .header-logo img { height:80px; width:80px; object-fit:contain; }
-          .header-info h1 { color:#1e3c72; font-size:22px; margin-bottom:3px; }
-          .header-info .subtitle { color:#444; font-size:13px; font-weight:600; }
-          .header-info .slogan { color:#888; font-size:11px; font-style:italic;
-            margin-top:4px; letter-spacing:0.5px; }
+          .header-logo img { height:65px; width:65px; object-fit:contain; }
+          .header-info h1 { color:#1e3c72; font-size:20px; margin-bottom:2px; }
+          .header-info .subtitle { color:#444; font-size:12px; font-weight:600; }
+          .header-info .slogan { color:#888; font-size:10px; font-style:italic;
+            margin-top:2px; letter-spacing:0.4px; }
           .header-right { text-align:right; }
-          .bon-num { font-size:14px; color:#1e3c72; font-weight:bold;
-            background:#e8f0fb; padding:8px 15px; border-radius:6px;
-            display:inline-block; margin-bottom:8px; }
-          .date-creation { font-size:11px; color:#888; display:block; }
-
-          .titre-bon { text-align:center; color:#1e3c72; font-size:18px;
+          .bon-num { font-size:13px; color:#1e3c72; font-weight:bold;
+            background:#e8f0fb; padding:6px 14px; border-radius:5px;
+            display:inline-block; margin-bottom:6px; }
+          .date-creation { font-size:9.5px; color:#888; display:block; }
+          .titre-bon { text-align:center; color:#1e3c72; font-size:15px;
             font-weight:bold; letter-spacing:2px; background:#f8f9fb;
-            padding:15px; border-radius:6px; margin-bottom:25px;
-            border-left:5px solid #1e3c72; }
-
-          .section { margin-bottom:20px; }
-          .section-titre { background:#1e3c72; color:#fff; padding:8px 15px;
-            font-size:13px; font-weight:bold; letter-spacing:1px;
-            border-radius:4px; margin-bottom:10px; }
-          .ligne { display:flex; padding:7px 0; border-bottom:1px dashed #ddd; }
+            padding:10px; border-radius:5px; margin-bottom:20px;
+            border-left:4px solid #1e3c72; }
+          .section { margin-bottom:15px; }
+          .section-titre { background:#1e3c72; color:#fff; padding:6px 12px;
+            font-size:11px; font-weight:bold; letter-spacing:1px;
+            border-radius:4px; margin-bottom:8px; }
+          .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:0 20px; }
+          .ligne { display:flex; padding:5px 0; border-bottom:1px dotted #e0e0e0;
+            font-size:11.5px; line-height:1.35; }
           .ligne:last-child { border-bottom:none; }
-          .ligne .label { width:220px; color:#666; font-size:13px; font-weight:500; }
-          .ligne .valeur { flex:1; color:#222; font-size:14px; font-weight:600;
+          .ligne .label { width:130px; color:#666; font-size:11px; font-weight:500; }
+          .ligne .valeur { flex:1; color:#111; font-size:11.5px; font-weight:600;
             word-break:break-word; }
-          .motif-box { background:#f8f9fb; padding:15px; border-radius:6px;
-            border-left:4px solid #1e3c72; font-size:13px; color:#333;
-            line-height:1.6; white-space:pre-wrap; }
-
+          .motif-box { background:#f8f9fb; padding:10px 12px; border-radius:4px;
+            border-left:4px solid #1e3c72; font-size:11px; color:#333;
+            line-height:1.45; white-space:pre-wrap; min-height:50px; }
           .signatures { display:flex; justify-content:space-between;
-            gap:40px; margin-top:50px; }
+            gap:30px; margin-top:40px; }
           .signature-bloc { flex:1; text-align:center; }
-          .signature-titre { font-size:13px; font-weight:bold; color:#333;
-            margin-bottom:8px; text-transform:uppercase; letter-spacing:1px; }
-          .signature-sous-titre { font-size:11px; color:#888; margin-bottom:60px; }
-          .signature-ligne { border-top:2px solid #333; padding-top:8px;
-            font-size:11px; color:#666; min-height:80px; }
-
-          .footer { margin-top:40px; padding-top:15px; border-top:1px solid #ddd;
-            text-align:center; font-size:10px; color:#999; }
+          .signature-titre { font-size:11px; font-weight:bold; color:#333;
+            margin-bottom:5px; text-transform:uppercase; letter-spacing:0.8px; }
+          .signature-sous-titre { font-size:10px; color:#888; margin-bottom:45px; }
+          .signature-ligne { border-top:1.5px solid #333; padding-top:5px;
+            font-size:9.5px; color:#666; min-height:35px; }
+          .signature-sans-ligne { min-height:80px; }
+          .footer { margin-top:auto; padding-top:10px; border-top:1px solid #ddd;
+            text-align:center; font-size:9px; color:#999; line-height:1.4; }
           .footer strong { color:#1e3c72; }
-
-          .btn-print-now { display:block; margin:20px auto 0; background:#1e3c72;
-            color:#fff; padding:12px 30px; border:none; border-radius:8px;
-            font-size:15px; font-weight:bold; cursor:pointer;
+          .btn-print-now { display:block; margin:15px auto 30px; background:#1e3c72;
+            color:#fff; padding:10px 25px; border:none; border-radius:6px;
+            font-size:13px; font-weight:bold; cursor:pointer;
             box-shadow:0 4px 12px rgba(30,60,114,0.3); }
           .btn-print-now:hover { background:#2a5298; }
-
           @media print {
-            body { background:#fff; padding:0; }
-            .bon { box-shadow:none; padding:20px; }
+            html, body { background:#fff; padding:0; margin:0;
+              width:210mm; height:297mm; }
+            .bon { box-shadow:none; margin:0; padding:10mm 12mm;
+              width:210mm; height:297mm;
+              min-height:297mm; max-height:297mm;
+              border-radius:0; overflow:hidden; }
             .btn-print-now { display:none; }
-            @page { size:A4; margin:15mm; }
+            @page { size:A4 portrait; margin:0; }
+            * { -webkit-print-color-adjust:exact !important;
+                print-color-adjust:exact !important; color-adjust:exact !important; }
           }
         </style>
       </head>
@@ -675,46 +730,46 @@ Solidarité • Éducation • Développement`;
             </div>
             <div class="header-right">
               <div class="bon-num">N° ${numBon}</div>
-              <span class="date-creation">Créé le ${createdStr}</span>
+              <span class="date-creation">Créé le ${createdStr} (Niger)</span>
             </div>
           </div>
-
           <div class="titre-bon">AUTORISATION DE SORTIE DE VÉHICULE</div>
-
           <div class="section">
             <div class="section-titre">👤 INFORMATIONS DE L'AGENT</div>
-            <div class="ligne"><span class="label">Nom</span><span class="valeur">${d.nom}</span></div>
-            <div class="ligne"><span class="label">Prénom</span><span class="valeur">${d.prenom}</span></div>
-            <div class="ligne"><span class="label">Poste occupé</span><span class="valeur">${d.poste}</span></div>
-            <div class="ligne"><span class="label">Service / Département</span><span class="valeur">${d.service || '—'}</span></div>
-            <div class="ligne"><span class="label">Email</span><span class="valeur">${d.email}</span></div>
-            <div class="ligne"><span class="label">Contact (téléphone)</span><span class="valeur">${d.contact || '—'}</span></div>
+            <div class="grid-2">
+              <div class="ligne"><span class="label">Nom</span><span class="valeur">${d.nom}</span></div>
+              <div class="ligne"><span class="label">Prénom</span><span class="valeur">${d.prenom}</span></div>
+              <div class="ligne"><span class="label">Poste occupé</span><span class="valeur">${d.poste}</span></div>
+              <div class="ligne"><span class="label">Service</span><span class="valeur">${d.service || '—'}</span></div>
+              <div class="ligne"><span class="label">Email</span><span class="valeur">${d.email}</span></div>
+              <div class="ligne"><span class="label">Contact</span><span class="valeur">${d.contact || '—'}</span></div>
+            </div>
           </div>
-
           <div class="section">
             <div class="section-titre">📍 DÉTAILS DE LA SORTIE</div>
-            <div class="ligne"><span class="label">Date de sortie</span><span class="valeur">${dateStr}</span></div>
-            <div class="ligne"><span class="label">Heure de départ</span><span class="valeur">${d.heure_depart}</span></div>
-            <div class="ligne"><span class="label">Destination</span><span class="valeur">${d.destination}</span></div>
-            <div class="ligne"><span class="label">Durée estimée</span><span class="valeur">${d.duree} minutes</span></div>
-            <div class="ligne"><span class="label">Nombre de passagers</span><span class="valeur">${d.passagers || '—'}</span></div>
+            <div class="grid-2">
+              <div class="ligne"><span class="label">Date de sortie</span><span class="valeur">${dateStr}</span></div>
+              <div class="ligne"><span class="label">Heure départ</span><span class="valeur">${d.heure_depart}</span></div>
+              <div class="ligne"><span class="label">Destination</span><span class="valeur">${d.destination}</span></div>
+              <div class="ligne"><span class="label">Durée estimée</span><span class="valeur">${d.duree} minutes</span></div>
+              <div class="ligne"><span class="label">Passagers</span><span class="valeur">${d.passagers || '—'}</span></div>
+              <div class="ligne"><span class="label">Responsable</span><span class="valeur">${d.responsable || '—'}</span></div>
+            </div>
           </div>
-
           <div class="section">
             <div class="section-titre">📝 MOTIF / OBJET DE LA SORTIE</div>
             <div class="motif-box">${d.motif}</div>
           </div>
-
           <div class="section">
             <div class="section-titre">🚗 AFFECTATION</div>
-            <div class="ligne"><span class="label">Chauffeur assigné</span><span class="valeur">${d.chauffeur_assigne || '—'}</span></div>
-            <div class="ligne"><span class="label">Véhicule assigné</span><span class="valeur">${d.vehicule_assigne || '—'}</span></div>
-            <div class="ligne"><span class="label">Nom du responsable (saisi par l'agent)</span><span class="valeur">${d.responsable || '—'}</span></div>
-            <div class="ligne"><span class="label">Validé par</span><span class="valeur">Service Logistique - ONG ADKOUL</span></div>
-            <div class="ligne"><span class="label">Date de validation</span><span class="valeur">${validStr}</span></div>
-            ${d.message_admin ? `<div class="ligne"><span class="label">Message du service</span><span class="valeur">${d.message_admin}</span></div>` : ''}
+            <div class="grid-2">
+              <div class="ligne"><span class="label">Chauffeur</span><span class="valeur">${d.chauffeur_assigne || '—'}</span></div>
+              <div class="ligne"><span class="label">Véhicule</span><span class="valeur">${d.vehicule_assigne || '—'}</span></div>
+              <div class="ligne"><span class="label">Validé par</span><span class="valeur">Service Logistique</span></div>
+              <div class="ligne"><span class="label">Date validation</span><span class="valeur">${validStr} (Niger)</span></div>
+            </div>
+            ${d.message_admin ? `<div class="ligne" style="margin-top:3px;"><span class="label">Message</span><span class="valeur">${d.message_admin}</span></div>` : ''}
           </div>
-
           <div class="signatures">
             <div class="signature-bloc">
               <div class="signature-titre">Signature de l'Agent</div>
@@ -723,23 +778,72 @@ Solidarité • Éducation • Développement`;
             </div>
             <div class="signature-bloc">
               <div class="signature-titre">Visa du Service Logistique</div>
-              <div class="signature-sous-titre">Le Responsable Logistique</div>
-              <div class="signature-ligne">Signé le : ____ / ____ / ________</div>
+              <div class="signature-sous-titre" style="text-transform: uppercase; font-weight: 600; color: #555;">LE GESTIONNAIRE DE PARC</div>
+              <div class="signature-sans-ligne"></div>
             </div>
           </div>
-
           <div class="footer">
             <strong>ONG ADKOUL</strong> — Solidarité • Éducation • Développement<br>
-            Bon de sortie N° ${numBon} — Généré automatiquement par le système de gestion logistique<br>
-            Toute reproduction non autorisée est interdite
+            Bon de sortie N° ${numBon} — Généré automatiquement — Toute reproduction non autorisée est interdite
           </div>
         </div>
-
         <button class="btn-print-now" onclick="window.print()">🖨️ Imprimer / Enregistrer en PDF</button>
       </body>
       </html>
     `);
     fenetre.document.close();
+  }
+
+  // ============ NOTIFICATION WHATSAPP AU CHAUFFEUR ============
+  function notifierWhatsApp(demandeId) {
+    // 1. Retrouver la demande
+    const d = toutesLesDemandes.find(x => x.id === demandeId);
+    if (!d) {
+      alert('❌ Demande introuvable.');
+      return;
+    }
+
+    // 2. Récupérer le numéro du chauffeur
+    const chauffeur = d.chauffeur_assigne;
+    const telephone = CHAUFFEURS[chauffeur];
+
+    if (!telephone) {
+      alert(`❌ Aucun numéro WhatsApp enregistré pour le chauffeur "${chauffeur}".\n\nAjoutez son numéro dans la liste CHAUFFEURS du fichier admin.html.`);
+      return;
+    }
+
+    // 3. Construire le message
+    const dateStr = formatNigerDateShort(d.date_sortie);
+    const message = `Bonjour ${chauffeur},
+
+🚗 *NOUVELLE MISSION VALIDÉE*
+
+📋 Détails de la sortie :
+━━━━━━━━━━━━━━━━━━━━━━
+📅 Date : ${dateStr}
+🕐 Heure de départ : ${d.heure_depart}
+📍 Destination : ${d.destination}
+⏱ Durée estimée : ${d.duree} minutes
+👥 Passagers : ${d.passagers || 'Non précisé'}
+
+🚙 Véhicule assigné :
+${d.vehicule_assigne || 'À confirmer'}
+
+📝 Motif : ${d.motif}
+
+👤 Agent : ${d.prenom} ${d.nom} (${d.contact || 'contact non précisé'})
+
+⏰ Merci de vous présenter au garage 10 minutes avant l'heure de départ.
+
+_Message automatique - Service Logistique_
+_ONG ADKOUL_`;
+
+    // 4. Encoder pour URL
+    const messageEncode = encodeURIComponent(message);
+    const lienWhatsApp = `https://wa.me/${telephone}?text=${messageEncode}`;
+
+    // 5. Ouvrir WhatsApp
+    window.open(lienWhatsApp, '_blank');
   }
 </script>
 </body>

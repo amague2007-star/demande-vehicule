@@ -77,6 +77,7 @@
   }
   .demande-card.validee { border-left-color:#27ae60; background:#f8fff9; }
   .demande-card.refusee { border-left-color:#e74c3c; background:#fff8f8; }
+  .demande-card.en_attente { border-left-color:#f39c12; }
 
   .demande-card .card-header {
     display:flex; justify-content:space-between; align-items:center;
@@ -110,6 +111,8 @@
     border-left:4px solid #27ae60; }
   .resultat-box.refusee { background:#fadbd8; color:#922b21;
     border-left:4px solid #e74c3c; }
+  .resultat-box.en_attente { background:#fef5e7; color:#d68910;
+    border-left:4px solid #f39c12; }
 
   .empty-state {
     text-align:center; color:#999; padding:50px 20px;
@@ -250,6 +253,42 @@
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
   const FORMSPREE_URL = "https://formspree.io/f/mbglkyky";
   const LOGO_URL = "https://amague2007-star.github.io/demande-vehicule/logo.png";
+
+  // ============================================================
+  // GESTION DU FUSEAU HORAIRE DU NIGER (UTC+1)
+  // ============================================================
+  function formatNigerDate(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    // Convertir en UTC+1 (Niger)
+    const nigerDate = new Date(date.getTime() + (60 * 60 * 1000)); // +1h
+    return nigerDate.toLocaleString('fr-FR', {
+      timeZone: 'UTC',
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  }
+
+  function formatNigerDateShort(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    const nigerDate = new Date(date.getTime() + (60 * 60 * 1000));
+    return nigerDate.toLocaleDateString('fr-FR', {
+      timeZone: 'UTC',
+      day: '2-digit', month: '2-digit', year: 'numeric'
+    });
+  }
+
+  function formatNigerDateLong(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    const nigerDate = new Date(date.getTime() + (60 * 60 * 1000));
+    return nigerDate.toLocaleDateString('fr-FR', {
+      timeZone: 'UTC',
+      weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+    });
+  }
+  // ============================================================
 
   document.getElementById('dateSortie').valueAsDate = new Date();
 
@@ -402,15 +441,23 @@
   }
 
   function afficherCarteDemande(d) {
-    const dateStr = new Date(d.date_sortie).toLocaleDateString('fr-FR');
-    const createdStr = new Date(d.created_at).toLocaleString('fr-FR');
+    const dateStr = formatNigerDateShort(d.date_sortie);
+    const createdStr = formatNigerDate(d.created_at);
+
+    // ⚠️ IMPORTANT : Déterminer le statut réel (défaut = en_attente)
+    let statut = d.statut;
+    if (!statut || (statut !== 'validee' && statut !== 'refusee')) {
+      statut = 'en_attente';
+    }
 
     let resultatHtml = '';
+    let statutBadge = '';
 
-    if (d.statut === 'validee') {
+    if (statut === 'validee') {
+      statutBadge = '✅ Validée';
       resultatHtml = `
         <div class="resultat-box validee">
-          <strong>✅ Validée</strong> le ${d.date_validation ? new Date(d.date_validation).toLocaleString('fr-FR') : '-'}<br>
+          <strong>✅ Validée</strong> le ${formatNigerDate(d.date_validation)} (heure Niger)<br>
           👤 Chauffeur : <strong>${d.chauffeur_assigne || '-'}</strong><br>
           🚙 Véhicule : <strong>${d.vehicule_assigne || '-'}</strong>
           ${d.message_admin ? '<br>💬 ' + d.message_admin : ''}
@@ -419,29 +466,30 @@
           🖨️ Imprimer mon bon de sortie
         </button>
       `;
-    } else if (d.statut === 'refusee') {
+    } else if (statut === 'refusee') {
+      statutBadge = '❌ Refusée';
       resultatHtml = `
         <div class="resultat-box refusee">
-          <strong>❌ Refusée</strong> le ${d.date_validation ? new Date(d.date_validation).toLocaleString('fr-FR') : '-'}<br>
+          <strong>❌ Refusée</strong> le ${formatNigerDate(d.date_validation)} (heure Niger)<br>
           Motif : <strong>${d.message_admin || '-'}</strong>
         </div>
       `;
     } else {
+      // EN ATTENTE (statut par défaut)
+      statutBadge = '⏳ En attente';
       resultatHtml = `
-        <div class="resultat-box" style="background:#fef5e7; color:#d68910; border-left:4px solid #f39c12;">
+        <div class="resultat-box en_attente">
           ⏳ <strong>En attente de validation</strong> par le service Logistique
+          <br><small style="color:#888;">Demande envoyée le ${createdStr} (heure Niger)</small>
         </div>
       `;
     }
 
     return `
-      <div class="demande-card ${d.statut}">
+      <div class="demande-card ${statut}">
         <div class="card-header">
           <h3>📍 ${d.destination}</h3>
-          <span class="badge-statut ${d.statut}">${
-            d.statut === 'en_attente' ? '⏳ En attente' :
-            d.statut === 'validee' ? '✅ Validée' : '❌ Refusée'
-          }</span>
+          <span class="badge-statut ${statut}">${statutBadge}</span>
         </div>
         <p>
           📅 <strong>${dateStr}</strong> à <strong>${d.heure_depart}</strong>
@@ -449,7 +497,6 @@
           ${d.passagers ? '&nbsp;|&nbsp; 👥 ' + d.passagers + ' passager(s)' : ''}
         </p>
         <p>📝 <strong>Motif :</strong> ${d.motif}</p>
-        <p style="font-size:11px; color:#999;">Demande créée le ${createdStr}</p>
         ${resultatHtml}
       </div>
     `;
@@ -466,11 +513,9 @@
       if (!data.length) { alert('Demande introuvable.'); return; }
       const d = data[0];
 
-      const dateStr = new Date(d.date_sortie).toLocaleDateString('fr-FR', {
-        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
-      });
-      const createdStr = new Date(d.created_at).toLocaleString('fr-FR');
-      const validStr = d.date_validation ? new Date(d.date_validation).toLocaleString('fr-FR') : '-';
+      const dateStr = formatNigerDateLong(d.date_sortie);
+      const createdStr = formatNigerDate(d.created_at);
+      const validStr = formatNigerDate(d.date_validation);
       const numBon = 'BS-' + String(d.id).padStart(5, '0');
 
       const fenetre = window.open('', '_blank');
@@ -499,7 +544,6 @@
               overflow:hidden;
             }
 
-            /* EN-TÊTE */
             .header { display:flex; justify-content:space-between; align-items:center;
               border-bottom:3px solid #1e3c72; padding-bottom:12px; margin-bottom:20px;
               gap:15px; }
@@ -515,19 +559,16 @@
               display:inline-block; margin-bottom:6px; }
             .date-creation { font-size:9.5px; color:#888; display:block; }
 
-            /* TITRE */
             .titre-bon { text-align:center; color:#1e3c72; font-size:15px;
               font-weight:bold; letter-spacing:2px; background:#f8f9fb;
               padding:10px; border-radius:5px; margin-bottom:20px;
               border-left:4px solid #1e3c72; }
 
-            /* SECTIONS */
             .section { margin-bottom:15px; }
             .section-titre { background:#1e3c72; color:#fff; padding:6px 12px;
               font-size:11px; font-weight:bold; letter-spacing:1px;
               border-radius:4px; margin-bottom:8px; }
 
-            /* LIGNES */
             .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:0 20px; }
             .ligne { display:flex; padding:5px 0; border-bottom:1px dotted #e0e0e0;
               font-size:11.5px; line-height:1.35; }
@@ -536,12 +577,10 @@
             .ligne .valeur { flex:1; color:#111; font-size:11.5px; font-weight:600;
               word-break:break-word; }
 
-            /* MOTIF */
             .motif-box { background:#f8f9fb; padding:10px 12px; border-radius:4px;
               border-left:4px solid #1e3c72; font-size:11px; color:#333;
               line-height:1.45; white-space:pre-wrap; min-height:50px; }
 
-            /* SIGNATURES */
             .signatures { display:flex; justify-content:space-between;
               gap:30px; margin-top:40px; padding-top:0; }
             .signature-bloc { flex:1; text-align:center; }
@@ -552,19 +591,16 @@
               font-size:9.5px; color:#666; min-height:35px; }
             .signature-sans-ligne { min-height:80px; }
 
-            /* PIED */
             .footer { margin-top:auto; padding-top:10px; border-top:1px solid #ddd;
               text-align:center; font-size:9px; color:#999; line-height:1.4; }
             .footer strong { color:#1e3c72; }
 
-            /* BOUTON */
             .btn-print-now { display:block; margin:15px auto 30px; background:#1e3c72;
               color:#fff; padding:10px 25px; border:none; border-radius:6px;
               font-size:13px; font-weight:bold; cursor:pointer;
               box-shadow:0 4px 12px rgba(30,60,114,0.3); }
             .btn-print-now:hover { background:#2a5298; }
 
-            /* IMPRESSION A4 */
             @media print {
               html, body { background:#fff; padding:0; margin:0;
                 width:210mm; height:297mm; }
@@ -593,7 +629,7 @@
               </div>
               <div class="header-right">
                 <div class="bon-num">N° ${numBon}</div>
-                <span class="date-creation">Créé le ${createdStr}</span>
+                <span class="date-creation">Créé le ${createdStr} (Niger)</span>
               </div>
             </div>
 
@@ -634,12 +670,11 @@
                 <div class="ligne"><span class="label">Chauffeur</span><span class="valeur">${d.chauffeur_assigne || '—'}</span></div>
                 <div class="ligne"><span class="label">Véhicule</span><span class="valeur">${d.vehicule_assigne || '—'}</span></div>
                 <div class="ligne"><span class="label">Validé par</span><span class="valeur">Service Logistique</span></div>
-                <div class="ligne"><span class="label">Date validation</span><span class="valeur">${validStr}</span></div>
+                <div class="ligne"><span class="label">Date validation</span><span class="valeur">${validStr} (Niger)</span></div>
               </div>
               ${d.message_admin ? `<div class="ligne" style="margin-top:3px;"><span class="label">Message</span><span class="valeur">${d.message_admin}</span></div>` : ''}
             </div>
 
-            <!-- SIGNATURES -->
             <div class="signatures">
               <div class="signature-bloc">
                 <div class="signature-titre">Signature de l'Agent</div>

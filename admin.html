@@ -3,18 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin - Validation des Demandes</title>
+<title>Admin - ONG ADKOUL - Validation des Demandes</title>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
   body { background:#f0f2f5; min-height:100vh; }
 
+  /* LOGIN */
   #loginScreen { display:flex; align-items:center; justify-content:center;
     min-height:100vh; background:linear-gradient(135deg,#1e3c72,#2a5298); }
   .login-box { background:#fff; padding:40px; border-radius:15px;
     box-shadow:0 20px 60px rgba(0,0,0,0.3); max-width:420px; width:90%; }
-  .login-box h1 { color:#1e3c72; text-align:center; margin-bottom:10px; }
-  .login-box p { text-align:center; color:#666; margin-bottom:25px; font-size:14px; }
+  .login-logo { text-align:center; margin-bottom:20px; }
+  .login-logo img { height:90px; width:90px; object-fit:contain; }
+  .login-box h1 { color:#1e3c72; text-align:center; margin-bottom:5px; font-size:22px; }
+  .login-box .subtitle { text-align:center; color:#666; margin-bottom:8px; font-size:14px; }
+  .login-box .slogan { text-align:center; color:#999; margin-bottom:25px;
+    font-size:11px; font-style:italic; letter-spacing:0.5px; }
   .login-box input { width:100%; padding:13px; border:2px solid #e0e0e0;
     border-radius:8px; margin-bottom:15px; font-size:15px; }
   .login-box input:focus { outline:none; border-color:#1e3c72; }
@@ -23,11 +28,16 @@
   .login-box button:hover { background:#2a5298; }
   .login-error { color:#e74c3c; text-align:center; margin-top:10px; font-size:14px; }
 
+  /* DASHBOARD */
   #dashboard { display:none; }
-  header { background:#1e3c72; color:#fff; padding:20px 30px;
+  header { background:#1e3c72; color:#fff; padding:15px 30px;
     display:flex; justify-content:space-between; align-items:center;
     flex-wrap:wrap; gap:10px; }
-  header h1 { font-size:19px; }
+  header .header-brand { display:flex; align-items:center; gap:15px; }
+  header img { height:50px; width:50px; object-fit:contain; background:#fff;
+    border-radius:50%; padding:3px; }
+  header .brand-text h1 { font-size:17px; margin-bottom:2px; }
+  header .brand-text p { font-size:12px; opacity:0.85; }
   .logout-btn { background:#e74c3c; color:#fff; border:none;
     padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; }
 
@@ -86,6 +96,9 @@
   .btn-suppr { background:#95a5a6; color:#fff; padding:8px 14px;
     font-size:12px; margin-left:auto; }
   .btn-suppr:hover { background:#7f8c8d; }
+  .btn-print-admin { background:#2c3e50; color:#fff; padding:12px 22px;
+    font-size:13px; box-shadow:0 4px 12px rgba(44,62,80,0.3); }
+  .btn-print-admin:hover { background:#1a252f; transform:translateY(-2px); }
 
   .resultat { padding:14px; border-radius:8px; font-size:14px; margin-bottom:10px; }
   .resultat.validee { background:#d5f4e6; color:#1e8449; border-left:4px solid #27ae60; }
@@ -115,16 +128,26 @@
     font-style:italic; font-size:15px; background:#fff; border-radius:12px; }
   .loading { text-align:center; padding:40px; color:#666; }
 
-  @media (max-width:600px) { .btn { padding:12px 20px; font-size:14px; } }
+  @media (max-width:600px) {
+    .btn { padding:12px 20px; font-size:14px; }
+    header { padding:12px 15px; }
+    header .brand-text h1 { font-size:14px; }
+    header .brand-text p { font-size:11px; }
+    header img { height:40px; width:40px; }
+  }
 </style>
 </head>
 <body>
 
-<!-- CONNEXION -->
+<!-- LOGIN -->
 <div id="loginScreen">
   <div class="login-box">
-    <h1>🔐 Admin Logistique</h1>
-    <p>Espace réservé à l'administrateur</p>
+    <div class="login-logo">
+      <img src="https://amague2007-star.github.io/demande-vehicule/logo.png" alt="ONG ADKOUL" onerror="this.style.display='none'">
+    </div>
+    <h1>ONG ADKOUL</h1>
+    <p class="subtitle">Espace Administrateur - Logistique</p>
+    <p class="slogan">Solidarité • Éducation • Développement</p>
     <input type="password" id="adminPassword" placeholder="Mot de passe"
       onkeypress="if(event.key==='Enter') login()">
     <button onclick="login()">Se connecter</button>
@@ -135,7 +158,13 @@
 <!-- DASHBOARD -->
 <div id="dashboard">
   <header>
-    <h1>🚗 Tableau de bord - Validation des demandes</h1>
+    <div class="header-brand">
+      <img src="https://amague2007-star.github.io/demande-vehicule/logo.png" alt="ONG ADKOUL" onerror="this.style.display='none'">
+      <div class="brand-text">
+        <h1>ONG ADKOUL — Tableau de bord Logistique</h1>
+        <p>Validation des demandes de sortie véhicule</p>
+      </div>
+    </div>
     <button class="logout-btn" onclick="logout()">Déconnexion</button>
   </header>
 
@@ -225,6 +254,7 @@
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
   const ADMIN_PASSWORD = "Logistique2024!";
+  const LOGO_URL = "https://amague2007-star.github.io/demande-vehicule/logo.png";
 
   // Configuration EmailJS
   const EMAILJS_PUBLIC_KEY = "SUbWMSdrTf7JugMrS";
@@ -320,6 +350,9 @@
           🚙 Véhicule : <strong>${d.vehicule_assigne || '-'}</strong>
           ${d.message_admin ? '<br>💬 ' + d.message_admin : ''}
         </div>`;
+        actionsHtml = `
+          <button class="btn btn-print-admin" onclick="imprimerBonAdmin(${d.id})">🖨️ Imprimer le bon</button>
+        `;
       } else if (d.statut === 'refusee') {
         resultatHtml = `<div class="resultat refusee">
           <strong>❌ Refusée</strong> le ${d.date_validation ? new Date(d.date_validation).toLocaleString('fr-FR') : '-'}<br>
@@ -495,7 +528,8 @@ ${details.message}
 ⏰ Merci de vous présenter au garage 10 minutes avant l'heure de départ.
 
 Cordialement,
-Le Service Logistique`;
+Service Logistique - ONG ADKOUL
+Solidarité • Éducation • Développement`;
     } else {
       sujet = `❌ Réponse à votre demande de sortie`;
       corps = `Bonjour ${demande.prenom} ${demande.nom},
@@ -513,7 +547,8 @@ ${details.motif}
 Vous pouvez soumettre une nouvelle demande à tout moment.
 
 Cordialement,
-Le Service Logistique`;
+Service Logistique - ONG ADKOUL
+Solidarité • Éducation • Développement`;
     }
 
     try {
@@ -528,6 +563,183 @@ Le Service Logistique`;
       console.error('❌ Erreur envoi email :', err);
       alert('⚠️ La demande a été enregistrée mais l\'email n\'a pas pu être envoyé.\n\nDétail : ' + (err.text || err.message || JSON.stringify(err)));
     }
+  }
+
+  // ============ IMPRESSION DU BON (côté admin) ============
+  async function imprimerBonAdmin(id) {
+    try {
+      const response = await fetch(
+        SUPABASE_URL + '/rest/v1/demandes?id=eq.' + id,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
+      );
+      const data = await response.json();
+      if (!data.length) { alert('Demande introuvable.'); return; }
+      const d = data[0];
+      ouvrirFenetreImpression(d);
+    } catch (err) {
+      alert('❌ Erreur : ' + err.message);
+    }
+  }
+
+  function ouvrirFenetreImpression(d) {
+    const dateStr = new Date(d.date_sortie).toLocaleDateString('fr-FR', {
+      weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+    });
+    const createdStr = new Date(d.created_at).toLocaleString('fr-FR');
+    const validStr = d.date_validation ? new Date(d.date_validation).toLocaleString('fr-FR') : '-';
+    const numBon = 'BS-' + String(d.id).padStart(5, '0');
+
+    const fenetre = window.open('', '_blank');
+    fenetre.document.write(`
+      <!DOCTYPE html>
+      <html lang="fr">
+      <head>
+        <meta charset="UTF-8">
+        <title>Bon de Sortie ${numBon} - ONG ADKOUL</title>
+        <style>
+          * { margin:0; padding:0; box-sizing:border-box; font-family:'Arial', sans-serif; }
+          body { background:#f0f2f5; padding:20px; }
+          .bon { max-width:800px; margin:auto; background:#fff; padding:40px;
+            border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.1); }
+
+          .header { display:flex; justify-content:space-between; align-items:center;
+            border-bottom:3px solid #1e3c72; padding-bottom:20px; margin-bottom:25px;
+            gap:20px; }
+          .header-logo { display:flex; align-items:center; gap:15px; }
+          .header-logo img { height:80px; width:80px; object-fit:contain; }
+          .header-info h1 { color:#1e3c72; font-size:22px; margin-bottom:3px; }
+          .header-info .subtitle { color:#444; font-size:13px; font-weight:600; }
+          .header-info .slogan { color:#888; font-size:11px; font-style:italic;
+            margin-top:4px; letter-spacing:0.5px; }
+          .header-right { text-align:right; }
+          .bon-num { font-size:14px; color:#1e3c72; font-weight:bold;
+            background:#e8f0fb; padding:8px 15px; border-radius:6px;
+            display:inline-block; margin-bottom:8px; }
+          .date-creation { font-size:11px; color:#888; display:block; }
+
+          .titre-bon { text-align:center; color:#1e3c72; font-size:18px;
+            font-weight:bold; letter-spacing:2px; background:#f8f9fb;
+            padding:15px; border-radius:6px; margin-bottom:25px;
+            border-left:5px solid #1e3c72; }
+
+          .section { margin-bottom:20px; }
+          .section-titre { background:#1e3c72; color:#fff; padding:8px 15px;
+            font-size:13px; font-weight:bold; letter-spacing:1px;
+            border-radius:4px; margin-bottom:10px; }
+          .ligne { display:flex; padding:7px 0; border-bottom:1px dashed #ddd; }
+          .ligne:last-child { border-bottom:none; }
+          .ligne .label { width:220px; color:#666; font-size:13px; font-weight:500; }
+          .ligne .valeur { flex:1; color:#222; font-size:14px; font-weight:600;
+            word-break:break-word; }
+          .motif-box { background:#f8f9fb; padding:15px; border-radius:6px;
+            border-left:4px solid #1e3c72; font-size:13px; color:#333;
+            line-height:1.6; white-space:pre-wrap; }
+
+          .signatures { display:flex; justify-content:space-between;
+            gap:40px; margin-top:50px; }
+          .signature-bloc { flex:1; text-align:center; }
+          .signature-titre { font-size:13px; font-weight:bold; color:#333;
+            margin-bottom:8px; text-transform:uppercase; letter-spacing:1px; }
+          .signature-sous-titre { font-size:11px; color:#888; margin-bottom:60px; }
+          .signature-ligne { border-top:2px solid #333; padding-top:8px;
+            font-size:11px; color:#666; min-height:80px; }
+
+          .footer { margin-top:40px; padding-top:15px; border-top:1px solid #ddd;
+            text-align:center; font-size:10px; color:#999; }
+          .footer strong { color:#1e3c72; }
+
+          .btn-print-now { display:block; margin:20px auto 0; background:#1e3c72;
+            color:#fff; padding:12px 30px; border:none; border-radius:8px;
+            font-size:15px; font-weight:bold; cursor:pointer;
+            box-shadow:0 4px 12px rgba(30,60,114,0.3); }
+          .btn-print-now:hover { background:#2a5298; }
+
+          @media print {
+            body { background:#fff; padding:0; }
+            .bon { box-shadow:none; padding:20px; }
+            .btn-print-now { display:none; }
+            @page { size:A4; margin:15mm; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="bon">
+          <div class="header">
+            <div class="header-logo">
+              <img src="${LOGO_URL}" alt="ONG ADKOUL" onerror="this.style.display='none'">
+              <div class="header-info">
+                <h1>ONG ADKOUL</h1>
+                <div class="subtitle">Service Logistique</div>
+                <div class="slogan">Solidarité • Éducation • Développement</div>
+              </div>
+            </div>
+            <div class="header-right">
+              <div class="bon-num">N° ${numBon}</div>
+              <span class="date-creation">Créé le ${createdStr}</span>
+            </div>
+          </div>
+
+          <div class="titre-bon">AUTORISATION DE SORTIE DE VÉHICULE</div>
+
+          <div class="section">
+            <div class="section-titre">👤 INFORMATIONS DE L'AGENT</div>
+            <div class="ligne"><span class="label">Nom</span><span class="valeur">${d.nom}</span></div>
+            <div class="ligne"><span class="label">Prénom</span><span class="valeur">${d.prenom}</span></div>
+            <div class="ligne"><span class="label">Poste occupé</span><span class="valeur">${d.poste}</span></div>
+            <div class="ligne"><span class="label">Service / Département</span><span class="valeur">${d.service || '—'}</span></div>
+            <div class="ligne"><span class="label">Email</span><span class="valeur">${d.email}</span></div>
+            <div class="ligne"><span class="label">Contact (téléphone)</span><span class="valeur">${d.contact || '—'}</span></div>
+          </div>
+
+          <div class="section">
+            <div class="section-titre">📍 DÉTAILS DE LA SORTIE</div>
+            <div class="ligne"><span class="label">Date de sortie</span><span class="valeur">${dateStr}</span></div>
+            <div class="ligne"><span class="label">Heure de départ</span><span class="valeur">${d.heure_depart}</span></div>
+            <div class="ligne"><span class="label">Destination</span><span class="valeur">${d.destination}</span></div>
+            <div class="ligne"><span class="label">Durée estimée</span><span class="valeur">${d.duree} minutes</span></div>
+            <div class="ligne"><span class="label">Nombre de passagers</span><span class="valeur">${d.passagers || '—'}</span></div>
+          </div>
+
+          <div class="section">
+            <div class="section-titre">📝 MOTIF / OBJET DE LA SORTIE</div>
+            <div class="motif-box">${d.motif}</div>
+          </div>
+
+          <div class="section">
+            <div class="section-titre">🚗 AFFECTATION</div>
+            <div class="ligne"><span class="label">Chauffeur assigné</span><span class="valeur">${d.chauffeur_assigne || '—'}</span></div>
+            <div class="ligne"><span class="label">Véhicule assigné</span><span class="valeur">${d.vehicule_assigne || '—'}</span></div>
+            <div class="ligne"><span class="label">Nom du responsable (saisi par l'agent)</span><span class="valeur">${d.responsable || '—'}</span></div>
+            <div class="ligne"><span class="label">Validé par</span><span class="valeur">Service Logistique - ONG ADKOUL</span></div>
+            <div class="ligne"><span class="label">Date de validation</span><span class="valeur">${validStr}</span></div>
+            ${d.message_admin ? `<div class="ligne"><span class="label">Message du service</span><span class="valeur">${d.message_admin}</span></div>` : ''}
+          </div>
+
+          <div class="signatures">
+            <div class="signature-bloc">
+              <div class="signature-titre">Signature de l'Agent</div>
+              <div class="signature-sous-titre">${d.prenom} ${d.nom}</div>
+              <div class="signature-ligne">Signé le : ____ / ____ / ________</div>
+            </div>
+            <div class="signature-bloc">
+              <div class="signature-titre">Visa du Service Logistique</div>
+              <div class="signature-sous-titre">Le Responsable Logistique</div>
+              <div class="signature-ligne">Signé le : ____ / ____ / ________</div>
+            </div>
+          </div>
+
+          <div class="footer">
+            <strong>ONG ADKOUL</strong> — Solidarité • Éducation • Développement<br>
+            Bon de sortie N° ${numBon} — Généré automatiquement par le système de gestion logistique<br>
+            Toute reproduction non autorisée est interdite
+          </div>
+        </div>
+
+        <button class="btn-print-now" onclick="window.print()">🖨️ Imprimer / Enregistrer en PDF</button>
+      </body>
+      </html>
+    `);
+    fenetre.document.close();
   }
 </script>
 </body>

@@ -38,6 +38,7 @@
     font-size:14px; transition:0.2s; outline:none; font-family:inherit; }
   input:focus,select:focus,textarea:focus { border-color:#2a5298;
     box-shadow:0 0 0 3px rgba(42,82,152,0.15); }
+  input[readonly] { background:#f0f2f5; color:#555; cursor:not-allowed; font-weight:600; }
   textarea { resize:vertical; min-height:80px; }
   .btn-primary { background:#1e3c72; color:#fff; width:100%; margin-top:20px;
     padding:14px; border:none; border-radius:8px; font-size:16px;
@@ -46,7 +47,7 @@
     box-shadow:0 5px 15px rgba(30,60,114,0.3); }
   .btn-primary:disabled { background:#95a5a6; cursor:not-allowed; transform:none; }
   .message { padding:15px; border-radius:8px; margin-bottom:20px;
-    display:none; font-weight:600; }
+    display:none; font-weight:600; white-space:pre-line; }
   .message.success { background:#d4edda; color:#155724;
     border:2px solid #c3e6cb; display:block; }
   .message.error { background:#f8d7da; color:#721c24;
@@ -61,6 +62,8 @@
     padding:15px; margin-bottom:25px; border-radius:6px;
     font-size:14px; color:#1a5276;
   }
+  .field-hint { color:#888; font-size:11px; margin-top:4px; }
+  #infoDelai { margin-top:6px; font-size:12px; font-weight:600; }
 
   .search-box { display:flex; gap:10px; margin-bottom:25px; flex-wrap:wrap; }
   .search-box input {
@@ -155,7 +158,8 @@
       <div id="messageBox" class="message"></div>
 
       <div class="info-box">
-        💡 <strong>Information :</strong> Le véhicule et le chauffeur seront attribués par le service Logistique après validation de votre demande. Vous recevrez un email de confirmation.
+        💡 <strong>Information :</strong> Le véhicule et le chauffeur seront attribués par le service Logistique après validation de votre demande. Vous recevrez un email de confirmation.<br>
+        ⏰ <strong>Rappel :</strong> votre demande doit être soumise <strong>au moins 1 heure avant</strong> l'heure de sortie prévue. Durée maximale : <strong>60 minutes</strong>.
       </div>
 
       <form id="formDemande" onsubmit="soumettre(event)">
@@ -194,6 +198,7 @@
           <div class="form-group">
             <label>Heure de départ <span class="required">*</span></label>
             <input type="time" id="heureDepart" required>
+            <div id="infoDelai"></div>
           </div>
 
           <div class="form-group">
@@ -202,7 +207,8 @@
           </div>
           <div class="form-group">
             <label>Durée estimée (minutes) <span class="required">*</span></label>
-            <input type="number" id="duree" required min="1" placeholder="Ex: 120">
+            <input type="number" id="duree" required min="5" max="60" placeholder="Entre 5 et 60 minutes">
+            <small class="field-hint">⚠️ Maximum 60 minutes (1 heure)</small>
           </div>
 
           <div class="form-group full">
@@ -216,8 +222,8 @@
           </div>
 
           <div class="form-group">
-            <label>Nom du responsable à valider</label>
-            <input type="text" id="responsable" placeholder="Ex: M. le Directeur">
+            <label>Responsable de validation</label>
+            <input type="text" id="responsable" readonly>
           </div>
         </div>
 
@@ -255,13 +261,17 @@
   const LOGO_URL = "https://amague2007-star.github.io/demande-vehicule/logo.png";
 
   // ============================================================
+  // RESPONSABLE FIXE (non modifiable)
+  // ============================================================
+  const RESPONSABLE_FIXE = "ABDOUL AZIZ ADAM";
+
+  // ============================================================
   // GESTION DU FUSEAU HORAIRE DU NIGER (UTC+1)
   // ============================================================
   function formatNigerDate(dateStr) {
     if (!dateStr) return '-';
     const date = new Date(dateStr);
-    // Convertir en UTC+1 (Niger)
-    const nigerDate = new Date(date.getTime() + (60 * 60 * 1000)); // +1h
+    const nigerDate = new Date(date.getTime() + (60 * 60 * 1000));
     return nigerDate.toLocaleString('fr-FR', {
       timeZone: 'UTC',
       day: '2-digit', month: '2-digit', year: 'numeric',
@@ -291,6 +301,7 @@
   // ============================================================
 
   document.getElementById('dateSortie').valueAsDate = new Date();
+  document.getElementById('responsable').value = RESPONSABLE_FIXE;
 
   function switchTab(tab, event) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -310,9 +321,54 @@
 
   async function soumettre(e) {
     e.preventDefault();
-    const btn = document.getElementById('btnSubmit');
-    const loader = document.getElementById('loader');
 
+    // ═══════════════════════════════════════════════════════════
+    // VALIDATION 1 : Durée max 60 min / min 5 min
+    // ═══════════════════════════════════════════════════════════
+    const dureeSaisie = parseInt(val('duree'));
+    if (isNaN(dureeSaisie) || dureeSaisie < 5) {
+      afficherMessage('❌ La durée minimale est de 5 minutes.', 'error');
+      return;
+    }
+    if (dureeSaisie > 60) {
+      afficherMessage('❌ La durée estimée ne peut pas dépasser 60 minutes (1 heure).\n\nVeuillez réduire la durée ou fractionner votre demande.', 'error');
+      return;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // VALIDATION 2 : Délai minimum 1h avant la sortie
+    // ═══════════════════════════════════════════════════════════
+    const dateVal = val('dateSortie');
+    const heureVal = val('heureDepart');
+
+    if (!dateVal || !heureVal) {
+      afficherMessage('❌ Veuillez renseigner la date et l\'heure de sortie.', 'error');
+      return;
+    }
+
+    const maintenant = new Date();
+    const dateHeureSortie = new Date(dateVal + 'T' + heureVal + ':00');
+    const diffMinutes = (dateHeureSortie - maintenant) / (1000 * 60);
+
+    if (diffMinutes < 0) {
+      afficherMessage('❌ La date et l\'heure de sortie sont déjà passées.\n\nVeuillez choisir une date/heure future.', 'error');
+      return;
+    }
+
+    if (diffMinutes < 60) {
+      const heureActuelle = maintenant.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+      afficherMessage(`❌ Votre demande doit être soumise au moins 1 heure avant l'heure de sortie prévue.
+
+⏰ Il ne reste que ${Math.round(diffMinutes)} minute(s) avant la sortie demandée.
+🕐 Heure actuelle : ${heureActuelle} (Niger)
+
+Veuillez choisir une heure de départ au moins 1 heure après maintenant.`, 'error');
+      return;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // CONSTRUCTION DE LA DEMANDE
+    // ═══════════════════════════════════════════════════════════
     const demande = {
       nom: val('nom'),
       prenom: val('prenom'),
@@ -320,14 +376,17 @@
       service: val('service'),
       email: val('email').toLowerCase(),
       contact: val('contact'),
-      date_sortie: val('dateSortie'),
-      heure_depart: val('heureDepart'),
+      date_sortie: dateVal,
+      heure_depart: heureVal,
       destination: val('destination'),
-      duree: parseInt(val('duree')),
+      duree: dureeSaisie,
       passagers: val('passagers') ? parseInt(val('passagers')) : null,
       motif: val('motif'),
-      responsable: val('responsable')
+      responsable: RESPONSABLE_FIXE
     };
+
+    const btn = document.getElementById('btnSubmit');
+    const loader = document.getElementById('loader');
 
     btn.disabled = true;
     btn.textContent = '⏳ Envoi en cours...';
@@ -375,7 +434,7 @@
           "Durée (min)": demande.duree,
           "Passagers": demande.passagers || '-',
           "Motif": demande.motif,
-          "Responsable": demande.responsable || '-'
+          "Responsable": demande.responsable
         })
       });
       if (!response.ok) throw new Error('Formspree ' + response.status);
@@ -386,13 +445,17 @@
     }
 
     if (supabaseOK && formspreeOK) {
-      afficherMessage('✅ Votre demande a bien été envoyée au service Logistique. Vous recevrez un email après validation. Vous pouvez suivre son statut dans l\'onglet "📋 Suivre mes demandes".', 'success');
+      afficherMessage('✅ Votre demande a bien été envoyée au service Logistique.\n\nVous recevrez un email après validation.\nVous pouvez suivre son statut dans l\'onglet "📋 Suivre mes demandes".', 'success');
       e.target.reset();
       document.getElementById('dateSortie').valueAsDate = new Date();
+      document.getElementById('responsable').value = RESPONSABLE_FIXE;
+      document.getElementById('infoDelai').textContent = '';
     } else if (supabaseOK && !formspreeOK) {
       afficherMessage("⚠️ Votre demande a été enregistrée, mais la notification email n'a pas pu être envoyée.", 'warning');
       e.target.reset();
       document.getElementById('dateSortie').valueAsDate = new Date();
+      document.getElementById('responsable').value = RESPONSABLE_FIXE;
+      document.getElementById('infoDelai').textContent = '';
     } else {
       afficherMessage("❌ Erreur d'envoi : " + erreurs.join(' | '), 'error');
     }
@@ -444,7 +507,6 @@
     const dateStr = formatNigerDateShort(d.date_sortie);
     const createdStr = formatNigerDate(d.created_at);
 
-    // ⚠️ IMPORTANT : Déterminer le statut réel (défaut = en_attente)
     let statut = d.statut;
     if (!statut || (statut !== 'validee' && statut !== 'refusee')) {
       statut = 'en_attente';
@@ -475,7 +537,6 @@
         </div>
       `;
     } else {
-      // EN ATTENTE (statut par défaut)
       statutBadge = '⏳ En attente';
       resultatHtml = `
         <div class="resultat-box en_attente">
@@ -502,7 +563,7 @@
     `;
   }
 
-  // ============ IMPRESSION DU BON DE SORTIE (UNE SEULE PAGE A4) ============
+  // ============ IMPRESSION DU BON DE SORTIE ============
   async function imprimerMonBon(id) {
     try {
       const response = await fetch(
@@ -529,24 +590,14 @@
             * { margin:0; padding:0; box-sizing:border-box; font-family:'Arial', sans-serif; }
             html, body { background:#f0f2f5; }
             body { padding:10px; }
-
             .bon {
-              width: 194mm;
-              min-height: 273mm;
-              max-height: 273mm;
-              margin: 10px auto;
-              background:#fff;
-              padding: 10mm 12mm;
-              border-radius:6px;
-              box-shadow:0 4px 20px rgba(0,0,0,0.1);
-              display:flex;
-              flex-direction:column;
-              overflow:hidden;
+              width: 194mm; min-height: 273mm; max-height: 273mm;
+              margin: 10px auto; background:#fff; padding: 10mm 12mm;
+              border-radius:6px; box-shadow:0 4px 20px rgba(0,0,0,0.1);
+              display:flex; flex-direction:column; overflow:hidden;
             }
-
             .header { display:flex; justify-content:space-between; align-items:center;
-              border-bottom:3px solid #1e3c72; padding-bottom:12px; margin-bottom:20px;
-              gap:15px; }
+              border-bottom:3px solid #1e3c72; padding-bottom:12px; margin-bottom:20px; gap:15px; }
             .header-logo { display:flex; align-items:center; gap:15px; }
             .header-logo img { height:65px; width:65px; object-fit:contain; }
             .header-info h1 { color:#1e3c72; font-size:20px; margin-bottom:2px; }
@@ -558,17 +609,14 @@
               background:#e8f0fb; padding:6px 14px; border-radius:5px;
               display:inline-block; margin-bottom:6px; }
             .date-creation { font-size:9.5px; color:#888; display:block; }
-
             .titre-bon { text-align:center; color:#1e3c72; font-size:15px;
               font-weight:bold; letter-spacing:2px; background:#f8f9fb;
               padding:10px; border-radius:5px; margin-bottom:20px;
               border-left:4px solid #1e3c72; }
-
             .section { margin-bottom:15px; }
             .section-titre { background:#1e3c72; color:#fff; padding:6px 12px;
               font-size:11px; font-weight:bold; letter-spacing:1px;
               border-radius:4px; margin-bottom:8px; }
-
             .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:0 20px; }
             .ligne { display:flex; padding:5px 0; border-bottom:1px dotted #e0e0e0;
               font-size:11.5px; line-height:1.35; }
@@ -576,11 +624,9 @@
             .ligne .label { width:130px; color:#666; font-size:11px; font-weight:500; }
             .ligne .valeur { flex:1; color:#111; font-size:11.5px; font-weight:600;
               word-break:break-word; }
-
             .motif-box { background:#f8f9fb; padding:10px 12px; border-radius:4px;
               border-left:4px solid #1e3c72; font-size:11px; color:#333;
               line-height:1.45; white-space:pre-wrap; min-height:50px; }
-
             .signatures { display:flex; justify-content:space-between;
               gap:30px; margin-top:40px; padding-top:0; }
             .signature-bloc { flex:1; text-align:center; }
@@ -590,17 +636,14 @@
             .signature-ligne { border-top:1.5px solid #333; padding-top:5px;
               font-size:9.5px; color:#666; min-height:35px; }
             .signature-sans-ligne { min-height:80px; }
-
             .footer { margin-top:auto; padding-top:10px; border-top:1px solid #ddd;
               text-align:center; font-size:9px; color:#999; line-height:1.4; }
             .footer strong { color:#1e3c72; }
-
             .btn-print-now { display:block; margin:15px auto 30px; background:#1e3c72;
               color:#fff; padding:10px 25px; border:none; border-radius:6px;
               font-size:13px; font-weight:bold; cursor:pointer;
               box-shadow:0 4px 12px rgba(30,60,114,0.3); }
             .btn-print-now:hover { background:#2a5298; }
-
             @media print {
               html, body { background:#fff; padding:0; margin:0;
                 width:210mm; height:297mm; }
@@ -617,7 +660,6 @@
         </head>
         <body>
           <div class="bon">
-
             <div class="header">
               <div class="header-logo">
                 <img src="${LOGO_URL}" alt="ONG ADKOUL" onerror="this.style.display='none'">
@@ -632,9 +674,7 @@
                 <span class="date-creation">Créé le ${createdStr} (Niger)</span>
               </div>
             </div>
-
             <div class="titre-bon">AUTORISATION DE SORTIE DE VÉHICULE</div>
-
             <div class="section">
               <div class="section-titre">👤 INFORMATIONS DE L'AGENT</div>
               <div class="grid-2">
@@ -646,7 +686,6 @@
                 <div class="ligne"><span class="label">Contact</span><span class="valeur">${d.contact || '—'}</span></div>
               </div>
             </div>
-
             <div class="section">
               <div class="section-titre">📍 DÉTAILS DE LA SORTIE</div>
               <div class="grid-2">
@@ -658,12 +697,10 @@
                 <div class="ligne"><span class="label">Responsable</span><span class="valeur">${d.responsable || '—'}</span></div>
               </div>
             </div>
-
             <div class="section">
               <div class="section-titre">📝 MOTIF / OBJET DE LA SORTIE</div>
               <div class="motif-box">${d.motif}</div>
             </div>
-
             <div class="section">
               <div class="section-titre">🚗 AFFECTATION</div>
               <div class="grid-2">
@@ -674,7 +711,6 @@
               </div>
               ${d.message_admin ? `<div class="ligne" style="margin-top:3px;"><span class="label">Message</span><span class="valeur">${d.message_admin}</span></div>` : ''}
             </div>
-
             <div class="signatures">
               <div class="signature-bloc">
                 <div class="signature-titre">Signature de l'Agent</div>
@@ -687,14 +723,11 @@
                 <div class="signature-sans-ligne"></div>
               </div>
             </div>
-
             <div class="footer">
               <strong>ONG ADKOUL</strong> — Solidarité • Éducation • Développement<br>
               Bon de sortie N° ${numBon} — Généré automatiquement — Toute reproduction non autorisée est interdite
             </div>
-
           </div>
-
           <button class="btn-print-now" onclick="window.print()">🖨️ Imprimer / Enregistrer en PDF</button>
         </body>
         </html>
@@ -704,6 +737,41 @@
       alert('❌ Erreur : ' + err.message);
     }
   }
+
+  // ═══════════════════════════════════════════════════════════
+  // Feedback en temps réel sur la date/heure de sortie
+  // ═══════════════════════════════════════════════════════════
+  function verifierDelai() {
+    const dateVal = document.getElementById('dateSortie').value;
+    const heureVal = document.getElementById('heureDepart').value;
+    const infoEl = document.getElementById('infoDelai');
+
+    if (!infoEl) return;
+
+    if (!dateVal || !heureVal) {
+      infoEl.textContent = '';
+      return;
+    }
+
+    const sortie = new Date(dateVal + 'T' + heureVal + ':00');
+    const diffMin = (sortie - new Date()) / (1000 * 60);
+
+    if (diffMin < 0) {
+      infoEl.textContent = '❌ Date/heure déjà passée';
+      infoEl.style.color = '#e74c3c';
+    } else if (diffMin < 60) {
+      infoEl.textContent = `⚠️ Trop proche : il faut au moins 1h (${Math.round(diffMin)} min restantes)`;
+      infoEl.style.color = '#e67e22';
+    } else {
+      const h = Math.floor(diffMin / 60);
+      const m = Math.round(diffMin % 60);
+      infoEl.textContent = `✅ Délai respecté (${h}h${String(m).padStart(2,'0')} avant la sortie)`;
+      infoEl.style.color = '#27ae60';
+    }
+  }
+
+  document.getElementById('dateSortie').addEventListener('change', verifierDelai);
+  document.getElementById('heureDepart').addEventListener('change', verifierDelai);
 </script>
 </body>
 </html>

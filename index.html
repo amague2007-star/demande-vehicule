@@ -159,7 +159,7 @@
 
       <div class="info-box">
         💡 <strong>Information :</strong> Le véhicule et le chauffeur seront attribués par le service Logistique après validation de votre demande. Vous recevrez un email de confirmation.<br>
-        ⏰ <strong>Rappel :</strong> votre demande doit être soumise <strong>au moins 1 heure avant</strong> l'heure de sortie prévue. Durée maximale : <strong>60 minutes</strong>.
+        ⏰ <strong>Rappel :</strong> votre demande doit être soumise <strong>dans l'heure qui précède</strong> la sortie (entre 0 et 60 minutes avant). Durée maximale de la sortie : <strong>60 minutes</strong>.
       </div>
 
       <form id="formDemande" onsubmit="soumettre(event)">
@@ -266,7 +266,7 @@
   const RESPONSABLE_FIXE = "ABDOUL AZIZ ADAM";
 
   // ============================================================
-  // GESTION DU FUSEAU HORAIRE DU NIGER (UTC+1)
+  // FUSEAU HORAIRE DU NIGER (UTC+1)
   // ============================================================
   function formatNigerDate(dateStr) {
     if (!dateStr) return '-';
@@ -298,8 +298,46 @@
       weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
     });
   }
-  // ============================================================
 
+  // ============================================================
+  // UTILITAIRE : calculer une heure limite (HH:MM ± offset minutes)
+  // ============================================================
+  function calculerHeureLimite(heureSortie, offsetMinutes) {
+    const [h, m] = heureSortie.split(':').map(Number);
+    const total = h * 60 + m + offsetMinutes;
+    let newH = Math.floor(total / 60);
+    let newM = total % 60;
+    if (newH < 0) newH += 24;
+    if (newH >= 24) newH -= 24;
+    return String(newH).padStart(2,'0') + ':' + String(newM).padStart(2,'0');
+  }
+
+  // ============================================================
+  // UTILITAIRE : diff minutes entre maintenant (Niger) et une date/heure
+  // ============================================================
+  function calculerDiffMinutes(dateVal, heureVal) {
+    const maintenantUTC = new Date();
+    const maintenantNiger = new Date(maintenantUTC.getTime() + (60 * 60 * 1000));
+
+    const [annee, mois, jour] = dateVal.split('-').map(Number);
+    const [heures, minutes] = heureVal.split(':').map(Number);
+    const dateHeureSortie = Date.UTC(annee, mois - 1, jour, heures, minutes, 0);
+
+    const maintenantUTCpur = Date.UTC(
+      maintenantNiger.getUTCFullYear(),
+      maintenantNiger.getUTCMonth(),
+      maintenantNiger.getUTCDate(),
+      maintenantNiger.getUTCHours(),
+      maintenantNiger.getUTCMinutes(),
+      maintenantNiger.getUTCSeconds()
+    );
+
+    return (dateHeureSortie - maintenantUTCpur) / (1000 * 60);
+  }
+
+  // ============================================================
+  // INITIALISATION
+  // ============================================================
   document.getElementById('dateSortie').valueAsDate = new Date();
   document.getElementById('responsable').value = RESPONSABLE_FIXE;
 
@@ -319,6 +357,9 @@
     box.scrollIntoView({ behavior:'smooth', block:'center' });
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // SOUMISSION
+  // ═══════════════════════════════════════════════════════════
   async function soumettre(e) {
     e.preventDefault();
 
@@ -331,12 +372,12 @@
       return;
     }
     if (dureeSaisie > 60) {
-      afficherMessage('❌ La durée estimée ne peut pas dépasser 60 minutes (1 heure).\n\nVeuillez réduire la durée ou fractionner votre demande.', 'error');
+      afficherMessage('❌ La durée estimée ne peut pas dépasser 60 minutes (1 heure).\n\nVeuillez réduire la durée.', 'error');
       return;
     }
 
     // ═══════════════════════════════════════════════════════════
-    // VALIDATION 2 : Délai minimum 1h avant la sortie
+    // VALIDATION 2 : Fenêtre de soumission = 0 à 60 min avant la sortie
     // ═══════════════════════════════════════════════════════════
     const dateVal = val('dateSortie');
     const heureVal = val('heureDepart');
@@ -346,25 +387,42 @@
       return;
     }
 
-    const maintenant = new Date();
-    const dateHeureSortie = new Date(dateVal + 'T' + heureVal + ':00');
-    const diffMinutes = (dateHeureSortie - maintenant) / (1000 * 60);
+    const diffMinutes = calculerDiffMinutes(dateVal, heureVal);
 
+    const maintenantUTC = new Date();
+    const maintenantNiger = new Date(maintenantUTC.getTime() + (60 * 60 * 1000));
+    const heureActuelleNiger = maintenantNiger.toLocaleTimeString('fr-FR', {
+      timeZone: 'UTC', hour: '2-digit', minute: '2-digit'
+    });
+
+    // ─── Cas 1 : Sortie déjà passée ───
     if (diffMinutes < 0) {
-      afficherMessage('❌ La date et l\'heure de sortie sont déjà passées.\n\nVeuillez choisir une date/heure future.', 'error');
+      afficherMessage(`❌ Date/heure de sortie déjà passée.
+
+🕐 Heure actuelle (Niger) : ${heureActuelleNiger}
+🚗 Heure de sortie demandée : ${heureVal}
+
+Veuillez choisir une heure de sortie future.`, 'error');
       return;
     }
 
-    if (diffMinutes < 60) {
-      const heureActuelle = maintenant.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-      afficherMessage(`❌ Votre demande doit être soumise au moins 1 heure avant l'heure de sortie prévue.
+    // ─── Cas 2 : Soumise trop tôt (> 60 min avant) ───
+    if (diffMinutes > 60) {
+      const h = Math.floor(diffMinutes / 60);
+      const m = Math.round(diffMinutes % 60);
+      afficherMessage(`❌ DEMANDE REFUSÉE — Soumise trop tôt
 
-⏰ Il ne reste que ${Math.round(diffMinutes)} minute(s) avant la sortie demandée.
-🕐 Heure actuelle : ${heureActuelle} (Niger)
+Votre demande ne peut être soumise QUE dans l'heure qui précède la sortie (entre 0 et 60 minutes avant).
 
-Veuillez choisir une heure de départ au moins 1 heure après maintenant.`, 'error');
+🕐 Heure actuelle (Niger) : ${heureActuelleNiger}
+🚗 Heure de sortie demandée : ${heureVal}
+⏱ Délai avant la sortie : ${h}h${String(m).padStart(2,'0')} (maximum autorisé : 1h)
+
+💡 Vous pourrez soumettre cette demande à partir de ${calculerHeureLimite(heureVal, -60)} (heure Niger).`, 'error');
       return;
     }
+
+    // ─── Sinon : Acceptée (0 ≤ diff ≤ 60) ───
 
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTION DE LA DEMANDE
@@ -465,6 +523,9 @@ Veuillez choisir une heure de départ au moins 1 heure après maintenant.`, 'err
     loader.classList.remove('active');
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // SUIVI DES DEMANDES
+  // ═══════════════════════════════════════════════════════════
   async function rechercherDemandes() {
     const email = document.getElementById('searchEmail').value.trim().toLowerCase();
     const container = document.getElementById('mesDemandesContainer');
@@ -563,7 +624,9 @@ Veuillez choisir une heure de départ au moins 1 heure après maintenant.`, 'err
     `;
   }
 
-  // ============ IMPRESSION DU BON DE SORTIE ============
+  // ═══════════════════════════════════════════════════════════
+  // IMPRESSION DU BON DE SORTIE
+  // ═══════════════════════════════════════════════════════════
   async function imprimerMonBon(id) {
     try {
       const response = await fetch(
@@ -739,7 +802,7 @@ Veuillez choisir une heure de départ au moins 1 heure après maintenant.`, 'err
   }
 
   // ═══════════════════════════════════════════════════════════
-  // Feedback en temps réel sur la date/heure de sortie
+  // FEEDBACK EN TEMPS RÉEL SUR LA DATE/HEURE
   // ═══════════════════════════════════════════════════════════
   function verifierDelai() {
     const dateVal = document.getElementById('dateSortie').value;
@@ -753,20 +816,28 @@ Veuillez choisir une heure de départ au moins 1 heure après maintenant.`, 'err
       return;
     }
 
-    const sortie = new Date(dateVal + 'T' + heureVal + ':00');
-    const diffMin = (sortie - new Date()) / (1000 * 60);
+    const diffMin = calculerDiffMinutes(dateVal, heureVal);
 
     if (diffMin < 0) {
       infoEl.textContent = '❌ Date/heure déjà passée';
       infoEl.style.color = '#e74c3c';
-    } else if (diffMin < 60) {
-      infoEl.textContent = `⚠️ Trop proche : il faut au moins 1h (${Math.round(diffMin)} min restantes)`;
-      infoEl.style.color = '#e67e22';
-    } else {
+      infoEl.style.fontWeight = '700';
+    } else if (diffMin > 60) {
       const h = Math.floor(diffMin / 60);
       const m = Math.round(diffMin % 60);
-      infoEl.textContent = `✅ Délai respecté (${h}h${String(m).padStart(2,'0')} avant la sortie)`;
+      infoEl.textContent = `❌ Trop tôt : ${h}h${String(m).padStart(2,'0')} avant la sortie (max 1h). Soumettez à partir de ${calculerHeureLimite(heureVal, -60)}.`;
+      infoEl.style.color = '#e74c3c';
+      infoEl.style.fontWeight = '700';
+    } else if (diffMin > 30) {
+      const m = Math.round(diffMin);
+      infoEl.textContent = `✅ Délai respecté (${m} min avant la sortie)`;
       infoEl.style.color = '#27ae60';
+      infoEl.style.fontWeight = '700';
+    } else {
+      const m = Math.round(diffMin);
+      infoEl.textContent = `✅ Délai respecté (${m} min avant la sortie — attention, départ imminent !)`;
+      infoEl.style.color = '#e67e22';
+      infoEl.style.fontWeight = '700';
     }
   }
 

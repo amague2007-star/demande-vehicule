@@ -261,7 +261,7 @@
   const LOGO_URL = "https://amague2007-star.github.io/demande-vehicule/logo.png";
 
   // ============================================================
-  // RESPONSABLE FIXE (non modifiable)
+  // RESPONSABLE FIXE
   // ============================================================
   const RESPONSABLE_FIXE = "ABDOUL AZIZ ADAM";
 
@@ -300,7 +300,7 @@
   }
 
   // ============================================================
-  // UTILITAIRE : calculer une heure limite (HH:MM ± offset minutes)
+  // UTILITAIRE : heure limite (HH:MM ± offset minutes)
   // ============================================================
   function calculerHeureLimite(heureSortie, offsetMinutes) {
     const [h, m] = heureSortie.split(':').map(Number);
@@ -313,26 +313,27 @@
   }
 
   // ============================================================
-  // UTILITAIRE : diff minutes entre maintenant (Niger) et une date/heure
+  // UTILITAIRE : écart en minutes entre MAINTENANT (Niger) et une date/heure saisie
+  // Indépendant du fuseau du navigateur — utilise l'offset réel
   // ============================================================
   function calculerDiffMinutes(dateVal, heureVal) {
-    const maintenantUTC = new Date();
-    const maintenantNiger = new Date(maintenantUTC.getTime() + (60 * 60 * 1000));
+    // Heure actuelle UTC
+    const nowUTC = new Date();
+    // Offset du navigateur (en minutes, ex: -60 pour UTC+1, 0 pour UTC)
+    const offsetNavMin = nowUTC.getTimezoneOffset();
 
+    // Heure actuelle en Niger = UTC + 1h
+    // On passe par UTC pur pour comparer proprement
+    const nowNigerMs = nowUTC.getTime() + (offsetNavMin * 60 * 1000) + (60 * 60 * 1000);
+
+    // Date/heure de sortie saisie = interprétée comme heure Niger
+    // On construit un timestamp UTC pur représentant "dateVal heureVal en Niger"
     const [annee, mois, jour] = dateVal.split('-').map(Number);
     const [heures, minutes] = heureVal.split(':').map(Number);
-    const dateHeureSortie = Date.UTC(annee, mois - 1, jour, heures, minutes, 0);
+    // Le Niger étant UTC+1, la date/heure Niger correspond à UTC = date/heure - 1h
+    const sortieMs = Date.UTC(annee, mois - 1, jour, heures, minutes, 0) - (60 * 60 * 1000);
 
-    const maintenantUTCpur = Date.UTC(
-      maintenantNiger.getUTCFullYear(),
-      maintenantNiger.getUTCMonth(),
-      maintenantNiger.getUTCDate(),
-      maintenantNiger.getUTCHours(),
-      maintenantNiger.getUTCMinutes(),
-      maintenantNiger.getUTCSeconds()
-    );
-
-    return (dateHeureSortie - maintenantUTCpur) / (1000 * 60);
+    return (sortieMs - nowNigerMs) / (1000 * 60);
   }
 
   // ============================================================
@@ -364,7 +365,7 @@
     e.preventDefault();
 
     // ═══════════════════════════════════════════════════════════
-    // VALIDATION 1 : Durée max 60 min / min 5 min
+    // VALIDATION 1 : Durée 5 à 60 minutes
     // ═══════════════════════════════════════════════════════════
     const dureeSaisie = parseInt(val('duree'));
     if (isNaN(dureeSaisie) || dureeSaisie < 5) {
@@ -377,7 +378,7 @@
     }
 
     // ═══════════════════════════════════════════════════════════
-    // VALIDATION 2 : Fenêtre de soumission = 0 à 60 min avant la sortie
+    // VALIDATION 2 : Fenêtre STRICTE de 0 à 60 min avant la sortie
     // ═══════════════════════════════════════════════════════════
     const dateVal = val('dateSortie');
     const heureVal = val('heureDepart');
@@ -389,11 +390,25 @@
 
     const diffMinutes = calculerDiffMinutes(dateVal, heureVal);
 
-    const maintenantUTC = new Date();
-    const maintenantNiger = new Date(maintenantUTC.getTime() + (60 * 60 * 1000));
-    const heureActuelleNiger = maintenantNiger.toLocaleTimeString('fr-FR', {
+    // ─── Heure actuelle Niger (pour affichage) ───
+    const nowUTC = new Date();
+    const offsetNavMin = nowUTC.getTimezoneOffset();
+    const nowNiger = new Date(nowUTC.getTime() + (offsetNavMin * 60 * 1000) + (60 * 60 * 1000));
+    const heureActuelleNiger = nowNiger.toLocaleTimeString('fr-FR', {
       timeZone: 'UTC', hour: '2-digit', minute: '2-digit'
     });
+
+    // ─── DIAGNOSTIC CONSOLE ───
+    console.log('═══════════════════════════════════════');
+    console.log('🔍 DIAGNOSTIC VALIDATION DÉLAI');
+    console.log('Heure navigateur (UTC) :', nowUTC.toISOString());
+    console.log('Heure Niger calculée   :', nowNiger.toISOString().substring(11, 16));
+    console.log('Date/heure saisie      :', dateVal, heureVal);
+    console.log('Différence (minutes)   :', diffMinutes.toFixed(2));
+    console.log('Résultat               :',
+      diffMinutes < 0 ? '❌ TROP TARD' :
+      diffMinutes > 60 ? '❌ TROP TÔT' : '✅ OK');
+    console.log('═══════════════════════════════════════');
 
     // ─── Cas 1 : Sortie déjà passée ───
     if (diffMinutes < 0) {
@@ -835,7 +850,7 @@ Votre demande ne peut être soumise QUE dans l'heure qui précède la sortie (en
       infoEl.style.fontWeight = '700';
     } else {
       const m = Math.round(diffMin);
-      infoEl.textContent = `✅ Délai respecté (${m} min avant la sortie — attention, départ imminent !)`;
+      infoEl.textContent = `✅ Délai respecté (${m} min avant la sortie — départ imminent !)`;
       infoEl.style.color = '#e67e22';
       infoEl.style.fontWeight = '700';
     }
@@ -843,6 +858,7 @@ Votre demande ne peut être soumise QUE dans l'heure qui précède la sortie (en
 
   document.getElementById('dateSortie').addEventListener('change', verifierDelai);
   document.getElementById('heureDepart').addEventListener('change', verifierDelai);
+  document.getElementById('heureDepart').addEventListener('input', verifierDelai);
 </script>
 </body>
 </html>

@@ -216,12 +216,11 @@
     <label>🚙 Véhicule à assigner *</label>
     <select id="selectVehicule" onchange="toggleAutre('vehicule')">
       <option value="">-- Sélectionnez un véhicule --</option>
-      <option value="HARDTOP 1234 AB 01">HARDTOP 1234 AB 01</option>
-      <option value="Camionnette 2345 CD 02">Camionnette 2345 CD 02</option>
-      <option value="4x4 Toyota 3456 EF 03">4x4 Toyota 3456 EF 03</option>
+      <option value="HARD TOP">HARD TOP</option>
+      <option value="PRADO">PRADO</option>
       <option value="AUTRE">➕ Autre (saisir manuellement)</option>
     </select>
-    <input type="text" id="inputVehiculeAutre" placeholder="Immatriculation"
+    <input type="text" id="inputVehiculeAutre" placeholder="Immatriculation / nom du véhicule"
       style="display:none; margin-top:8px;">
 
     <label>💬 Message pour l'agent (optionnel)</label>
@@ -796,14 +795,12 @@ Solidarité • Éducation • Développement`;
 
   // ============ NOTIFICATION WHATSAPP AU CHAUFFEUR ============
   function notifierWhatsApp(demandeId) {
-    // 1. Retrouver la demande
     const d = toutesLesDemandes.find(x => x.id === demandeId);
     if (!d) {
       alert('❌ Demande introuvable.');
       return;
     }
 
-    // 2. Récupérer le numéro du chauffeur
     const chauffeur = d.chauffeur_assigne;
     const telephone = CHAUFFEURS[chauffeur];
 
@@ -812,7 +809,6 @@ Solidarité • Éducation • Développement`;
       return;
     }
 
-    // 3. Construire le message
     const dateStr = formatNigerDateShort(d.date_sortie);
     const message = `Bonjour ${chauffeur},
 
@@ -838,11 +834,9 @@ ${d.vehicule_assigne || 'À confirmer'}
 _Message automatique - Service Logistique_
 _ONG ADKOUL_`;
 
-    // 4. Encoder pour URL
     const messageEncode = encodeURIComponent(message);
     const lienWhatsApp = `https://wa.me/${telephone}?text=${messageEncode}`;
 
-    // 5. Ouvrir WhatsApp
     window.open(lienWhatsApp, '_blank');
   }
 </script>

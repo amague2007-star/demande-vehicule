@@ -25,10 +25,8 @@
     --gray-600: #4b5563;
     --gray-700: #374151;
     --gray-800: #1f2937;
-    --gray-900: #111827;
     --radius: 14px;
     --radius-sm: 10px;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
     --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
     --shadow-lg: 0 20px 50px rgba(15,23,42,0.15);
     --shadow-focus: 0 0 0 4px rgba(59,130,246,0.15);
@@ -61,7 +59,7 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* ══════════ HEADER ══════════ */
+  /* HEADER */
   header {
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     color: #fff;
@@ -75,14 +73,6 @@
     top: -50%; right: -10%;
     width: 300px; height: 300px;
     background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
-    border-radius: 50%;
-  }
-  header::after {
-    content: '';
-    position: absolute;
-    bottom: -80%; left: -5%;
-    width: 250px; height: 250px;
-    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
     border-radius: 50%;
   }
   .header-content {
@@ -109,17 +99,10 @@
     letter-spacing: -0.5px;
     margin-bottom: 4px;
   }
-  .header-text .subtitle {
-    font-size: 14px;
-    opacity: 0.9;
-    font-weight: 500;
-  }
+  .header-text .subtitle { font-size: 14px; opacity: 0.9; font-weight: 500; }
   .header-text .slogan {
-    font-size: 11px;
-    opacity: 0.7;
-    margin-top: 6px;
-    font-style: italic;
-    letter-spacing: 1px;
+    font-size: 11px; opacity: 0.7; margin-top: 6px;
+    font-style: italic; letter-spacing: 1px;
   }
   .clock-box {
     background: rgba(255,255,255,0.12);
@@ -133,25 +116,17 @@
     flex-shrink: 0;
   }
   .clock-box .clock-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    opacity: 0.75;
-    margin-bottom: 4px;
+    font-size: 10px; text-transform: uppercase;
+    letter-spacing: 1px; opacity: 0.75; margin-bottom: 4px;
   }
   .clock-box .clock-time {
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 20px; font-weight: 700;
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.5px;
   }
-  .clock-box .clock-date {
-    font-size: 10px;
-    opacity: 0.75;
-    margin-top: 2px;
-  }
+  .clock-box .clock-date { font-size: 10px; opacity: 0.75; margin-top: 2px; }
 
-  /* ══════════ TABS ══════════ */
+  /* TABS */
   .tabs {
     display: flex;
     background: var(--gray-50);
@@ -160,17 +135,11 @@
     gap: 8px;
   }
   .tab {
-    flex: 1;
-    padding: 18px 12px;
-    text-align: center;
-    cursor: pointer;
-    font-weight: 600;
-    color: var(--gray-500);
+    flex: 1; padding: 18px 12px; text-align: center;
+    cursor: pointer; font-weight: 600; color: var(--gray-500);
     border-bottom: 3px solid transparent;
-    transition: all 0.2s;
-    font-size: 14px;
-    border-radius: 8px 8px 0 0;
-    user-select: none;
+    transition: all 0.2s; font-size: 14px;
+    border-radius: 8px 8px 0 0; user-select: none;
   }
   .tab:hover { color: var(--primary); background: rgba(30,60,114,0.04); }
   .tab.active {
@@ -180,10 +149,9 @@
   }
   .tab .tab-icon { margin-right: 6px; }
 
-  /* ══════════ CONTENT ══════════ */
+  /* CONTENT */
   .content { padding: 32px; }
 
-  /* ══════════ INFO BOX ══════════ */
   .info-box {
     background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
     border-left: 4px solid var(--accent);
@@ -197,30 +165,18 @@
     gap: 12px;
     align-items: flex-start;
   }
-  .info-box .info-icon {
-    font-size: 20px;
-    flex-shrink: 0;
-    line-height: 1;
-    margin-top: 2px;
-  }
+  .info-box .info-icon { font-size: 20px; flex-shrink: 0; line-height: 1; margin-top: 2px; }
   .info-box strong { color: #1e3a8a; }
 
-  /* ══════════ FORM GRID ══════════ */
+  /* FORM */
   .section-title {
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: var(--gray-500);
-    margin: 28px 0 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--gray-500); margin: 28px 0 16px;
+    display: flex; align-items: center; gap: 10px;
   }
   .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
+    content: ''; flex: 1; height: 1px;
     background: linear-gradient(to right, var(--gray-200), transparent);
   }
   .section-title:first-child { margin-top: 0; }
@@ -234,13 +190,9 @@
   .form-group.full { grid-column: 1 / -1; }
 
   label {
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: var(--gray-700);
-    font-size: 13.5px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    font-weight: 600; margin-bottom: 8px;
+    color: var(--gray-700); font-size: 13.5px;
+    display: flex; align-items: center; gap: 6px;
   }
   label .required { color: var(--danger); font-weight: 700; }
   label .label-icon { font-size: 15px; opacity: 0.7; }
@@ -248,16 +200,12 @@
   .input-wrapper { position: relative; }
 
   input, select, textarea {
-    width: 100%;
-    padding: 13px 16px;
+    width: 100%; padding: 13px 16px;
     border: 2px solid var(--gray-200);
     border-radius: var(--radius-sm);
-    font-size: 14.5px;
-    font-family: inherit;
-    transition: all 0.2s;
-    outline: none;
-    background: #fff;
-    color: var(--gray-800);
+    font-size: 14.5px; font-family: inherit;
+    transition: all 0.2s; outline: none;
+    background: #fff; color: var(--gray-800);
   }
   input::placeholder, textarea::placeholder { color: var(--gray-400); }
   input:hover, select:hover, textarea:hover { border-color: var(--gray-300); }
@@ -266,86 +214,46 @@
     box-shadow: var(--shadow-focus);
     background: #fff;
   }
-  input[readonly] {
-    background: var(--gray-100);
-    color: var(--gray-600);
-    cursor: not-allowed;
-    font-weight: 600;
-  }
   textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
 
   input.valid, textarea.valid { border-color: var(--success); }
   input.invalid, textarea.invalid { border-color: var(--danger); }
-  input.valid:focus, textarea.valid:focus {
-    box-shadow: 0 0 0 4px rgba(16,185,129,0.12);
-  }
-  input.invalid:focus, textarea.invalid:focus {
-    box-shadow: 0 0 0 4px rgba(239,68,68,0.12);
-  }
 
   .field-hint {
-    color: var(--gray-500);
-    font-size: 11.5px;
-    margin-top: 6px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    color: var(--gray-500); font-size: 11.5px;
+    margin-top: 6px; display: flex; align-items: center; gap: 5px;
   }
 
   #infoDelai {
-    margin-top: 8px;
-    font-size: 12.5px;
-    font-weight: 600;
-    padding: 6px 10px;
-    border-radius: 6px;
-    display: none;
+    margin-top: 8px; font-size: 12.5px;
+    font-weight: 600; padding: 6px 10px;
+    border-radius: 6px; display: none;
     animation: fadeIn 0.3s ease-out;
   }
   #infoDelai:not(:empty) { display: block; }
-  #infoDelai.ok {
-    background: #ecfdf5;
-    color: #047857;
-    border-left: 3px solid var(--success);
-  }
-  #infoDelai.warn {
-    background: #fffbeb;
-    color: #b45309;
-    border-left: 3px solid var(--warning);
-  }
-  #infoDelai.err {
-    background: #fef2f2;
-    color: #b91c1c;
-    border-left: 3px solid var(--danger);
-  }
+  #infoDelai.ok { background: #ecfdf5; color: #047857; border-left: 3px solid var(--success); }
+  #infoDelai.warn { background: #fffbeb; color: #b45309; border-left: 3px solid var(--warning); }
+  #infoDelai.err { background: #fef2f2; color: #b91c1c; border-left: 3px solid var(--danger); }
 
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-4px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* ══════════ SUBMIT BUTTON ══════════ */
   .btn-primary {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-    color: #fff;
-    width: 100%;
-    margin-top: 28px;
-    padding: 16px;
-    border: none;
+    color: #fff; width: 100%; margin-top: 28px;
+    padding: 16px; border: none;
     border-radius: var(--radius-sm);
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.25s;
+    font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: all 0.25s;
     letter-spacing: 0.3px;
     box-shadow: 0 8px 20px rgba(30,60,114,0.25);
-    position: relative;
-    overflow: hidden;
+    position: relative; overflow: hidden;
   }
   .btn-primary::before {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%;
-    width: 100%; height: 100%;
+    content: ''; position: absolute;
+    top: 0; left: -100%; width: 100%; height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
     transition: left 0.5s;
   }
@@ -354,45 +262,31 @@
     box-shadow: 0 12px 28px rgba(30,60,114,0.35);
   }
   .btn-primary:hover:not(:disabled)::before { left: 100%; }
-  .btn-primary:active:not(:disabled) { transform: translateY(0); }
   .btn-primary:disabled {
-    background: var(--gray-400);
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
+    background: var(--gray-400); cursor: not-allowed;
+    box-shadow: none; transform: none;
   }
 
   .loader {
-    display: none;
-    text-align: center;
-    padding: 18px;
-    color: var(--primary);
-    font-weight: 600;
-    font-size: 14px;
+    display: none; text-align: center;
+    padding: 18px; color: var(--primary);
+    font-weight: 600; font-size: 14px;
   }
   .loader.active { display: block; }
   .loader .spinner {
-    display: inline-block;
-    width: 16px; height: 16px;
+    display: inline-block; width: 16px; height: 16px;
     border: 2.5px solid rgba(30,60,114,0.2);
     border-top-color: var(--primary);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    vertical-align: middle;
-    margin-right: 8px;
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+    vertical-align: middle; margin-right: 8px;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ══════════ MESSAGES ══════════ */
   .message {
-    padding: 16px 20px;
-    border-radius: var(--radius-sm);
-    margin-bottom: 24px;
-    display: none;
-    font-weight: 500;
-    white-space: pre-line;
-    font-size: 14px;
-    line-height: 1.55;
+    padding: 16px 20px; border-radius: var(--radius-sm);
+    margin-bottom: 24px; display: none;
+    font-weight: 500; white-space: pre-line;
+    font-size: 14px; line-height: 1.55;
     animation: slideDown 0.35s ease-out;
   }
   @keyframes slideDown {
@@ -401,40 +295,28 @@
   }
   .message.success {
     background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-    color: #065f46;
-    border-left: 4px solid var(--success);
+    color: #065f46; border-left: 4px solid var(--success);
     display: block;
   }
   .message.error {
     background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-    color: #991b1b;
-    border-left: 4px solid var(--danger);
+    color: #991b1b; border-left: 4px solid var(--danger);
     display: block;
   }
   .message.warning {
     background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-    color: #92400e;
-    border-left: 4px solid var(--warning);
+    color: #92400e; border-left: 4px solid var(--warning);
     display: block;
   }
 
-  /* ══════════ SUIVI ══════════ */
-  .search-box {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 28px;
-    flex-wrap: wrap;
-  }
+  /* SUIVI */
+  .search-box { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
   .search-box .input-wrapper { flex: 1; min-width: 260px; }
   .search-box button {
     padding: 13px 28px;
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 14.5px;
-    font-weight: 600;
-    cursor: pointer;
+    color: #fff; border: none; border-radius: var(--radius-sm);
+    font-size: 14.5px; font-weight: 600; cursor: pointer;
     transition: all 0.2s;
     box-shadow: 0 4px 12px rgba(30,60,114,0.25);
     white-space: nowrap;
@@ -445,69 +327,45 @@
   }
 
   .demande-card {
-    background: #fff;
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius);
-    padding: 22px;
-    margin-bottom: 16px;
+    background: #fff; border: 1px solid var(--gray-200);
+    border-radius: var(--radius); padding: 22px; margin-bottom: 16px;
     border-left: 5px solid var(--warning);
-    transition: all 0.2s;
-    animation: fadeUp 0.4s ease-out;
+    transition: all 0.2s; animation: fadeUp 0.4s ease-out;
   }
   .demande-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
   .demande-card.validee { border-left-color: var(--success); background: linear-gradient(to right, #f0fdf4 0%, #fff 40%); }
   .demande-card.refusee { border-left-color: var(--danger); background: linear-gradient(to right, #fef2f2 0%, #fff 40%); }
 
   .demande-card .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 14px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 12px; margin-bottom: 14px;
   }
   .demande-card h3 {
-    color: var(--primary);
-    font-size: 17px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    color: var(--primary); font-size: 17px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
   }
   .badge-statut {
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 11.5px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    padding: 6px 14px; border-radius: 20px;
+    font-size: 11.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
   }
   .badge-statut.en_attente { background: #fef3c7; color: #b45309; }
   .badge-statut.validee { background: #d1fae5; color: #065f46; }
   .badge-statut.refusee { background: #fee2e2; color: #991b1b; }
 
   .demande-card p {
-    font-size: 13.5px;
-    color: var(--gray-600);
-    line-height: 1.7;
-    margin-bottom: 6px;
+    font-size: 13.5px; color: var(--gray-600);
+    line-height: 1.7; margin-bottom: 6px;
   }
   .demande-card p strong { color: var(--gray-800); }
 
   .btn-imprimer {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+    display: inline-flex; align-items: center; gap: 8px;
     padding: 12px 22px;
     background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 13.5px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 14px;
-    letter-spacing: 0.3px;
+    color: #fff; border: none; border-radius: var(--radius-sm);
+    font-size: 13.5px; font-weight: 700; cursor: pointer;
+    margin-top: 14px; letter-spacing: 0.3px;
     box-shadow: 0 4px 12px rgba(16,185,129,0.3);
     transition: all 0.2s;
   }
@@ -517,28 +375,20 @@
   }
 
   .resultat-box {
-    padding: 14px 16px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    margin-top: 12px;
-    line-height: 1.6;
+    padding: 14px 16px; border-radius: var(--radius-sm);
+    font-size: 13px; margin-top: 12px; line-height: 1.6;
   }
   .resultat-box.validee { background: #ecfdf5; color: #047857; border-left: 4px solid var(--success); }
   .resultat-box.refusee { background: #fef2f2; color: #b91c1c; border-left: 4px solid var(--danger); }
   .resultat-box.en_attente { background: #fffbeb; color: #b45309; border-left: 4px solid var(--warning); }
 
   .empty-state {
-    text-align: center;
-    color: var(--gray-500);
-    padding: 60px 20px;
-    font-style: italic;
-    font-size: 15px;
-    background: var(--gray-50);
-    border-radius: var(--radius);
+    text-align: center; color: var(--gray-500);
+    padding: 60px 20px; font-style: italic; font-size: 15px;
+    background: var(--gray-50); border-radius: var(--radius);
     border: 2px dashed var(--gray-200);
   }
 
-  /* ══════════ RESPONSIVE ══════════ */
   @media (max-width: 640px) {
     body { padding: 12px 8px; }
     .container { border-radius: 16px; }
@@ -588,7 +438,7 @@
 
   <div class="content">
 
-    <!-- ═════ ONGLET 1 : NOUVELLE DEMANDE ═════ -->
+    <!-- ONGLET 1 : NOUVELLE DEMANDE -->
     <div id="panelNouvelle">
       <div id="messageBox" class="message"></div>
 
@@ -670,12 +520,6 @@
             </div>
             <small class="field-hint">⚠️ Maximum 60 minutes (1 heure)</small>
           </div>
-          <div class="form-group full">
-            <label><span class="label-icon">📝</span> Motif / Objet de la sortie <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <textarea id="motif" required placeholder="Précisez la raison de la sortie..."></textarea>
-            </div>
-          </div>
           <div class="form-group">
             <label><span class="label-icon">👥</span> Nombre de passagers</label>
             <div class="input-wrapper">
@@ -683,9 +527,20 @@
             </div>
           </div>
           <div class="form-group">
-            <label><span class="label-icon">✅</span> Responsable de validation</label>
+            <label><span class="label-icon">🏁</span> Lieu de retour prévu</label>
             <div class="input-wrapper">
-              <input type="text" id="responsable" readonly>
+              <input type="text" id="lieuRetour" value="Au siège" readonly>
+            </div>
+            <small class="field-hint">Le véhicule revient toujours au siège de l'ONG</small>
+          </div>
+        </div>
+
+        <div class="section-title">📝 Objet de la mission</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label><span class="label-icon">📝</span> Motif / Objet de la sortie <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <textarea id="motif" required placeholder="Précisez la raison de la sortie (ex: Achat de fournitures au marché central pour le service pédagogique...)"></textarea>
             </div>
           </div>
         </div>
@@ -695,7 +550,7 @@
       </form>
     </div>
 
-    <!-- ═════ ONGLET 2 : SUIVI ═════ -->
+    <!-- ONGLET 2 : SUIVI -->
     <div id="panelMes" style="display:none;">
       <div class="info-box">
         <span class="info-icon">🔍</span>
@@ -734,28 +589,29 @@
   const EMAILJS_SERVICE_ID = "service_e6k2e76";
   const EMAILJS_TEMPLATE_ID = "template_gd96rfl";
 
-  // ✅ Email admin déjà configuré
   const EMAIL_ADMIN = "amague2007@gmail.com";
 
   emailjs.init(EMAILJS_PUBLIC_KEY);
 
   const RESPONSABLE_FIXE = "ABDOUL AZIZ ADAM";
+  const LIEU_RETOUR_FIXE = "Au siège";
 
   // ═══════════════════════════════════════════════════════════
-  // HORLOGE TEMPS RÉEL (heure du Niger)
+  // HORLOGE TEMPS RÉEL — HEURE DU NIGER (UTC+1)
+  // Fiable partout dans le monde
   // ═══════════════════════════════════════════════════════════
   function updateClock() {
-    const nowUTC = new Date();
-    const offsetNavMin = nowUTC.getTimezoneOffset();
-    const nowNiger = new Date(nowUTC.getTime() + (offsetNavMin * 60 * 1000) + (60 * 60 * 1000));
-    const hh = String(nowNiger.getUTCHours()).padStart(2,'0');
-    const mm = String(nowNiger.getUTCMinutes()).padStart(2,'0');
-    const ss = String(nowNiger.getUTCSeconds()).padStart(2,'0');
+    const now = new Date();
+    const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const niger = new Date(utcMs + (60 * 60 * 1000)); // UTC+1
+    const hh = String(niger.getUTCHours()).padStart(2,'0');
+    const mm = String(niger.getUTCMinutes()).padStart(2,'0');
+    const ss = String(niger.getUTCSeconds()).padStart(2,'0');
     const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
     const mois = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
     document.getElementById('liveClock').textContent = hh + ':' + mm + ':' + ss;
     document.getElementById('liveDate').textContent =
-      jours[nowNiger.getUTCDay()] + ' ' + nowNiger.getUTCDate() + ' ' + mois[nowNiger.getUTCMonth()];
+      jours[niger.getUTCDay()] + ' ' + niger.getUTCDate() + ' ' + mois[niger.getUTCMonth()];
   }
   updateClock();
   setInterval(updateClock, 1000);
@@ -790,550 +646,6 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // UTILITAIRE : heure limite (HH:MM ± offset minutes)
+  // HEURE LIMITE (HH:MM ± offset minutes)
   // ═══════════════════════════════════════════════════════════
-  function calculerHeureLimite(heureSortie, offsetMinutes) {
-    const [h, m] = heureSortie.split(':').map(Number);
-    const total = h * 60 + m + offsetMinutes;
-    let newH = Math.floor(total / 60);
-    let newM = total % 60;
-    if (newH < 0) newH += 24;
-    if (newH >= 24) newH -= 24;
-    return String(newH).padStart(2,'0') + ':' + String(newM).padStart(2,'0');
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // UTILITAIRE : écart en minutes entre MAINTENANT (Niger) et une date/heure saisie
-  // ═══════════════════════════════════════════════════════════
-  function calculerDiffMinutes(dateVal, heureVal) {
-    const nowUTC = new Date();
-    const offsetNavMin = nowUTC.getTimezoneOffset();
-    const nowNigerMs = nowUTC.getTime() + (offsetNavMin * 60 * 1000) + (60 * 60 * 1000);
-
-    const [annee, mois, jour] = dateVal.split('-').map(Number);
-    const [heures, minutes] = heureVal.split(':').map(Number);
-    const sortieMs = Date.UTC(annee, mois - 1, jour, heures, minutes, 0) - (60 * 60 * 1000);
-
-    return (sortieMs - nowNigerMs) / (1000 * 60);
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // INITIALISATION
-  // ═══════════════════════════════════════════════════════════
-  document.getElementById('dateSortie').valueAsDate = new Date();
-  document.getElementById('responsable').value = RESPONSABLE_FIXE;
-
-  function switchTab(tab, event) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    event.target.closest('.tab').classList.add('active');
-    document.getElementById('panelNouvelle').style.display = tab === 'nouvelle' ? 'block' : 'none';
-    document.getElementById('panelMes').style.display = tab === 'mes' ? 'block' : 'none';
-  }
-
-  function val(id) { return document.getElementById(id).value.trim(); }
-
-  function afficherMessage(texte, type) {
-    const box = document.getElementById('messageBox');
-    box.className = 'message ' + type;
-    box.textContent = texte;
-    box.scrollIntoView({ behavior:'smooth', block:'center' });
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // SOUMISSION
-  // ═══════════════════════════════════════════════════════════
-  async function soumettre(e) {
-    e.preventDefault();
-
-    // VALIDATION 1 : Durée 5 à 60 minutes
-    const dureeSaisie = parseInt(val('duree'));
-    if (isNaN(dureeSaisie) || dureeSaisie < 5) {
-      afficherMessage('❌ La durée minimale est de 5 minutes.', 'error');
-      return;
-    }
-    if (dureeSaisie > 60) {
-      afficherMessage('❌ La durée estimée ne peut pas dépasser 60 minutes (1 heure).\n\nVeuillez réduire la durée.', 'error');
-      return;
-    }
-
-    // VALIDATION 2 : Fenêtre STRICTE de 0 à 60 min avant la sortie
-    const dateVal = val('dateSortie');
-    const heureVal = val('heureDepart');
-
-    if (!dateVal || !heureVal) {
-      afficherMessage('❌ Veuillez renseigner la date et l\'heure de sortie.', 'error');
-      return;
-    }
-
-    const diffMinutes = calculerDiffMinutes(dateVal, heureVal);
-
-    const nowUTC = new Date();
-    const offsetNavMin = nowUTC.getTimezoneOffset();
-    const nowNiger = new Date(nowUTC.getTime() + (offsetNavMin * 60 * 1000) + (60 * 60 * 1000));
-    const heureActuelleNiger = nowNiger.toLocaleTimeString('fr-FR', {
-      timeZone: 'UTC', hour: '2-digit', minute: '2-digit'
-    });
-
-    if (diffMinutes < 0) {
-      afficherMessage(`❌ Date/heure de sortie déjà passée.
-
-🕐 Heure actuelle (Niger) : ${heureActuelleNiger}
-🚗 Heure de sortie demandée : ${heureVal}
-
-Veuillez choisir une heure de sortie future.`, 'error');
-      return;
-    }
-
-    if (diffMinutes > 60) {
-      const h = Math.floor(diffMinutes / 60);
-      const m = Math.round(diffMinutes % 60);
-      afficherMessage(`❌ DEMANDE REFUSÉE — Soumise trop tôt
-
-Votre demande ne peut être soumise QUE dans l'heure qui précède la sortie (entre 0 et 60 minutes avant).
-
-🕐 Heure actuelle (Niger) : ${heureActuelleNiger}
-🚗 Heure de sortie demandée : ${heureVal}
-⏱ Délai avant la sortie : ${h}h${String(m).padStart(2,'0')} (maximum autorisé : 1h)
-
-💡 Vous pourrez soumettre cette demande à partir de ${calculerHeureLimite(heureVal, -60)} (heure Niger).`, 'error');
-      return;
-    }
-
-    // CONSTRUCTION DE LA DEMANDE
-    const demande = {
-      nom: val('nom'),
-      prenom: val('prenom'),
-      poste: val('poste'),
-      service: val('service'),
-      email: val('email').toLowerCase(),
-      contact: val('contact'),
-      date_sortie: dateVal,
-      heure_depart: heureVal,
-      destination: val('destination'),
-      duree: dureeSaisie,
-      passagers: val('passagers') ? parseInt(val('passagers')) : null,
-      motif: val('motif'),
-      responsable: RESPONSABLE_FIXE
-    };
-
-    const btn = document.getElementById('btnSubmit');
-    const loader = document.getElementById('loader');
-
-    btn.disabled = true;
-    btn.textContent = '⏳ Envoi en cours...';
-    loader.classList.add('active');
-
-    let supabaseOK = false, emailOK = false, erreurs = [];
-
-    // ─── 1. Enregistrement dans Supabase ───
-    try {
-      const response = await fetch(SUPABASE_URL + '/rest/v1/demandes', {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify(demande)
-      });
-      if (!response.ok) {
-        const errText = await response.text();
-        throw new Error('Supabase ' + response.status + ' : ' + errText);
-      }
-      supabaseOK = true;
-    } catch (err) {
-      console.error('❌ Erreur Supabase :', err);
-      erreurs.push('Base de données : ' + err.message);
-    }
-
-    // ─── 2. Notification email à l'admin via EmailJS ───
-    try {
-      const corps = `📋 NOUVELLE DEMANDE DE SORTIE VÉHICULE
-
-👤 AGENT
-────────────────────────────
-Nom : ${demande.nom}
-Prénom : ${demande.prenom}
-Poste : ${demande.poste}
-Service : ${demande.service || '-'}
-Email : ${demande.email}
-Contact : ${demande.contact || '-'}
-
-🚗 DÉTAILS DE LA SORTIE
-────────────────────────────
-Date : ${demande.date_sortie}
-Heure de départ : ${demande.heure_depart}
-Destination : ${demande.destination}
-Durée estimée : ${demande.duree} minutes
-Passagers : ${demande.passagers || '-'}
-
-📝 MOTIF
-${demande.motif}
-
-👔 Responsable : ${demande.responsable}
-
-⏰ Connectez-vous à l'espace Admin pour valider ou refuser cette demande.
-
-—
-Service Logistique - ONG ADKOUL
-Solidarité • Éducation • Développement`;
-
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-        to_email: EMAIL_ADMIN,
-        subject: `🚗 Nouvelle demande - ${demande.prenom} ${demande.nom} - ${demande.destination}`,
-        message: corps,
-        name: 'Service Logistique',
-        reply_to: demande.email
-      });
-      emailOK = true;
-    } catch (err) {
-      console.error('❌ Erreur EmailJS :', err);
-      erreurs.push('Notification email : ' + (err.text || err.message || JSON.stringify(err)));
-    }
-
-    // ─── 3. Affichage du résultat ───
-    if (supabaseOK && emailOK) {
-      afficherMessage('✅ Votre demande a bien été envoyée au service Logistique.\n\nVous recevrez un email après validation.\nVous pouvez suivre son statut dans l\'onglet "📋 Suivre mes demandes".', 'success');
-      e.target.reset();
-      document.getElementById('dateSortie').valueAsDate = new Date();
-      document.getElementById('responsable').value = RESPONSABLE_FIXE;
-      document.getElementById('infoDelai').textContent = '';
-      document.getElementById('infoDelai').className = '';
-    } else if (supabaseOK && !emailOK) {
-      afficherMessage("⚠️ Votre demande a été enregistrée, mais la notification email n'a pas pu être envoyée.\n\nLe service Logistique la verra dans son tableau de bord.", 'warning');
-      e.target.reset();
-      document.getElementById('dateSortie').valueAsDate = new Date();
-      document.getElementById('responsable').value = RESPONSABLE_FIXE;
-      document.getElementById('infoDelai').textContent = '';
-      document.getElementById('infoDelai').className = '';
-    } else {
-      afficherMessage("❌ Erreur d'envoi : " + erreurs.join(' | '), 'error');
-    }
-
-    btn.disabled = false;
-    btn.textContent = '✅ Envoyer la demande';
-    loader.classList.remove('active');
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // SUIVI DES DEMANDES
-  // ═══════════════════════════════════════════════════════════
-  async function rechercherDemandes() {
-    const email = document.getElementById('searchEmail').value.trim().toLowerCase();
-    const container = document.getElementById('mesDemandesContainer');
-
-    if (!email) {
-      alert('⚠️ Saisissez votre adresse email.');
-      return;
-    }
-
-    container.innerHTML = '<div class="empty-state">⏳ Chargement de vos demandes...</div>';
-
-    try {
-      const response = await fetch(
-        SUPABASE_URL + '/rest/v1/demandes?email=eq.' + encodeURIComponent(email) + '&order=created_at.desc',
-        {
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY
-          }
-        }
-      );
-
-      if (!response.ok) throw new Error('Erreur ' + response.status);
-
-      const demandes = await response.json();
-
-      if (demandes.length === 0) {
-        container.innerHTML = '<div class="empty-state">📭 Aucune demande trouvée pour cet email.<br><br>Vérifiez l\'adresse ou faites une nouvelle demande.</div>';
-        return;
-      }
-
-      container.innerHTML = demandes.map(d => afficherCarteDemande(d)).join('');
-
-    } catch (err) {
-      container.innerHTML = '<div class="empty-state">❌ Erreur : ' + err.message + '</div>';
-    }
-  }
-
-  function afficherCarteDemande(d) {
-    const dateStr = formatNigerDateShort(d.date_sortie);
-    const createdStr = formatNigerDate(d.created_at);
-
-    let statut = d.statut;
-    if (!statut || (statut !== 'validee' && statut !== 'refusee')) {
-      statut = 'en_attente';
-    }
-
-    let resultatHtml = '';
-    let statutBadge = '';
-
-    if (statut === 'validee') {
-      statutBadge = '✅ Validée';
-      resultatHtml = `
-        <div class="resultat-box validee">
-          <strong>✅ Validée</strong> le ${formatNigerDate(d.date_validation)} (heure Niger)<br>
-          👤 Chauffeur : <strong>${d.chauffeur_assigne || '-'}</strong><br>
-          🚙 Véhicule : <strong>${d.vehicule_assigne || '-'}</strong>
-          ${d.message_admin ? '<br>💬 ' + d.message_admin : ''}
-        </div>
-        <button class="btn-imprimer" onclick="imprimerMonBon(${d.id})">
-          🖨️ Imprimer mon bon de sortie
-        </button>
-      `;
-    } else if (statut === 'refusee') {
-      statutBadge = '❌ Refusée';
-      resultatHtml = `
-        <div class="resultat-box refusee">
-          <strong>❌ Refusée</strong> le ${formatNigerDate(d.date_validation)} (heure Niger)<br>
-          Motif : <strong>${d.message_admin || '-'}</strong>
-        </div>
-      `;
-    } else {
-      statutBadge = '⏳ En attente';
-      resultatHtml = `
-        <div class="resultat-box en_attente">
-          ⏳ <strong>En attente de validation</strong> par le service Logistique
-          <br><small style="color:#888;">Demande envoyée le ${createdStr} (heure Niger)</small>
-        </div>
-      `;
-    }
-
-    return `
-      <div class="demande-card ${statut}">
-        <div class="card-header">
-          <h3>📍 ${d.destination}</h3>
-          <span class="badge-statut ${statut}">${statutBadge}</span>
-        </div>
-        <p>
-          📅 <strong>${dateStr}</strong> à <strong>${d.heure_depart}</strong>
-          &nbsp;|&nbsp; ⏱ ${d.duree} min
-          ${d.passagers ? '&nbsp;|&nbsp; 👥 ' + d.passagers + ' passager(s)' : ''}
-        </p>
-        <p>📝 <strong>Motif :</strong> ${d.motif}</p>
-        ${resultatHtml}
-      </div>
-    `;
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // IMPRESSION DU BON DE SORTIE
-  // ═══════════════════════════════════════════════════════════
-  async function imprimerMonBon(id) {
-    try {
-      const response = await fetch(
-        SUPABASE_URL + '/rest/v1/demandes?id=eq.' + id,
-        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
-      );
-      const data = await response.json();
-      if (!data.length) { alert('Demande introuvable.'); return; }
-      const d = data[0];
-
-      const dateStr = formatNigerDateLong(d.date_sortie);
-      const createdStr = formatNigerDate(d.created_at);
-      const validStr = formatNigerDate(d.date_validation);
-      const numBon = 'BS-' + String(d.id).padStart(5, '0');
-
-      const fenetre = window.open('', '_blank');
-      fenetre.document.write(`
-        <!DOCTYPE html>
-        <html lang="fr">
-        <head>
-          <meta charset="UTF-8">
-          <title>Bon de Sortie ${numBon} - ONG ADKOUL</title>
-          <style>
-            * { margin:0; padding:0; box-sizing:border-box; font-family:'Arial', sans-serif; }
-            html, body { background:#f0f2f5; }
-            body { padding:10px; }
-            .bon {
-              width: 194mm; min-height: 273mm; max-height: 273mm;
-              margin: 10px auto; background:#fff; padding: 10mm 12mm;
-              border-radius:6px; box-shadow:0 4px 20px rgba(0,0,0,0.1);
-              display:flex; flex-direction:column; overflow:hidden;
-            }
-            .header { display:flex; justify-content:space-between; align-items:center;
-              border-bottom:3px solid #1e3c72; padding-bottom:12px; margin-bottom:20px; gap:15px; }
-            .header-logo { display:flex; align-items:center; gap:15px; }
-            .header-logo img { height:65px; width:65px; object-fit:contain; }
-            .header-info h1 { color:#1e3c72; font-size:20px; margin-bottom:2px; }
-            .header-info .subtitle { color:#444; font-size:12px; font-weight:600; }
-            .header-info .slogan { color:#888; font-size:10px; font-style:italic;
-              margin-top:2px; letter-spacing:0.4px; }
-            .header-right { text-align:right; }
-            .bon-num { font-size:13px; color:#1e3c72; font-weight:bold;
-              background:#e8f0fb; padding:6px 14px; border-radius:5px;
-              display:inline-block; margin-bottom:6px; }
-            .date-creation { font-size:9.5px; color:#888; display:block; }
-            .titre-bon { text-align:center; color:#1e3c72; font-size:15px;
-              font-weight:bold; letter-spacing:2px; background:#f8f9fb;
-              padding:10px; border-radius:5px; margin-bottom:20px;
-              border-left:4px solid #1e3c72; }
-            .section { margin-bottom:15px; }
-            .section-titre { background:#1e3c72; color:#fff; padding:6px 12px;
-              font-size:11px; font-weight:bold; letter-spacing:1px;
-              border-radius:4px; margin-bottom:8px; }
-            .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:0 20px; }
-            .ligne { display:flex; padding:5px 0; border-bottom:1px dotted #e0e0e0;
-              font-size:11.5px; line-height:1.35; }
-            .ligne:last-child { border-bottom:none; }
-            .ligne .label { width:130px; color:#666; font-size:11px; font-weight:500; }
-            .ligne .valeur { flex:1; color:#111; font-size:11.5px; font-weight:600;
-              word-break:break-word; }
-            .motif-box { background:#f8f9fb; padding:10px 12px; border-radius:4px;
-              border-left:4px solid #1e3c72; font-size:11px; color:#333;
-              line-height:1.45; white-space:pre-wrap; min-height:50px; }
-            .signatures { display:flex; justify-content:space-between;
-              gap:30px; margin-top:40px; padding-top:0; }
-            .signature-bloc { flex:1; text-align:center; }
-            .signature-titre { font-size:11px; font-weight:bold; color:#333;
-              margin-bottom:5px; text-transform:uppercase; letter-spacing:0.8px; }
-            .signature-sous-titre { font-size:10px; color:#888; margin-bottom:45px; }
-            .signature-ligne { border-top:1.5px solid #333; padding-top:5px;
-              font-size:9.5px; color:#666; min-height:35px; }
-            .signature-sans-ligne { min-height:80px; }
-            .footer { margin-top:auto; padding-top:10px; border-top:1px solid #ddd;
-              text-align:center; font-size:9px; color:#999; line-height:1.4; }
-            .footer strong { color:#1e3c72; }
-            .btn-print-now { display:block; margin:15px auto 30px; background:#1e3c72;
-              color:#fff; padding:10px 25px; border:none; border-radius:6px;
-              font-size:13px; font-weight:bold; cursor:pointer;
-              box-shadow:0 4px 12px rgba(30,60,114,0.3); }
-            .btn-print-now:hover { background:#2a5298; }
-            @media print {
-              html, body { background:#fff; padding:0; margin:0;
-                width:210mm; height:297mm; }
-              .bon { box-shadow:none; margin:0; padding:10mm 12mm;
-                width:210mm; height:297mm;
-                min-height:297mm; max-height:297mm;
-                border-radius:0; overflow:hidden; }
-              .btn-print-now { display:none; }
-              @page { size:A4 portrait; margin:0; }
-              * { -webkit-print-color-adjust:exact !important;
-                  print-color-adjust:exact !important; color-adjust:exact !important; }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="bon">
-            <div class="header">
-              <div class="header-logo">
-                <img src="${LOGO_URL}" alt="ONG ADKOUL" onerror="this.style.display='none'">
-                <div class="header-info">
-                  <h1>ONG ADKOUL</h1>
-                  <div class="subtitle">Service Logistique</div>
-                  <div class="slogan">Solidarité • Éducation • Développement</div>
-                </div>
-              </div>
-              <div class="header-right">
-                <div class="bon-num">N° ${numBon}</div>
-                <span class="date-creation">Créé le ${createdStr} (Niger)</span>
-              </div>
-            </div>
-            <div class="titre-bon">AUTORISATION DE SORTIE DE VÉHICULE</div>
-            <div class="section">
-              <div class="section-titre">👤 INFORMATIONS DE L'AGENT</div>
-              <div class="grid-2">
-                <div class="ligne"><span class="label">Nom</span><span class="valeur">${d.nom}</span></div>
-                <div class="ligne"><span class="label">Prénom</span><span class="valeur">${d.prenom}</span></div>
-                <div class="ligne"><span class="label">Poste occupé</span><span class="valeur">${d.poste}</span></div>
-                <div class="ligne"><span class="label">Service</span><span class="valeur">${d.service || '—'}</span></div>
-                <div class="ligne"><span class="label">Email</span><span class="valeur">${d.email}</span></div>
-                <div class="ligne"><span class="label">Contact</span><span class="valeur">${d.contact || '—'}</span></div>
-              </div>
-            </div>
-            <div class="section">
-              <div class="section-titre">📍 DÉTAILS DE LA SORTIE</div>
-              <div class="grid-2">
-                <div class="ligne"><span class="label">Date de sortie</span><span class="valeur">${dateStr}</span></div>
-                <div class="ligne"><span class="label">Heure départ</span><span class="valeur">${d.heure_depart}</span></div>
-                <div class="ligne"><span class="label">Destination</span><span class="valeur">${d.destination}</span></div>
-                <div class="ligne"><span class="label">Durée estimée</span><span class="valeur">${d.duree} minutes</span></div>
-                <div class="ligne"><span class="label">Passagers</span><span class="valeur">${d.passagers || '—'}</span></div>
-                <div class="ligne"><span class="label">Responsable</span><span class="valeur">${d.responsable || '—'}</span></div>
-              </div>
-            </div>
-            <div class="section">
-              <div class="section-titre">📝 MOTIF / OBJET DE LA SORTIE</div>
-              <div class="motif-box">${d.motif}</div>
-            </div>
-            <div class="section">
-              <div class="section-titre">🚗 AFFECTATION</div>
-              <div class="grid-2">
-                <div class="ligne"><span class="label">Chauffeur</span><span class="valeur">${d.chauffeur_assigne || '—'}</span></div>
-                <div class="ligne"><span class="label">Véhicule</span><span class="valeur">${d.vehicule_assigne || '—'}</span></div>
-                <div class="ligne"><span class="label">Validé par</span><span class="valeur">Service Logistique</span></div>
-                <div class="ligne"><span class="label">Date validation</span><span class="valeur">${validStr} (Niger)</span></div>
-              </div>
-              ${d.message_admin ? `<div class="ligne" style="margin-top:3px;"><span class="label">Message</span><span class="valeur">${d.message_admin}</span></div>` : ''}
-            </div>
-            <div class="signatures">
-              <div class="signature-bloc">
-                <div class="signature-titre">Signature de l'Agent</div>
-                <div class="signature-sous-titre">${d.prenom} ${d.nom}</div>
-                <div class="signature-ligne">Signé le : ____ / ____ / ________</div>
-              </div>
-              <div class="signature-bloc">
-                <div class="signature-titre">Visa du Service Logistique</div>
-                <div class="signature-sous-titre" style="text-transform: uppercase; font-weight: 600; color: #555;">LE GESTIONNAIRE DE PARC</div>
-                <div class="signature-sans-ligne"></div>
-              </div>
-            </div>
-            <div class="footer">
-              <strong>ONG ADKOUL</strong> — Solidarité • Éducation • Développement<br>
-              Bon de sortie N° ${numBon} — Généré automatiquement — Toute reproduction non autorisée est interdite
-            </div>
-          </div>
-          <button class="btn-print-now" onclick="window.print()">🖨️ Imprimer / Enregistrer en PDF</button>
-        </body>
-        </html>
-      `);
-      fenetre.document.close();
-    } catch (err) {
-      alert('❌ Erreur : ' + err.message);
-    }
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // FEEDBACK EN TEMPS RÉEL SUR LA DATE/HEURE
-  // ═══════════════════════════════════════════════════════════
-  function verifierDelai() {
-    const dateVal = document.getElementById('dateSortie').value;
-    const heureVal = document.getElementById('heureDepart').value;
-    const infoEl = document.getElementById('infoDelai');
-
-    if (!infoEl) return;
-
-    if (!dateVal || !heureVal) {
-      infoEl.textContent = '';
-      infoEl.className = '';
-      return;
-    }
-
-    const diffMin = calculerDiffMinutes(dateVal, heureVal);
-
-    if (diffMin < 0) {
-      infoEl.textContent = '❌ Date/heure déjà passée';
-      infoEl.className = 'err';
-    } else if (diffMin > 60) {
-      const h = Math.floor(diffMin / 60);
-      const m = Math.round(diffMin % 60);
-      infoEl.textContent = `❌ Trop tôt : ${h}h${String(m).padStart(2,'0')} avant la sortie (max 1h). Soumettez à partir de ${calculerHeureLimite(heureVal, -60)}.`;
-      infoEl.className = 'err';
-    } else if (diffMin > 30) {
-      const m = Math.round(diffMin);
-      infoEl.textContent = `✅ Délai respecté (${m} min avant la sortie)`;
-      infoEl.className = 'ok';
-    } else {
-      const m = Math.round(diffMin);
-      infoEl.textContent = `✅ Délai respecté (${m} min avant la sortie — départ imminent !)`;
-      infoEl.className = 'warn';
-    }
-  }
-
-  document.getElementById('dateSortie').addEventListener('change', verifierDelai);
-  document.getElementById('heureDepart').addEventListener('change', verifierDelai);
-  document.getElementById('heureDepart').addEventListener('input', verifierDelai);
-</script>
-</body>
-</html>
+  function calcul

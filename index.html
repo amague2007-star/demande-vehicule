@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ONG ADKOUL - Demande de Sortie Véhicule</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
   body { background:linear-gradient(135deg,#1e3c72,#2a5298); min-height:100vh; padding:20px; }
@@ -257,8 +258,19 @@
 <script>
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
-  const FORMSPREE_URL = "https://formspree.io/f/mbglkyky";
   const LOGO_URL = "https://amague2007-star.github.io/demande-vehicule/logo.png";
+
+  // ============================================================
+  // EMAILJS (remplace Formspree)
+  // ============================================================
+  const EMAILJS_PUBLIC_KEY = "SUbWMSdrTf7JugMrS";
+  const EMAILJS_SERVICE_ID = "service_e6k2e76";
+  const EMAILJS_TEMPLATE_ID = "template_gd96rfl";
+
+  // ⚠️ ⬇️ REMPLACE ICI par ton email admin qui doit recevoir les notifications
+  const EMAIL_ADMIN = "TON_EMAIL_ADMIN@adkoul.org";
+
+  emailjs.init(EMAILJS_PUBLIC_KEY);
 
   // ============================================================
   // RESPONSABLE FIXE
@@ -314,23 +326,14 @@
 
   // ============================================================
   // UTILITAIRE : écart en minutes entre MAINTENANT (Niger) et une date/heure saisie
-  // Indépendant du fuseau du navigateur — utilise l'offset réel
   // ============================================================
   function calculerDiffMinutes(dateVal, heureVal) {
-    // Heure actuelle UTC
     const nowUTC = new Date();
-    // Offset du navigateur (en minutes, ex: -60 pour UTC+1, 0 pour UTC)
     const offsetNavMin = nowUTC.getTimezoneOffset();
-
-    // Heure actuelle en Niger = UTC + 1h
-    // On passe par UTC pur pour comparer proprement
     const nowNigerMs = nowUTC.getTime() + (offsetNavMin * 60 * 1000) + (60 * 60 * 1000);
 
-    // Date/heure de sortie saisie = interprétée comme heure Niger
-    // On construit un timestamp UTC pur représentant "dateVal heureVal en Niger"
     const [annee, mois, jour] = dateVal.split('-').map(Number);
     const [heures, minutes] = heureVal.split(':').map(Number);
-    // Le Niger étant UTC+1, la date/heure Niger correspond à UTC = date/heure - 1h
     const sortieMs = Date.UTC(annee, mois - 1, jour, heures, minutes, 0) - (60 * 60 * 1000);
 
     return (sortieMs - nowNigerMs) / (1000 * 60);
@@ -364,9 +367,7 @@
   async function soumettre(e) {
     e.preventDefault();
 
-    // ═══════════════════════════════════════════════════════════
     // VALIDATION 1 : Durée 5 à 60 minutes
-    // ═══════════════════════════════════════════════════════════
     const dureeSaisie = parseInt(val('duree'));
     if (isNaN(dureeSaisie) || dureeSaisie < 5) {
       afficherMessage('❌ La durée minimale est de 5 minutes.', 'error');
@@ -377,9 +378,7 @@
       return;
     }
 
-    // ═══════════════════════════════════════════════════════════
     // VALIDATION 2 : Fenêtre STRICTE de 0 à 60 min avant la sortie
-    // ═══════════════════════════════════════════════════════════
     const dateVal = val('dateSortie');
     const heureVal = val('heureDepart');
 
@@ -390,7 +389,6 @@
 
     const diffMinutes = calculerDiffMinutes(dateVal, heureVal);
 
-    // ─── Heure actuelle Niger (pour affichage) ───
     const nowUTC = new Date();
     const offsetNavMin = nowUTC.getTimezoneOffset();
     const nowNiger = new Date(nowUTC.getTime() + (offsetNavMin * 60 * 1000) + (60 * 60 * 1000));
@@ -398,19 +396,6 @@
       timeZone: 'UTC', hour: '2-digit', minute: '2-digit'
     });
 
-    // ─── DIAGNOSTIC CONSOLE ───
-    console.log('═══════════════════════════════════════');
-    console.log('🔍 DIAGNOSTIC VALIDATION DÉLAI');
-    console.log('Heure navigateur (UTC) :', nowUTC.toISOString());
-    console.log('Heure Niger calculée   :', nowNiger.toISOString().substring(11, 16));
-    console.log('Date/heure saisie      :', dateVal, heureVal);
-    console.log('Différence (minutes)   :', diffMinutes.toFixed(2));
-    console.log('Résultat               :',
-      diffMinutes < 0 ? '❌ TROP TARD' :
-      diffMinutes > 60 ? '❌ TROP TÔT' : '✅ OK');
-    console.log('═══════════════════════════════════════');
-
-    // ─── Cas 1 : Sortie déjà passée ───
     if (diffMinutes < 0) {
       afficherMessage(`❌ Date/heure de sortie déjà passée.
 
@@ -421,7 +406,6 @@ Veuillez choisir une heure de sortie future.`, 'error');
       return;
     }
 
-    // ─── Cas 2 : Soumise trop tôt (> 60 min avant) ───
     if (diffMinutes > 60) {
       const h = Math.floor(diffMinutes / 60);
       const m = Math.round(diffMinutes % 60);
@@ -437,11 +421,7 @@ Votre demande ne peut être soumise QUE dans l'heure qui précède la sortie (en
       return;
     }
 
-    // ─── Sinon : Acceptée (0 ≤ diff ≤ 60) ───
-
-    // ═══════════════════════════════════════════════════════════
     // CONSTRUCTION DE LA DEMANDE
-    // ═══════════════════════════════════════════════════════════
     const demande = {
       nom: val('nom'),
       prenom: val('prenom'),
@@ -465,8 +445,9 @@ Votre demande ne peut être soumise QUE dans l'heure qui précède la sortie (en
     btn.textContent = '⏳ Envoi en cours...';
     loader.classList.add('active');
 
-    let supabaseOK = false, formspreeOK = false, erreurs = [];
+    let supabaseOK = false, emailOK = false, erreurs = [];
 
+    // ─── 1. Enregistrement dans Supabase ───
     try {
       const response = await fetch(SUPABASE_URL + '/rest/v1/demandes', {
         method: 'POST',
@@ -488,43 +469,60 @@ Votre demande ne peut être soumise QUE dans l'heure qui précède la sortie (en
       erreurs.push('Base de données : ' + err.message);
     }
 
+    // ─── 2. Notification email à l'admin via EmailJS ───
     try {
-      const response = await fetch(FORMSPREE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({
-          _subject: `🚗 Nouvelle demande - ${demande.prenom} ${demande.nom} - ${demande.destination}`,
-          _replyto: demande.email,
-          "Nom": demande.nom,
-          "Prénom": demande.prenom,
-          "Poste occupé": demande.poste,
-          "Service": demande.service || '-',
-          "Email agent": demande.email,
-          "Contact": demande.contact || '-',
-          "Date de sortie": demande.date_sortie,
-          "Heure de départ": demande.heure_depart,
-          "Destination": demande.destination,
-          "Durée (min)": demande.duree,
-          "Passagers": demande.passagers || '-',
-          "Motif": demande.motif,
-          "Responsable": demande.responsable
-        })
+      const corps = `📋 NOUVELLE DEMANDE DE SORTIE VÉHICULE
+
+👤 AGENT
+────────────────────────────
+Nom : ${demande.nom}
+Prénom : ${demande.prenom}
+Poste : ${demande.poste}
+Service : ${demande.service || '-'}
+Email : ${demande.email}
+Contact : ${demande.contact || '-'}
+
+🚗 DÉTAILS DE LA SORTIE
+────────────────────────────
+Date : ${demande.date_sortie}
+Heure de départ : ${demande.heure_depart}
+Destination : ${demande.destination}
+Durée estimée : ${demande.duree} minutes
+Passagers : ${demande.passagers || '-'}
+
+📝 MOTIF
+${demande.motif}
+
+👔 Responsable : ${demande.responsable}
+
+⏰ Connectez-vous à l'espace Admin pour valider ou refuser cette demande.
+
+—
+Service Logistique - ONG ADKOUL
+Solidarité • Éducation • Développement`;
+
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_email: EMAIL_ADMIN,
+        subject: `🚗 Nouvelle demande - ${demande.prenom} ${demande.nom} - ${demande.destination}`,
+        message: corps,
+        name: 'Service Logistique',
+        reply_to: demande.email
       });
-      if (!response.ok) throw new Error('Formspree ' + response.status);
-      formspreeOK = true;
+      emailOK = true;
     } catch (err) {
-      console.error('❌ Erreur Formspree :', err);
-      erreurs.push('Notification email : ' + err.message);
+      console.error('❌ Erreur EmailJS :', err);
+      erreurs.push('Notification email : ' + (err.text || err.message || JSON.stringify(err)));
     }
 
-    if (supabaseOK && formspreeOK) {
+    // ─── 3. Affichage du résultat ───
+    if (supabaseOK && emailOK) {
       afficherMessage('✅ Votre demande a bien été envoyée au service Logistique.\n\nVous recevrez un email après validation.\nVous pouvez suivre son statut dans l\'onglet "📋 Suivre mes demandes".', 'success');
       e.target.reset();
       document.getElementById('dateSortie').valueAsDate = new Date();
       document.getElementById('responsable').value = RESPONSABLE_FIXE;
       document.getElementById('infoDelai').textContent = '';
-    } else if (supabaseOK && !formspreeOK) {
-      afficherMessage("⚠️ Votre demande a été enregistrée, mais la notification email n'a pas pu être envoyée.", 'warning');
+    } else if (supabaseOK && !emailOK) {
+      afficherMessage("⚠️ Votre demande a été enregistrée, mais la notification email n'a pas pu être envoyée.\n\nLe service Logistique la verra dans son tableau de bord.", 'warning');
       e.target.reset();
       document.getElementById('dateSortie').valueAsDate = new Date();
       document.getElementById('responsable').value = RESPONSABLE_FIXE;

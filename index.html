@@ -512,12 +512,9 @@
   const LIEU_RETOUR_FIXE = "Au siège";
 
   // ═══════════════════════════════════════════════════════════
-  // FUSEAU HORAIRE NIGER
-  // ⚠️ Si l'horloge retarde encore, augmente cette valeur :
-  //    1 = si ton PC est déjà à l'heure du Niger
-  //    2 = si ton PC est en UTC (heure d'hiver)
+  // FUSEAU HORAIRE NIGER — UTC+1
   // ═══════════════════════════════════════════════════════════
-  const NIGER_OFFSET_H = 2;
+  const NIGER_OFFSET_H = 1;
 
   function getNigerDate() {
     const now = new Date();

@@ -846,36 +846,28 @@
   const LIEU_RETOUR_FIXE = "Au siège";
 
   // ═══════════════════════════════════════════════════════════
-  // FUSEAU HORAIRE — ON UTILISE DIRECTEMENT L'HEURE DU PC
-  // (Car le PC est déjà réglé sur l'heure du Niger)
-  // ═══════════════════════════════════════════════════════════
-  function getNigerDate() {
-    return new Date(); // Retourne l'heure locale du PC
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // HORLOGE
+  // HORLOGE — Utilise l'heure locale du PC (déjà à l'heure du Niger)
   // ═══════════════════════════════════════════════════════════
   function updateClock() {
-    const niger = getNigerDate();
-    const hh = String(niger.getHours()).padStart(2,'0');
-    const mm = String(niger.getMinutes()).padStart(2,'0');
-    const ss = String(niger.getSeconds()).padStart(2,'0');
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    const ss = String(now.getSeconds()).padStart(2,'0');
     const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
     const mois = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
     document.getElementById('liveClock').textContent = hh + ':' + mm + ':' + ss;
     document.getElementById('liveDate').textContent =
-      jours[niger.getDay()] + ' ' + niger.getDate() + ' ' + mois[niger.getMonth()];
+      jours[now.getDay()] + ' ' + now.getDate() + ' ' + mois[now.getMonth()];
   }
 
   // ═══════════════════════════════════════════════════════════
   // FIXER LA DATE DU JOUR
   // ═══════════════════════════════════════════════════════════
   function setDateAujourdhui() {
-    const niger = getNigerDate();
-    const yyyy = niger.getFullYear();
-    const mm = String(niger.getMonth() + 1).padStart(2, '0');
-    const dd = String(niger.getDate()).padStart(2, '0');
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
     document.getElementById('dateSortie').value = yyyy + '-' + mm + '-' + dd;
   }
 
@@ -906,23 +898,22 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // DIFFÉRENCE EN MINUTES (CORRIGÉE)
+  // DIFFÉRENCE EN MINUTES (MÉTHODE DE COMPARAISON DE DATES COMPLÈTES)
   // ═══════════════════════════════════════════════════════════
   function calculerDiffMinutes(dateVal, heureVal) {
-    // 1. Obtenir l'heure actuelle
-    const now = new Date();
-    
-    // 2. Extraire l'heure et les minutes de la saisie
+    // Créer un objet Date complet pour la sortie
+    const [annee, mois, jour] = dateVal.split('-').map(Number);
     const [heures, minutes] = heureVal.split(':').map(Number);
     
-    // 3. Convertir les deux en "minutes depuis minuit"
-    const nowMinutes = (now.getHours() * 60) + now.getMinutes();
-    const sortieMinutes = (heures * 60) + minutes;
+    // Attention : les mois dans Date commencent à 0
+    const dateSortie = new Date(annee, mois - 1, jour, heures, minutes, 0);
     
-    // 4. Calculer la différence
-    let diff = sortieMinutes - nowMinutes;
+    // Obtenir la date actuelle
+    const maintenant = new Date();
     
-    return diff;
+    // Calculer la différence en millisecondes puis en minutes
+    const diffMs = dateSortie.getTime() - maintenant.getTime();
+    return Math.floor(diffMs / (1000 * 60));
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -979,7 +970,7 @@
     const heureActuelle = String(now.getHours()).padStart(2,'0') + ':' +
                           String(now.getMinutes()).padStart(2,'0');
 
-    if (diffMinutes < -5) {
+    if (diffMinutes < -1) {
       afficherMessage(`Heure de sortie déjà passée.
 
 🕐 Heure actuelle : ${heureActuelle}
@@ -1397,7 +1388,7 @@ Solidarité • Éducation • Développement`;
 
     const diffMin = calculerDiffMinutes(dateVal, heureVal);
 
-    if (diffMin < -5) {
+    if (diffMin < -1) {
       infoEl.textContent = '❌ Heure déjà passée';
       infoEl.className = 'err';
     } else if (diffMin < 0) {

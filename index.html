@@ -846,7 +846,7 @@
   const LIEU_RETOUR_FIXE = "Au siège";
 
   // ═══════════════════════════════════════════════════════════
-  // FUSEAU HORAIRE NIGER — UTC+2 (aligné sur ton PC)
+  // FUSEAU HORAIRE NIGER — UTC+2
   // ═══════════════════════════════════════════════════════════
   const NIGER_OFFSET_H = 2;
 
@@ -912,17 +912,25 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // DIFFÉRENCE EN MINUTES
+  // DIFFÉRENCE EN MINUTES (CORRIGÉE POUR LE FUSEAU NIGER UTC+2)
   // ═══════════════════════════════════════════════════════════
   function calculerDiffMinutes(dateVal, heureVal) {
-    const niger = getNigerDate();
-    const nowNigerMs = niger.getTime();
+    // 1. Obtenir l'heure actuelle au Niger (UTC+2)
+    const now = new Date();
+    // On convertit l'heure locale de l'appareil en UTC, puis on ajoute l'offset du Niger
+    const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const nowNiger = new Date(utcMs + (NIGER_OFFSET_H * 60 * 60 * 1000));
 
+    // 2. Construire la date de sortie demandée en UTC
     const [annee, mois, jour] = dateVal.split('-').map(Number);
     const [heures, minutes] = heureVal.split(':').map(Number);
+    
+    // Date.UTC crée une date en UTC. On soustrait l'offset du Niger pour obtenir l'heure UTC correspondante.
     const sortieMs = Date.UTC(annee, mois - 1, jour, heures, minutes, 0) - (NIGER_OFFSET_H * 60 * 60 * 1000);
 
-    return (sortieMs - nowNigerMs) / (1000 * 60);
+    // 3. Calculer la différence en millisecondes puis en minutes
+    const diffMs = sortieMs - nowNiger.getTime();
+    return diffMs / (1000 * 60);
   }
 
   // ═══════════════════════════════════════════════════════════

@@ -3,131 +3,557 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ONG ADKOUL - Demande de Sortie Véhicule</title>
+<title>ONG ADKOUL — Demande de Sortie Véhicule</title>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
-  body { background:linear-gradient(135deg,#1e3c72,#2a5298); min-height:100vh; padding:20px; }
-  .container { max-width:900px; margin:0 auto; background:#fff; border-radius:15px;
-               box-shadow:0 20px 60px rgba(0,0,0,0.3); overflow:hidden; }
-
-  .tabs { display:flex; background:#f0f2f5; border-bottom:1px solid #ddd; }
-  .tab { flex:1; padding:16px; text-align:center; cursor:pointer;
-         font-weight:600; color:#666; border-bottom:3px solid transparent;
-         transition:0.2s; font-size:15px; }
-  .tab.active { color:#1e3c72; border-bottom-color:#1e3c72; background:#fff; }
-  .tab:hover { background:#e8ebef; }
-
-  header { background:#1e3c72; color:#fff; padding:25px; text-align:center;
-    display:flex; align-items:center; justify-content:center; gap:20px; flex-wrap:wrap; }
-  header img { height:70px; width:70px; object-fit:contain; background:#fff;
-    border-radius:50%; padding:3px; }
-  header .header-text { text-align:left; }
-  header h1 { font-size:22px; }
-  header p { font-size:14px; opacity:0.85; margin-top:5px; }
-  header .slogan { font-size:11px; opacity:0.75; margin-top:3px;
-    font-style:italic; letter-spacing:0.5px; }
-
-  .content { padding:30px; }
-
-  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
-  .form-group { display:flex; flex-direction:column; }
-  .form-group.full { grid-column:1 / -1; }
-  label { font-weight:600; margin-bottom:6px; color:#333; font-size:14px; }
-  label .required { color:#e74c3c; }
-  input,select,textarea { padding:11px 14px; border:2px solid #e0e0e0; border-radius:8px;
-    font-size:14px; transition:0.2s; outline:none; font-family:inherit; }
-  input:focus,select:focus,textarea:focus { border-color:#2a5298;
-    box-shadow:0 0 0 3px rgba(42,82,152,0.15); }
-  input[readonly] { background:#f0f2f5; color:#555; cursor:not-allowed; font-weight:600; }
-  textarea { resize:vertical; min-height:80px; }
-  .btn-primary { background:#1e3c72; color:#fff; width:100%; margin-top:20px;
-    padding:14px; border:none; border-radius:8px; font-size:16px;
-    font-weight:600; cursor:pointer; transition:0.2s; }
-  .btn-primary:hover { background:#2a5298; transform:translateY(-2px);
-    box-shadow:0 5px 15px rgba(30,60,114,0.3); }
-  .btn-primary:disabled { background:#95a5a6; cursor:not-allowed; transform:none; }
-  .message { padding:15px; border-radius:8px; margin-bottom:20px;
-    display:none; font-weight:600; white-space:pre-line; }
-  .message.success { background:#d4edda; color:#155724;
-    border:2px solid #c3e6cb; display:block; }
-  .message.error { background:#f8d7da; color:#721c24;
-    border:2px solid #f5c6cb; display:block; }
-  .message.warning { background:#fff3cd; color:#856404;
-    border:2px solid #ffeeba; display:block; }
-  .loader { display:none; text-align:center; padding:15px;
-    color:#1e3c72; font-weight:600; }
-  .loader.active { display:block; }
-  .info-box {
-    background:#e8f4fd; border-left:4px solid #2980b9;
-    padding:15px; margin-bottom:25px; border-radius:6px;
-    font-size:14px; color:#1a5276;
+  :root {
+    --primary: #1e3c72;
+    --primary-light: #2a5298;
+    --accent: #3b82f6;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --radius: 14px;
+    --radius-sm: 10px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 20px 50px rgba(15,23,42,0.15);
+    --shadow-focus: 0 0 0 4px rgba(59,130,246,0.15);
   }
-  .field-hint { color:#888; font-size:11px; margin-top:4px; }
-  #infoDelai { margin-top:6px; font-size:12px; font-weight:600; }
 
-  .search-box { display:flex; gap:10px; margin-bottom:25px; flex-wrap:wrap; }
-  .search-box input {
-    flex:1; padding:13px; border:2px solid #e0e0e0; border-radius:8px;
-    font-size:15px; min-width:250px; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3c72 50%, #2a5298 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    padding: 24px 16px;
+    color: var(--gray-800);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    animation: fadeUp 0.5s ease-out;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ══════════ HEADER ══════════ */
+  header {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff;
+    padding: 28px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -80%; left: -5%;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+  }
+  .header-logo {
+    height: 76px; width: 76px;
+    object-fit: contain;
+    background: #fff;
+    border-radius: 50%;
+    padding: 6px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+  }
+  .header-text { flex: 1; min-width: 220px; }
+  .header-text h1 {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .header-text .subtitle {
+    font-size: 14px;
+    opacity: 0.9;
+    font-weight: 500;
+  }
+  .header-text .slogan {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-top: 6px;
+    font-style: italic;
+    letter-spacing: 1px;
+  }
+  .clock-box {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    padding: 12px 18px;
+    border-radius: 12px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+  }
+  .clock-box .clock-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.75;
+    margin-bottom: 4px;
+  }
+  .clock-box .clock-time {
+    font-size: 20px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+  }
+  .clock-box .clock-date {
+    font-size: 10px;
+    opacity: 0.75;
+    margin-top: 2px;
+  }
+
+  /* ══════════ TABS ══════════ */
+  .tabs {
+    display: flex;
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 16px;
+    gap: 8px;
+  }
+  .tab {
+    flex: 1;
+    padding: 18px 12px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--gray-500);
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    font-size: 14px;
+    border-radius: 8px 8px 0 0;
+    user-select: none;
+  }
+  .tab:hover { color: var(--primary); background: rgba(30,60,114,0.04); }
+  .tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    background: #fff;
+  }
+  .tab .tab-icon { margin-right: 6px; }
+
+  /* ══════════ CONTENT ══════════ */
+  .content { padding: 32px; }
+
+  /* ══════════ INFO BOX ══════════ */
+  .info-box {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-left: 4px solid var(--accent);
+    padding: 16px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+    color: #1e40af;
+    margin-bottom: 28px;
+    line-height: 1.6;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .info-box .info-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    line-height: 1;
+    margin-top: 2px;
+  }
+  .info-box strong { color: #1e3a8a; }
+
+  /* ══════════ FORM GRID ══════════ */
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--gray-500);
+    margin: 28px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--gray-200), transparent);
+  }
+  .section-title:first-child { margin-top: 0; }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .form-group { display: flex; flex-direction: column; position: relative; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--gray-700);
+    font-size: 13.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  label .required { color: var(--danger); font-weight: 700; }
+  label .label-icon { font-size: 15px; opacity: 0.7; }
+
+  .input-wrapper { position: relative; }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 13px 16px;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    font-size: 14.5px;
+    font-family: inherit;
+    transition: all 0.2s;
+    outline: none;
+    background: #fff;
+    color: var(--gray-800);
+  }
+  input::placeholder, textarea::placeholder { color: var(--gray-400); }
+  input:hover, select:hover, textarea:hover { border-color: var(--gray-300); }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-focus);
+    background: #fff;
+  }
+  input[readonly] {
+    background: var(--gray-100);
+    color: var(--gray-600);
+    cursor: not-allowed;
+    font-weight: 600;
+  }
+  textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
+
+  input.valid, textarea.valid { border-color: var(--success); }
+  input.invalid, textarea.invalid { border-color: var(--danger); }
+  input.valid:focus, textarea.valid:focus {
+    box-shadow: 0 0 0 4px rgba(16,185,129,0.12);
+  }
+  input.invalid:focus, textarea.invalid:focus {
+    box-shadow: 0 0 0 4px rgba(239,68,68,0.12);
+  }
+
+  .field-hint {
+    color: var(--gray-500);
+    font-size: 11.5px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  #infoDelai {
+    margin-top: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 6px;
+    display: none;
+    animation: fadeIn 0.3s ease-out;
+  }
+  #infoDelai:not(:empty) { display: block; }
+  #infoDelai.ok {
+    background: #ecfdf5;
+    color: #047857;
+    border-left: 3px solid var(--success);
+  }
+  #infoDelai.warn {
+    background: #fffbeb;
+    color: #b45309;
+    border-left: 3px solid var(--warning);
+  }
+  #infoDelai.err {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-left: 3px solid var(--danger);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ══════════ SUBMIT BUTTON ══════════ */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: #fff;
+    width: 100%;
+    margin-top: 28px;
+    padding: 16px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    letter-spacing: 0.3px;
+    box-shadow: 0 8px 20px rgba(30,60,114,0.25);
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(30,60,114,0.35);
+  }
+  .btn-primary:hover:not(:disabled)::before { left: 100%; }
+  .btn-primary:active:not(:disabled) { transform: translateY(0); }
+  .btn-primary:disabled {
+    background: var(--gray-400);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .loader {
+    display: none;
+    text-align: center;
+    padding: 18px;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .loader.active { display: block; }
+  .loader .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2.5px solid rgba(30,60,114,0.2);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ══════════ MESSAGES ══════════ */
+  .message {
+    padding: 16px 20px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 24px;
+    display: none;
+    font-weight: 500;
+    white-space: pre-line;
+    font-size: 14px;
+    line-height: 1.55;
+    animation: slideDown 0.35s ease-out;
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .message.success {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    color: #065f46;
+    border-left: 4px solid var(--success);
+    display: block;
+  }
+  .message.error {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    color: #991b1b;
+    border-left: 4px solid var(--danger);
+    display: block;
+  }
+  .message.warning {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    color: #92400e;
+    border-left: 4px solid var(--warning);
+    display: block;
+  }
+
+  /* ══════════ SUIVI ══════════ */
+  .search-box {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .search-box .input-wrapper { flex: 1; min-width: 260px; }
   .search-box button {
-    padding:13px 25px; background:#1e3c72; color:#fff; border:none;
-    border-radius:8px; font-size:15px; font-weight:600; cursor:pointer; }
-  .search-box button:hover { background:#2a5298; }
+    padding: 13px 28px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(30,60,114,0.25);
+    white-space: nowrap;
+  }
+  .search-box button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(30,60,114,0.3);
+  }
 
   .demande-card {
-    background:#fff; border:1px solid #e0e0e0; border-radius:12px;
-    padding:20px; margin-bottom:15px; border-left:6px solid #f39c12;
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 16px;
+    border-left: 5px solid var(--warning);
+    transition: all 0.2s;
+    animation: fadeUp 0.4s ease-out;
   }
-  .demande-card.validee { border-left-color:#27ae60; background:#f8fff9; }
-  .demande-card.refusee { border-left-color:#e74c3c; background:#fff8f8; }
-  .demande-card.en_attente { border-left-color:#f39c12; }
+  .demande-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .demande-card.validee { border-left-color: var(--success); background: linear-gradient(to right, #f0fdf4 0%, #fff 40%); }
+  .demande-card.refusee { border-left-color: var(--danger); background: linear-gradient(to right, #fef2f2 0%, #fff 40%); }
 
   .demande-card .card-header {
-    display:flex; justify-content:space-between; align-items:center;
-    flex-wrap:wrap; gap:10px; margin-bottom:12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 14px;
   }
-  .demande-card h3 { color:#1e3c72; font-size:16px; }
+  .demande-card h3 {
+    color: var(--primary);
+    font-size: 17px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
   .badge-statut {
-    padding:5px 12px; border-radius:15px; font-size:12px;
-    font-weight:700; text-transform:uppercase;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
-  .badge-statut.en_attente { background:#fef5e7; color:#d68910; }
-  .badge-statut.validee { background:#d5f4e6; color:#1e8449; }
-  .badge-statut.refusee { background:#fadbd8; color:#922b21; }
+  .badge-statut.en_attente { background: #fef3c7; color: #b45309; }
+  .badge-statut.validee { background: #d1fae5; color: #065f46; }
+  .badge-statut.refusee { background: #fee2e2; color: #991b1b; }
 
-  .demande-card p { font-size:13px; color:#555; line-height:1.7; margin-bottom:5px; }
-  .demande-card p strong { color:#333; }
+  .demande-card p {
+    font-size: 13.5px;
+    color: var(--gray-600);
+    line-height: 1.7;
+    margin-bottom: 6px;
+  }
+  .demande-card p strong { color: var(--gray-800); }
 
   .btn-imprimer {
-    display:inline-flex; align-items:center; gap:8px;
-    padding:12px 22px; background:#27ae60; color:#fff; border:none;
-    border-radius:8px; font-size:14px; font-weight:700; cursor:pointer;
-    margin-top:12px; text-transform:uppercase; letter-spacing:0.5px;
-    box-shadow:0 4px 12px rgba(39,174,96,0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 14px;
+    letter-spacing: 0.3px;
+    box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+    transition: all 0.2s;
   }
-  .btn-imprimer:hover { background:#229954; transform:translateY(-2px); }
+  .btn-imprimer:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(16,185,129,0.4);
+  }
 
   .resultat-box {
-    padding:12px; border-radius:8px; font-size:13px; margin-top:10px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    margin-top: 12px;
+    line-height: 1.6;
   }
-  .resultat-box.validee { background:#d5f4e6; color:#1e8449;
-    border-left:4px solid #27ae60; }
-  .resultat-box.refusee { background:#fadbd8; color:#922b21;
-    border-left:4px solid #e74c3c; }
-  .resultat-box.en_attente { background:#fef5e7; color:#d68910;
-    border-left:4px solid #f39c12; }
+  .resultat-box.validee { background: #ecfdf5; color: #047857; border-left: 4px solid var(--success); }
+  .resultat-box.refusee { background: #fef2f2; color: #b91c1c; border-left: 4px solid var(--danger); }
+  .resultat-box.en_attente { background: #fffbeb; color: #b45309; border-left: 4px solid var(--warning); }
 
   .empty-state {
-    text-align:center; color:#999; padding:50px 20px;
-    font-style:italic; font-size:15px;
+    text-align: center;
+    color: var(--gray-500);
+    padding: 60px 20px;
+    font-style: italic;
+    font-size: 15px;
+    background: var(--gray-50);
+    border-radius: var(--radius);
+    border: 2px dashed var(--gray-200);
   }
 
-  @media (max-width:600px) {
-    .form-grid { grid-template-columns:1fr; }
-    .tab { font-size:13px; padding:12px 8px; }
-    header { flex-direction:column; text-align:center; }
-    header .header-text { text-align:center; }
+  /* ══════════ RESPONSIVE ══════════ */
+  @media (max-width: 640px) {
+    body { padding: 12px 8px; }
+    .container { border-radius: 16px; }
+    header { padding: 22px 20px; }
+    .header-text h1 { font-size: 19px; }
+    .header-text .subtitle { font-size: 12.5px; }
+    .header-logo { height: 60px; width: 60px; }
+    .clock-box { padding: 10px 14px; }
+    .clock-box .clock-time { font-size: 17px; }
+    .content { padding: 22px 18px; }
+    .form-grid { grid-template-columns: 1fr; gap: 16px; }
+    .tab { font-size: 12.5px; padding: 14px 8px; }
+    .tab .tab-icon { display: none; }
+    input, select, textarea { font-size: 16px; }
+    .search-box button { width: 100%; }
   }
 </style>
 </head>
@@ -135,113 +561,154 @@
 
 <div class="container">
   <header>
-    <img src="https://amague2007-star.github.io/demande-vehicule/logo.png" alt="Logo ONG ADKOUL" onerror="this.style.display='none'">
-    <div class="header-text">
-      <h1>ONG ADKOUL</h1>
-      <p>Demande de Sortie Véhicule - Service Logistique</p>
-      <p class="slogan">Solidarité • Éducation • Développement</p>
+    <div class="header-content">
+      <img class="header-logo" src="https://amague2007-star.github.io/demande-vehicule/logo.png"
+           alt="Logo ONG ADKOUL" onerror="this.style.display='none'">
+      <div class="header-text">
+        <h1>ONG ADKOUL</h1>
+        <div class="subtitle">Demande de Sortie Véhicule — Service Logistique</div>
+        <div class="slogan">SOLIDARITÉ • ÉDUCATION • DÉVELOPPEMENT</div>
+      </div>
+      <div class="clock-box">
+        <div class="clock-label">Heure du Niger</div>
+        <div class="clock-time" id="liveClock">--:--:--</div>
+        <div class="clock-date" id="liveDate">—</div>
+      </div>
     </div>
   </header>
 
   <div class="tabs">
     <div class="tab active" id="tabNouvelle" onclick="switchTab('nouvelle', event)">
-      📝 Nouvelle Demande
+      <span class="tab-icon">📝</span> Nouvelle Demande
     </div>
     <div class="tab" id="tabMesDemandes" onclick="switchTab('mes', event)">
-      📋 Suivre mes demandes
+      <span class="tab-icon">📋</span> Suivre mes demandes
     </div>
   </div>
 
   <div class="content">
 
-    <!-- ONGLET 1 : NOUVELLE DEMANDE -->
+    <!-- ═════ ONGLET 1 : NOUVELLE DEMANDE ═════ -->
     <div id="panelNouvelle">
       <div id="messageBox" class="message"></div>
 
       <div class="info-box">
-        💡 <strong>Information :</strong> Le véhicule et le chauffeur seront attribués par le service Logistique après validation de votre demande. Vous recevrez un email de confirmation.<br>
-        ⏰ <strong>Rappel :</strong> votre demande doit être soumise <strong>dans l'heure qui précède</strong> la sortie (entre 0 et 60 minutes avant). Durée maximale de la sortie : <strong>60 minutes</strong>.
+        <span class="info-icon">💡</span>
+        <div>
+          <strong>Information :</strong> Le véhicule et le chauffeur seront attribués par le service Logistique après validation de votre demande. Vous recevrez un email de confirmation.<br>
+          <strong>⏰ Rappel :</strong> votre demande doit être soumise <strong>dans l'heure qui précède</strong> la sortie (entre 0 et 60 minutes avant). Durée maximale de la sortie : <strong>60 minutes</strong>.
+        </div>
       </div>
 
       <form id="formDemande" onsubmit="soumettre(event)">
+
+        <div class="section-title">👤 Informations de l'agent</div>
         <div class="form-grid">
           <div class="form-group">
-            <label>Nom <span class="required">*</span></label>
-            <input type="text" id="nom" required placeholder="Ex: DUPONT">
+            <label><span class="label-icon">📛</span> Nom <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <input type="text" id="nom" required placeholder="Ex: DUPONT" autocomplete="family-name">
+            </div>
           </div>
           <div class="form-group">
-            <label>Prénom <span class="required">*</span></label>
-            <input type="text" id="prenom" required placeholder="Ex: Jean">
+            <label><span class="label-icon">👤</span> Prénom <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <input type="text" id="prenom" required placeholder="Ex: Jean" autocomplete="given-name">
+            </div>
           </div>
+          <div class="form-group">
+            <label><span class="label-icon">💼</span> Poste occupé <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <input type="text" id="poste" required placeholder="Ex: Chauffeur, Technicien...">
+            </div>
+          </div>
+          <div class="form-group">
+            <label><span class="label-icon">🏢</span> Service / Département</label>
+            <div class="input-wrapper">
+              <input type="text" id="service" placeholder="Ex: Logistique">
+            </div>
+          </div>
+          <div class="form-group">
+            <label><span class="label-icon">📧</span> Email de l'agent <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <input type="email" id="email" required placeholder="Ex: agent@adkoul.org" autocomplete="email">
+            </div>
+          </div>
+          <div class="form-group">
+            <label><span class="label-icon">📞</span> Contact (téléphone)</label>
+            <div class="input-wrapper">
+              <input type="tel" id="contact" placeholder="Ex: +227 90 00 00 00" autocomplete="tel">
+            </div>
+          </div>
+        </div>
 
+        <div class="section-title">🚗 Détails de la sortie</div>
+        <div class="form-grid">
           <div class="form-group">
-            <label>Poste occupé <span class="required">*</span></label>
-            <input type="text" id="poste" required placeholder="Ex: Chauffeur, Technicien...">
+            <label><span class="label-icon">📅</span> Date de sortie <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <input type="date" id="dateSortie" required>
+            </div>
           </div>
           <div class="form-group">
-            <label>Service / Département</label>
-            <input type="text" id="service" placeholder="Ex: Logistique">
-          </div>
-
-          <div class="form-group">
-            <label>Email de l'agent <span class="required">*</span></label>
-            <input type="email" id="email" required placeholder="Ex: agent@adkoul.org">
-          </div>
-          <div class="form-group">
-            <label>Contact (téléphone)</label>
-            <input type="tel" id="contact" placeholder="Ex: +227 90 00 00 00">
-          </div>
-
-          <div class="form-group">
-            <label>Date de sortie <span class="required">*</span></label>
-            <input type="date" id="dateSortie" required>
-          </div>
-          <div class="form-group">
-            <label>Heure de départ <span class="required">*</span></label>
-            <input type="time" id="heureDepart" required>
+            <label><span class="label-icon">🕐</span> Heure de départ <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <input type="time" id="heureDepart" required>
+            </div>
             <div id="infoDelai"></div>
           </div>
-
           <div class="form-group">
-            <label>Destination <span class="required">*</span></label>
-            <input type="text" id="destination" required placeholder="Ex: Marché central">
+            <label><span class="label-icon">📍</span> Destination <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <input type="text" id="destination" required placeholder="Ex: Marché central">
+            </div>
           </div>
           <div class="form-group">
-            <label>Durée estimée (minutes) <span class="required">*</span></label>
-            <input type="number" id="duree" required min="5" max="60" placeholder="Entre 5 et 60 minutes">
+            <label><span class="label-icon">⏱</span> Durée estimée (minutes) <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <input type="number" id="duree" required min="5" max="60" placeholder="Entre 5 et 60 minutes">
+            </div>
             <small class="field-hint">⚠️ Maximum 60 minutes (1 heure)</small>
           </div>
-
           <div class="form-group full">
-            <label>Motif / Objet de la sortie <span class="required">*</span></label>
-            <textarea id="motif" required placeholder="Précisez la raison de la sortie..."></textarea>
+            <label><span class="label-icon">📝</span> Motif / Objet de la sortie <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <textarea id="motif" required placeholder="Précisez la raison de la sortie..."></textarea>
+            </div>
           </div>
-
           <div class="form-group">
-            <label>Nombre de passagers</label>
-            <input type="number" id="passagers" min="1" placeholder="Ex: 3">
+            <label><span class="label-icon">👥</span> Nombre de passagers</label>
+            <div class="input-wrapper">
+              <input type="number" id="passagers" min="1" placeholder="Ex: 3">
+            </div>
           </div>
-
           <div class="form-group">
-            <label>Responsable de validation</label>
-            <input type="text" id="responsable" readonly>
+            <label><span class="label-icon">✅</span> Responsable de validation</label>
+            <div class="input-wrapper">
+              <input type="text" id="responsable" readonly>
+            </div>
           </div>
         </div>
 
         <button type="submit" id="btnSubmit" class="btn-primary">✅ Envoyer la demande</button>
-        <div id="loader" class="loader">⏳ Envoi de la demande en cours...</div>
+        <div id="loader" class="loader"><span class="spinner"></span>Envoi de la demande en cours...</div>
       </form>
     </div>
 
-    <!-- ONGLET 2 : SUIVI DES DEMANDES -->
+    <!-- ═════ ONGLET 2 : SUIVI ═════ -->
     <div id="panelMes" style="display:none;">
       <div class="info-box">
-        🔍 <strong>Suivi de vos demandes :</strong> Saisissez l'adresse email que vous avez utilisée lors de votre demande, puis cliquez sur "Rechercher". Vous pourrez voir le statut et imprimer votre bon de sortie une fois validée.
+        <span class="info-icon">🔍</span>
+        <div>
+          <strong>Suivi de vos demandes :</strong> Saisissez l'adresse email que vous avez utilisée lors de votre demande, puis cliquez sur « Rechercher ». Vous pourrez voir le statut et imprimer votre bon de sortie une fois validée.
+        </div>
       </div>
 
       <div class="search-box">
-        <input type="email" id="searchEmail" placeholder="Votre email (ex: agent@adkoul.org)"
-          onkeypress="if(event.key==='Enter') rechercherDemandes()">
+        <div class="input-wrapper">
+          <input type="email" id="searchEmail" placeholder="Votre email (ex: agent@adkoul.org)"
+            onkeypress="if(event.key==='Enter') rechercherDemandes()">
+        </div>
         <button onclick="rechercherDemandes()">🔍 Rechercher</button>
       </div>
 
@@ -256,64 +723,75 @@
 </div>
 
 <script>
+  // ═══════════════════════════════════════════════════════════
+  // CONFIGURATION
+  // ═══════════════════════════════════════════════════════════
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
   const LOGO_URL = "https://amague2007-star.github.io/demande-vehicule/logo.png";
 
-  // ============================================================
-  // EMAILJS (remplace Formspree)
-  // ============================================================
   const EMAILJS_PUBLIC_KEY = "SUbWMSdrTf7JugMrS";
   const EMAILJS_SERVICE_ID = "service_e6k2e76";
   const EMAILJS_TEMPLATE_ID = "template_gd96rfl";
 
-  // ⚠️ ⬇️ REMPLACE ICI par ton email admin qui doit recevoir les notifications
-  const EMAIL_ADMIN = "TON_EMAIL_ADMIN@adkoul.org";
+  // ✅ Email admin déjà configuré
+  const EMAIL_ADMIN = "amague2007@gmail.com";
 
   emailjs.init(EMAILJS_PUBLIC_KEY);
 
-  // ============================================================
-  // RESPONSABLE FIXE
-  // ============================================================
   const RESPONSABLE_FIXE = "ABDOUL AZIZ ADAM";
 
-  // ============================================================
-  // FUSEAU HORAIRE DU NIGER (UTC+1)
-  // ============================================================
+  // ═══════════════════════════════════════════════════════════
+  // HORLOGE TEMPS RÉEL (heure du Niger)
+  // ═══════════════════════════════════════════════════════════
+  function updateClock() {
+    const nowUTC = new Date();
+    const offsetNavMin = nowUTC.getTimezoneOffset();
+    const nowNiger = new Date(nowUTC.getTime() + (offsetNavMin * 60 * 1000) + (60 * 60 * 1000));
+    const hh = String(nowNiger.getUTCHours()).padStart(2,'0');
+    const mm = String(nowNiger.getUTCMinutes()).padStart(2,'0');
+    const ss = String(nowNiger.getUTCSeconds()).padStart(2,'0');
+    const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+    const mois = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+    document.getElementById('liveClock').textContent = hh + ':' + mm + ':' + ss;
+    document.getElementById('liveDate').textContent =
+      jours[nowNiger.getUTCDay()] + ' ' + nowNiger.getUTCDate() + ' ' + mois[nowNiger.getUTCMonth()];
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // ═══════════════════════════════════════════════════════════
+  // FUSEAU HORAIRE NIGER
+  // ═══════════════════════════════════════════════════════════
   function formatNigerDate(dateStr) {
     if (!dateStr) return '-';
     const date = new Date(dateStr);
     const nigerDate = new Date(date.getTime() + (60 * 60 * 1000));
     return nigerDate.toLocaleString('fr-FR', {
-      timeZone: 'UTC',
-      day: '2-digit', month: '2-digit', year: 'numeric',
+      timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric',
       hour: '2-digit', minute: '2-digit'
     });
   }
-
   function formatNigerDateShort(dateStr) {
     if (!dateStr) return '-';
     const date = new Date(dateStr);
     const nigerDate = new Date(date.getTime() + (60 * 60 * 1000));
     return nigerDate.toLocaleDateString('fr-FR', {
-      timeZone: 'UTC',
-      day: '2-digit', month: '2-digit', year: 'numeric'
+      timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric'
     });
   }
-
   function formatNigerDateLong(dateStr) {
     if (!dateStr) return '-';
     const date = new Date(dateStr);
     const nigerDate = new Date(date.getTime() + (60 * 60 * 1000));
     return nigerDate.toLocaleDateString('fr-FR', {
-      timeZone: 'UTC',
-      weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+      timeZone: 'UTC', weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
     });
   }
 
-  // ============================================================
+  // ═══════════════════════════════════════════════════════════
   // UTILITAIRE : heure limite (HH:MM ± offset minutes)
-  // ============================================================
+  // ═══════════════════════════════════════════════════════════
   function calculerHeureLimite(heureSortie, offsetMinutes) {
     const [h, m] = heureSortie.split(':').map(Number);
     const total = h * 60 + m + offsetMinutes;
@@ -324,9 +802,9 @@
     return String(newH).padStart(2,'0') + ':' + String(newM).padStart(2,'0');
   }
 
-  // ============================================================
+  // ═══════════════════════════════════════════════════════════
   // UTILITAIRE : écart en minutes entre MAINTENANT (Niger) et une date/heure saisie
-  // ============================================================
+  // ═══════════════════════════════════════════════════════════
   function calculerDiffMinutes(dateVal, heureVal) {
     const nowUTC = new Date();
     const offsetNavMin = nowUTC.getTimezoneOffset();
@@ -339,15 +817,15 @@
     return (sortieMs - nowNigerMs) / (1000 * 60);
   }
 
-  // ============================================================
+  // ═══════════════════════════════════════════════════════════
   // INITIALISATION
-  // ============================================================
+  // ═══════════════════════════════════════════════════════════
   document.getElementById('dateSortie').valueAsDate = new Date();
   document.getElementById('responsable').value = RESPONSABLE_FIXE;
 
   function switchTab(tab, event) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
+    event.target.closest('.tab').classList.add('active');
     document.getElementById('panelNouvelle').style.display = tab === 'nouvelle' ? 'block' : 'none';
     document.getElementById('panelMes').style.display = tab === 'mes' ? 'block' : 'none';
   }
@@ -521,12 +999,14 @@ Solidarité • Éducation • Développement`;
       document.getElementById('dateSortie').valueAsDate = new Date();
       document.getElementById('responsable').value = RESPONSABLE_FIXE;
       document.getElementById('infoDelai').textContent = '';
+      document.getElementById('infoDelai').className = '';
     } else if (supabaseOK && !emailOK) {
       afficherMessage("⚠️ Votre demande a été enregistrée, mais la notification email n'a pas pu être envoyée.\n\nLe service Logistique la verra dans son tableau de bord.", 'warning');
       e.target.reset();
       document.getElementById('dateSortie').valueAsDate = new Date();
       document.getElementById('responsable').value = RESPONSABLE_FIXE;
       document.getElementById('infoDelai').textContent = '';
+      document.getElementById('infoDelai').className = '';
     } else {
       afficherMessage("❌ Erreur d'envoi : " + erreurs.join(' | '), 'error');
     }
@@ -826,6 +1306,7 @@ Solidarité • Éducation • Développement`;
 
     if (!dateVal || !heureVal) {
       infoEl.textContent = '';
+      infoEl.className = '';
       return;
     }
 
@@ -833,24 +1314,20 @@ Solidarité • Éducation • Développement`;
 
     if (diffMin < 0) {
       infoEl.textContent = '❌ Date/heure déjà passée';
-      infoEl.style.color = '#e74c3c';
-      infoEl.style.fontWeight = '700';
+      infoEl.className = 'err';
     } else if (diffMin > 60) {
       const h = Math.floor(diffMin / 60);
       const m = Math.round(diffMin % 60);
       infoEl.textContent = `❌ Trop tôt : ${h}h${String(m).padStart(2,'0')} avant la sortie (max 1h). Soumettez à partir de ${calculerHeureLimite(heureVal, -60)}.`;
-      infoEl.style.color = '#e74c3c';
-      infoEl.style.fontWeight = '700';
+      infoEl.className = 'err';
     } else if (diffMin > 30) {
       const m = Math.round(diffMin);
       infoEl.textContent = `✅ Délai respecté (${m} min avant la sortie)`;
-      infoEl.style.color = '#27ae60';
-      infoEl.style.fontWeight = '700';
+      infoEl.className = 'ok';
     } else {
       const m = Math.round(diffMin);
       infoEl.textContent = `✅ Délai respecté (${m} min avant la sortie — départ imminent !)`;
-      infoEl.style.color = '#e67e22';
-      infoEl.style.fontWeight = '700';
+      infoEl.className = 'warn';
     }
   }
 

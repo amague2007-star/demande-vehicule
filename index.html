@@ -846,14 +846,11 @@
   const LIEU_RETOUR_FIXE = "Au siège";
 
   // ═══════════════════════════════════════════════════════════
-  // FUSEAU HORAIRE NIGER — UTC+2
+  // FUSEAU HORAIRE — ON UTILISE DIRECTEMENT L'HEURE DU PC
+  // (Car le PC est déjà réglé sur l'heure du Niger)
   // ═══════════════════════════════════════════════════════════
-  const NIGER_OFFSET_H = 2;
-
   function getNigerDate() {
-    const now = new Date();
-    const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
-    return new Date(utcMs + (NIGER_OFFSET_H * 60 * 60 * 1000));
+    return new Date(); // Retourne l'heure locale du PC
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -861,14 +858,14 @@
   // ═══════════════════════════════════════════════════════════
   function updateClock() {
     const niger = getNigerDate();
-    const hh = String(niger.getUTCHours()).padStart(2,'0');
-    const mm = String(niger.getUTCMinutes()).padStart(2,'0');
-    const ss = String(niger.getUTCSeconds()).padStart(2,'0');
+    const hh = String(niger.getHours()).padStart(2,'0');
+    const mm = String(niger.getMinutes()).padStart(2,'0');
+    const ss = String(niger.getSeconds()).padStart(2,'0');
     const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
     const mois = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
     document.getElementById('liveClock').textContent = hh + ':' + mm + ':' + ss;
     document.getElementById('liveDate').textContent =
-      jours[niger.getUTCDay()] + ' ' + niger.getUTCDate() + ' ' + mois[niger.getUTCMonth()];
+      jours[niger.getDay()] + ' ' + niger.getDate() + ' ' + mois[niger.getMonth()];
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -876,9 +873,9 @@
   // ═══════════════════════════════════════════════════════════
   function setDateAujourdhui() {
     const niger = getNigerDate();
-    const yyyy = niger.getUTCFullYear();
-    const mm = String(niger.getUTCMonth() + 1).padStart(2, '0');
-    const dd = String(niger.getUTCDate()).padStart(2, '0');
+    const yyyy = niger.getFullYear();
+    const mm = String(niger.getMonth() + 1).padStart(2, '0');
+    const dd = String(niger.getDate()).padStart(2, '0');
     document.getElementById('dateSortie').value = yyyy + '-' + mm + '-' + dd;
   }
 
@@ -888,26 +885,23 @@
   function formatNigerDate(dateStr) {
     if (!dateStr) return '-';
     const date = new Date(dateStr);
-    const nigerDate = new Date(date.getTime() + (NIGER_OFFSET_H * 60 * 60 * 1000));
-    return nigerDate.toLocaleString('fr-FR', {
-      timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric',
+    return date.toLocaleString('fr-FR', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
       hour: '2-digit', minute: '2-digit'
     });
   }
   function formatNigerDateShort(dateStr) {
     if (!dateStr) return '-';
     const date = new Date(dateStr);
-    const nigerDate = new Date(date.getTime() + (NIGER_OFFSET_H * 60 * 60 * 1000));
-    return nigerDate.toLocaleDateString('fr-FR', {
-      timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric'
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit', month: '2-digit', year: 'numeric'
     });
   }
   function formatNigerDateLong(dateStr) {
     if (!dateStr) return '-';
     const date = new Date(dateStr);
-    const nigerDate = new Date(date.getTime() + (NIGER_OFFSET_H * 60 * 60 * 1000));
-    return nigerDate.toLocaleDateString('fr-FR', {
-      timeZone: 'UTC', weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+    return date.toLocaleDateString('fr-FR', {
+      weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
     });
   }
 
@@ -915,21 +909,18 @@
   // DIFFÉRENCE EN MINUTES (CORRIGÉE)
   // ═══════════════════════════════════════════════════════════
   function calculerDiffMinutes(dateVal, heureVal) {
-    // 1. Obtenir l'heure actuelle au Niger
-    const niger = getNigerDate();
+    // 1. Obtenir l'heure actuelle
+    const now = new Date();
     
     // 2. Extraire l'heure et les minutes de la saisie
     const [heures, minutes] = heureVal.split(':').map(Number);
     
     // 3. Convertir les deux en "minutes depuis minuit"
-    const nowMinutes = (niger.getUTCHours() * 60) + niger.getUTCMinutes();
+    const nowMinutes = (now.getHours() * 60) + now.getMinutes();
     const sortieMinutes = (heures * 60) + minutes;
     
     // 4. Calculer la différence
     let diff = sortieMinutes - nowMinutes;
-    
-    // Si la différence est négative mais supérieure à -12h, c'est probablement pour demain
-    // Mais comme la date est fixée à aujourd'hui, on garde la différence brute.
     
     return diff;
   }
@@ -984,14 +975,14 @@
 
     const diffMinutes = calculerDiffMinutes(dateVal, heureVal);
 
-    const niger = getNigerDate();
-    const heureActuelleNiger = String(niger.getUTCHours()).padStart(2,'0') + ':' +
-                                String(niger.getUTCMinutes()).padStart(2,'0');
+    const now = new Date();
+    const heureActuelle = String(now.getHours()).padStart(2,'0') + ':' +
+                          String(now.getMinutes()).padStart(2,'0');
 
     if (diffMinutes < -5) {
       afficherMessage(`Heure de sortie déjà passée.
 
-🕐 Heure actuelle (Niger) : ${heureActuelleNiger}
+🕐 Heure actuelle : ${heureActuelle}
 🚗 Heure de sortie demandée : ${heureVal}
 
 Veuillez choisir une heure de sortie future.`, 'error');
@@ -1168,7 +1159,7 @@ Solidarité • Éducation • Développement`;
       statutBadge = '✅ Validée';
       resultatHtml = `
         <div class="resultat-box validee">
-          <strong>✅ Validée</strong> le ${formatNigerDate(d.date_validation)} (heure Niger)<br>
+          <strong>✅ Validée</strong> le ${formatNigerDate(d.date_validation)}<br>
           👤 Chauffeur : <strong>${d.chauffeur_assigne || '-'}</strong><br>
           🚙 Véhicule : <strong>${d.vehicule_assigne || '-'}</strong>
           ${d.message_admin ? '<br>💬 ' + d.message_admin : ''}
@@ -1181,7 +1172,7 @@ Solidarité • Éducation • Développement`;
       statutBadge = '❌ Refusée';
       resultatHtml = `
         <div class="resultat-box refusee">
-          <strong>❌ Refusée</strong> le ${formatNigerDate(d.date_validation)} (heure Niger)<br>
+          <strong>❌ Refusée</strong> le ${formatNigerDate(d.date_validation)}<br>
           Motif : <strong>${d.message_admin || '-'}</strong>
         </div>
       `;
@@ -1190,7 +1181,7 @@ Solidarité • Éducation • Développement`;
       resultatHtml = `
         <div class="resultat-box en_attente">
           ⏳ <strong>En attente de validation</strong> par le service Logistique
-          <br><small style="color:#888;">Demande envoyée le ${createdStr} (heure Niger)</small>
+          <br><small style="color:#888;">Demande envoyée le ${createdStr}</small>
         </div>
       `;
     }
@@ -1322,7 +1313,7 @@ Solidarité • Éducation • Développement`;
               </div>
               <div class="header-right">
                 <div class="bon-num">N° ${numBon}</div>
-                <span class="date-creation">Créé le ${createdStr} (Niger)</span>
+                <span class="date-creation">Créé le ${createdStr}</span>
               </div>
             </div>
             <div class="titre-bon">AUTORISATION DE SORTIE DE VÉHICULE</div>
@@ -1357,7 +1348,7 @@ Solidarité • Éducation • Développement`;
                 <div class="ligne"><span class="label">Chauffeur</span><span class="valeur">${d.chauffeur_assigne || '—'}</span></div>
                 <div class="ligne"><span class="label">Véhicule</span><span class="valeur">${d.vehicule_assigne || '—'}</span></div>
                 <div class="ligne"><span class="label">Validé par</span><span class="valeur">Service Logistique</span></div>
-                <div class="ligne"><span class="label">Date validation</span><span class="valeur">${validStr} (Niger)</span></div>
+                <div class="ligne"><span class="label">Date validation</span><span class="valeur">${validStr}</span></div>
               </div>
               ${d.message_admin ? `<div class="ligne" style="margin-top:3px;"><span class="label">Message</span><span class="valeur">${d.message_admin}</span></div>` : ''}
             </div>

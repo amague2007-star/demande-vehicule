@@ -10,339 +10,655 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --primary: #1e3c72;
-    --primary-light: #2a5298;
-    --accent: #3b82f6;
+    --primary: #1e40af;
+    --primary-dark: #1e3a8a;
+    --primary-light: #2563eb;
+    --accent-orange: #f59e0b;
     --success: #10b981;
     --danger: #ef4444;
     --warning: #f59e0b;
-    --gray-50: #f9fafb;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-300: #d1d5db;
-    --gray-400: #9ca3af;
-    --gray-500: #6b7280;
-    --gray-600: #4b5563;
-    --gray-700: #374151;
-    --gray-800: #1f2937;
-    --radius: 14px;
-    --radius-sm: 10px;
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
-    --shadow-lg: 0 20px 50px rgba(15,23,42,0.15);
-    --shadow-focus: 0 0 0 4px rgba(59,130,246,0.15);
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1e293b;
+    --gray-900: #0f172a;
+    --radius: 16px;
+    --radius-sm: 12px;
+    --shadow-card: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+    --shadow-input: 0 1px 2px rgba(0,0,0,0.03);
+    --shadow-focus: 0 0 0 4px rgba(37, 99, 235, 0.12);
   }
   * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height: 100%; }
   body {
     font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(135deg, #0f172a 0%, #1e3c72 50%, #2a5298 100%);
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
     background-attachment: fixed;
     min-height: 100vh;
-    padding: 24px 16px;
+    padding: 32px 16px;
     color: var(--gray-800);
     -webkit-font-smoothing: antialiased;
+    position: relative;
+    overflow-x: hidden;
   }
-  .container {
-    max-width: 960px; margin: 0 auto;
-    background: #fff; border-radius: 20px;
-    box-shadow: var(--shadow-lg); overflow: hidden;
-    animation: fadeUp 0.5s ease-out;
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; right: -100px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
   }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -250px; left: -150px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
   }
-  header {
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    color: #fff; padding: 28px 32px;
-    position: relative; overflow: hidden;
+  .main-card {
+    position: relative;
+    z-index: 1;
+    max-width: 1000px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    animation: cardFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1);
   }
-  header::before {
-    content: ''; position: absolute;
-    top: -50%; right: -10%; width: 300px; height: 300px;
-    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  @keyframes cardFadeUp {
+    from { opacity: 0; transform: translateY(30px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .app-header {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
+    color: #fff;
+    padding: 28px 40px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .app-header::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -80px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 65%);
     border-radius: 50%;
   }
-  .header-content {
-    display: flex; align-items: center; gap: 20px;
-    position: relative; z-index: 1; flex-wrap: wrap;
+  .app-header::after {
+    content: '';
+    position: absolute;
+    bottom: -150px; left: -60px;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 65%);
+    border-radius: 50%;
   }
-  .header-logo {
-    height: 76px; width: 76px; object-fit: contain;
-    background: #fff; border-radius: 50%; padding: 6px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2); flex-shrink: 0;
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    min-width: 260px;
   }
-  .header-text { flex: 1; min-width: 220px; }
-  .header-text h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
-  .header-text .subtitle { font-size: 14px; opacity: 0.9; font-weight: 500; }
-  .header-text .slogan { font-size: 11px; opacity: 0.7; margin-top: 6px; font-style: italic; letter-spacing: 1px; }
-  .clock-box {
+  .brand-logo {
+    height: 72px;
+    width: 72px;
+    object-fit: contain;
+    background: #fff;
+    border-radius: 50%;
+    padding: 6px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    flex-shrink: 0;
+  }
+  .brand-text h1 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 2px;
+    color: #fff;
+  }
+  .brand-text .subtitle {
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0.9;
+    color: #dbeafe;
+  }
+  .brand-text .slogan {
+    font-size: 10.5px;
+    font-weight: 500;
+    opacity: 0.75;
+    margin-top: 4px;
+    letter-spacing: 1.2px;
+    color: #bfdbfe;
+  }
+  .header-clock {
+    display: flex;
+    align-items: center;
+    gap: 14px;
     background: rgba(255,255,255,0.12);
     border: 1px solid rgba(255,255,255,0.2);
-    backdrop-filter: blur(10px);
-    padding: 12px 18px; border-radius: 12px;
-    text-align: center; position: relative; z-index: 1; flex-shrink: 0;
+    backdrop-filter: blur(12px);
+    padding: 12px 18px;
+    border-radius: 14px;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
   }
-  .clock-box .clock-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.75; margin-bottom: 4px; }
-  .clock-box .clock-time { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.5px; }
-  .clock-box .clock-date { font-size: 10px; opacity: 0.75; margin-top: 2px; }
-
+  .clock-icon { font-size: 24px; line-height: 1; }
+  .clock-info { display: flex; flex-direction: column; }
+  .clock-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    opacity: 0.7;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .clock-time {
+    font-size: 20px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+    line-height: 1.1;
+  }
+  .clock-date { font-size: 10px; opacity: 0.75; margin-top: 1px; }
   .tabs {
-    display: flex; background: var(--gray-50);
+    display: flex;
+    background: var(--gray-50);
     border-bottom: 1px solid var(--gray-200);
-    padding: 0 16px; gap: 8px;
+    padding: 0 24px;
+    gap: 8px;
   }
   .tab {
-    flex: 1; padding: 18px 12px; text-align: center;
-    cursor: pointer; font-weight: 600; color: var(--gray-500);
+    flex: 1;
+    padding: 20px 14px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--gray-500);
     border-bottom: 3px solid transparent;
-    transition: all 0.2s; font-size: 14px;
-    border-radius: 8px 8px 0 0; user-select: none;
+    transition: all 0.25s;
+    font-size: 14px;
+    border-radius: 10px 10px 0 0;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
   }
-  .tab:hover { color: var(--primary); background: rgba(30,60,114,0.04); }
-  .tab.active { color: var(--primary); border-bottom-color: var(--primary); background: #fff; }
-  .tab .tab-icon { margin-right: 6px; }
-
-  .content { padding: 32px; }
-
-  .info-box {
+  .tab:hover {
+    color: var(--primary);
+    background: rgba(30, 64, 175, 0.04);
+  }
+  .tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    background: #fff;
+    font-weight: 700;
+  }
+  .content { padding: 40px; }
+  .toast {
+    padding: 16px 22px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 28px;
+    display: none;
+    font-weight: 500;
+    white-space: pre-line;
+    font-size: 14px;
+    line-height: 1.6;
+    animation: slideDown 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .toast::before { font-size: 18px; flex-shrink: 0; line-height: 1.2; }
+  .toast.success {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    color: #065f46;
+    border-left: 4px solid var(--success);
+    display: flex;
+  }
+  .toast.success::before { content: '✅'; }
+  .toast.error {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    color: #991b1b;
+    border-left: 4px solid var(--danger);
+    display: flex;
+  }
+  .toast.error::before { content: '❌'; }
+  .toast.warning {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    color: #92400e;
+    border-left: 4px solid var(--warning);
+    display: flex;
+  }
+  .toast.warning::before { content: '⚠️'; }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .info-banner {
     background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-    border-left: 4px solid var(--accent);
-    padding: 16px 20px; border-radius: var(--radius-sm);
-    font-size: 13.5px; color: #1e40af; margin-bottom: 28px;
-    line-height: 1.6; display: flex; gap: 12px; align-items: flex-start;
+    border-left: 4px solid var(--primary);
+    padding: 18px 22px;
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+    color: #1e40af;
+    margin-bottom: 32px;
+    line-height: 1.65;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
   }
-  .info-box .info-icon { font-size: 20px; flex-shrink: 0; line-height: 1; margin-top: 2px; }
-  .info-box strong { color: #1e3a8a; }
-
-  .section-title {
-    font-size: 12px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 1.2px;
-    color: var(--gray-500); margin: 28px 0 16px;
-    display: flex; align-items: center; gap: 10px;
+  .info-banner .info-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    line-height: 1;
+    margin-top: 2px;
   }
-  .section-title::after {
-    content: ''; flex: 1; height: 1px;
-    background: linear-gradient(to right, var(--gray-200), transparent);
+  .info-banner strong { color: #1e3a8a; font-weight: 700; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 32px 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--gray-100);
   }
-  .section-title:first-child { margin-top: 0; }
-
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .form-group { display: flex; flex-direction: column; position: relative; }
+  .section-header .section-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
+    flex-shrink: 0;
+  }
+  .section-header h3 {
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--gray-700);
+  }
+  .section-header:first-child { margin-top: 0; }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    animation: fieldFade 0.5s ease-out backwards;
+  }
   .form-group.full { grid-column: 1 / -1; }
-
+  @keyframes fieldFade {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
   label {
-    font-weight: 600; margin-bottom: 8px;
-    color: var(--gray-700); font-size: 13.5px;
-    display: flex; align-items: center; gap: 6px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--gray-700);
+    font-size: 13.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   label .required { color: var(--danger); font-weight: 700; }
-  label .label-icon { font-size: 15px; opacity: 0.7; }
-
+  label .label-icon { font-size: 15px; opacity: 0.75; }
   .input-wrapper { position: relative; }
-
   input, select, textarea {
-    width: 100%; padding: 13px 16px;
+    width: 100%;
+    padding: 14px 16px;
     border: 2px solid var(--gray-200);
     border-radius: var(--radius-sm);
-    font-size: 14.5px; font-family: inherit;
-    transition: all 0.2s; outline: none;
-    background: #fff; color: var(--gray-800);
+    font-size: 14.5px;
+    font-family: inherit;
+    transition: all 0.25s;
+    outline: none;
+    background: #fff;
+    color: var(--gray-800);
+    font-weight: 500;
+    box-shadow: var(--shadow-input);
   }
   select {
     appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
-    background-position: right 14px center;
-    background-size: 18px;
-    padding-right: 44px;
+    background-position: right 16px center;
+    background-size: 16px;
+    padding-right: 46px;
     cursor: pointer;
   }
-  input::placeholder, textarea::placeholder { color: var(--gray-400); }
+  input::placeholder, textarea::placeholder { color: var(--gray-400); font-weight: 400; }
   input:hover, select:hover, textarea:hover { border-color: var(--gray-300); }
   input:focus, select:focus, textarea:focus {
-    border-color: var(--accent);
+    border-color: var(--primary-light);
     box-shadow: var(--shadow-focus);
     background: #fff;
+    transform: translateY(-1px);
   }
-  input[readonly] { background: var(--gray-100); color: var(--gray-600); cursor: not-allowed; font-weight: 600; }
-  textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
-
-  .field-hint { color: var(--gray-500); font-size: 11.5px; margin-top: 6px; display: flex; align-items: center; gap: 5px; }
-
+  input[readonly], input[readonly]:hover, input[readonly]:focus {
+    background: var(--gray-100);
+    color: var(--gray-600);
+    cursor: not-allowed;
+    font-weight: 700;
+    border-color: var(--gray-200);
+    transform: none;
+    box-shadow: none;
+  }
+  textarea { resize: vertical; min-height: 110px; line-height: 1.6; font-weight: 500; }
+  .field-hint {
+    color: var(--gray-500);
+    font-size: 11.5px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
+  }
   #infoDelai {
-    margin-top: 8px; font-size: 12.5px;
-    font-weight: 600; padding: 6px 10px;
-    border-radius: 6px; display: none;
+    margin-top: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    display: none;
     animation: fadeIn 0.3s ease-out;
   }
   #infoDelai:not(:empty) { display: block; }
   #infoDelai.ok { background: #ecfdf5; color: #047857; border-left: 3px solid var(--success); }
   #infoDelai.warn { background: #fffbeb; color: #b45309; border-left: 3px solid var(--warning); }
   #infoDelai.err { background: #fef2f2; color: #b91c1c; border-left: 3px solid var(--danger); }
-
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-4px); }
     to { opacity: 1; transform: translateY(0); }
   }
-
-  .btn-primary {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-    color: #fff; width: 100%; margin-top: 28px;
-    padding: 16px; border: none;
+  .btn-submit {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
+    color: #fff;
+    width: 100%;
+    margin-top: 36px;
+    padding: 18px;
+    border: none;
     border-radius: var(--radius-sm);
-    font-size: 16px; font-weight: 700;
-    cursor: pointer; transition: all 0.25s;
-    letter-spacing: 0.3px;
-    box-shadow: 0 8px 20px rgba(30,60,114,0.25);
-    position: relative; overflow: hidden;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    letter-spacing: 0.5px;
+    box-shadow: 0 10px 25px rgba(30, 64, 175, 0.3);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
   }
-  .btn-primary::before {
-    content: ''; position: absolute;
-    top: 0; left: -100%; width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left 0.5s;
+  .btn-submit::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+    transition: left 0.7s;
   }
-  .btn-primary:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 28px rgba(30,60,114,0.35);
+  .btn-submit:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(30, 64, 175, 0.4);
   }
-  .btn-primary:hover:not(:disabled)::before { left: 100%; }
-  .btn-primary:disabled { background: var(--gray-400); cursor: not-allowed; box-shadow: none; transform: none; }
-
-  .loader { display: none; text-align: center; padding: 18px; color: var(--primary); font-weight: 600; font-size: 14px; }
+  .btn-submit:hover:not(:disabled)::before { left: 100%; }
+  .btn-submit:active:not(:disabled) { transform: translateY(-1px); }
+  .btn-submit:disabled {
+    background: var(--gray-400);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+  .loader {
+    display: none;
+    text-align: center;
+    padding: 20px;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 14px;
+  }
   .loader.active { display: block; }
   .loader .spinner {
-    display: inline-block; width: 16px; height: 16px;
-    border: 2.5px solid rgba(30,60,114,0.2);
+    display: inline-block;
+    width: 18px; height: 18px;
+    border: 3px solid rgba(30, 64, 175, 0.15);
     border-top-color: var(--primary);
-    border-radius: 50%; animation: spin 0.7s linear infinite;
-    vertical-align: middle; margin-right: 8px;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 10px;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  .message {
-    padding: 16px 20px; border-radius: var(--radius-sm);
-    margin-bottom: 24px; display: none;
-    font-weight: 500; white-space: pre-line;
-    font-size: 14px; line-height: 1.55;
-    animation: slideDown 0.35s ease-out;
+  .search-box {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
   }
-  @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
+  .search-box .input-wrapper { flex: 1; min-width: 240px; }
+  .search-box .btn-search {
+    padding: 14px 28px;
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    box-shadow: 0 6px 18px rgba(30, 64, 175, 0.25);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .search-box .btn-search:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(30, 64, 175, 0.35);
+  }
+  .demande-card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    border-left: 5px solid var(--warning);
+    transition: all 0.25s;
+    animation: fadeUp 0.4s ease-out;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  }
+  .demande-card:hover {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    transform: translateY(-3px);
+  }
+  .demande-card.validee { border-left-color: var(--success); background: linear-gradient(to right, #f0fdf4 0%, #fff 30%); }
+  .demande-card.refusee { border-left-color: var(--danger); background: linear-gradient(to right, #fef2f2 0%, #fff 30%); }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  .message.success { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); color: #065f46; border-left: 4px solid var(--success); display: block; }
-  .message.error { background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); color: #991b1b; border-left: 4px solid var(--danger); display: block; }
-  .message.warning { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); color: #92400e; border-left: 4px solid var(--warning); display: block; }
-
-  .search-box { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
-  .search-box .input-wrapper { flex: 1; min-width: 260px; }
-  .search-box button {
-    padding: 13px 28px;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-    color: #fff; border: none; border-radius: var(--radius-sm);
-    font-size: 14.5px; font-weight: 600; cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 4px 12px rgba(30,60,114,0.25);
-    white-space: nowrap;
+  .demande-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 14px;
   }
-  .search-box button:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(30,60,114,0.3); }
-
-  .demande-card {
-    background: #fff; border: 1px solid var(--gray-200);
-    border-radius: var(--radius); padding: 22px; margin-bottom: 16px;
-    border-left: 5px solid var(--warning);
-    transition: all 0.2s; animation: fadeUp 0.4s ease-out;
+  .demande-card h3 {
+    color: var(--primary-dark);
+    font-size: 17px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
-  .demande-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
-  .demande-card.validee { border-left-color: var(--success); background: linear-gradient(to right, #f0fdf4 0%, #fff 40%); }
-  .demande-card.refusee { border-left-color: var(--danger); background: linear-gradient(to right, #fef2f2 0%, #fff 40%); }
-  .demande-card .card-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
-  .demande-card h3 { color: var(--primary); font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-  .badge-statut { padding: 6px 14px; border-radius: 20px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .badge-statut {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
   .badge-statut.en_attente { background: #fef3c7; color: #b45309; }
   .badge-statut.validee { background: #d1fae5; color: #065f46; }
   .badge-statut.refusee { background: #fee2e2; color: #991b1b; }
-  .demande-card p { font-size: 13.5px; color: var(--gray-600); line-height: 1.7; margin-bottom: 6px; }
-  .demande-card p strong { color: var(--gray-800); }
-
-  .btn-imprimer {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 12px 22px;
-    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-    color: #fff; border: none; border-radius: var(--radius-sm);
-    font-size: 13.5px; font-weight: 700; cursor: pointer;
-    margin-top: 14px; letter-spacing: 0.3px;
-    box-shadow: 0 4px 12px rgba(16,185,129,0.3);
-    transition: all 0.2s;
+  .demande-card p {
+    font-size: 13.5px;
+    color: var(--gray-600);
+    line-height: 1.75;
+    margin-bottom: 6px;
   }
-  .btn-imprimer:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16,185,129,0.4); }
-
-  .resultat-box { padding: 14px 16px; border-radius: var(--radius-sm); font-size: 13px; margin-top: 12px; line-height: 1.6; }
+  .demande-card p strong { color: var(--gray-800); }
+  .btn-imprimer {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 24px;
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 14px;
+    letter-spacing: 0.3px;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    transition: all 0.25s;
+  }
+  .btn-imprimer:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+  }
+  .resultat-box {
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    margin-top: 12px;
+    line-height: 1.65;
+    font-weight: 500;
+  }
   .resultat-box.validee { background: #ecfdf5; color: #047857; border-left: 4px solid var(--success); }
   .resultat-box.refusee { background: #fef2f2; color: #b91c1c; border-left: 4px solid var(--danger); }
   .resultat-box.en_attente { background: #fffbeb; color: #b45309; border-left: 4px solid var(--warning); }
-
   .empty-state {
-    text-align: center; color: var(--gray-500);
-    padding: 60px 20px; font-style: italic; font-size: 15px;
-    background: var(--gray-50); border-radius: var(--radius);
+    text-align: center;
+    color: var(--gray-500);
+    padding: 70px 24px;
+    font-style: italic;
+    font-size: 15px;
+    background: var(--gray-50);
+    border-radius: var(--radius);
     border: 2px dashed var(--gray-200);
+    line-height: 1.6;
   }
-
-  @media (max-width: 640px) {
+  .app-footer {
+    text-align: center;
+    padding: 24px 20px;
+    background: var(--gray-50);
+    border-top: 1px solid var(--gray-200);
+    font-size: 12px;
+    color: var(--gray-500);
+    line-height: 1.6;
+  }
+  .app-footer strong { color: var(--primary-dark); font-weight: 700; }
+  .app-footer .location {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    color: var(--gray-600);
+    font-weight: 600;
+  }
+  @media (max-width: 720px) {
     body { padding: 12px 8px; }
-    .container { border-radius: 16px; }
-    header { padding: 22px 20px; }
-    .header-text h1 { font-size: 19px; }
-    .header-text .subtitle { font-size: 12.5px; }
-    .header-logo { height: 60px; width: 60px; }
-    .clock-box { padding: 10px 14px; }
-    .clock-box .clock-time { font-size: 17px; }
-    .content { padding: 22px 18px; }
-    .form-grid { grid-template-columns: 1fr; gap: 16px; }
-    .tab { font-size: 12.5px; padding: 14px 8px; }
-    .tab .tab-icon { display: none; }
+    .main-card { border-radius: 20px; }
+    .app-header { padding: 24px 22px; }
+    .brand-logo { height: 58px; width: 58px; }
+    .brand-text h1 { font-size: 18px; }
+    .brand-text .subtitle { font-size: 12px; }
+    .brand-text .slogan { font-size: 9.5px; }
+    .header-clock { padding: 10px 14px; width: 100%; justify-content: center; }
+    .clock-time { font-size: 18px; }
+    .content { padding: 24px 20px; }
+    .form-grid { grid-template-columns: 1fr; gap: 18px; }
+    .tab { font-size: 12.5px; padding: 16px 8px; gap: 4px; }
     input, select, textarea { font-size: 16px; }
-    .search-box button { width: 100%; }
+    .search-box .btn-search { width: 100%; justify-content: center; }
+    .btn-submit { padding: 16px; font-size: 14.5px; }
+    .section-header h3 { font-size: 13px; }
   }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <header>
-    <div class="header-content">
-      <img class="header-logo" src="https://amague2007-star.github.io/demande-vehicule/logo.png"
-           alt="Logo ONG ADKOUL" onerror="this.style.display='none'">
-      <div class="header-text">
+<div class="main-card">
+  <div class="app-header">
+    <div class="header-left">
+      <img class="brand-logo" src="https://amague2007-star.github.io/demande-vehicule/logo.png"
+           alt="ONG ADKOUL" onerror="this.style.display='none'">
+      <div class="brand-text">
         <h1>ONG ADKOUL</h1>
         <div class="subtitle">Demande de Sortie Véhicule — Service Logistique</div>
         <div class="slogan">SOLIDARITÉ • ÉDUCATION • DÉVELOPPEMENT</div>
       </div>
-      <div class="clock-box">
+    </div>
+    <div class="header-clock">
+      <div class="clock-icon">🕐</div>
+      <div class="clock-info">
         <div class="clock-label">Heure du Niger</div>
         <div class="clock-time" id="liveClock">--:--:--</div>
         <div class="clock-date" id="liveDate">—</div>
       </div>
     </div>
-  </header>
+  </div>
 
   <div class="tabs">
     <div class="tab active" id="tabNouvelle" onclick="switchTab('nouvelle', event)">
-      <span class="tab-icon">📝</span> Nouvelle Demande
+      <span>📝</span> Nouvelle Demande
     </div>
     <div class="tab" id="tabMesDemandes" onclick="switchTab('mes', event)">
-      <span class="tab-icon">📋</span> Suivre mes demandes
+      <span>📋</span> Suivre mes demandes
     </div>
   </div>
 
   <div class="content">
 
     <div id="panelNouvelle">
-      <div id="messageBox" class="message"></div>
+      <div id="messageBox" class="toast"></div>
 
-      <div class="info-box">
+      <div class="info-banner">
         <span class="info-icon">💡</span>
         <div>
           <strong>Information :</strong> Le véhicule et le chauffeur seront attribués par le service Logistique après validation de votre demande. Vous recevrez un email de confirmation.<br>
@@ -352,21 +668,24 @@
 
       <form id="formDemande" onsubmit="soumettre(event)">
 
-        <div class="section-title">👤 Informations de l'agent</div>
+        <div class="section-header">
+          <div class="section-icon">👤</div>
+          <h3>Informations de l'agent</h3>
+        </div>
         <div class="form-grid">
-          <div class="form-group">
+          <div class="form-group" style="animation-delay: 0.05s;">
             <label><span class="label-icon">📛</span> Nom <span class="required">*</span></label>
             <div class="input-wrapper">
               <input type="text" id="nom" required placeholder="Ex: DUPONT" autocomplete="family-name">
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="animation-delay: 0.1s;">
             <label><span class="label-icon">👤</span> Prénom <span class="required">*</span></label>
             <div class="input-wrapper">
               <input type="text" id="prenom" required placeholder="Ex: Jean" autocomplete="given-name">
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="animation-delay: 0.15s;">
             <label><span class="label-icon">💼</span> Poste occupé <span class="required">*</span></label>
             <div class="input-wrapper">
               <select id="poste" required>
@@ -388,7 +707,7 @@
               </select>
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="animation-delay: 0.2s;">
             <label><span class="label-icon">🏢</span> Service / Département <span class="required">*</span></label>
             <div class="input-wrapper">
               <select id="service" required>
@@ -400,7 +719,7 @@
               </select>
             </div>
           </div>
-          <div class="form-group full">
+          <div class="form-group full" style="animation-delay: 0.25s;">
             <label><span class="label-icon">📧</span> Email de l'agent <span class="required">*</span></label>
             <div class="input-wrapper">
               <input type="email" id="email" required placeholder="Ex: agent@adkoul.org" autocomplete="email">
@@ -408,53 +727,59 @@
           </div>
         </div>
 
-        <div class="section-title">🚗 Détails de la sortie</div>
+        <div class="section-header">
+          <div class="section-icon">🚗</div>
+          <h3>Détails de la sortie</h3>
+        </div>
         <div class="form-grid">
-          <div class="form-group">
+          <div class="form-group" style="animation-delay: 0.05s;">
             <label><span class="label-icon">📅</span> Date de sortie</label>
             <div class="input-wrapper">
               <input type="date" id="dateSortie" readonly>
             </div>
             <small class="field-hint">📌 Aujourd'hui (non modifiable)</small>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="animation-delay: 0.1s;">
             <label><span class="label-icon">🕐</span> Heure de départ <span class="required">*</span></label>
             <div class="input-wrapper">
               <input type="time" id="heureDepart" required>
             </div>
             <div id="infoDelai"></div>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="animation-delay: 0.15s;">
             <label><span class="label-icon">📍</span> Destination <span class="required">*</span></label>
             <div class="input-wrapper">
               <input type="text" id="destination" required placeholder="Ex: Marché central">
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="animation-delay: 0.2s;">
             <label><span class="label-icon">⏱</span> Durée estimée (minutes) <span class="required">*</span></label>
             <div class="input-wrapper">
               <input type="number" id="duree" required min="5" max="60" placeholder="Entre 5 et 60 minutes">
             </div>
             <small class="field-hint">⚠️ Maximum 60 minutes (1 heure)</small>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="animation-delay: 0.25s;">
             <label><span class="label-icon">👥</span> Nombre de passagers</label>
             <div class="input-wrapper">
               <input type="number" id="passagers" min="1" placeholder="Ex: 3">
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="animation-delay: 0.3s;">
             <label><span class="label-icon">🏁</span> Lieu de retour prévu</label>
             <div class="input-wrapper">
               <input type="text" id="lieuRetour" value="Au siège" readonly>
             </div>
-            <small class="field-hint">Le véhicule revient toujours au siège de l'ONG</small>
+            <small class="field-hint">Retour au siège de l'ONG</small>
           </div>
         </div>
 
-        <div class="section-title">📝 Objet de la mission</div>
+        <div class="section-header">
+          <div class="section-icon">📝</div>
+          <h3>Objet de la mission</h3>
+        </div>
         <div class="form-grid">
-          <div class="form-group full">
+          <div class="form-group full" style="animation-delay: 0.05s;">
             <label><span class="label-icon">📝</span> Motif / Objet de la sortie <span class="required">*</span></label>
             <div class="input-wrapper">
               <textarea id="motif" required placeholder="Précisez la raison de la sortie (ex: Achat de fournitures au marché central pour le service pédagogique...)"></textarea>
@@ -462,13 +787,15 @@
           </div>
         </div>
 
-        <button type="submit" id="btnSubmit" class="btn-primary">✅ Envoyer la demande</button>
+        <button type="submit" id="btnSubmit" class="btn-submit">
+          <span>✅</span> Envoyer la demande
+        </button>
         <div id="loader" class="loader"><span class="spinner"></span>Envoi de la demande en cours...</div>
       </form>
     </div>
 
     <div id="panelMes" style="display:none;">
-      <div class="info-box">
+      <div class="info-banner">
         <span class="info-icon">🔍</span>
         <div>
           <strong>Suivi de vos demandes :</strong> Saisissez l'adresse email que vous avez utilisée lors de votre demande, puis cliquez sur « Rechercher ». Vous pourrez voir le statut et imprimer votre bon de sortie une fois validée.
@@ -480,7 +807,9 @@
           <input type="email" id="searchEmail" placeholder="Votre email (ex: agent@adkoul.org)"
             onkeypress="if(event.key==='Enter') rechercherDemandes()">
         </div>
-        <button onclick="rechercherDemandes()">🔍 Rechercher</button>
+        <button class="btn-search" onclick="rechercherDemandes()">
+          <span>🔍</span> Rechercher
+        </button>
       </div>
 
       <div id="mesDemandesContainer">
@@ -490,6 +819,11 @@
       </div>
     </div>
 
+  </div>
+
+  <div class="app-footer">
+    <strong>ONG ADKOUL</strong> — Solidarité • Éducation • Développement<br>
+    <div class="location">📍 Tahoua, Niger — © 2026 Tous droits réservés</div>
   </div>
 </div>
 
@@ -512,9 +846,9 @@
   const LIEU_RETOUR_FIXE = "Au siège";
 
   // ═══════════════════════════════════════════════════════════
-  // FUSEAU HORAIRE NIGER — UTC+1
+  // FUSEAU HORAIRE NIGER — UTC+2 (aligné sur ton PC)
   // ═══════════════════════════════════════════════════════════
-  const NIGER_OFFSET_H = 1;
+  const NIGER_OFFSET_H = 2;
 
   function getNigerDate() {
     const now = new Date();
@@ -523,7 +857,7 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // HORLOGE TEMPS RÉEL
+  // HORLOGE
   // ═══════════════════════════════════════════════════════════
   function updateClock() {
     const niger = getNigerDate();
@@ -610,7 +944,7 @@
 
   function afficherMessage(texte, type) {
     const box = document.getElementById('messageBox');
-    box.className = 'message ' + type;
+    box.className = 'toast ' + type;
     box.textContent = texte;
     box.scrollIntoView({ behavior:'smooth', block:'center' });
   }
@@ -623,11 +957,11 @@
 
     const dureeSaisie = parseInt(val('duree'));
     if (isNaN(dureeSaisie) || dureeSaisie < 5) {
-      afficherMessage('❌ La durée minimale est de 5 minutes.', 'error');
+      afficherMessage('La durée minimale est de 5 minutes.', 'error');
       return;
     }
     if (dureeSaisie > 60) {
-      afficherMessage('❌ La durée estimée ne peut pas dépasser 60 minutes (1 heure).\n\nVeuillez réduire la durée.', 'error');
+      afficherMessage('La durée estimée ne peut pas dépasser 60 minutes (1 heure).\n\nVeuillez réduire la durée.', 'error');
       return;
     }
 
@@ -635,7 +969,7 @@
     const heureVal = val('heureDepart');
 
     if (!dateVal || !heureVal) {
-      afficherMessage('❌ Veuillez renseigner l\'heure de sortie.', 'error');
+      afficherMessage('Veuillez renseigner l\'heure de sortie.', 'error');
       return;
     }
 
@@ -646,7 +980,7 @@
                                 String(niger.getUTCMinutes()).padStart(2,'0');
 
     if (diffMinutes < -5) {
-      afficherMessage(`❌ Heure de sortie déjà passée.
+      afficherMessage(`Heure de sortie déjà passée.
 
 🕐 Heure actuelle (Niger) : ${heureActuelleNiger}
 🚗 Heure de sortie demandée : ${heureVal}
@@ -675,7 +1009,7 @@ Veuillez choisir une heure de sortie future.`, 'error');
     const loader = document.getElementById('loader');
 
     btn.disabled = true;
-    btn.textContent = '⏳ Envoi en cours...';
+    btn.innerHTML = '<span class="spinner" style="display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle;"></span> Envoi en cours...';
     loader.classList.add('active');
 
     let supabaseOK = false, emailOK = false, erreurs = [];
@@ -746,25 +1080,25 @@ Solidarité • Éducation • Développement`;
     }
 
     if (supabaseOK && emailOK) {
-      afficherMessage('✅ Votre demande a bien été envoyée au service Logistique.\n\nVous recevrez un email après validation.\nVous pouvez suivre son statut dans l\'onglet "📋 Suivre mes demandes".', 'success');
+      afficherMessage('Votre demande a bien été envoyée au service Logistique.\n\nVous recevrez un email après validation.\nVous pouvez suivre son statut dans l\'onglet "📋 Suivre mes demandes".', 'success');
       e.target.reset();
       setDateAujourdhui();
       document.getElementById('lieuRetour').value = LIEU_RETOUR_FIXE;
       document.getElementById('infoDelai').textContent = '';
       document.getElementById('infoDelai').className = '';
     } else if (supabaseOK && !emailOK) {
-      afficherMessage("⚠️ Votre demande a été enregistrée, mais la notification email n'a pas pu être envoyée.\n\nLe service Logistique la verra dans son tableau de bord.", 'warning');
+      afficherMessage("Votre demande a été enregistrée, mais la notification email n'a pas pu être envoyée.\n\nLe service Logistique la verra dans son tableau de bord.", 'warning');
       e.target.reset();
       setDateAujourdhui();
       document.getElementById('lieuRetour').value = LIEU_RETOUR_FIXE;
       document.getElementById('infoDelai').textContent = '';
       document.getElementById('infoDelai').className = '';
     } else {
-      afficherMessage("❌ Erreur d'envoi : " + erreurs.join(' | '), 'error');
+      afficherMessage("Erreur d'envoi : " + erreurs.join(' | '), 'error');
     }
 
     btn.disabled = false;
-    btn.textContent = '✅ Envoyer la demande';
+    btn.innerHTML = '<span>✅</span> Envoyer la demande';
     loader.classList.remove('active');
   }
 
@@ -870,7 +1204,7 @@ Solidarité • Éducation • Développement`;
   }
 
   // ═══════════════════════════════════════════════════════════
-  // IMPRESSION DU BON DE SORTIE
+  // IMPRESSION DU BON
   // ═══════════════════════════════════════════════════════════
   async function imprimerMonBon(id) {
     try {

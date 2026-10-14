@@ -845,6 +845,9 @@
   const RESPONSABLE_FIXE = "ABDOUL AZIZ ADAM";
   const LIEU_RETOUR_FIXE = "Au siège";
 
+  // Marge de tolérance : 60 minutes (1 heure)
+  const MARGE_TOLERANCE_MINUTES = 60;
+
   // ═══════════════════════════════════════════════════════════
   // HORLOGE — Utilise l'heure locale du PC (déjà à l'heure du Niger)
   // ═══════════════════════════════════════════════════════════
@@ -898,20 +901,13 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // DIFFÉRENCE EN MINUTES (MÉTHODE DE COMPARAISON DE DATES COMPLÈTES)
+  // DIFFÉRENCE EN MINUTES (COMPARAISON DE DATES COMPLÈTES)
   // ═══════════════════════════════════════════════════════════
   function calculerDiffMinutes(dateVal, heureVal) {
-    // Créer un objet Date complet pour la sortie
     const [annee, mois, jour] = dateVal.split('-').map(Number);
     const [heures, minutes] = heureVal.split(':').map(Number);
-    
-    // Attention : les mois dans Date commencent à 0
     const dateSortie = new Date(annee, mois - 1, jour, heures, minutes, 0);
-    
-    // Obtenir la date actuelle
     const maintenant = new Date();
-    
-    // Calculer la différence en millisecondes puis en minutes
     const diffMs = dateSortie.getTime() - maintenant.getTime();
     return Math.floor(diffMs / (1000 * 60));
   }
@@ -970,13 +966,15 @@
     const heureActuelle = String(now.getHours()).padStart(2,'0') + ':' +
                           String(now.getMinutes()).padStart(2,'0');
 
-    if (diffMinutes < -1) {
-      afficherMessage(`Heure de sortie déjà passée.
+    // Vérification avec marge de tolérance de 60 minutes
+    if (diffMinutes < -MARGE_TOLERANCE_MINUTES) {
+      afficherMessage(`Heure de sortie trop ancienne.
 
 🕐 Heure actuelle : ${heureActuelle}
 🚗 Heure de sortie demandée : ${heureVal}
 
-Veuillez choisir une heure de sortie future.`, 'error');
+Vous ne pouvez pas déclarer une sortie qui a débuté il y a plus de 1 heure.
+Veuillez choisir une heure plus récente.`, 'error');
       return;
     }
 
@@ -1388,11 +1386,12 @@ Solidarité • Éducation • Développement`;
 
     const diffMin = calculerDiffMinutes(dateVal, heureVal);
 
-    if (diffMin < -1) {
-      infoEl.textContent = '❌ Heure déjà passée';
+    if (diffMin < -MARGE_TOLERANCE_MINUTES) {
+      infoEl.textContent = '❌ Heure trop ancienne (plus d\'1 heure de retard)';
       infoEl.className = 'err';
     } else if (diffMin < 0) {
-      infoEl.textContent = '✅ Heure de départ imminente';
+      const retard = Math.abs(diffMin);
+      infoEl.textContent = `⚠️ Heure déjà passée (retard de ${retard} min) — Accepté`;
       infoEl.className = 'warn';
     } else {
       const h = Math.floor(diffMin / 60);

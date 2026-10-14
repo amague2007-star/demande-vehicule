@@ -148,6 +148,15 @@
     transition: all 0.2s; outline: none;
     background: #fff; color: var(--gray-800);
   }
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 18px;
+    padding-right: 44px;
+    cursor: pointer;
+  }
   input::placeholder, textarea::placeholder { color: var(--gray-400); }
   input:hover, select:hover, textarea:hover { border-color: var(--gray-300); }
   input:focus, select:focus, textarea:focus {
@@ -340,7 +349,7 @@
         <span class="info-icon">💡</span>
         <div>
           <strong>Information :</strong> Le véhicule et le chauffeur seront attribués par le service Logistique après validation de votre demande. Vous recevrez un email de confirmation.<br>
-          <strong>⏰ Rappel :</strong> votre demande doit être soumise <strong>dans l'heure qui précède</strong> la sortie (entre 0 et 60 minutes avant). Durée maximale de la sortie : <strong>60 minutes</strong>.
+          <strong>⏰ Rappel :</strong> Durée maximale de la sortie : <strong>60 minutes</strong>.
         </div>
       </div>
 
@@ -367,21 +376,21 @@
             </div>
           </div>
           <div class="form-group">
-            <label><span class="label-icon">🏢</span> Service / Département</label>
+            <label><span class="label-icon">🏢</span> Service / Département <span class="required">*</span></label>
             <div class="input-wrapper">
-              <input type="text" id="service" placeholder="Ex: Logistique">
+              <select id="service" required>
+                <option value="">-- Sélectionnez un service --</option>
+                <option value="PROGRAMME">PROGRAMME</option>
+                <option value="FINANCE">FINANCE</option>
+                <option value="LOGISTIQUE">LOGISTIQUE</option>
+                <option value="RESSOURCES HUMAINES">RESSOURCES HUMAINES</option>
+              </select>
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group full">
             <label><span class="label-icon">📧</span> Email de l'agent <span class="required">*</span></label>
             <div class="input-wrapper">
               <input type="email" id="email" required placeholder="Ex: agent@adkoul.org" autocomplete="email">
-            </div>
-          </div>
-          <div class="form-group">
-            <label><span class="label-icon">📞</span> Contact (téléphone)</label>
-            <div class="input-wrapper">
-              <input type="tel" id="contact" placeholder="Ex: +227 90 00 00 00" autocomplete="tel">
             </div>
           </div>
         </div>
@@ -389,10 +398,11 @@
         <div class="section-title">🚗 Détails de la sortie</div>
         <div class="form-grid">
           <div class="form-group">
-            <label><span class="label-icon">📅</span> Date de sortie <span class="required">*</span></label>
+            <label><span class="label-icon">📅</span> Date de sortie</label>
             <div class="input-wrapper">
-              <input type="date" id="dateSortie" required>
+              <input type="date" id="dateSortie" readonly>
             </div>
+            <small class="field-hint">📌 Aujourd'hui (non modifiable)</small>
           </div>
           <div class="form-group">
             <label><span class="label-icon">🕐</span> Heure de départ <span class="required">*</span></label>
@@ -434,7 +444,7 @@
           <div class="form-group full">
             <label><span class="label-icon">📝</span> Motif / Objet de la sortie <span class="required">*</span></label>
             <div class="input-wrapper">
-              <textarea id="motif" required placeholder="Précisez la raison de la sortie..."></textarea>
+              <textarea id="motif" required placeholder="Précisez la raison de la sortie (ex: Achat de fournitures au marché central pour le service pédagogique...)"></textarea>
             </div>
           </div>
         </div>
@@ -504,8 +514,19 @@
     document.getElementById('liveDate').textContent =
       jours[niger.getUTCDay()] + ' ' + niger.getUTCDate() + ' ' + mois[niger.getUTCMonth()];
   }
-  updateClock();
-  setInterval(updateClock, 1000);
+
+  // ═══════════════════════════════════════════════════════════
+  // FIXER LA DATE DU JOUR (NIGER) DANS LE CHAMP DATE
+  // ═══════════════════════════════════════════════════════════
+  function setDateAujourdhui() {
+    const now = new Date();
+    const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const niger = new Date(utcMs + (60 * 60 * 1000));
+    const yyyy = niger.getUTCFullYear();
+    const mm = String(niger.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(niger.getUTCDate()).padStart(2, '0');
+    document.getElementById('dateSortie').value = yyyy + '-' + mm + '-' + dd;
+  }
 
   // ═══════════════════════════════════════════════════════════
   // FORMATAGE DES DATES (NIGER)
@@ -567,7 +588,10 @@
   // ═══════════════════════════════════════════════════════════
   // INITIALISATION
   // ═══════════════════════════════════════════════════════════
-  document.getElementById('dateSortie').valueAsDate = new Date();
+  updateClock();
+  setInterval(updateClock, 1000);
+  setDateAujourdhui();
+  document.getElementById('lieuRetour').value = LIEU_RETOUR_FIXE;
 
   function switchTab(tab, event) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -607,7 +631,7 @@
     const heureVal = val('heureDepart');
 
     if (!dateVal || !heureVal) {
-      afficherMessage('❌ Veuillez renseigner la date et l\'heure de sortie.', 'error');
+      afficherMessage('❌ Veuillez renseigner l\'heure de sortie.', 'error');
       return;
     }
 
@@ -619,28 +643,13 @@
     const heureActuelleNiger = String(nowNiger.getUTCHours()).padStart(2,'0') + ':' +
                                 String(nowNiger.getUTCMinutes()).padStart(2,'0');
 
-    if (diffMinutes < 0) {
-      afficherMessage(`❌ Date/heure de sortie déjà passée.
+    if (diffMinutes < -5) {
+      afficherMessage(`❌ Heure de sortie déjà passée.
 
 🕐 Heure actuelle (Niger) : ${heureActuelleNiger}
 🚗 Heure de sortie demandée : ${heureVal}
 
 Veuillez choisir une heure de sortie future.`, 'error');
-      return;
-    }
-
-    if (diffMinutes > 60) {
-      const h = Math.floor(diffMinutes / 60);
-      const m = Math.round(diffMinutes % 60);
-      afficherMessage(`❌ DEMANDE REFUSÉE — Soumise trop tôt
-
-Votre demande ne peut être soumise QUE dans l'heure qui précède la sortie (entre 0 et 60 minutes avant).
-
-🕐 Heure actuelle (Niger) : ${heureActuelleNiger}
-🚗 Heure de sortie demandée : ${heureVal}
-⏱ Délai avant la sortie : ${h}h${String(m).padStart(2,'0')} (maximum autorisé : 1h)
-
-💡 Vous pourrez soumettre cette demande à partir de ${calculerHeureLimite(heureVal, -60)} (heure Niger).`, 'error');
       return;
     }
 
@@ -651,7 +660,7 @@ Votre demande ne peut être soumise QUE dans l'heure qui précède la sortie (en
       poste: val('poste'),
       service: val('service'),
       email: val('email').toLowerCase(),
-      contact: val('contact'),
+      contact: '',
       date_sortie: dateVal,
       heure_depart: heureVal,
       destination: val('destination'),
@@ -701,9 +710,8 @@ Votre demande ne peut être soumise QUE dans l'heure qui précède la sortie (en
 Nom : ${demande.nom}
 Prénom : ${demande.prenom}
 Poste : ${demande.poste}
-Service : ${demande.service || '-'}
+Service : ${demande.service}
 Email : ${demande.email}
-Contact : ${demande.contact || '-'}
 
 🚗 DÉTAILS DE LA SORTIE
 ────────────────────────────
@@ -742,14 +750,14 @@ Solidarité • Éducation • Développement`;
     if (supabaseOK && emailOK) {
       afficherMessage('✅ Votre demande a bien été envoyée au service Logistique.\n\nVous recevrez un email après validation.\nVous pouvez suivre son statut dans l\'onglet "📋 Suivre mes demandes".', 'success');
       e.target.reset();
-      document.getElementById('dateSortie').valueAsDate = new Date();
+      setDateAujourdhui();
       document.getElementById('lieuRetour').value = LIEU_RETOUR_FIXE;
       document.getElementById('infoDelai').textContent = '';
       document.getElementById('infoDelai').className = '';
     } else if (supabaseOK && !emailOK) {
       afficherMessage("⚠️ Votre demande a été enregistrée, mais la notification email n'a pas pu être envoyée.\n\nLe service Logistique la verra dans son tableau de bord.", 'warning');
       e.target.reset();
-      document.getElementById('dateSortie').valueAsDate = new Date();
+      setDateAujourdhui();
       document.getElementById('lieuRetour').value = LIEU_RETOUR_FIXE;
       document.getElementById('infoDelai').textContent = '';
       document.getElementById('infoDelai').className = '';
@@ -985,7 +993,6 @@ Solidarité • Éducation • Développement`;
                 <div class="ligne"><span class="label">Poste occupé</span><span class="valeur">${d.poste}</span></div>
                 <div class="ligne"><span class="label">Service</span><span class="valeur">${d.service || '—'}</span></div>
                 <div class="ligne"><span class="label">Email</span><span class="valeur">${d.email}</span></div>
-                <div class="ligne"><span class="label">Contact</span><span class="valeur">${d.contact || '—'}</span></div>
               </div>
             </div>
             <div class="section">
@@ -1041,7 +1048,7 @@ Solidarité • Éducation • Développement`;
   }
 
   // ═══════════════════════════════════════════════════════════
-  // FEEDBACK EN TEMPS RÉEL SUR DATE/HEURE
+  // FEEDBACK EN TEMPS RÉEL SUR HEURE DE DÉPART
   // ═══════════════════════════════════════════════════════════
   function verifierDelai() {
     const dateVal = document.getElementById('dateSortie').value;
@@ -1058,31 +1065,22 @@ Solidarité • Éducation • Développement`;
 
     const diffMin = calculerDiffMinutes(dateVal, heureVal);
 
-    if (diffMin < 0) {
-      infoEl.textContent = '❌ Date/heure déjà passée';
+    if (diffMin < -5) {
+      infoEl.textContent = '❌ Heure déjà passée';
       infoEl.className = 'err';
-    } else if (diffMin > 60) {
+    } else if (diffMin < 0) {
+      infoEl.textContent = '✅ Heure de départ imminente';
+      infoEl.className = 'warn';
+    } else {
       const h = Math.floor(diffMin / 60);
       const m = Math.round(diffMin % 60);
-      infoEl.textContent = `❌ Trop tôt : ${h}h${String(m).padStart(2,'0')} avant la sortie (max 1h). Soumettez à partir de ${calculerHeureLimite(heureVal, -60)}.`;
-      infoEl.className = 'err';
-    } else if (diffMin > 30) {
-      const m = Math.round(diffMin);
-      infoEl.textContent = `✅ Délai respecté (${m} min avant la sortie)`;
+      infoEl.textContent = `✅ Départ prévu dans ${h > 0 ? h + 'h' : ''}${String(m).padStart(2,'0')} min`;
       infoEl.className = 'ok';
-    } else {
-      const m = Math.round(diffMin);
-      infoEl.textContent = `✅ Délai respecté (${m} min avant la sortie — départ imminent !)`;
-      infoEl.className = 'warn';
     }
   }
 
-  document.getElementById('dateSortie').addEventListener('change', verifierDelai);
   document.getElementById('heureDepart').addEventListener('change', verifierDelai);
   document.getElementById('heureDepart').addEventListener('input', verifierDelai);
-
-  // Initialiser le lieu de retour
-  document.getElementById('lieuRetour').value = LIEU_RETOUR_FIXE;
 </script>
 </body>
 </html>

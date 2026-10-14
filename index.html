@@ -512,15 +512,16 @@
   const LIEU_RETOUR_FIXE = "Au siège";
 
   // ═══════════════════════════════════════════════════════════
-  // FUSEAU NIGER = UTC + 1
+  // FUSEAU HORAIRE NIGER
+  // ⚠️ Si l'horloge retarde encore, augmente cette valeur :
+  //    1 = si ton PC est déjà à l'heure du Niger
+  //    2 = si ton PC est en UTC (heure d'hiver)
   // ═══════════════════════════════════════════════════════════
-  const NIGER_OFFSET_H = 1; // +1h par rapport à UTC
+  const NIGER_OFFSET_H = 2;
 
   function getNigerDate() {
     const now = new Date();
-    // Convertir en millisecondes UTC pures
     const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
-    // Ajouter l'offset Niger
     return new Date(utcMs + (NIGER_OFFSET_H * 60 * 60 * 1000));
   }
 
@@ -540,7 +541,7 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // FIXER LA DATE DU JOUR (NIGER)
+  // FIXER LA DATE DU JOUR
   // ═══════════════════════════════════════════════════════════
   function setDateAujourdhui() {
     const niger = getNigerDate();
@@ -551,7 +552,7 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // FORMATAGE DES DATES (NIGER)
+  // FORMATAGE DES DATES
   // ═══════════════════════════════════════════════════════════
   function formatNigerDate(dateStr) {
     if (!dateStr) return '-';
@@ -623,7 +624,6 @@
   async function soumettre(e) {
     e.preventDefault();
 
-    // VALIDATION DURÉE
     const dureeSaisie = parseInt(val('duree'));
     if (isNaN(dureeSaisie) || dureeSaisie < 5) {
       afficherMessage('❌ La durée minimale est de 5 minutes.', 'error');
@@ -634,7 +634,6 @@
       return;
     }
 
-    // VALIDATION DATE/HEURE
     const dateVal = val('dateSortie');
     const heureVal = val('heureDepart');
 
@@ -659,7 +658,6 @@ Veuillez choisir une heure de sortie future.`, 'error');
       return;
     }
 
-    // CONSTRUCTION DE LA DEMANDE
     const demande = {
       nom: val('nom'),
       prenom: val('prenom'),
@@ -685,7 +683,6 @@ Veuillez choisir une heure de sortie future.`, 'error');
 
     let supabaseOK = false, emailOK = false, erreurs = [];
 
-    // 1. Enregistrement Supabase
     try {
       const response = await fetch(SUPABASE_URL + '/rest/v1/demandes', {
         method: 'POST',
@@ -707,7 +704,6 @@ Veuillez choisir une heure de sortie future.`, 'error');
       erreurs.push('Base de données : ' + err.message);
     }
 
-    // 2. Notification email admin via EmailJS
     try {
       const corps = `📋 NOUVELLE DEMANDE DE SORTIE VÉHICULE
 
@@ -752,7 +748,6 @@ Solidarité • Éducation • Développement`;
       erreurs.push('Notification email : ' + (err.text || err.message || JSON.stringify(err)));
     }
 
-    // 3. Affichage du résultat
     if (supabaseOK && emailOK) {
       afficherMessage('✅ Votre demande a bien été envoyée au service Logistique.\n\nVous recevrez un email après validation.\nVous pouvez suivre son statut dans l\'onglet "📋 Suivre mes demandes".', 'success');
       e.target.reset();

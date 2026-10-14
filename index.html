@@ -167,9 +167,6 @@
   input[readonly] { background: var(--gray-100); color: var(--gray-600); cursor: not-allowed; font-weight: 600; }
   textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
 
-  input.valid, textarea.valid { border-color: var(--success); }
-  input.invalid, textarea.invalid { border-color: var(--danger); }
-
   .field-hint { color: var(--gray-500); font-size: 11.5px; margin-top: 6px; display: flex; align-items: center; gap: 5px; }
 
   #infoDelai {
@@ -372,7 +369,23 @@
           <div class="form-group">
             <label><span class="label-icon">💼</span> Poste occupé <span class="required">*</span></label>
             <div class="input-wrapper">
-              <input type="text" id="poste" required placeholder="Ex: Chauffeur, Technicien...">
+              <select id="poste" required>
+                <option value="">-- Sélectionnez votre poste --</option>
+                <option value="SECRETAIRE EXECUTIF">SECRETAIRE EXECUTIF</option>
+                <option value="CHEF DE PROJET">CHEF DE PROJET</option>
+                <option value="ASSISTANT TECHNIQUE">ASSISTANT TECHNIQUE</option>
+                <option value="DIRECTEUR PROGRAMME">DIRECTEUR PROGRAMME</option>
+                <option value="DIRECTEUR ASSISTANCE HUMANITAIRE">DIRECTEUR ASSISTANCE HUMANITAIRE</option>
+                <option value="DRH">DRH</option>
+                <option value="DLM">DLM</option>
+                <option value="DAF">DAF</option>
+                <option value="ASSISTANT RH">ASSISTANT RH</option>
+                <option value="ASSISTANT LOGISTIQUE">ASSISTANT LOGISTIQUE</option>
+                <option value="ASSISTANT FINANCE">ASSISTANT FINANCE</option>
+                <option value="COMPTABLE">COMPTABLE</option>
+                <option value="CONTROLEUR INTERNE">CONTROLEUR INTERNE</option>
+                <option value="CAISSIERE">CAISSIERE</option>
+              </select>
             </div>
           </div>
           <div class="form-group">
@@ -499,12 +512,23 @@
   const LIEU_RETOUR_FIXE = "Au siège";
 
   // ═══════════════════════════════════════════════════════════
-  // HORLOGE TEMPS RÉEL — HEURE DU NIGER (UTC+1)
+  // FUSEAU NIGER = UTC + 1
+  // ═══════════════════════════════════════════════════════════
+  const NIGER_OFFSET_H = 1; // +1h par rapport à UTC
+
+  function getNigerDate() {
+    const now = new Date();
+    // Convertir en millisecondes UTC pures
+    const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
+    // Ajouter l'offset Niger
+    return new Date(utcMs + (NIGER_OFFSET_H * 60 * 60 * 1000));
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // HORLOGE TEMPS RÉEL
   // ═══════════════════════════════════════════════════════════
   function updateClock() {
-    const now = new Date();
-    const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
-    const niger = new Date(utcMs + (60 * 60 * 1000));
+    const niger = getNigerDate();
     const hh = String(niger.getUTCHours()).padStart(2,'0');
     const mm = String(niger.getUTCMinutes()).padStart(2,'0');
     const ss = String(niger.getUTCSeconds()).padStart(2,'0');
@@ -516,12 +540,10 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // FIXER LA DATE DU JOUR (NIGER) DANS LE CHAMP DATE
+  // FIXER LA DATE DU JOUR (NIGER)
   // ═══════════════════════════════════════════════════════════
   function setDateAujourdhui() {
-    const now = new Date();
-    const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
-    const niger = new Date(utcMs + (60 * 60 * 1000));
+    const niger = getNigerDate();
     const yyyy = niger.getUTCFullYear();
     const mm = String(niger.getUTCMonth() + 1).padStart(2, '0');
     const dd = String(niger.getUTCDate()).padStart(2, '0');
@@ -534,7 +556,7 @@
   function formatNigerDate(dateStr) {
     if (!dateStr) return '-';
     const date = new Date(dateStr);
-    const nigerDate = new Date(date.getTime() + (60 * 60 * 1000));
+    const nigerDate = new Date(date.getTime() + (NIGER_OFFSET_H * 60 * 60 * 1000));
     return nigerDate.toLocaleString('fr-FR', {
       timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric',
       hour: '2-digit', minute: '2-digit'
@@ -543,7 +565,7 @@
   function formatNigerDateShort(dateStr) {
     if (!dateStr) return '-';
     const date = new Date(dateStr);
-    const nigerDate = new Date(date.getTime() + (60 * 60 * 1000));
+    const nigerDate = new Date(date.getTime() + (NIGER_OFFSET_H * 60 * 60 * 1000));
     return nigerDate.toLocaleDateString('fr-FR', {
       timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric'
     });
@@ -551,36 +573,22 @@
   function formatNigerDateLong(dateStr) {
     if (!dateStr) return '-';
     const date = new Date(dateStr);
-    const nigerDate = new Date(date.getTime() + (60 * 60 * 1000));
+    const nigerDate = new Date(date.getTime() + (NIGER_OFFSET_H * 60 * 60 * 1000));
     return nigerDate.toLocaleDateString('fr-FR', {
       timeZone: 'UTC', weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
     });
   }
 
   // ═══════════════════════════════════════════════════════════
-  // HEURE LIMITE (HH:MM ± offset minutes)
-  // ═══════════════════════════════════════════════════════════
-  function calculerHeureLimite(heureSortie, offsetMinutes) {
-    const [h, m] = heureSortie.split(':').map(Number);
-    const total = h * 60 + m + offsetMinutes;
-    let newH = Math.floor(total / 60);
-    let newM = total % 60;
-    if (newH < 0) newH += 24;
-    if (newH >= 24) newH -= 24;
-    return String(newH).padStart(2,'0') + ':' + String(newM).padStart(2,'0');
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // DIFFÉRENCE EN MINUTES (heure Niger ↔ date/heure saisie)
+  // DIFFÉRENCE EN MINUTES
   // ═══════════════════════════════════════════════════════════
   function calculerDiffMinutes(dateVal, heureVal) {
-    const now = new Date();
-    const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
-    const nowNigerMs = utcMs + (60 * 60 * 1000);
+    const niger = getNigerDate();
+    const nowNigerMs = niger.getTime();
 
     const [annee, mois, jour] = dateVal.split('-').map(Number);
     const [heures, minutes] = heureVal.split(':').map(Number);
-    const sortieMs = Date.UTC(annee, mois - 1, jour, heures, minutes, 0) - (60 * 60 * 1000);
+    const sortieMs = Date.UTC(annee, mois - 1, jour, heures, minutes, 0) - (NIGER_OFFSET_H * 60 * 60 * 1000);
 
     return (sortieMs - nowNigerMs) / (1000 * 60);
   }
@@ -637,11 +645,9 @@
 
     const diffMinutes = calculerDiffMinutes(dateVal, heureVal);
 
-    const now = new Date();
-    const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
-    const nowNiger = new Date(utcMs + (60 * 60 * 1000));
-    const heureActuelleNiger = String(nowNiger.getUTCHours()).padStart(2,'0') + ':' +
-                                String(nowNiger.getUTCMinutes()).padStart(2,'0');
+    const niger = getNigerDate();
+    const heureActuelleNiger = String(niger.getUTCHours()).padStart(2,'0') + ':' +
+                                String(niger.getUTCMinutes()).padStart(2,'0');
 
     if (diffMinutes < -5) {
       afficherMessage(`❌ Heure de sortie déjà passée.
@@ -1048,7 +1054,7 @@ Solidarité • Éducation • Développement`;
   }
 
   // ═══════════════════════════════════════════════════════════
-  // FEEDBACK EN TEMPS RÉEL SUR HEURE DE DÉPART
+  // FEEDBACK HEURE DE DÉPART
   // ═══════════════════════════════════════════════════════════
   function verifierDelai() {
     const dateVal = document.getElementById('dateSortie').value;

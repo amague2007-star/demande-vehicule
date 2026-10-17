@@ -40,6 +40,11 @@
   .user-badge { background:rgba(255,255,255,0.15); padding:6px 14px;
     border-radius:20px; font-size:12px; font-weight:600;
     display:flex; align-items:center; gap:6px; }
+  .nav-btn { background:rgba(255,255,255,0.2); color:#fff; border:none;
+    padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600;
+    font-size:13px; transition:0.2s; }
+  .nav-btn:hover { background:rgba(255,255,255,0.35); }
+  .nav-btn.active { background:#fff; color:#1e3c72; }
   .logout-btn { background:#e74c3c; color:#fff; border:none;
     padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; }
 
@@ -138,6 +143,51 @@
     font-style:italic; font-size:15px; background:#fff; border-radius:12px; }
   .loading { text-align:center; padding:40px; color:#666; }
 
+  /* ========== GESTION DES UTILISATEURS ========== */
+  #usersSection { display:none; padding:25px 30px 40px; }
+  .users-header { display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+  .users-header h2 { color:#1e3c72; font-size:22px; }
+  .btn-add-user { background:#27ae60; color:#fff; padding:12px 22px;
+    border:none; border-radius:10px; font-size:14px; font-weight:700;
+    cursor:pointer; display:flex; align-items:center; gap:8px;
+    box-shadow:0 4px 12px rgba(39,174,96,0.3); transition:0.2s; }
+  .btn-add-user:hover { background:#229954; transform:translateY(-2px); }
+
+  .users-list { display:flex; flex-direction:column; gap:12px; }
+  .user-row { background:#fff; padding:18px 22px; border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.06); border-left:5px solid #1e3c72;
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:12px; transition:0.2s; }
+  .user-row:hover { box-shadow:0 4px 20px rgba(0,0,0,0.1); }
+  .user-row.current { border-left-color:#f39c12; background:#fffbf0; }
+  .user-info { display:flex; flex-direction:column; gap:4px; flex:1; min-width:200px; }
+  .user-info .user-name { font-size:16px; font-weight:700; color:#1e3c72;
+    display:flex; align-items:center; gap:8px; }
+  .user-info .user-name .badge-me { font-size:10px; background:#f39c12;
+    color:#fff; padding:2px 8px; border-radius:10px; font-weight:600;
+    text-transform:uppercase; letter-spacing:0.5px; }
+  .user-info .user-email { font-size:13px; color:#666; }
+  .user-info .user-date { font-size:11px; color:#999; font-style:italic; }
+  .user-actions { display:flex; gap:10px; }
+  .btn-del-user { background:#e74c3c; color:#fff; padding:10px 18px;
+    border:none; border-radius:8px; font-size:13px; font-weight:700;
+    cursor:pointer; display:flex; align-items:center; gap:6px;
+    transition:0.2s; }
+  .btn-del-user:hover { background:#c0392b; transform:translateY(-2px); }
+  .btn-del-user:disabled { background:#bdc3c7; cursor:not-allowed;
+    transform:none; }
+
+  .users-info-box { background:#e8f0fb; border-left:4px solid #1e3c72;
+    padding:14px 18px; border-radius:8px; font-size:13px; color:#1e3c72;
+    margin-bottom:20px; line-height:1.5; }
+
+  .password-reveal { display:flex; gap:10px; }
+  .password-reveal input { flex:1; }
+  .btn-reveal { background:#ecf0f1; color:#555; border:none;
+    padding:0 14px; border-radius:8px; cursor:pointer; font-size:13px;
+    font-weight:600; }
+
   @media (max-width:600px) {
     .btn { padding:12px 20px; font-size:14px; }
     header { padding:12px 15px; }
@@ -145,6 +195,10 @@
     header .brand-text p { font-size:11px; }
     header img { height:40px; width:40px; }
     .user-badge { font-size:11px; padding:5px 10px; }
+    .nav-btn { font-size:11px; padding:6px 10px; }
+    .user-row { flex-direction:column; align-items:flex-start; }
+    .user-actions { width:100%; }
+    .btn-del-user { flex:1; justify-content:center; }
   }
 </style>
 </head>
@@ -181,30 +235,52 @@
       </div>
     </div>
     <div class="header-right">
+      <button class="nav-btn active" id="navDemandes" onclick="afficherSection('demandes')">📋 Demandes</button>
+      <button class="nav-btn" id="navUsers" onclick="afficherSection('users')">👥 Utilisateurs</button>
       <div class="user-badge" id="userBadge">👤 <span id="userName">Admin</span></div>
       <button class="logout-btn" onclick="logout()">Déconnexion</button>
     </div>
   </header>
 
-  <div class="stats">
-    <div class="stat-card"><div class="label">⏳ En attente</div><div class="value" id="statAttente">0</div></div>
-    <div class="stat-card validees"><div class="label">✅ Validées</div><div class="value" id="statValidees">0</div></div>
-    <div class="stat-card refusees"><div class="label">❌ Refusées</div><div class="value" id="statRefusees">0</div></div>
-    <div class="stat-card total"><div class="label">📊 Total</div><div class="value" id="statTotal">0</div></div>
+  <!-- SECTION DEMANDES -->
+  <div id="demandesSection">
+    <div class="stats">
+      <div class="stat-card"><div class="label">⏳ En attente</div><div class="value" id="statAttente">0</div></div>
+      <div class="stat-card validees"><div class="label">✅ Validées</div><div class="value" id="statValidees">0</div></div>
+      <div class="stat-card refusees"><div class="label">❌ Refusées</div><div class="value" id="statRefusees">0</div></div>
+      <div class="stat-card total"><div class="label">📊 Total</div><div class="value" id="statTotal">0</div></div>
+    </div>
+
+    <div class="filters">
+      <select id="filtreStatut" onchange="afficherDemandes()">
+        <option value="en_attente" selected>⏳ En attente</option>
+        <option value="validee">✅ Validées</option>
+        <option value="refusee">❌ Refusées</option>
+        <option value="tous">📋 Toutes</option>
+      </select>
+      <button onclick="chargerDemandes()">🔄 Rafraîchir</button>
+    </div>
+
+    <div class="demandes-container" id="demandesContainer">
+      <div class="loading">Chargement des demandes...</div>
+    </div>
   </div>
 
-  <div class="filters">
-    <select id="filtreStatut" onchange="afficherDemandes()">
-      <option value="en_attente" selected>⏳ En attente</option>
-      <option value="validee">✅ Validées</option>
-      <option value="refusee">❌ Refusées</option>
-      <option value="tous">📋 Toutes</option>
-    </select>
-    <button onclick="chargerDemandes()">🔄 Rafraîchir</button>
-  </div>
+  <!-- SECTION UTILISATEURS -->
+  <div id="usersSection">
+    <div class="users-header">
+      <h2>👥 Gestion des administrateurs</h2>
+      <button class="btn-add-user" onclick="ouvrirModalAjoutUser()">➕ Ajouter un admin</button>
+    </div>
 
-  <div class="demandes-container" id="demandesContainer">
-    <div class="loading">Chargement des demandes...</div>
+    <div class="users-info-box">
+      💡 <strong>Info :</strong> Les administrateurs peuvent valider/refuser les demandes et gérer les autres utilisateurs.
+      Vous ne pouvez pas supprimer votre propre compte ni le dernier admin restant.
+    </div>
+
+    <div class="users-list" id="usersList">
+      <div class="loading">Chargement des utilisateurs...</div>
+    </div>
   </div>
 </div>
 
@@ -264,6 +340,37 @@
   </div>
 </div>
 
+<!-- MODALE AJOUT UTILISATEUR -->
+<div class="modal-overlay" id="modalAjoutUser">
+  <div class="modal">
+    <h2>➕ Ajouter un administrateur</h2>
+    <p class="subtitle">Le nouvel admin pourra se connecter avec ces identifiants.</p>
+
+    <label>Nom complet *</label>
+    <input type="text" id="newUserName" placeholder="Ex: Amadou Diallo">
+
+    <label>Adresse email *</label>
+    <input type="email" id="newUserEmail" placeholder="Ex: amadou@adkoul.org"
+      autocomplete="off">
+
+    <label>Mot de passe * (min. 6 caractères)</label>
+    <div class="password-reveal">
+      <input type="password" id="newUserPassword" placeholder="Mot de passe"
+        autocomplete="new-password">
+      <button class="btn-reveal" type="button" onclick="togglePassword('newUserPassword', this)">👁️</button>
+    </div>
+
+    <label>Confirmer le mot de passe *</label>
+    <input type="password" id="newUserPassword2" placeholder="Retapez le mot de passe"
+      autocomplete="new-password">
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
+      <button class="btn-valider" onclick="confirmerAjoutUser()">✅ Créer le compte</button>
+    </div>
+  </div>
+</div>
+
 <script>
   // ============================================================
   // CONFIGURATION
@@ -272,45 +379,31 @@
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
   const LOGO_URL = "https://amague2007-star.github.io/demande-vehicule/logo.png";
 
-  // ============================================================
-  // 👥 UTILISATEURS ADMINISTRATEURS
-  // ✏️ Modifiez les emails / mots de passe / noms ci-dessous
-  // ============================================================
-  const ADMIN_USERS = {
-    "logistique@adkoul.org": {
-      password: "Logistique2024!",
-      nom: "Admin Logistique"
-    },
-    "directeur@adkoul.org": {
-      password: "Directeur2024!",
-      nom: "Directeur Général"
-    },
-    "secretaire@adkoul.org": {
-      password: "Secretaire2024!",
-      nom: "Secrétaire Général"
-    }
-    // ➕ Pour ajouter un admin, copiez-collez un bloc ci-dessus
-  };
-
   const EMAILJS_PUBLIC_KEY = "SUbWMSdrTf7JugMrS";
   const EMAILJS_SERVICE_ID = "service_e6k2e76";
   const EMAILJS_TEMPLATE_ID = "template_gd96rfl";
 
   emailjs.init(EMAILJS_PUBLIC_KEY);
 
-  // ============================================================
-  // NUMÉROS DE TÉLÉPHONE DES CHAUFFEURS (format international sans +)
-  // ============================================================
   const CHAUFFEURS = {
     "ABAKTOUM": "22789915798",
     "BACHIR": "22797747561",
     "GALILE": "22798524300",
     "HAMAD SALLAH": "22797301132"
   };
-  // ============================================================
 
   let demandeEnCours = null;
   let toutesLesDemandes = [];
+  let tousLesUsers = [];
+
+  // ============ HASH MOT DE PASSE (SHA-256) ============
+  async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
 
   // ============ FUSEAU HORAIRE NIGER (UTC+1) ============
   function formatNigerDate(dateStr) {
@@ -345,7 +438,7 @@
   }
 
   // ============ AUTHENTIFICATION ============
-  function login() {
+  async function login() {
     const email = document.getElementById('adminEmail').value.trim().toLowerCase();
     const password = document.getElementById('adminPassword').value;
     const errorEl = document.getElementById('loginError');
@@ -355,23 +448,33 @@
       return;
     }
 
-    const user = ADMIN_USERS[email];
+    errorEl.textContent = "⏳ Vérification...";
 
-    if (user && user.password === password) {
-      sessionStorage.setItem('admin_logged', 'true');
-      sessionStorage.setItem('admin_email', email);
-      sessionStorage.setItem('admin_name', user.nom);
-      errorEl.textContent = '';
-      afficherDashboard();
-    } else {
-      errorEl.textContent = "❌ Email ou mot de passe incorrect";
+    try {
+      const hash = await hashPassword(password);
+      // Recherche l'utilisateur avec email + hash correspondant
+      const users = await apiCall(
+        `/admins?email=eq.${encodeURIComponent(email)}&password_hash=eq.${hash}&select=id,email,nom`
+      );
+
+      if (users && users.length === 1) {
+        sessionStorage.setItem('admin_logged', 'true');
+        sessionStorage.setItem('admin_id', users[0].id);
+        sessionStorage.setItem('admin_email', users[0].email);
+        sessionStorage.setItem('admin_name', users[0].nom);
+        errorEl.textContent = '';
+        afficherDashboard();
+      } else {
+        errorEl.textContent = "❌ Email ou mot de passe incorrect";
+      }
+    } catch (err) {
+      console.error(err);
+      errorEl.textContent = "❌ Erreur de connexion : " + err.message;
     }
   }
 
   function logout() {
-    sessionStorage.removeItem('admin_logged');
-    sessionStorage.removeItem('admin_email');
-    sessionStorage.removeItem('admin_name');
+    sessionStorage.clear();
     location.reload();
   }
 
@@ -385,13 +488,39 @@
     document.getElementById('userBadge').title = adminEmail;
 
     chargerDemandes();
+    chargerUsers();
   }
 
   if (sessionStorage.getItem('admin_logged') === 'true') afficherDashboard();
 
-  // Récupère le nom de l'admin connecté (pour la traçabilité)
   function getAdminName() {
     return sessionStorage.getItem('admin_name') || 'Admin';
+  }
+
+  function getAdminId() {
+    return parseInt(sessionStorage.getItem('admin_id')) || null;
+  }
+
+  // ============ NAVIGATION ============
+  function afficherSection(section) {
+    const demandesSec = document.getElementById('demandesSection');
+    const usersSec = document.getElementById('usersSection');
+    const navDemandes = document.getElementById('navDemandes');
+    const navUsers = document.getElementById('navUsers');
+
+    if (section === 'users') {
+      demandesSec.style.display = 'none';
+      usersSec.style.display = 'block';
+      navDemandes.classList.remove('active');
+      navUsers.classList.add('active');
+      chargerUsers();
+    } else {
+      demandesSec.style.display = 'block';
+      usersSec.style.display = 'none';
+      navDemandes.classList.add('active');
+      navUsers.classList.remove('active');
+      chargerDemandes();
+    }
   }
 
   // ============ API SUPABASE ============
@@ -409,9 +538,142 @@
       const text = await response.text();
       throw new Error('Erreur ' + response.status + ' : ' + text);
     }
-    return response.json();
+    // Certaines opérations (DELETE) renvoient du vide
+    const text = await response.text();
+    return text ? JSON.parse(text) : [];
   }
 
+  // ============================================================
+  // GESTION DES UTILISATEURS
+  // ============================================================
+  async function chargerUsers() {
+    const container = document.getElementById('usersList');
+    container.innerHTML = '<div class="loading">Chargement...</div>';
+    try {
+      tousLesUsers = await apiCall('/admins?order=created_at.asc&select=id,email,nom,created_at');
+      afficherUsers();
+    } catch (err) {
+      container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>';
+    }
+  }
+
+  function afficherUsers() {
+    const container = document.getElementById('usersList');
+    const myId = getAdminId();
+    const myEmail = sessionStorage.getItem('admin_email');
+
+    if (!tousLesUsers.length) {
+      container.innerHTML = '<div class="empty">📭 Aucun administrateur trouvé</div>';
+      return;
+    }
+
+    container.innerHTML = tousLesUsers.map(u => {
+      const isMe = u.id === myId || u.email === myEmail;
+      const canDelete = !isMe && tousLesUsers.length > 1;
+      const createdStr = u.created_at ? formatNigerDate(u.created_at) : '—';
+
+      return `
+        <div class="user-row ${isMe ? 'current' : ''}">
+          <div class="user-info">
+            <div class="user-name">
+              👤 ${u.nom}
+              ${isMe ? '<span class="badge-me">Moi</span>' : ''}
+            </div>
+            <div class="user-email">📧 ${u.email}</div>
+            <div class="user-date">Créé le ${createdStr} (Niger)</div>
+          </div>
+          <div class="user-actions">
+            <button class="btn-del-user" 
+              ${canDelete ? '' : 'disabled'}
+              title="${isMe ? 'Vous ne pouvez pas supprimer votre propre compte' : (tousLesUsers.length <= 1 ? 'Impossible de supprimer le dernier admin' : 'Supprimer cet admin')}"
+              onclick="supprimerUser(${u.id}, '${u.email.replace(/'/g, "\\'")}', '${u.nom.replace(/'/g, "\\'")}')">
+              🗑️ Supprimer
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function ouvrirModalAjoutUser() {
+    document.getElementById('newUserName').value = '';
+    document.getElementById('newUserEmail').value = '';
+    document.getElementById('newUserPassword').value = '';
+    document.getElementById('newUserPassword2').value = '';
+    document.getElementById('modalAjoutUser').classList.add('active');
+  }
+
+  function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁️';
+    }
+  }
+
+  async function confirmerAjoutUser() {
+    const nom = document.getElementById('newUserName').value.trim();
+    const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
+    const pwd = document.getElementById('newUserPassword').value;
+    const pwd2 = document.getElementById('newUserPassword2').value;
+
+    if (!nom) { alert('⚠️ Le nom est obligatoire.'); return; }
+    if (!email || !email.includes('@')) { alert('⚠️ Email invalide.'); return; }
+    if (pwd.length < 6) { alert('⚠️ Le mot de passe doit contenir au moins 6 caractères.'); return; }
+    if (pwd !== pwd2) { alert('⚠️ Les deux mots de passe ne correspondent pas.'); return; }
+
+    try {
+      // Vérifier si l'email existe déjà
+      const existing = await apiCall(`/admins?email=eq.${encodeURIComponent(email)}&select=id`);
+      if (existing && existing.length > 0) {
+        alert('❌ Cet email est déjà utilisé par un autre administrateur.');
+        return;
+      }
+
+      const hash = await hashPassword(pwd);
+      await apiCall('/admins', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: email,
+          password_hash: hash,
+          nom: nom
+        })
+      });
+
+      fermerModal();
+      await chargerUsers();
+      alert(`✅ Administrateur "${nom}" créé avec succès !\n\n📧 Email : ${email}\n\nIl/elle peut maintenant se connecter avec ce mot de passe.`);
+    } catch (err) {
+      alert('❌ Erreur : ' + err.message);
+    }
+  }
+
+  async function supprimerUser(id, email, nom) {
+    if (tousLesUsers.length <= 1) {
+      alert('⚠️ Impossible de supprimer le dernier administrateur.');
+      return;
+    }
+    if (id === getAdminId()) {
+      alert('⚠️ Vous ne pouvez pas supprimer votre propre compte.');
+      return;
+    }
+    if (!confirm(`Supprimer définitivement l'admin "${nom}" (${email}) ?\n\nCette action est irréversible.`)) return;
+
+    try {
+      await apiCall(`/admins?id=eq.${id}`, { method: 'DELETE' });
+      await chargerUsers();
+      alert(`✅ L'administrateur "${nom}" a été supprimé.`);
+    } catch (err) {
+      alert('❌ Erreur : ' + err.message);
+    }
+  }
+
+  // ============================================================
+  // DEMANDES
+  // ============================================================
   async function chargerDemandes() {
     const container = document.getElementById('demandesContainer');
     container.innerHTML = '<div class="loading">Chargement...</div>';
@@ -569,7 +831,7 @@
       await envoyerNotification(demandeEnCours, 'validee', {
         chauffeur, vehicule, message: message || 'Votre demande a été validée.'
       });
-      alert(`✅ Demande validée par ${adminName} et email envoyé à l'agent !\n\n💡 Vous pouvez maintenant cliquer sur le bouton vert 💬 pour notifier le chauffeur via WhatsApp.`);
+      alert(`✅ Demande validée par ${adminName} et email envoyé à l'agent !`);
     } catch (err) {
       alert('❌ Erreur : ' + err.message);
     }
@@ -604,7 +866,7 @@
       fermerModal();
       await chargerDemandes();
       await envoyerNotification(demandeEnCours, 'refusee', { motif });
-      alert(`❌ Demande refusée par ${adminName} et notification envoyée à l'agent.`);
+      alert(`❌ Demande refusée par ${adminName} et notification envoyée.`);
     } catch (err) {
       alert('❌ Erreur : ' + err.message);
     }
@@ -624,7 +886,7 @@
     document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
   }
 
-  // ============ NOTIFICATION EMAIL VIA EMAILJS ============
+  // ============ NOTIFICATION EMAIL ============
   async function envoyerNotification(demande, statut, details) {
     let sujet, corps;
 
@@ -689,7 +951,7 @@ Solidarité • Éducation • Développement`;
     }
   }
 
-  // ============ IMPRESSION DU BON (côté admin) ============
+  // ============ IMPRESSION DU BON ============
   async function imprimerBonAdmin(id) {
     try {
       const response = await fetch(
@@ -698,8 +960,7 @@ Solidarité • Éducation • Développement`;
       );
       const data = await response.json();
       if (!data.length) { alert('Demande introuvable.'); return; }
-      const d = data[0];
-      ouvrirFenetreImpression(d);
+      ouvrirFenetreImpression(data[0]);
     } catch (err) {
       alert('❌ Erreur : ' + err.message);
     }
@@ -865,19 +1126,16 @@ Solidarité • Éducation • Développement`;
     fenetre.document.close();
   }
 
-  // ============ NOTIFICATION WHATSAPP AU CHAUFFEUR ============
+  // ============ NOTIFICATION WHATSAPP ============
   function notifierWhatsApp(demandeId) {
     const d = toutesLesDemandes.find(x => x.id === demandeId);
-    if (!d) {
-      alert('❌ Demande introuvable.');
-      return;
-    }
+    if (!d) { alert('❌ Demande introuvable.'); return; }
 
     const chauffeur = d.chauffeur_assigne;
     const telephone = CHAUFFEURS[chauffeur];
 
     if (!telephone) {
-      alert(`❌ Aucun numéro WhatsApp enregistré pour le chauffeur "${chauffeur}".\n\nAjoutez son numéro dans la liste CHAUFFEURS du fichier admin.html.`);
+      alert(`❌ Aucun numéro WhatsApp enregistré pour le chauffeur "${chauffeur}".`);
       return;
     }
 
@@ -906,10 +1164,7 @@ ${d.vehicule_assigne || 'À confirmer'}
 _Message automatique - Service Logistique_
 _ONG ADKOUL_`;
 
-    const messageEncode = encodeURIComponent(message);
-    const lienWhatsApp = `https://wa.me/${telephone}?text=${messageEncode}`;
-
-    window.open(lienWhatsApp, '_blank');
+    window.open(`https://wa.me/${telephone}?text=${encodeURIComponent(message)}`, '_blank');
   }
 </script>
 </body>

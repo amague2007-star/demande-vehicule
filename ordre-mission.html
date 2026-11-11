@@ -12,6 +12,7 @@
     --primary: #1e40af;
     --primary-light: #2563eb;
     --accent-orange: #f59e0b;
+    --success: #27ae60;
     --danger: #ef4444;
     --gray-50: #f8fafc;
     --gray-100: #f1f5f9;
@@ -42,7 +43,7 @@
   .header { text-align: center; margin-bottom: 2rem; }
   .logo-badge {
     display: inline-flex; align-items: center; gap: 0.75rem;
-    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    background: linear-gradient(135deg, var(--success) 0%, #2ecc71 100%);
     color: #fff; padding: 0.65rem 1.6rem; border-radius: 100px;
     font-weight: 700; font-size: 0.95rem; text-decoration: none;
     box-shadow: var(--shadow-md); margin-bottom: 1rem; transition: 0.2s;
@@ -63,7 +64,7 @@
   }
   .card::before {
     content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-    background: linear-gradient(90deg, #27ae60, #2ecc71);
+    background: linear-gradient(90deg, var(--success), #2ecc71);
   }
 
   /* SECTIONS */
@@ -71,7 +72,7 @@
   .section-title {
     display: flex; align-items: center; gap: 0.6rem;
     font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
-    color: #27ae60; margin-bottom: 1.25rem;
+    color: var(--success); margin-bottom: 1.25rem;
     padding-bottom: 0.5rem; border-bottom: 2px solid var(--gray-100);
   }
   .section-title .icon {
@@ -98,10 +99,29 @@
     transition: all 0.2s ease; width: 100%;
   }
   .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    outline: none; border-color: #27ae60; background: #fff;
+    outline: none; border-color: var(--success); background: #fff;
     box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.12);
   }
   .form-group textarea { resize: vertical; min-height: 80px; }
+
+  /* DYNAMIC LIST (Accompagnateurs) */
+  .dynamic-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .dynamic-item { display: flex; gap: 0.5rem; }
+  .dynamic-item input { flex: 1; }
+  .btn-remove { 
+    background: #fee2e2; color: var(--danger); border: none; 
+    padding: 0 1rem; border-radius: 10px; cursor: pointer; 
+    font-weight: bold; transition: 0.2s;
+  }
+  .btn-remove:hover { background: #fecaca; }
+  .btn-add {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: #e8f8f5; color: var(--success); border: 1.5px dashed var(--success);
+    padding: 0.6rem 1rem; border-radius: 10px; cursor: pointer;
+    font-weight: 600; font-size: 0.85rem; transition: 0.2s;
+    width: max-content;
+  }
+  .btn-add:hover { background: #d1f2e6; }
 
   .info-box {
     padding: 0.9rem 1.1rem; border-radius: 10px;
@@ -121,7 +141,7 @@
   .btn-submit {
     display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
     font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700; color: #fff;
-    background: #27ae60; border: none; padding: 0.85rem 2.2rem;
+    background: var(--success); border: none; padding: 0.85rem 2.2rem;
     border-radius: 12px; cursor: pointer; box-shadow: var(--shadow-md); transition: all 0.25s ease;
   }
   .btn-submit:hover { transform: translateY(-2px); box-shadow: var(--shadow-xl); background: #229954; }
@@ -141,7 +161,7 @@
   .message-box .msg-icon { font-size: 1.2rem; flex-shrink: 0; }
 
   .footer { text-align: center; margin-top: 2rem; font-size: 0.8rem; color: var(--gray-600); }
-  .footer strong { color: #27ae60; font-weight: 600; }
+  .footer strong { color: var(--success); font-weight: 600; }
 
   @keyframes spin { to { transform: rotate(360deg); } }
   .highlight-border { border-color: var(--danger) !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important; }
@@ -155,8 +175,8 @@
       <span class="dot"></span>
       ONG ADKOUL (Retour)
     </a>
-    <h1>Demande d'Ordre de Mission (2)</h1>
-    <p>Formulaire de mission officiel (Version test)</p>
+    <h1>Demande d'Ordre de Mission</h1>
+    <p>Formulaire officiel de mission (Version RH)</p>
   </header>
 
   <div class="card">
@@ -193,9 +213,17 @@
       <div class="form-section">
         <div class="section-title"><span class="icon">📄</span> Détails de l'ordre de mission</div>
         
+        <!-- ACCOMPAGNATEURS DYNAMIQUES -->
         <div class="form-group">
-          <label for="om_accompagnateurs">Accompagnateur(s)</label>
-          <input type="text" id="om_accompagnateurs" placeholder="Ex : Nasser (laisser vide si aucun)">
+          <label>Accompagnateur(s)</label>
+          <div class="dynamic-list" id="accompagnateursList">
+            <div class="dynamic-item">
+              <input type="text" class="acc-input" placeholder="Nom de l'accompagnateur">
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="ajouterAccompagnateur()">
+            ➕ Ajouter un accompagnateur
+          </button>
         </div>
 
         <div class="grid-2">
@@ -238,7 +266,7 @@
       </div>
 
       <div class="info-box" style="margin-top: 1rem;">
-        ℹ️ Si le moyen de déplacement est un <strong>Véhicule ONG</strong>, le chauffeur et le véhicule seront renseignés par le service logistique.
+        ℹ️ Le <strong>chauffeur</strong> et le <strong>véhicule</strong> seront renseignés par le service logistique lors de la validation de votre demande.
       </div>
 
       <div class="submit-area">
@@ -265,6 +293,19 @@
   // Configuration Supabase
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
+
+  // --- LOGIQUE ACCOMPAGNATEURS DYNAMIQUES ---
+  function ajouterAccompagnateur() {
+    const list = document.getElementById('accompagnateursList');
+    const div = document.createElement('div');
+    div.className = 'dynamic-item';
+    div.innerHTML = `
+      <input type="text" class="acc-input" placeholder="Nom de l'accompagnateur">
+      <button type="button" class="btn-remove" onclick="this.parentElement.remove()" title="Supprimer">✕</button>
+    `;
+    list.appendChild(div);
+    div.querySelector('input').focus();
+  }
 
   function markInvalid(el) {
     el.classList.add('highlight-border');
@@ -305,13 +346,23 @@
       return;
     }
 
+    // Récupérer et formater les accompagnateurs
+    const accompagnateursInputs = document.querySelectorAll('.acc-input');
+    let accompagnateursArray = [];
+    accompagnateursInputs.forEach(input => {
+      if (input.value.trim() !== '') {
+        accompagnateursArray.push(input.value.trim());
+      }
+    });
+    const accompagnateursString = accompagnateursArray.join(', ');
+
     // Préparation des données pour la NOUVELLE table "missions_2"
     const newOrdreMission = {
       nom: document.getElementById('om_nom').value.trim(),
       poste: document.getElementById('om_poste').value.trim(),
       bureau: document.getElementById('om_bureau').value.trim(),
       email: document.getElementById('om_email').value.trim(),
-      accompagnateurs: document.getElementById('om_accompagnateurs').value.trim(),
+      accompagnateurs: accompagnateursString || null,
       destination: document.getElementById('om_destination').value.trim(),
       objectif: document.getElementById('om_objectif').value.trim(),
       date_depart: dateDepart.value,
@@ -344,6 +395,13 @@
       msgBox.className = 'message-box success';
       msgIcon.textContent = '✅'; msgText.textContent = `Ordre de mission transmis avec succès à la logistique !`;
       form.reset();
+      
+      // Réinitialiser la liste des accompagnateurs
+      document.getElementById('accompagnateursList').innerHTML = `
+        <div class="dynamic-item">
+          <input type="text" class="acc-input" placeholder="Nom de l'accompagnateur">
+        </div>
+      `;
 
     } catch (err) {
       msgBox.className = 'message-box error';

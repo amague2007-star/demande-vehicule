@@ -231,7 +231,7 @@
       <img src="https://amague2007-star.github.io/demande-vehicule/logo.png" alt="ONG ADKOUL" onerror="this.style.display='none'">
       <div class="brand-text">
         <h1>ONG ADKOUL — Tableau de bord Logistique</h1>
-        <p>Validation des demandes de sortie véhicule</p>
+        <p>Validation des demandes</p>
       </div>
     </div>
     <div class="header-right">
@@ -462,10 +462,10 @@
 
   const EMAILJS_PUBLIC_KEY = "SUbWMSdrTf7JugMrS";
   const EMAILJS_SERVICE_ID = "service_e6k2e76";
-  const EMAILJS_TEMPLATE_ID = "template_gd96rfl"; // Template actuel pour véhicules
-
-  // ⚠️ NOUVEAU TEMPLATE POUR LES MISSIONS (à créer sur EmailJS)
-  const EMAILJS_TEMPLATE_ID_MISSION = "template_mission_terrain"; 
+  
+  // ID du template EmailJS (utilisé pour les véhicules ET les missions)
+  const EMAILJS_TEMPLATE_ID = "template_gd96rfl"; 
+  const EMAILJS_TEMPLATE_ID_MISSION = "template_gd96rfl"; 
 
   emailjs.init(EMAILJS_PUBLIC_KEY);
 
@@ -598,7 +598,6 @@
     const navMissions = document.getElementById('navMissions');
     const navUsers = document.getElementById('navUsers');
 
-    // Reset classes
     navDemandes.classList.remove('active');
     navMissions.classList.remove('active');
     navUsers.classList.remove('active');
@@ -642,7 +641,7 @@
   }
 
   // ============================================================
-  // GESTION DES UTILISATEURS (Inchangé)
+  // GESTION DES UTILISATEURS
   // ============================================================
   async function chargerUsers() {
     const container = document.getElementById('usersList');
@@ -769,7 +768,7 @@
   }
 
   // ============================================================
-  // DEMANDES VEHICULES (Inchangé)
+  // DEMANDES VEHICULES
   // ============================================================
   async function chargerDemandes() {
     const container = document.getElementById('demandesContainer');
@@ -1031,7 +1030,7 @@ Vous pouvez soumettre une nouvelle demande à tout moment.
 
 Cordialement,
 Service Logistique - ONG ADKOUL
-Solidarité • Éducation • Développement`;
+Solidarit�� • Éducation • Développement`;
     }
 
     try {
@@ -1265,18 +1264,17 @@ _ONG ADKOUL_`;
   }
 
   // ============================================================
-  // MISSIONS TERRAIN (NOUVEAU)
+  // MISSIONS TERRAIN
   // ============================================================
   async function chargerMissions() {
     const container = document.getElementById('missionsContainer');
     container.innerHTML = '<div class="loading">Chargement...</div>';
     try {
-      // On suppose que la table s'appelle "missions"
       toutesLesMissions = await apiCall('/missions?order=created_at.desc');
       mettreAJourStatsMissions();
       afficherMissions();
     } catch (err) {
-      container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '<br><small>(Vérifiez que la table "missions" existe dans Supabase)</small></div>';
+      container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>';
     }
   }
 
@@ -1341,9 +1339,9 @@ _ONG ADKOUL_`;
             <div class="info-item"><strong>📅 Dates</strong>Du ${dateDebutStr} au ${dateFinStr}</div>
             <div class="info-item"><strong>📍 Lieu</strong>${m.lieu}</div>
             <div class="info-item"><strong>🧭 Type</strong>${m.type_mission}</div>
-            <div class="info-item"><strong>📅 Jours</strong>${m.jours_mission || 'Non précisé'}</div>
             <div class="info-item"><strong>📧 Email</strong>${m.email}</div>
             <div class="info-item"><strong>📞 Contact</strong>${m.telephone || 'Non précisé'}</div>
+            <div class="info-item"><strong>👥 Participants</strong>${m.participants || 'Non précisé'}</div>
           </div>
           <div class="demande-motif">
             <strong>📝 Description :</strong> ${m.description}<br><br>
@@ -1486,7 +1484,6 @@ _ONG ADKOUL_`;
 🧭 Titre : ${mission.titre_mission}
 📍 Lieu : ${mission.lieu}
 📅 Dates : du ${formatNigerDateShort(mission.date_debut)} au ${formatNigerDateShort(mission.date_fin)}
-⏱ Jours : ${mission.jours_mission}
 🗺️ Itinéraire : ${mission.itineraire}
 
 🚗 Affectation

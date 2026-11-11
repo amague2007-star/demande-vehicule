@@ -3,33 +3,190 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Impression Ordre de Mission</title>
+<title>Impression Ordre de Mission - ONG ADKOUL</title>
 <style>
-  body { font-family: 'Times New Roman', Times, serif; padding: 40px; color: #000; line-height: 1.5; background: #f0f2f5; }
-  .document { background: #fff; max-width: 800px; margin: 0 auto; padding: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-  .header { text-align: center; margin-bottom: 40px; }
-  .header h1 { font-size: 20px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
-  .header h2 { font-size: 16px; font-weight: normal; }
-  .bureau { text-align: right; font-weight: bold; margin-bottom: 30px; }
-  .titre { text-align: center; font-size: 22px; font-weight: bold; text-decoration: underline; margin-bottom: 40px; }
-  .contenu { margin-left: 20px; margin-bottom: 40px; font-size: 15px; }
-  .ligne { margin-bottom: 15px; }
-  .label { font-weight: bold; display: inline-block; width: 220px; }
-  .signature { display: flex; justify-content: space-between; margin-top: 60px; }
-  .signature-bloc { text-align: center; width: 45%; }
-  .signature-titre { font-weight: bold; margin-bottom: 10px; }
-  .btn-print { display: block; width: 250px; margin: 30px auto 0; padding: 15px; background: #27ae60; color: #fff; text-align: center; text-decoration: none; font-family: sans-serif; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; }
-  @media print {
-    body { background: #fff; padding: 0; }
-    .document { box-shadow: none; padding: 0; max-width: 100%; }
-    .btn-print { display: none; }
+  /* Styles globaux pour l'écran */
+  body { 
+    font-family: Arial, Helvetica, sans-serif; 
+    background: #f0f2f5; 
+    margin: 0; 
+    padding: 20px; 
   }
+  
+  .document { 
+    background: #fff; 
+    max-width: 800px; 
+    margin: 0 auto; 
+    padding: 40px 50px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+    color: #000;
+  }
+
+  /* Styles de la PAGE 1 */
+  .header h1 { 
+    font-size: 24px; 
+    font-weight: bold; 
+    margin: 0 0 5px 0; 
+  }
+  .header h2 { 
+    font-size: 14px; 
+    font-weight: normal; 
+    font-style: italic; 
+    margin: 0 0 20px 0; 
+    color: #333;
+  }
+  
+  .titre-om { 
+    text-align: center; 
+    font-size: 20px; 
+    font-weight: bold; 
+    margin: 20px 0 30px 0; 
+  }
+  
+  .bureau { 
+    font-weight: bold; 
+    margin-bottom: 20px; 
+    font-size: 15px; 
+  }
+  
+  .contenu { 
+    font-size: 15px; 
+    line-height: 1.4; 
+  }
+  
+  .contenu p { 
+    margin-bottom: 20px; 
+    font-weight: bold; 
+  }
+  
+  .ligne { 
+    margin-bottom: 10px; 
+    display: flex; 
+  }
+  
+  .label { 
+    font-weight: bold; 
+    width: 220px; 
+    flex-shrink: 0; 
+    text-transform: uppercase; 
+  }
+  
+  .valeur { 
+    flex-grow: 1; 
+  }
+  
+  .footer-page1 { 
+    margin-top: 40px; 
+  }
+  
+  .footer-page1 p { 
+    margin-bottom: 5px; 
+  }
+  
+  .signature-bas { 
+    margin-top: 30px; 
+    text-align: right; 
+  }
+
+  /* --- CONFIGURATION SPÉCIFIQUE POUR L'IMPRESSION --- */
+  @media print {
+    body { 
+      background: #fff; 
+      padding: 0; 
+      margin: 0; 
+    }
+    .document { 
+      box-shadow: none; 
+      padding: 0; 
+      max-width: 100%; 
+    }
+    .btn-print { 
+      display: none; 
+    }
+    
+    /* Format A4 strict, marges réalistes */
+    @page { 
+      size: A4 portrait; 
+      margin: 20mm; 
+    }
+    
+    /* C'est cette règle qui force la page 2 */
+    .page-2 { 
+      page-break-before: always; 
+      border-top: none !important; 
+      margin-top: 0 !important; 
+      padding-top: 0 !important; 
+    }
+  }
+
+  /* --- STYLES DE LA PAGE 2 (CADRES) --- */
+  .page-2 { 
+    margin-top: 40px; 
+    border-top: 2px dashed #ccc; 
+    padding-top: 40px; 
+  }
+  
+  .cadre-signature {
+    border: 1px solid #000;
+    padding: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    page-break-inside: avoid; /* Evite qu'un cadre soit coupé en deux */
+    height: 150px; /* Hauteur fixe pour ressembler au Word */
+    box-sizing: border-box;
+  }
+  
+  .colonne-signature { 
+    width: 48%; 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .ligne-top { 
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 10px;
+  }
+  
+  .ligne-milieu { 
+    display: flex; 
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .ligne-bas { 
+    display: flex; 
+    gap: 5px;
+  }
+
+  /* Bouton d'impression */
+  .btn-print { 
+    display: block; 
+    width: 250px; 
+    margin: 30px auto 0; 
+    padding: 15px; 
+    background: #27ae60; 
+    color: #fff; 
+    text-align: center; 
+    text-decoration: none; 
+    font-family: sans-serif; 
+    font-weight: bold; 
+    border-radius: 8px; 
+    border: none; 
+    cursor: pointer; 
+    font-size: 16px; 
+  }
+  .btn-print:hover { background: #229954; }
+
 </style>
 </head>
 <body>
 
 <div class="document" id="documentContent">
-  <p style="text-align: center; font-family: sans-serif; color: #666;">⏳ Chargement des données...</p>
+  <p style="text-align: center; color: #666; padding: 50px; font-family: sans-serif;">⏳ Chargement des données...</p>
 </div>
 
 <button class="btn-print" id="btnPrint" style="display: none;" onclick="window.print()">🖨️ Imprimer le document</button>
@@ -54,47 +211,118 @@
     .then(data => {
       if (data && data.length > 0) {
         const d = data[0];
+        
         document.getElementById('documentContent').innerHTML = `
+          
+          <!-- ================= PAGE 1 ================= -->
           <div class="header">
             <h1>ONG ADKOUL</h1>
             <h2>Solidarité • Éducation • Développement</h2>
           </div>
           
+          <div class="titre-om">ORDRE DE MISSION N° ${d.message_admin || '—'}</div>
+          
           <div class="bureau">Bureau : ${d.bureau}</div>
           
-          <div class="titre">ORDRE DE MISSION N° ${d.message_admin || '—'}</div>
-          
           <div class="contenu">
-            <p style="margin-bottom: 20px;"><strong>LE SECRETAIRE EXECUTIF DE L'ONG ADKOUL AUTORISE :</strong></p>
+            <p>LE SECRETAIRE EXECUTIF DE L'ONG ADKOUL AUTORISE :</p>
             
-            <div class="ligne"><span class="label">CHEF DE MISSION :</span> ${d.nom}</div>
-            <div class="ligne"><span class="label">EMPLOI OCCUPÉ :</span> ${d.poste}</div>
-            <div class="ligne"><span class="label">ACCOMPAGNATEURS :</span> ${d.accompagnateurs || '—'}</div>
-            <div class="ligne"><span class="label">DE SE RENDRE EN MISSION À :</span> ${d.destination}</div>
-            <div class="ligne"><span class="label">OBJECTIF DE LA MISSION :</span> ${d.objectif}</div>
-            <div class="ligne"><span class="label">MOYEN DE DÉPLACEMENT :</span> ${d.moyen_deplacement}</div>
-            <div class="ligne"><span class="label">CHAUFFEUR :</span> ${d.chauffeur_assigne || '—'}</div>
-            <div class="ligne"><span class="label">VÉHICULE :</span> ${d.vehicule_assigne || '—'}</div>
-            <div class="ligne"><span class="label">DATE DE DÉPART :</span> ${formatDate(d.date_depart)}</div>
-            <div class="ligne"><span class="label">DATE DE RETOUR PRÉVUE :</span> ${formatDate(d.date_retour)}</div>
-            <div class="ligne"><span class="label">IMPUTATION BUDGÉTAIRE :</span> ${d.imputation_budgetaire}</div>
+            <div class="ligne"><span class="label">CHEF DE MISSION :</span> <span class="valeur">${d.nom}</span></div>
+            <div class="ligne"><span class="label">EMPLOI OCCUPE :</span> <span class="valeur">${d.poste}</span></div>
+            <div class="ligne"><span class="label">ACCOMPAGNATEURS :</span> <span class="valeur">${d.accompagnateurs || '—'}</span></div>
+            <div class="ligne"><span class="label">DE SE RENDRE EN MISSION A :</span> <span class="valeur">${d.destination}</span></div>
+            <div class="ligne"><span class="label">OBJECTIF DE LA MISSION :</span> <span class="valeur">${d.objectif}</span></div>
+            <div class="ligne"><span class="label">MOYEN DE DEPLACEMENT :</span> <span class="valeur">${d.moyen_deplacement}</span></div>
+            <div class="ligne"><span class="label">CHAUFFEUR :</span> <span class="valeur">${d.chauffeur_assigne || '—'}</span></div>
+            <div class="ligne"><span class="label">DATE DE DEPART :</span> <span class="valeur">${formatDate(d.date_depart)}</span></div>
+            <div class="ligne"><span class="label">DATE DE RETOUR PREVUE :</span> <span class="valeur">${formatDate(d.date_retour)}</span></div>
+            <div class="ligne"><span class="label">IMPUTATION BUDGETAIRE :</span> <span class="valeur">${d.imputation_budgetaire}</span></div>
           </div>
 
-          <div class="signature">
-            <div class="signature-bloc">
-              <div class="signature-titre">DATE ET SIGNATURE</div>
-              <div>Fait à ${d.bureau}, le ${formatDate(d.date_depart)}</div>
-              <br><br><br>
-              <div>_______________________</div>
-              <div><strong>L'Agent</strong></div>
+          <div class="footer-page1">
+            <p>DATE ET SIGNATURE :</p>
+            <p>Fait à ${d.bureau}, le ${formatDate(d.date_depart)}</p>
+            
+            <div class="signature-bas">
+              <p style="font-weight: bold;">SECRETAIRE EXECUTIF</p>
             </div>
-            <div class="signature-bloc">
-              <div class="signature-titre">&nbsp;</div>
-              <div>&nbsp;</div>
-              <br><br><br>
-              <div>_______________________</div>
-              <div><strong>LE SECRÉTAIRE EXÉCUTIF</strong></div>
+          </div>
+
+          <!-- ================= PAGE 2 : CADRES DE VISAS ================= -->
+          <div class="page-2">
+            
+            <!-- Cadre 1 -->
+            <div class="cadre-signature">
+              <div class="colonne-signature">
+                <div>
+                  <div class="ligne-top"><span>Lieu : ..................................</span><span>Date de départ : ....../....../2026</span></div>
+                  <div class="ligne-milieu"><span>Autorité : ..................................</span></div>
+                </div>
+                <div class="ligne-bas"><span>Visa : ..................................</span></div>
+              </div>
+              <div class="colonne-signature">
+                <div>
+                  <div class="ligne-top"><span>Lieu : ..................................</span><span>Date d'arrivée : ....../....../2026</span></div>
+                  <div class="ligne-milieu"><span>Autorité : ..................................</span></div>
+                </div>
+                <div class="ligne-bas"><span>Visa : ..................................</span></div>
+              </div>
             </div>
+
+            <!-- Cadre 2 -->
+            <div class="cadre-signature">
+              <div class="colonne-signature">
+                <div>
+                  <div class="ligne-top"><span>Lieu : ..................................</span><span>Date de départ : ....../....../2026</span></div>
+                  <div class="ligne-milieu"><span>Autorité : ..................................</span></div>
+                </div>
+                <div class="ligne-bas"><span>Visa : ..................................</span></div>
+              </div>
+              <div class="colonne-signature">
+                <div>
+                  <div class="ligne-top"><span>Lieu : ..................................</span><span>Date d'arrivée : ....../....../2026</span></div>
+                  <div class="ligne-milieu"><span>Autorité : ..................................</span></div>
+                </div>
+                <div class="ligne-bas"><span>Visa : ..................................</span></div>
+              </div>
+            </div>
+
+            <!-- Cadre 3 -->
+            <div class="cadre-signature">
+              <div class="colonne-signature">
+                <div>
+                  <div class="ligne-top"><span>Lieu : ..................................</span><span>Date de départ : ....../....../2026</span></div>
+                  <div class="ligne-milieu"><span>Autorité : ..................................</span></div>
+                </div>
+                <div class="ligne-bas"><span>Visa : ..................................</span></div>
+              </div>
+              <div class="colonne-signature">
+                <div>
+                  <div class="ligne-top"><span>Lieu : ..................................</span><span>Date d'arrivée : ....../....../2026</span></div>
+                  <div class="ligne-milieu"><span>Autorité : ..................................</span></div>
+                </div>
+                <div class="ligne-bas"><span>Visa : ..................................</span></div>
+              </div>
+            </div>
+
+            <!-- Cadre 4 -->
+            <div class="cadre-signature">
+              <div class="colonne-signature">
+                <div>
+                  <div class="ligne-top"><span>Lieu : ..................................</span><span>Date de départ : ....../....../2026</span></div>
+                  <div class="ligne-milieu"><span>Autorité : ..................................</span></div>
+                </div>
+                <div class="ligne-bas"><span>Visa : ..................................</span></div>
+              </div>
+              <div class="colonne-signature">
+                <div>
+                  <div class="ligne-top"><span>Lieu : ..................................</span><span>Date d'arrivée : ....../....../2026</span></div>
+                  <div class="ligne-milieu"><span>Autorité : ..................................</span></div>
+                </div>
+                <div class="ligne-bas"><span>Visa : ..................................</span></div>
+              </div>
+            </div>
+
           </div>
         `;
         document.getElementById('btnPrint').style.display = 'block';

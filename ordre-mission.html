@@ -249,20 +249,10 @@
           </div>
         </div>
 
-        <div class="grid-2">
-          <div class="form-group">
-            <label for="om_moyen">Moyen de déplacement <span class="required">*</span></label>
-            <select id="om_moyen" required>
-              <option value="Véhicule ONG">Véhicule ONG (à attribuer)</option>
-              <option value="Bus">Bus</option>
-              <option value="Avion">Avion</option>
-              <option value="Autre">Autre</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="om_budget">Imputation Budgétaire <span class="required">*</span></label>
-            <input type="text" id="om_budget" placeholder="Ex : Hcr" required>
-          </div>
+        <!-- LE MOYEN DE DEPLACEMENT A ETE SUPPRIME -->
+        <div class="form-group">
+          <label for="om_budget">Imputation Budgétaire <span class="required">*</span></label>
+          <input type="text" id="om_budget" placeholder="Ex : Hcr" required>
         </div>
       </div>
 
@@ -377,7 +367,7 @@
       objectif: document.getElementById('om_objectif').value.trim(),
       date_depart: dateDepart.value,
       date_retour: dateRetour.value,
-      moyen_deplacement: document.getElementById('om_moyen').value,
+      moyen_deplacement: "Véhicule ONG", // Valeur forcée par défaut
       imputation_budgetaire: document.getElementById('om_budget').value.trim(),
       statut: 'en_attente'
     };

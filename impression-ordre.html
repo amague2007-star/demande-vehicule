@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Impression Ordre de Mission</title>
+<style>
+  body { font-family: 'Times New Roman', Times, serif; padding: 40px; color: #000; line-height: 1.5; background: #f0f2f5; }
+  .document { background: #fff; max-width: 800px; margin: 0 auto; padding: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+  .header { text-align: center; margin-bottom: 40px; }
+  .header h1 { font-size: 20px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
+  .header h2 { font-size: 16px; font-weight: normal; }
+  .bureau { text-align: right; font-weight: bold; margin-bottom: 30px; }
+  .titre { text-align: center; font-size: 22px; font-weight: bold; text-decoration: underline; margin-bottom: 40px; }
+  .contenu { margin-left: 20px; margin-bottom: 40px; font-size: 15px; }
+  .ligne { margin-bottom: 15px; }
+  .label { font-weight: bold; display: inline-block; width: 220px; }
+  .signature { display: flex; justify-content: space-between; margin-top: 60px; }
+  .signature-bloc { text-align: center; width: 45%; }
+  .signature-titre { font-weight: bold; margin-bottom: 10px; }
+  .btn-print { display: block; width: 250px; margin: 30px auto 0; padding: 15px; background: #27ae60; color: #fff; text-align: center; text-decoration: none; font-family: sans-serif; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .document { box-shadow: none; padding: 0; max-width: 100%; }
+    .btn-print { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="document" id="documentContent">
+  <p style="text-align: center; font-family: sans-serif; color: #666;">⏳ Chargement des données...</p>
+</div>
+
+<button class="btn-print" id="btnPrint" style="display: none;" onclick="window.print()">🖨️ Imprimer le document</button>
+
+<script>
+  const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const ordreId = urlParams.get('id');
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    return new Date(dateStr).toLocaleDateString('fr-FR');
+  }
+
+  if (ordreId) {
+    fetch(SUPABASE_URL + '/rest/v1/missions_2?id=eq.' + ordreId, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.length > 0) {
+        const d = data[0];
+        document.getElementById('documentContent').innerHTML = `
+          <div class="header">
+            <h1>ONG ADKOUL</h1>
+            <h2>Solidarité • Éducation • Développement</h2>
+          </div>
+          
+          <div class="bureau">Bureau : ${d.bureau}</div>
+          
+          <div class="titre">ORDRE DE MISSION N° ${d.message_admin || '—'}</div>
+          
+          <div class="contenu">
+            <p style="margin-bottom: 20px;"><strong>LE SECRETAIRE EXECUTIF DE L'ONG ADKOUL AUTORISE :</strong></p>
+            
+            <div class="ligne"><span class="label">CHEF DE MISSION :</span> ${d.nom}</div>
+            <div class="ligne"><span class="label">EMPLOI OCCUPÉ :</span> ${d.poste}</div>
+            <div class="ligne"><span class="label">ACCOMPAGNATEURS :</span> ${d.accompagnateurs || '—'}</div>
+            <div class="ligne"><span class="label">DE SE RENDRE EN MISSION À :</span> ${d.destination}</div>
+            <div class="ligne"><span class="label">OBJECTIF DE LA MISSION :</span> ${d.objectif}</div>
+            <div class="ligne"><span class="label">MOYEN DE DÉPLACEMENT :</span> ${d.moyen_deplacement}</div>
+            <div class="ligne"><span class="label">CHAUFFEUR :</span> ${d.chauffeur_assigne || '—'}</div>
+            <div class="ligne"><span class="label">VÉHICULE :</span> ${d.vehicule_assigne || '—'}</div>
+            <div class="ligne"><span class="label">DATE DE DÉPART :</span> ${formatDate(d.date_depart)}</div>
+            <div class="ligne"><span class="label">DATE DE RETOUR PRÉVUE :</span> ${formatDate(d.date_retour)}</div>
+            <div class="ligne"><span class="label">IMPUTATION BUDGÉTAIRE :</span> ${d.imputation_budgetaire}</div>
+          </div>
+
+          <div class="signature">
+            <div class="signature-bloc">
+              <div class="signature-titre">DATE ET SIGNATURE</div>
+              <div>Fait à ${d.bureau}, le ${formatDate(d.date_depart)}</div>
+              <br><br><br>
+              <div>_______________________</div>
+              <div><strong>L'Agent</strong></div>
+            </div>
+            <div class="signature-bloc">
+              <div class="signature-titre">&nbsp;</div>
+              <div>&nbsp;</div>
+              <br><br><br>
+              <div>_______________________</div>
+              <div><strong>LE SECRÉTAIRE EXÉCUTIF</strong></div>
+            </div>
+          </div>
+        `;
+        document.getElementById('btnPrint').style.display = 'block';
+      } else {
+        document.getElementById('documentContent').innerHTML = `<p style="text-align: center; color: red;">Erreur : Ordre de mission introuvable.</p>`;
+      }
+    })
+    .catch(err => {
+      document.getElementById('documentContent').innerHTML = `<p style="text-align: center; color: red;">Erreur : ${err.message}</p>`;
+    });
+  } else {
+    document.getElementById('documentContent').innerHTML = `<p style="text-align: center; color: red;">Aucun identifiant de mission fourni.</p>`;
+  }
+</script>
+
+</body>
+</html>

@@ -3,666 +3,266 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ONG ADKOUL — Demande de Mission Terrain</title>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<title>ONG ADKOUL — Portail des Demandes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --primary: #1e40af;
-    --primary-dark: #1e3a8a;
     --primary-light: #2563eb;
     --accent-orange: #f59e0b;
-    --success: #10b981;
-    --danger: #ef4444;
     --gray-50: #f8fafc;
-    --gray-100: #f1f5f9;
-    --gray-200: #e2e8f0;
-    --gray-300: #cbd5e1;
     --gray-600: #475569;
-    --gray-700: #334155;
     --gray-800: #1e293b;
     --gray-900: #0f172a;
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
   body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, var(--gray-50) 0%, #eef2f6 100%);
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     padding: 2rem 1rem;
     color: var(--gray-800);
-    line-height: 1.6;
   }
-  .container { max-width: 900px; margin: 0 auto; }
 
-  /* HEADER */
-  .header { text-align: center; margin-bottom: 2rem; animation: fadeInDown 0.6s ease-out; }
+  .header {
+    text-align: center;
+    margin-bottom: 3rem;
+    animation: fadeInDown 0.6s ease-out;
+  }
+
   .logo-badge {
-    display: inline-flex; align-items: center; gap: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-    color: #fff; padding: 0.65rem 1.6rem; border-radius: 100px;
-    font-weight: 700; font-size: 0.95rem; letter-spacing: 0.03em;
-    box-shadow: var(--shadow-md); margin-bottom: 1rem;
+    color: #fff;
+    padding: 0.65rem 1.6rem;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.03em;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 1.5rem;
   }
+
   .logo-badge .dot {
-    width: 10px; height: 10px; background: var(--accent-orange);
-    border-radius: 50%; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
-  }
-  .header h1 { font-size: 2rem; font-weight: 800; color: var(--gray-900); letter-spacing: -0.03em; margin-bottom: 0.4rem; }
-  .header p { color: var(--gray-600); font-size: 1rem; }
-
-  /* CARD */
-  .card {
-    background: #fff; border-radius: 20px; box-shadow: var(--shadow-xl);
-    padding: 2.5rem 2.5rem 2rem; border: 1px solid rgba(255, 255, 255, 0.8);
-    position: relative; overflow: hidden; animation: fadeInUp 0.6s ease-out 0.1s both;
-  }
-  .card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-    background: linear-gradient(90deg, var(--primary), var(--primary-light), var(--accent-orange));
+    width: 10px; height: 10px;
+    background: var(--accent-orange);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
   }
 
-  /* SECTIONS */
-  .form-section { margin-bottom: 2rem; }
-  .form-section:last-of-type { margin-bottom: 0.5rem; }
-  .section-title {
-    display: flex; align-items: center; gap: 0.6rem;
-    font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.08em; color: var(--primary); margin-bottom: 1.25rem;
-    padding-bottom: 0.5rem; border-bottom: 2px solid var(--gray-100);
-  }
-  .section-title .icon {
-    display: flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px; background: var(--gray-100);
-    border-radius: 8px; font-size: 0.9rem;
+  .header h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--gray-900);
+    letter-spacing: -0.03em;
+    margin-bottom: 0.5rem;
   }
 
-  /* GRID */
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
-  @media (max-width: 640px) {
-    .grid-2 { grid-template-columns: 1fr; }
-    .card { padding: 1.75rem 1.25rem; }
-    .header h1 { font-size: 1.6rem; }
+  .header p {
+    color: var(--gray-600);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
   }
 
-  /* FORM GROUPS */
-  .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.1rem; }
-  .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--gray-700); }
-  .form-group label .required { color: var(--danger); margin-left: 2px; }
-  .form-group input, .form-group select, .form-group textarea {
-    font-family: 'Inter', sans-serif; font-size: 0.9rem;
-    padding: 0.7rem 0.9rem; border: 1.5px solid var(--gray-200);
-    border-radius: 10px; background: var(--gray-50); color: var(--gray-800);
-    transition: all 0.2s ease; width: 100%;
-  }
-  .form-group input::placeholder, .form-group textarea::placeholder { color: var(--gray-300); }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    outline: none; border-color: var(--primary-light); background: #fff;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-  }
-  .form-group textarea { resize: vertical; min-height: 90px; }
-  .form-group select {
-    cursor: pointer; appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 0.9rem center;
-    background-size: 16px; padding-right: 2.5rem;
+  /* CARTES DE CHOIX */
+  .menu-container {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 900px;
+    width: 100%;
+    animation: fadeInUp 0.6s ease-out 0.1s both;
   }
 
-  /* RADIO */
-  .radio-group { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.25rem; }
-  .radio-item {
-    display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem;
-    font-weight: 500; color: var(--gray-700); cursor: pointer;
-    padding: 0.55rem 1rem; border-radius: 10px;
-    border: 1.5px solid var(--gray-200); background: var(--gray-50);
-    transition: all 0.2s ease; user-select: none;
-  }
-  .radio-item:hover { border-color: var(--primary-light); background: #fff; }
-  .radio-item input[type="radio"] { accent-color: var(--primary); cursor: pointer; margin: 0; width: 16px; height: 16px; }
-  .radio-item:has(input:checked) {
-    border-color: var(--primary-light); background: rgba(37, 99, 235, 0.07);
-    color: var(--primary-dark); font-weight: 600;
-  }
-
-  /* CHECKBOX */
-  .checkbox-group { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.25rem; }
-  .checkbox-item {
-    display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem;
-    font-weight: 500; color: var(--gray-700); cursor: pointer;
-    padding: 0.45rem 0.9rem; border-radius: 8px;
-    border: 1.5px solid var(--gray-200); background: var(--gray-50);
-    transition: all 0.2s ease; user-select: none;
-  }
-  .checkbox-item:hover { border-color: var(--primary-light); background: #fff; }
-  .checkbox-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer; margin: 0; }
-  .checkbox-item:has(input:checked) {
-    border-color: var(--primary-light); background: rgba(37, 99, 235, 0.06);
-  }
-
-  /* INFO BOX */
-  .info-box {
-    padding: 0.9rem 1.1rem; border-radius: 10px;
-    background: #eff6ff; border: 1.5px solid #bfdbfe;
-    color: #1e40af; font-size: 0.88rem; line-height: 1.5;
+  .menu-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    width: 350px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(255, 255, 255, 0.8);
     transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
   }
 
-  /* DIVIDER */
-  .divider { height: 1px; background: var(--gray-100); margin: 0.25rem 0 2rem; }
+  .menu-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 5px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    transition: height 0.3s ease;
+  }
 
-  /* SUBMIT */
-  .submit-area {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem;
-    padding-top: 1.75rem; border-top: 2px solid var(--gray-100);
+  .menu-card.mission::before {
+    background: linear-gradient(90deg, var(--accent-orange), #fbbf24);
   }
-  .submit-note { font-size: 0.8rem; color: var(--gray-600); display: flex; align-items: center; gap: 0.4rem; }
-  .btn-submit {
-    display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
-    font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700; color: #fff;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-    border: none; padding: 0.85rem 2.2rem; border-radius: 12px;
-    cursor: pointer; box-shadow: var(--shadow-md); transition: all 0.25s ease;
-  }
-  .btn-submit:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg), 0 0 0 4px rgba(37, 99, 235, 0.15); }
-  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-  .btn-submit .spinner {
-    width: 18px; height: 18px; border: 2.5px solid rgba(255, 255, 255, 0.35);
-    border-top-color: #fff; border-radius: 50%;
-    animation: spin 0.7s linear infinite; display: none;
-  }
-  .btn-submit.loading .spinner { display: block; }
-  .btn-submit.loading .btn-text { display: none; }
 
-  /* MESSAGES */
-  .message-box {
-    display: none; align-items: center; gap: 0.75rem;
-    padding: 1rem 1.25rem; border-radius: 12px;
-    font-size: 0.9rem; font-weight: 500; margin-top: 1.5rem;
+  .menu-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
   }
-  .message-box.success {
-    display: flex; background: #ecfdf5; border: 1.5px solid #a7f3d0;
-    color: #065f46; animation: slideDown 0.35s ease-out;
+
+  .menu-card:hover::before {
+    height: 8px;
   }
-  .message-box.error {
-    display: flex; background: #fef2f2; border: 1.5px solid #fecaca;
-    color: #991b1b; animation: slideDown 0.35s ease-out;
+
+  .card-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    background: #eff6ff;
+    color: var(--primary);
+    transition: transform 0.3s ease;
   }
-  .message-box .msg-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+  .menu-card.mission .card-icon {
+    background: #fffbeb;
+    color: var(--accent-orange);
+  }
+
+  .menu-card:hover .card-icon {
+    transform: scale(1.1) rotate(5deg);
+  }
+
+  .menu-card h2 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--gray-900);
+    margin-bottom: 0.75rem;
+  }
+
+  .menu-card p {
+    font-size: 0.95rem;
+    color: var(--gray-600);
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+  }
+
+  .btn-access {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--primary);
+    padding: 0.8rem 1.8rem;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    width: 100%;
+  }
+
+  .menu-card.mission .btn-access {
+    background: var(--accent-orange);
+  }
+
+  .menu-card:hover .btn-access {
+    background: var(--primary-light);
+  }
+
+  .menu-card.mission:hover .btn-access {
+    background: #d97706;
+  }
 
   /* FOOTER */
-  .footer { text-align: center; margin-top: 2rem; font-size: 0.8rem; color: var(--gray-600); }
-  .footer strong { color: var(--primary); font-weight: 600; }
+  .footer {
+    margin-top: 3rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--gray-600);
+    animation: fadeIn 1s ease-out;
+  }
 
-  /* ANIMATIONS */
-  @keyframes fadeInDown { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes fadeInUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .highlight-border { border-color: var(--danger) !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important; }
+  .footer strong {
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @media (max-width: 768px) {
+    .header h1 { font-size: 1.8rem; }
+    .menu-card { width: 100%; max-width: 400px; }
+  }
 </style>
 </head>
 <body>
 
-<div class="container">
-
-  <!-- HEADER -->
   <header class="header">
-    <div class="logo-badge"><span class="dot"></span> ONG ADKOUL</div>
-    <h1>Demande de Mission Terrain</h1>
-    <p>Formulaire officiel — itinéraire, jours et attribution du chauffeur</p>
+    <div class="logo-badge">
+      <span class="dot"></span>
+      ONG ADKOUL
+    </div>
+    <h1>Portail des Demandes</h1>
+    <p>Veuillez sélectionner le type de demande que vous souhaitez effectuer.</p>
   </header>
 
-  <!-- CARD / FORMULAIRE -->
-  <div class="card">
-    <form id="missionForm" novalidate>
+  <main class="menu-container">
+    
+    <!-- CARTE 1 : SORTIE VÉHICULE -->
+    <a href="vehicule.html" class="menu-card">
+      <div class="card-icon">🚗</div>
+      <h2>Sortie de Véhicule</h2>
+      <p>Demande d'autorisation pour l'utilisation d'un véhicule de la flotte de l'ONG.</p>
+      <span class="btn-access">Remplir la demande →</span>
+    </a>
 
-      <!-- ===== DEMANDEUR ===== -->
-      <div class="form-section">
-        <div class="section-title"><span class="icon">👤</span> Demandeur de la mission</div>
-        <div class="grid-2">
-          <div class="form-group">
-            <label for="m_nom">Nom complet <span class="required">*</span></label>
-            <input type="text" id="m_nom" name="nom" placeholder="Ex : Marie Dossou" required>
-          </div>
-          <div class="form-group">
-            <label for="m_fonction">Fonction / Service <span class="required">*</span></label>
-            <input type="text" id="m_fonction" name="fonction" placeholder="Ex : Chargée de projet" required>
-          </div>
-        </div>
-        <div class="grid-2">
-          <div class="form-group">
-            <label for="m_telephone">Téléphone <span class="required">*</span></label>
-            <input type="tel" id="m_telephone" name="telephone" placeholder="Ex : +229 97 00 00 00" required>
-          </div>
-          <div class="form-group">
-            <label for="m_email">Adresse e-mail <span class="required">*</span></label>
-            <input type="email" id="m_email" name="email" placeholder="Ex : m.dossou@adkoul.org" required>
-          </div>
-        </div>
-      </div>
+    <!-- CARTE 2 : MISSION TERRAIN -->
+    <a href="mission.html" class="menu-card mission">
+      <div class="card-icon">🧭</div>
+      <h2>Mission Terrain</h2>
+      <p>Planification d'une mission sur le terrain avec itinéraire et attribution de chauffeur.</p>
+      <span class="btn-access">Remplir la demande →</span>
+    </a>
 
-      <div class="divider"></div>
-
-      <!-- ===== MISSION ===== -->
-      <div class="form-section">
-        <div class="section-title"><span class="icon">🧭</span> Détails de la mission</div>
-
-        <div class="form-group">
-          <label for="m_titre">Titre de la mission <span class="required">*</span></label>
-          <input type="text" id="m_titre" name="titre_mission" placeholder="Ex : Distribution alimentaire — village de Sakété" required>
-        </div>
-
-        <div class="grid-2">
-          <div class="form-group">
-            <label for="m_lieu">Lieu / Zone d'intervention <span class="required">*</span></label>
-            <input type="text" id="m_lieu" name="lieu" placeholder="Ex : Sakété, Plateau" required>
-          </div>
-          <div class="form-group">
-            <label for="m_type">Type de mission <span class="required">*</span></label>
-            <select id="m_type" name="type_mission" required>
-              <option value="" disabled selected>— Sélectionner —</option>
-              <option value="Distribution alimentaire">Distribution alimentaire</option>
-              <option value="Assistance médicale">Assistance médicale</option>
-              <option value="Sensibilisation communautaire">Sensibilisation communautaire</option>
-              <option value="Évaluation terrain">Évaluation terrain</option>
-              <option value="Logistique / transport">Logistique / transport</option>
-              <option value="Autre">Autre</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="grid-2">
-          <div class="form-group">
-            <label for="m_date_debut">Date de début <span class="required">*</span></label>
-            <input type="date" id="m_date_debut" name="date_debut" required>
-          </div>
-          <div class="form-group">
-            <label for="m_date_fin">Date de fin <span class="required">*</span></label>
-            <input type="date" id="m_date_fin" name="date_fin" required>
-          </div>
-        </div>
-
-        <!-- ITINÉRAIRE -->
-        <div class="form-group">
-          <label for="m_itineraire">Itinéraire prévu <span class="required">*</span></label>
-          <textarea id="m_itineraire" name="itineraire" required
-            placeholder="Décrivez le trajet : point de départ → étapes → destination finale. Ex : Cotonou → Bohicon → Dassa → Parakou (nuit à Dassa) → retour Cotonou"></textarea>
-        </div>
-
-        <!-- JOURS DE LA MISSION -->
-        <div class="form-group">
-          <label>Jours de la mission <span class="required">*</span></label>
-          <div class="checkbox-group" id="joursGroup">
-            <label class="checkbox-item"><input type="checkbox" name="jours" value="Lundi"> Lundi</label>
-            <label class="checkbox-item"><input type="checkbox" name="jours" value="Mardi"> Mardi</label>
-            <label class="checkbox-item"><input type="checkbox" name="jours" value="Mercredi"> Mercredi</label>
-            <label class="checkbox-item"><input type="checkbox" name="jours" value="Jeudi"> Jeudi</label>
-            <label class="checkbox-item"><input type="checkbox" name="jours" value="Vendredi"> Vendredi</label>
-            <label class="checkbox-item"><input type="checkbox" name="jours" value="Samedi"> Samedi</label>
-            <label class="checkbox-item"><input type="checkbox" name="jours" value="Dimanche"> Dimanche</label>
-          </div>
-          <div class="info-box" id="infoJours" style="margin-top:0.6rem;">
-            📅 <span id="resumeJours">Aucun jour sélectionné</span>
-          </div>
-        </div>
-
-        <div class="grid-2">
-          <div class="form-group">
-            <label for="m_participants">Nombre de participants</label>
-            <input type="number" id="m_participants" name="participants" min="1" placeholder="Ex : 4">
-          </div>
-          <div class="form-group">
-            <label for="m_vehicule">Véhicule (facultatif)</label>
-            <select id="m_vehicule" name="vehicule">
-              <option value="" selected>— Aucun véhicule pour l'instant —</option>
-              <option value="Toyota Hilux (AB-123-CD)">Toyota Hilux — AB-123-CD</option>
-              <option value="Toyota Land Cruiser (EF-456-GH)">Toyota Land Cruiser — EF-456-GH</option>
-              <option value="Nissan Patrol (IJ-789-KL)">Nissan Patrol — IJ-789-KL</option>
-              <option value="Mitsubishi Pajero (MN-012-OP)">Mitsubishi Pajero — MN-012-OP</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="m_description">Description / Objectifs <span class="required">*</span></label>
-          <textarea id="m_description" name="description" placeholder="Décrivez brièvement le contexte et les objectifs de la mission..." required></textarea>
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- ===== CHAUFFEUR ===== -->
-      <div class="form-section">
-        <div class="section-title"><span class="icon">🧑‍✈️</span> Attribution du chauffeur</div>
-
-        <div class="form-group">
-          <label>Comment gérer le chauffeur ? <span class="required">*</span></label>
-          <div class="radio-group">
-            <label class="radio-item">
-              <input type="radio" name="mode_chauffeur" value="interne" checked>
-              <span>Je choisis un chauffeur interne</span>
-            </label>
-            <label class="radio-item">
-              <input type="radio" name="mode_chauffeur" value="attribution">
-              <span>Attribution par le responsable</span>
-            </label>
-            <label class="radio-item">
-              <input type="radio" name="mode_chauffeur" value="externe">
-              <span>Chauffeur externe</span>
-            </label>
-          </div>
-        </div>
-
-        <div id="champInterne" class="form-group">
-          <label for="m_chauffeur">Chauffeur interne <span class="required">*</span></label>
-          <select id="m_chauffeur" name="chauffeur">
-            <option value="" disabled selected>— Sélectionner un chauffeur —</option>
-            <option value="M. Koffi">M. Koffi — permis B, 8 ans d'expérience</option>
-            <option value="M. Adjamossi">M. Adjamossi — permis B, 5 ans d'expérience</option>
-            <option value="M. Sossou">M. Sossou — permis C, 12 ans d'expérience</option>
-            <option value="Mme Dossou">Mme Dossou — permis B, 6 ans d'expérience</option>
-          </select>
-        </div>
-
-        <div id="champAttribution" class="form-group" style="display:none;">
-          <div class="info-box">
-            ℹ️ Votre demande sera transmise au <strong>responsable logistique</strong> qui attribuera un chauffeur disponible selon les plannings et compétences requises.
-          </div>
-        </div>
-
-        <div id="champExterne" class="grid-2" style="display:none;">
-          <div class="form-group">
-            <label for="m_chauffeur_ext_nom">Nom du chauffeur externe <span class="required">*</span></label>
-            <input type="text" id="m_chauffeur_ext_nom" name="chauffeur_externe_nom" placeholder="Ex : M. Rakoto">
-          </div>
-          <div class="form-group">
-            <label for="m_chauffeur_ext_tel">Téléphone <span class="required">*</span></label>
-            <input type="tel" id="m_chauffeur_ext_tel" name="chauffeur_externe_tel" placeholder="Ex : +229 97 00 00 00">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="m_competences">Compétences / besoins particuliers</label>
-          <input type="text" id="m_competences" name="competences" placeholder="Ex : connaissance de la zone, permis poids lourd, langue locale...">
-        </div>
-
-        <div class="form-group">
-          <label for="m_observations">Observations</label>
-          <textarea id="m_observations" name="observations" placeholder="Facultatif..." style="min-height:70px;"></textarea>
-        </div>
-      </div>
-
-      <!-- SUBMIT -->
-      <div class="submit-area">
-        <div class="submit-note"><span>🔒</span> Transmission sécurisée</div>
-        <button type="submit" class="btn-submit" id="btnMission">
-          <span class="spinner"></span>
-          <span class="btn-text">Envoyer la demande</span>
-        </button>
-      </div>
-
-      <div class="message-box" id="msgMission">
-        <span class="msg-icon" id="msgMissionIcon"></span>
-        <span id="msgMissionText"></span>
-      </div>
-
-    </form>
-  </div>
+  </main>
 
   <footer class="footer">
-    <strong>ONG ADKOUL</strong> — Toute demande doit être validée par le responsable logistique.
+    <strong>ONG ADKOUL</strong> — Solidarité • Éducation • Développement<br>
+    Toute demande est soumise à validation par le responsable logistique.
   </footer>
-
-</div>
-
-<script>
-  // =============================================
-  //  CONFIG EMAILJS — REMPLACEZ PAR VOS CLÉS
-  // =============================================
-  const EMAILJS_PUBLIC_KEY = 'VOTRE_CLE_PUBLIQUE_EMAILJS';
-  const EMAILJS_SERVICE_ID = 'service_adkoul';
-  const TEMPLATE_MISSION = 'template_mission_terrain';       // → admin / responsable
-  const TEMPLATE_CONFIRMATION = 'template_confirmation_demandeur'; // → demandeur
-
-  emailjs.init(EMAILJS_PUBLIC_KEY);
-
-  // =============================================
-  //  HELPERS
-  // =============================================
-  function markInvalid(el) {
-    el.classList.add('highlight-border');
-    setTimeout(() => el.classList.remove('highlight-border'), 2000);
-  }
-
-  // =============================================
-  //  JOURS DE LA MISSION
-  // =============================================
-  const joursCheckboxes = document.querySelectorAll('input[name="jours"]');
-  const resumeJours = document.getElementById('resumeJours');
-  const infoJours = document.getElementById('infoJours');
-
-  function updateJoursSummary() {
-    const selected = Array.from(joursCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
-    if (selected.length === 0) {
-      resumeJours.textContent = 'Aucun jour sélectionné';
-      infoJours.style.background = '#fef2f2';
-      infoJours.style.borderColor = '#fecaca';
-      infoJours.style.color = '#991b1b';
-    } else {
-      resumeJours.textContent = `${selected.length} jour(s) — ${selected.join(', ')}`;
-      infoJours.style.background = '#eff6ff';
-      infoJours.style.borderColor = '#bfdbfe';
-      infoJours.style.color = '#1e40af';
-    }
-  }
-  joursCheckboxes.forEach(cb => cb.addEventListener('change', updateJoursSummary));
-  updateJoursSummary();
-
-  // =============================================
-  //  DURÉE CALCULÉE (dates)
-  // =============================================
-  const mDateDebut = document.getElementById('m_date_debut');
-  const mDateFin = document.getElementById('m_date_fin');
-
-  function calculerDuree() {
-    if (!mDateDebut.value || !mDateFin.value) return null;
-    const d1 = new Date(mDateDebut.value);
-    const d2 = new Date(mDateFin.value);
-    const diff = Math.floor((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
-    return diff > 0 ? diff : null;
-  }
-
-  mDateDebut.addEventListener('change', () => {
-    if (mDateFin.value && mDateFin.value < mDateDebut.value) mDateFin.value = '';
-    mDateFin.min = mDateDebut.value;
-  });
-
-  // Limite : aujourd'hui minimum
-  const today = new Date().toISOString().split('T')[0];
-  mDateDebut.min = today;
-  mDateFin.min = today;
-
-  // =============================================
-  //  MODE CHAUFFEUR
-  // =============================================
-  const modeRadios = document.querySelectorAll('input[name="mode_chauffeur"]');
-  const champInterne = document.getElementById('champInterne');
-  const champAttribution = document.getElementById('champAttribution');
-  const champExterne = document.getElementById('champExterne');
-  const selectChauffeurInterne = document.getElementById('m_chauffeur');
-  const inputExtNom = document.getElementById('m_chauffeur_ext_nom');
-  const inputExtTel = document.getElementById('m_chauffeur_ext_tel');
-
-  function getModeChauffeur() {
-    const checked = document.querySelector('input[name="mode_chauffeur"]:checked');
-    return checked ? checked.value : 'interne';
-  }
-
-  function updateChauffeurFields() {
-    const mode = getModeChauffeur();
-    champInterne.style.display = 'none';
-    champAttribution.style.display = 'none';
-    champExterne.style.display = 'none';
-    selectChauffeurInterne.removeAttribute('required');
-    inputExtNom.removeAttribute('required');
-    inputExtTel.removeAttribute('required');
-
-    if (mode === 'interne') {
-      champInterne.style.display = 'flex';
-      selectChauffeurInterne.setAttribute('required', 'required');
-    } else if (mode === 'attribution') {
-      champAttribution.style.display = 'block';
-    } else if (mode === 'externe') {
-      champExterne.style.display = 'grid';
-      inputExtNom.setAttribute('required', 'required');
-      inputExtTel.setAttribute('required', 'required');
-    }
-  }
-  modeRadios.forEach(r => r.addEventListener('change', updateChauffeurFields));
-  updateChauffeurFields();
-
-  function getNomChauffeurFinal() {
-    const mode = getModeChauffeur();
-    if (mode === 'interne') return selectChauffeurInterne.value || 'Non sélectionné';
-    if (mode === 'attribution') return 'À attribuer par le responsable logistique';
-    if (mode === 'externe') {
-      const nom = inputExtNom.value.trim() || 'Nom non renseigné';
-      const tel = inputExtTel.value.trim();
-      return `Externe : ${nom}${tel ? ' — ' + tel : ''}`;
-    }
-    return 'Non défini';
-  }
-
-  // =============================================
-  //  SOUMISSION
-  // =============================================
-  const form = document.getElementById('missionForm');
-  const msgBox = document.getElementById('msgMission');
-  const msgIcon = document.getElementById('msgMissionIcon');
-  const msgText = document.getElementById('msgMissionText');
-  const btn = document.getElementById('btnMission');
-
-  form.addEventListener('submit', async function (e) {
-    e.preventDefault();
-    msgBox.className = 'message-box';
-    msgBox.style.display = 'none';
-
-    // --- Validation ---
-    let isValid = true;
-    form.querySelectorAll('[required]').forEach(field => {
-      if (field.offsetParent === null) return; // champs cachés ignorés
-      if (!field.value.trim()) {
-        markInvalid(field);
-        isValid = false;
-      }
-    });
-
-    const joursCoches = Array.from(joursCheckboxes).filter(c => c.checked).map(c => c.value);
-    if (joursCoches.length === 0) {
-      markInvalid(document.getElementById('joursGroup'));
-      isValid = false;
-    }
-
-    if (mDateDebut.value && mDateFin.value && mDateFin.value < mDateDebut.value) {
-      markInvalid(mDateFin);
-      isValid = false;
-    }
-
-    if (!isValid) {
-      msgBox.className = 'message-box error';
-      msgIcon.textContent = '❌';
-      msgText.textContent = 'Veuillez remplir tous les champs obligatoires (*), dont au moins un jour de mission.';
-      msgBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      return;
-    }
-
-    // --- Données ---
-    const chauffeurFinal = getNomChauffeurFinal();
-    const modeChauffeur = getModeChauffeur();
-    const duree = calculerDuree();
-    const emailDemandeur = document.getElementById('m_email').value.trim();
-    const nomDemandeur = document.getElementById('m_nom').value.trim();
-    const reference = 'MISSION-' + Date.now().toString().slice(-6);
-
-    // Paramètres admin / responsable
-    const paramsAdmin = {
-      nom: nomDemandeur,
-      fonction: document.getElementById('m_fonction').value.trim(),
-      telephone: document.getElementById('m_telephone').value.trim(),
-      email: emailDemandeur,
-      titre_mission: document.getElementById('m_titre').value.trim(),
-      lieu: document.getElementById('m_lieu').value.trim(),
-      type_mission: document.getElementById('m_type').value,
-      date_debut: mDateDebut.value,
-      date_fin: mDateFin.value,
-      duree_jours: duree ? duree + ' jour(s)' : '—',
-      jours_mission: joursCoches.join(', '),
-      itineraire: document.getElementById('m_itineraire').value.trim(),
-      participants: document.getElementById('m_participants').value || '—',
-      description: document.getElementById('m_description').value.trim(),
-      mode_chauffeur: modeChauffeur,
-      chauffeur: chauffeurFinal,
-      competences: document.getElementById('m_competences').value.trim() || '—',
-      vehicule: document.getElementById('m_vehicule').value || 'Non défini',
-      observations: document.getElementById('m_observations').value.trim() || '—',
-      reference: reference,
-      date_demande: new Date().toLocaleString('fr-FR', {
-        day: '2-digit', month: '2-digit', year: 'numeric',
-        hour: '2-digit', minute: '2-digit'
-      })
-    };
-
-    // Paramètres demandeur (confirmation automatique)
-    const paramsDemandeur = {
-      to_email: emailDemandeur,
-      to_name: nomDemandeur,
-      titre_mission: paramsAdmin.titre_mission,
-      lieu: paramsAdmin.lieu,
-      date_debut: paramsAdmin.date_debut,
-      date_fin: paramsAdmin.date_fin,
-      jours_mission: paramsAdmin.jours_mission,
-      itineraire: paramsAdmin.itineraire,
-      chauffeur: chauffeurFinal,
-      mode_chauffeur: modeChauffeur,
-      vehicule: paramsAdmin.vehicule,
-      reference: reference
-    };
-
-    btn.disabled = true;
-    btn.classList.add('loading');
-
-    try {
-      // 1) E-mail vers le responsable logistique
-      await emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_MISSION, paramsAdmin);
-      // 2) E-mail automatique au demandeur avec le nom du chauffeur
-      await emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_CONFIRMATION, paramsDemandeur);
-
-      msgBox.className = 'message-box success';
-      msgIcon.textContent = '✅';
-      msgText.textContent = `Mission envoyée ! Un e-mail de confirmation vient d'être adressé à ${emailDemandeur}. Chauffeur : ${chauffeurFinal}. Réf. ${reference}`;
-      msgBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-      form.reset();
-      document.querySelectorAll('.checkbox-item').forEach(el => el.classList.remove('checked'));
-      updateJoursSummary();
-      updateChauffeurFields();
-
-    } catch (err) {
-      console.error(err);
-      msgBox.className = 'message-box error';
-      msgIcon.textContent = '❌';
-      msgText.textContent = 'Erreur lors de l\'envoi. Vérifiez votre connexion ou contactez le support.';
-    } finally {
-      btn.disabled = false;
-      btn.classList.remove('loading');
-    }
-  });
-</script>
 
 </body>
 </html>

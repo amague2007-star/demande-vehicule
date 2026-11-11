@@ -150,12 +150,8 @@
     <h1>ONG ADKOUL</h1>
     <p class="subtitle">Espace de Gestion</p>
     <p class="slogan">Solidarité • Éducation • Développement</p>
-    <input type="email" id="adminEmail" placeholder="Adresse email"
-      autocomplete="username"
-      onkeypress="if(event.key==='Enter') document.getElementById('adminPassword').focus()">
-    <input type="password" id="adminPassword" placeholder="Mot de passe"
-      autocomplete="current-password"
-      onkeypress="if(event.key==='Enter') login()">
+    <input type="email" id="adminEmail" placeholder="Adresse email" autocomplete="username" onkeypress="if(event.key==='Enter') document.getElementById('adminPassword').focus()">
+    <input type="password" id="adminPassword" placeholder="Mot de passe" autocomplete="current-password" onkeypress="if(event.key==='Enter') login()">
     <button onclick="login()">Se connecter</button>
     <div id="loginError" class="login-error"></div>
   </div>
@@ -203,7 +199,7 @@
     </div>
   </div>
 
-  <!-- SECTION MISSIONS TERRAIN (Mission 1) -->
+  <!-- SECTION MISSIONS TERRAIN -->
   <div id="missionsSection" style="display:none;">
     <div class="stats">
       <div class="stat-card"><div class="label">⏳ En attente</div><div class="value" id="statMissionsAttente">0</div></div>
@@ -225,7 +221,7 @@
     </div>
   </div>
 
-  <!-- SECTION ORDRES DE MISSION (Mission 2 - RH) -->
+  <!-- SECTION ORDRES DE MISSION -->
   <div id="ordresSection" style="display:none;">
     <div class="stats">
       <div class="stat-card" style="border-left-color:#f39c12;"><div class="label">⏳ À traiter (Logistique)</div><div class="value" id="statOrdresAttente">0</div></div>
@@ -269,6 +265,7 @@
   <div class="modal">
     <h2>🚗 Affecter un véhicule</h2>
     <p class="subtitle" id="modalValiderInfo"></p>
+    
     <label>👤 Chauffeur *</label>
     <select id="selectChauffeur" onchange="toggleAutre('chauffeur')">
       <option value="">-- Sélectionnez --</option>
@@ -279,16 +276,34 @@
       <option value="AUTRE">➕ Autre</option>
     </select>
     <input type="text" id="inputChauffeurAutre" placeholder="Nom" style="display:none; margin-top:8px;">
-    <label>🚙 Véhicule *</label>
-    <select id="selectVehicule" onchange="toggleAutre('vehicule')">
-      <option value="">-- Sélectionnez --</option>
-      <option value="Véhicule UNHCR">Véhicule UNHCR</option>
-      <option value="Véhicule Partenaire">Véhicule Partenaire</option>
-      <option value="Véhicule Location">Véhicule Location</option>
-      <option value="Bus">Bus</option>
-      <option value="AUTRE">➕ Autre</option>
-    </select>
-    <input type="text" id="inputVehiculeAutre" placeholder="Immatriculation" style="display:none; margin-top:8px;">
+
+    <div class="grid-2" style="margin-top:10px;">
+      <div>
+        <label>Type de véhicule *</label>
+        <select id="selectVehiculeType">
+          <option value="Véhicule UNHCR">Véhicule UNHCR</option>
+          <option value="Véhicule Partenaire">Véhicule Partenaire</option>
+          <option value="Véhicule Location">Véhicule Location</option>
+          <option value="Bus">Bus</option>
+          <option value="Autre">Autre</option>
+        </select>
+      </div>
+      <div>
+        <label>Marque *</label>
+        <input type="text" id="inputVehiculeMarque" placeholder="Ex: Toyota" required>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:10px;">
+      <div>
+        <label>Couleur *</label>
+        <input type="text" id="inputVehiculeCouleur" placeholder="Ex: Blanche" required>
+      </div>
+      <div>
+        <label>N° Immatriculation *</label>
+        <input type="text" id="inputVehiculeImmat" placeholder="Ex: AB-123-CD" required>
+      </div>
+    </div>
+
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
       <button class="btn-valider" onclick="confirmerValidation()">✅ Enregistrer</button>
@@ -314,6 +329,7 @@
   <div class="modal">
     <h2>🚙 Affecter un chauffeur</h2>
     <p class="subtitle" id="modalValiderMissionInfo"></p>
+    
     <label>👤 Chauffeur *</label>
     <select id="selectChauffeurMission" onchange="toggleAutreMission('chauffeur')">
       <option value="">-- Sélectionnez --</option>
@@ -324,16 +340,34 @@
       <option value="AUTRE">➕ Autre</option>
     </select>
     <input type="text" id="inputChauffeurMissionAutre" placeholder="Nom" style="display:none; margin-top:8px;">
-    <label>🚙 Véhicule *</label>
-    <select id="selectVehiculeMission" onchange="toggleAutreMission('vehicule')">
-      <option value="">-- Sélectionnez --</option>
-      <option value="Véhicule UNHCR">Véhicule UNHCR</option>
-      <option value="Véhicule Partenaire">Véhicule Partenaire</option>
-      <option value="Véhicule Location">Véhicule Location</option>
-      <option value="Bus">Bus</option>
-      <option value="AUTRE">➕ Autre</option>
-    </select>
-    <input type="text" id="inputVehiculeMissionAutre" placeholder="Immatriculation" style="display:none; margin-top:8px;">
+
+    <div class="grid-2" style="margin-top:10px;">
+      <div>
+        <label>Type de véhicule *</label>
+        <select id="selectVehiculeMissionType">
+          <option value="Véhicule UNHCR">Véhicule UNHCR</option>
+          <option value="Véhicule Partenaire">Véhicule Partenaire</option>
+          <option value="Véhicule Location">Véhicule Location</option>
+          <option value="Bus">Bus</option>
+          <option value="Autre">Autre</option>
+        </select>
+      </div>
+      <div>
+        <label>Marque *</label>
+        <input type="text" id="inputVehiculeMissionMarque" placeholder="Ex: Toyota" required>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:10px;">
+      <div>
+        <label>Couleur *</label>
+        <input type="text" id="inputVehiculeMissionCouleur" placeholder="Ex: Blanche" required>
+      </div>
+      <div>
+        <label>N° Immatriculation *</label>
+        <input type="text" id="inputVehiculeMissionImmat" placeholder="Ex: AB-123-CD" required>
+      </div>
+    </div>
+
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
       <button class="btn-valider" onclick="confirmerValidationMission()">✅ Enregistrer</button>
@@ -354,11 +388,12 @@
   </div>
 </div>
 
-<!-- MODALES ORDRES DE MISSION (2) -->
+<!-- MODALES ORDRES DE MISSION -->
 <div class="modal-overlay" id="modalValiderOrdre">
   <div class="modal">
     <h2>📄 Affectation Logistique</h2>
     <p class="subtitle" id="modalValiderOrdreInfo"></p>
+    
     <label>👤 Chauffeur à assigner *</label>
     <select id="selectChauffeurOrdre" onchange="toggleAutreOrdre('chauffeur')">
       <option value="">-- Sélectionnez un chauffeur --</option>
@@ -370,16 +405,32 @@
     </select>
     <input type="text" id="inputChauffeurOrdreAutre" placeholder="Nom du chauffeur" style="display:none; margin-top:8px;">
 
-    <label>🚙 Véhicule à assigner *</label>
-    <select id="selectVehiculeOrdre" onchange="toggleAutreOrdre('vehicule')">
-      <option value="">-- Sélectionnez un véhicule --</option>
-      <option value="Véhicule UNHCR">Véhicule UNHCR</option>
-      <option value="Véhicule Partenaire">Véhicule Partenaire</option>
-      <option value="Véhicule Location">Véhicule Location</option>
-      <option value="Bus">Bus</option>
-      <option value="AUTRE">➕ Autre</option>
-    </select>
-    <input type="text" id="inputVehiculeOrdreAutre" placeholder="Immatriculation" style="display:none; margin-top:8px;">
+    <div class="grid-2" style="margin-top:10px;">
+      <div>
+        <label>Type de véhicule *</label>
+        <select id="selectVehiculeOrdreType">
+          <option value="Véhicule UNHCR">Véhicule UNHCR</option>
+          <option value="Véhicule Partenaire">Véhicule Partenaire</option>
+          <option value="Véhicule Location">Véhicule Location</option>
+          <option value="Bus">Bus</option>
+          <option value="Autre">Autre</option>
+        </select>
+      </div>
+      <div>
+        <label>Marque *</label>
+        <input type="text" id="inputVehiculeOrdreMarque" placeholder="Ex: Toyota" required>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:10px;">
+      <div>
+        <label>Couleur *</label>
+        <input type="text" id="inputVehiculeOrdreCouleur" placeholder="Ex: Blanche" required>
+      </div>
+      <div>
+        <label>N° Immatriculation *</label>
+        <input type="text" id="inputVehiculeOrdreImmat" placeholder="Ex: AB-123-CD" required>
+      </div>
+    </div>
 
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
@@ -511,7 +562,6 @@
     document.getElementById('userName').textContent = adminName;
     document.getElementById('userBadge').title = sessionStorage.getItem('admin_email') || '';
 
-    // GESTION DES DROITS D'ACCÈS
     if (role === 'rh') {
       document.getElementById('navDemandes').style.display = 'none';
       document.getElementById('navMissions').style.display = 'none';
@@ -684,8 +734,10 @@
   function toggleAutre(type) {
     const select = document.getElementById(type === 'chauffeur' ? 'selectChauffeur' : 'selectVehicule');
     const input = document.getElementById(type === 'chauffeur' ? 'inputChauffeurAutre' : 'inputVehiculeAutre');
-    input.style.display = select.value === 'AUTRE' ? 'block' : 'none';
-    if (select.value !== 'AUTRE') input.value = '';
+    if(input) {
+      input.style.display = select.value === 'AUTRE' ? 'block' : 'none';
+      if (select.value !== 'AUTRE') input.value = '';
+    }
   }
 
   function ouvrirModalValider(id) {
@@ -693,18 +745,28 @@
     if (!demandeEnCours) return;
     document.getElementById('modalValiderInfo').textContent = `${demandeEnCours.prenom} ${demandeEnCours.nom} → ${demandeEnCours.destination}`;
     document.getElementById('selectChauffeur').value = ''; document.getElementById('inputChauffeurAutre').style.display = 'none'; document.getElementById('inputChauffeurAutre').value = '';
-    document.getElementById('selectVehicule').value = ''; document.getElementById('inputVehiculeAutre').style.display = 'none'; document.getElementById('inputVehiculeAutre').value = '';
+    document.getElementById('selectVehiculeType').value = 'Véhicule UNHCR';
+    document.getElementById('inputVehiculeMarque').value = '';
+    document.getElementById('inputVehiculeCouleur').value = '';
+    document.getElementById('inputVehiculeImmat').value = '';
     document.getElementById('modalValider').classList.add('active');
   }
 
   async function confirmerValidation() {
     const sc = document.getElementById('selectChauffeur').value;
     let chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurAutre').value.trim() : sc;
-    const sv = document.getElementById('selectVehicule').value;
-    let vehicule = sv === 'AUTRE' ? document.getElementById('inputVehiculeAutre').value.trim() : sv;
-    if (!chauffeur || !vehicule) { alert('⚠️ Sélectionnez chauffeur et véhicule.'); return; }
+    
+    const type = document.getElementById('selectVehiculeType').value;
+    const marque = document.getElementById('inputVehiculeMarque').value.trim();
+    const couleur = document.getElementById('inputVehiculeCouleur').value.trim();
+    const immat = document.getElementById('inputVehiculeImmat').value.trim();
+    
+    if (!chauffeur || !marque || !couleur || !immat) { alert('⚠️ Remplissez tous les champs du véhicule et le chauffeur.'); return; }
+    
+    const vehiculeString = `${type} (${marque} - ${couleur} - ${immat})`;
+
     try {
-      await apiCall('/demandes?id=eq.' + demandeEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'validee', chauffeur_assigne: chauffeur, vehicule_assigne: vehicule, date_validation: new Date().toISOString(), valide_par: getAdminName() }) });
+      await apiCall('/demandes?id=eq.' + demandeEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'validee', chauffeur_assigne: chauffeur, vehicule_assigne: vehiculeString, date_validation: new Date().toISOString(), valide_par: getAdminName() }) });
       fermerModal(); await chargerDemandes(); alert('✅ Demande traitée.');
     } catch (err) { alert('❌ ' + err.message); }
   }
@@ -728,7 +790,7 @@
 
   async function supprimerDemande(id) { if (confirm('Supprimer ?')) { await apiCall('/demandes?id=eq.' + id, { method: 'DELETE' }); chargerDemandes(); } }
 
-  // MISSIONS TERRAIN (Mission 1)
+  // MISSIONS TERRAIN
   async function chargerMissions() {
     const container = document.getElementById('missionsContainer');
     container.innerHTML = '<div class="loading">Chargement...</div>';
@@ -775,8 +837,10 @@
   function toggleAutreMission(type) {
     const select = document.getElementById(type === 'chauffeur' ? 'selectChauffeurMission' : 'selectVehiculeMission');
     const input = document.getElementById(type === 'chauffeur' ? 'inputChauffeurMissionAutre' : 'inputVehiculeMissionAutre');
-    input.style.display = select.value === 'AUTRE' ? 'block' : 'none';
-    if (select.value !== 'AUTRE') input.value = '';
+    if(input) {
+      input.style.display = select.value === 'AUTRE' ? 'block' : 'none';
+      if (select.value !== 'AUTRE') input.value = '';
+    }
   }
 
   function ouvrirModalValiderMission(id) {
@@ -784,18 +848,27 @@
     if (!missionEnCours) return;
     document.getElementById('modalValiderMissionInfo').textContent = `${missionEnCours.titre_mission} → ${missionEnCours.lieu}`;
     document.getElementById('selectChauffeurMission').value = ''; document.getElementById('inputChauffeurMissionAutre').style.display = 'none'; document.getElementById('inputChauffeurMissionAutre').value = '';
-    document.getElementById('selectVehiculeMission').value = ''; document.getElementById('inputVehiculeMissionAutre').style.display = 'none'; document.getElementById('inputVehiculeMissionAutre').value = '';
+    document.getElementById('selectVehiculeMissionType').value = 'Véhicule UNHCR';
+    document.getElementById('inputVehiculeMissionMarque').value = '';
+    document.getElementById('inputVehiculeMissionCouleur').value = '';
+    document.getElementById('inputVehiculeMissionImmat').value = '';
     document.getElementById('modalValiderMission').classList.add('active');
   }
 
   async function confirmerValidationMission() {
     const sc = document.getElementById('selectChauffeurMission').value;
     let chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurMissionAutre').value.trim() : sc;
-    const sv = document.getElementById('selectVehiculeMission').value;
-    let vehicule = sv === 'AUTRE' ? document.getElementById('inputVehiculeMissionAutre').value.trim() : sv;
-    if (!chauffeur || !vehicule) { alert('⚠️ Sélectionnez chauffeur et véhicule.'); return; }
+    
+    const type = document.getElementById('selectVehiculeMissionType').value;
+    const marque = document.getElementById('inputVehiculeMissionMarque').value.trim();
+    const couleur = document.getElementById('inputVehiculeMissionCouleur').value.trim();
+    const immat = document.getElementById('inputVehiculeMissionImmat').value.trim();
+    
+    if (!chauffeur || !marque || !couleur || !immat) { alert('⚠️ Remplissez tous les champs.'); return; }
+    const vehiculeString = `${type} (${marque} - ${couleur} - ${immat})`;
+
     try {
-      await apiCall('/missions?id=eq.' + missionEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'validee', chauffeur_assigne: chauffeur, vehicule_assigne: vehicule, date_validation: new Date().toISOString(), valide_par: getAdminName() }) });
+      await apiCall('/missions?id=eq.' + missionEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'validee', chauffeur_assigne: chauffeur, vehicule_assigne: vehiculeString, date_validation: new Date().toISOString(), valide_par: getAdminName() }) });
       fermerModal(); await chargerMissions(); alert('✅ Mission traitée.');
     } catch (err) { alert('❌ ' + err.message); }
   }
@@ -821,7 +894,7 @@
 
   function fermerModal() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); }
 
-  // ORDRES DE MISSION (Mission 2)
+  // ORDRES DE MISSION
   async function chargerOrdres() {
     const container = document.getElementById('ordresContainer');
     container.innerHTML = '<div class="loading">Chargement...</div>';
@@ -889,8 +962,10 @@
   function toggleAutreOrdre(type) {
     const select = document.getElementById(type === 'chauffeur' ? 'selectChauffeurOrdre' : 'selectVehiculeOrdre');
     const input = document.getElementById(type === 'chauffeur' ? 'inputChauffeurOrdreAutre' : 'inputVehiculeOrdreAutre');
-    input.style.display = select.value === 'AUTRE' ? 'block' : 'none';
-    if (select.value !== 'AUTRE') input.value = '';
+    if(input) {
+      input.style.display = select.value === 'AUTRE' ? 'block' : 'none';
+      if (select.value !== 'AUTRE') input.value = '';
+    }
   }
 
   function ouvrirModalValiderOrdre(id) {
@@ -898,17 +973,24 @@
     if (!ordreEnCours) return;
     document.getElementById('modalValiderOrdreInfo').textContent = `Mission à ${ordreEnCours.destination} pour ${ordreEnCours.nom}`;
     document.getElementById('selectChauffeurOrdre').value = ''; document.getElementById('inputChauffeurOrdreAutre').style.display = 'none'; document.getElementById('inputChauffeurOrdreAutre').value = '';
-    document.getElementById('selectVehiculeOrdre').value = ''; document.getElementById('inputVehiculeOrdreAutre').style.display = 'none'; document.getElementById('inputVehiculeOrdreAutre').value = '';
+    document.getElementById('selectVehiculeOrdreType').value = 'Véhicule UNHCR';
+    document.getElementById('inputVehiculeOrdreMarque').value = '';
+    document.getElementById('inputVehiculeOrdreCouleur').value = '';
+    document.getElementById('inputVehiculeOrdreImmat').value = '';
     document.getElementById('modalValiderOrdre').classList.add('active');
   }
 
   async function confirmerValidationOrdre() {
     const sc = document.getElementById('selectChauffeurOrdre').value;
     let chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurOrdreAutre').value.trim() : sc;
-    const sv = document.getElementById('selectVehiculeOrdre').value;
-    let vehicule = sv === 'AUTRE' ? document.getElementById('inputVehiculeOrdreAutre').value.trim() : sv;
     
-    if (!chauffeur || !vehicule) { alert('⚠️ Sélectionnez chauffeur et véhicule.'); return; }
+    const type = document.getElementById('selectVehiculeOrdreType').value;
+    const marque = document.getElementById('inputVehiculeOrdreMarque').value.trim();
+    const couleur = document.getElementById('inputVehiculeOrdreCouleur').value.trim();
+    const immat = document.getElementById('inputVehiculeOrdreImmat').value.trim();
+    
+    if (!chauffeur || !marque || !couleur || !immat) { alert('⚠️ Remplissez tous les champs.'); return; }
+    const vehiculeString = `${type} (${marque} - ${couleur} - ${immat})`;
     
     try {
       await apiCall('/missions_2?id=eq.' + ordreEnCours.id, { 
@@ -916,7 +998,7 @@
         body: JSON.stringify({ 
           statut: 'affecte_logistique', 
           chauffeur_assigne: chauffeur, 
-          vehicule_assigne: vehicule, 
+          vehicule_assigne: vehiculeString, 
           date_validation: new Date().toISOString(), 
           valide_par: getAdminName() 
         }) 
@@ -942,7 +1024,6 @@
   }
 
   async function confirmerNumeroRH() {
-    // Génération automatique du numéro : OM-ANNEE-ID (ex: OM-2026-0045)
     const annee = new Date().getFullYear();
     const idFormatte = String(ordreEnCours.id).padStart(4, '0');
     const numeroGenere = `OM-${annee}-${idFormatte}`;

@@ -251,8 +251,9 @@
     </div>
     <div class="users-info-box">
       💡 <strong>Info :</strong> Les rôles déterminent les accès. 
-      <br>• <strong>Logistique</strong> : Gère les véhicules et affecte les chauffeurs.
-      <br>• <strong>RH</strong> : Saisit uniquement les numéros d'ordre de mission.
+      <br>• <strong>Logistique</strong> : Accès total (gestion des comptes, véhicules, missions).
+      <br>• <strong>Assistant Logistique</strong> : Saisie des demandes de véhicules uniquement.
+      <br>• <strong>RH</strong> : Validation et impression des ordres de mission uniquement.
     </div>
     <div class="users-list" id="usersList">
       <div class="loading">Chargement des utilisateurs...</div>
@@ -265,7 +266,6 @@
   <div class="modal">
     <h2>🚗 Affecter un véhicule</h2>
     <p class="subtitle" id="modalValiderInfo"></p>
-    
     <label>👤 Chauffeur *</label>
     <select id="selectChauffeur" onchange="toggleAutre('chauffeur')">
       <option value="">-- Sélectionnez --</option>
@@ -276,7 +276,6 @@
       <option value="AUTRE">➕ Autre</option>
     </select>
     <input type="text" id="inputChauffeurAutre" placeholder="Nom" style="display:none; margin-top:8px;">
-
     <div class="grid-2" style="margin-top:10px;">
       <div>
         <label>Type de véhicule *</label>
@@ -303,7 +302,6 @@
         <input type="text" id="inputVehiculeImmat" placeholder="Ex: AB-123-CD" required>
       </div>
     </div>
-
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
       <button class="btn-valider" onclick="confirmerValidation()">✅ Enregistrer</button>
@@ -329,7 +327,6 @@
   <div class="modal">
     <h2>🚙 Affecter un chauffeur</h2>
     <p class="subtitle" id="modalValiderMissionInfo"></p>
-    
     <label>👤 Chauffeur *</label>
     <select id="selectChauffeurMission" onchange="toggleAutreMission('chauffeur')">
       <option value="">-- Sélectionnez --</option>
@@ -340,7 +337,6 @@
       <option value="AUTRE">➕ Autre</option>
     </select>
     <input type="text" id="inputChauffeurMissionAutre" placeholder="Nom" style="display:none; margin-top:8px;">
-
     <div class="grid-2" style="margin-top:10px;">
       <div>
         <label>Type de véhicule *</label>
@@ -367,7 +363,6 @@
         <input type="text" id="inputVehiculeMissionImmat" placeholder="Ex: AB-123-CD" required>
       </div>
     </div>
-
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
       <button class="btn-valider" onclick="confirmerValidationMission()">✅ Enregistrer</button>
@@ -393,7 +388,6 @@
   <div class="modal">
     <h2>📄 Affectation Logistique</h2>
     <p class="subtitle" id="modalValiderOrdreInfo"></p>
-    
     <label>👤 Chauffeur à assigner *</label>
     <select id="selectChauffeurOrdre" onchange="toggleAutreOrdre('chauffeur')">
       <option value="">-- Sélectionnez un chauffeur --</option>
@@ -463,8 +457,9 @@
     <input type="email" id="newUserEmail" placeholder="Ex: amadou@adkoul.org" autocomplete="off">
     <label>Rôle *</label>
     <select id="newUserRole">
-      <option value="logistique">Logistique (Gère les véhicules)</option>
-      <option value="rh">RH (Valide les ordres de mission)</option>
+      <option value="logistique">Logistique (Accès total)</option>
+      <option value="assistant_logistique">Assistant Logistique (Saisie véhicules)</option>
+      <option value="rh">RH (Valide et imprime les ordres de mission)</option>
     </select>
     <label>Mot de passe * (min. 6 caractères)</label>
     <div class="password-reveal">
@@ -562,14 +557,25 @@
     document.getElementById('userName').textContent = adminName;
     document.getElementById('userBadge').title = sessionStorage.getItem('admin_email') || '';
 
+    // GESTION DES DROITS D'ACCÈS SELON LE RÔLE
     if (role === 'rh') {
+      // Les RH ne voient que les Ordres de Mission
       document.getElementById('navDemandes').style.display = 'none';
       document.getElementById('navMissions').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
       afficherSection('ordres');
+    } else if (role === 'assistant_logistique') {
+      // L'assistant logistique ne voit que les demandes de véhicules
+      document.getElementById('navDemandes').style.display = 'block';
+      document.getElementById('navMissions').style.display = 'none';
+      document.getElementById('navOrdres').style.display = 'none';
+      document.getElementById('navUsers').style.display = 'none';
+      afficherSection('demandes');
     } else {
+      // Le super admin (Logistique) voit tout
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navMissions').style.display = 'block';
+      document.getElementById('navOrdres').style.display = 'block';
       document.getElementById('navUsers').style.display = 'block';
       afficherSection('demandes');
     }
@@ -636,7 +642,11 @@
     container.innerHTML = tousLesUsers.map(u => {
       const isMe = u.id === myId;
       const canDelete = !isMe && tousLesUsers.length > 1;
-      const roleLabel = u.role === 'rh' ? '<span style="color:#d68910; font-weight:bold;">[RH]</span>' : '<span style="color:#1e3c72; font-weight:bold;">[Logistique]</span>';
+      let roleLabel = '';
+      if (u.role === 'rh') roleLabel = '<span style="color:#d68910; font-weight:bold;">[RH]</span>';
+      else if (u.role === 'assistant_logistique') roleLabel = '<span style="color:#2980b9; font-weight:bold;">[Assist. Log.]</span>';
+      else roleLabel = '<span style="color:#1e3c72; font-weight:bold;">[Logistique]</span>';
+
       return `
         <div class="user-row ${isMe ? 'current' : ''}">
           <div class="user-info">
@@ -704,6 +714,7 @@
   function afficherDemandes() {
     const filtre = document.getElementById('filtreStatut').value;
     const container = document.getElementById('demandesContainer');
+    const role = getAdminRole();
     let liste = toutesLesDemandes.filter(d => filtre === 'tous' || d.statut === filtre);
     if (liste.length === 0) { container.innerHTML = '<div class="empty">📭 Aucune demande</div>'; return; }
     container.innerHTML = liste.map(d => {
@@ -715,7 +726,11 @@
       } else if (d.statut === 'refusee') {
         resultatHtml = `<div class="resultat refusee"><strong>❌ Refusée</strong><br>Motif : ${d.message_admin}</div>`;
       }
-      actionsHtml += `<button class="btn btn-suppr" onclick="supprimerDemande(${d.id})">🗑️ Supprimer</button>`;
+      
+      if (role === 'logistique') {
+        actionsHtml += `<button class="btn btn-suppr" onclick="supprimerDemande(${d.id})">🗑️ Supprimer</button>`;
+      }
+
       return `
         <div class="demande-item ${d.statut === 'validee' ? 'validee' : d.statut === 'refusee' ? 'refusee' : ''}">
           <div class="demande-header"><h3>${d.prenom} ${d.nom} <span>— ${d.poste}</span></h3><span class="statut ${d.statut}">${d.statut === 'en_attente' ? '⏳ En attente' : d.statut === 'validee' ? '✅ Affectée' : '❌ Refusée'}</span></div>
@@ -937,7 +952,9 @@
         actionsHtml = `<button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>`;
       }
       
-      actionsHtml += `<button class="btn btn-suppr" onclick="supprimerOrdre(${o.id})">🗑️ Supprimer</button>`;
+      if (role === 'logistique') {
+        actionsHtml += `<button class="btn btn-suppr" onclick="supprimerOrdre(${o.id})">🗑️ Supprimer</button>`;
+      }
 
       return `
         <div class="demande-item ${o.statut === 'validee' ? 'validee' : ''}">

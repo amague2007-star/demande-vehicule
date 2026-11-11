@@ -1221,7 +1221,7 @@ Solidarité • Éducation • Développement`;
     fenetre.document.close();
   }
 
-  // ============ NOTIFICATION WHATSAPP ============
+  // ============ NOTIFICATION WHATSAPP VEHICULE ============
   function notifierWhatsApp(demandeId) {
     const d = toutesLesDemandes.find(x => x.id === demandeId);
     if (!d) { alert('❌ Demande introuvable.'); return; }
@@ -1309,6 +1309,7 @@ _ONG ADKOUL_`;
           <button class="btn btn-refuser" onclick="ouvrirModalRefuserMission(${m.id})">❌ Rejeter</button>
         `;
       } else if (m.statut === 'validee') {
+        const aUnNumero = CHAUFFEURS[m.chauffeur_assigne] !== undefined;
         resultatHtml = `<div class="resultat validee">
           <strong>✅ Affectée</strong> le ${formatNigerDate(m.date_validation)} (heure Niger)<br>
           👤 Chauffeur : <strong>${m.chauffeur_assigne || '-'}</strong> |
@@ -1316,6 +1317,12 @@ _ONG ADKOUL_`;
           ${m.message_admin ? '<br>💬 ' + m.message_admin : ''}
           ${m.valide_par ? `<span class="par-admin">✔ Traitée par : ${m.valide_par}</span>` : ''}
         </div>`;
+        actionsHtml = `
+          ${aUnNumero 
+            ? `<button class="btn btn-whatsapp" onclick="notifierWhatsAppMission(${m.id})">💬 Notifier le chauffeur</button>`
+            : `<button class="btn btn-whatsapp" disabled title="Aucun numéro enregistré pour ce chauffeur">💬 Notifier (non configuré)</button>`
+          }
+        `;
       } else if (m.statut === 'refusee') {
         resultatHtml = `<div class="resultat refusee">
           <strong>❌ Refusée</strong> le ${formatNigerDate(m.date_validation)} (heure Niger)<br>
@@ -1466,6 +1473,49 @@ _ONG ADKOUL_`;
     } catch (err) {
       alert('❌ Erreur : ' + err.message);
     }
+  }
+
+  // ============ NOTIFICATION WHATSAPP MISSION ============
+  function notifierWhatsAppMission(missionId) {
+    const m = toutesLesMissions.find(x => x.id === missionId);
+    if (!m) { alert('❌ Mission introuvable.'); return; }
+
+    const chauffeur = m.chauffeur_assigne;
+    const telephone = CHAUFFEURS[chauffeur];
+
+    if (!telephone) {
+      alert(`❌ Aucun numéro WhatsApp enregistré pour le chauffeur "${chauffeur}".`);
+      return;
+    }
+
+    const dateDebutStr = formatNigerDateShort(m.date_debut);
+    const dateFinStr = formatNigerDateShort(m.date_fin);
+    
+    const message = `Bonjour ${chauffeur},
+
+🧭 *NOUVELLE MISSION TERRAIN*
+
+📋 Détails de la mission :
+━━━━━━━━━━━━━━━━━━━━━━
+🏷️ Titre : ${m.titre_mission}
+📅 Du : ${dateDebutStr} au ${dateFinStr}
+📍 Lieu : ${m.lieu}
+🗺️ Itinéraire : ${m.itineraire}
+👥 Participants : ${m.participants || 'Non précisé'}
+
+🚙 Véhicule assigné :
+${m.vehicule_assigne || 'À confirmer'}
+
+📝 Description : ${m.description}
+
+👤 Agent : ${m.nom} (${m.telephone || 'contact non précisé'})
+
+⏰ Merci de vous préparer pour le départ.
+
+_Message automatique - Service Logistique_
+_ONG ADKOUL_`;
+
+    window.open(`https://wa.me/${telephone}?text=${encodeURIComponent(message)}`, '_blank');
   }
 
   // ============ NOTIFICATION EMAIL MISSION ============

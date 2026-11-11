@@ -104,6 +104,13 @@
     box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.12);
   }
   .form-group textarea { resize: vertical; min-height: 80px; }
+  
+  .form-group select {
+    cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 0.9rem center;
+    background-size: 16px; padding-right: 2.5rem;
+  }
 
   /* DYNAMIC LIST (Accompagnateurs) */
   .dynamic-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.8rem; }
@@ -249,15 +256,27 @@
           </div>
         </div>
 
-        <!-- LE MOYEN DE DEPLACEMENT A ETE SUPPRIME -->
-        <div class="form-group">
-          <label for="om_budget">Imputation Budgétaire <span class="required">*</span></label>
-          <input type="text" id="om_budget" placeholder="Ex : Hcr" required>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="om_moyen">Moyen de déplacement <span class="required">*</span></label>
+            <select id="om_moyen" required>
+              <option value="" disabled selected>— Sélectionner —</option>
+              <option value="Véhicule UNHCR">Véhicule UNHCR</option>
+              <option value="Véhicule Partenaire">Véhicule Partenaire</option>
+              <option value="Véhicule de Location">Véhicule de Location</option>
+              <option value="Bus">Bus</option>
+              <option value="Avion">Avion</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="om_budget">Imputation Budgétaire <span class="required">*</span></label>
+            <input type="text" id="om_budget" placeholder="Ex : Hcr" required>
+          </div>
         </div>
       </div>
 
       <div class="info-box" style="margin-top: 1rem;">
-        ℹ️ Le <strong>chauffeur</strong> et le <strong>véhicule</strong> seront renseignés par le service logistique lors de la validation de votre demande.
+        ℹ️ Si un véhicule est demandé, le <strong>chauffeur</strong> et les <strong>détails d'immatriculation</strong> seront renseignés par le service logistique lors de la validation de votre demande.
       </div>
 
       <div class="submit-area">
@@ -356,7 +375,7 @@
     const emailDemandeur = document.getElementById('om_email').value.trim();
     const nomDemandeur = document.getElementById('om_nom').value.trim();
 
-    // Préparation des données pour la NOUVELLE table "missions_2"
+    // Préparation des données
     const newOrdreMission = {
       nom: nomDemandeur,
       poste: document.getElementById('om_poste').value.trim(),
@@ -367,7 +386,7 @@
       objectif: document.getElementById('om_objectif').value.trim(),
       date_depart: dateDepart.value,
       date_retour: dateRetour.value,
-      moyen_deplacement: "Véhicule ONG", // Valeur forcée par défaut
+      moyen_deplacement: document.getElementById('om_moyen').value,
       imputation_budgetaire: document.getElementById('om_budget').value.trim(),
       statut: 'en_attente'
     };
@@ -394,7 +413,7 @@
       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
         to_email: emailDemandeur + ", abdoulnasser@adkoul.org, h.almoustapha@adkoul.org",
         subject: `⏳ Demande d'Ordre de Mission enregistrée - ${nomDemandeur}`,
-        message: `Bonjour ${nomDemandeur},\n\nVotre demande d'ordre de mission pour ${newOrdreMission.destination} a bien été transmise au service logistique.\n\nElle est actuellement en attente d'affectation d'un chauffeur et d'un véhicule. Vous recevrez un nouvel e-mail avec votre numéro d'ordre de mission dès que les RH l'auront validé.\n\n📋 Détails :\n📅 Départ : ${newOrdreMission.date_depart}\n📅 Retour : ${newOrdreMission.date_retour}\n📍 Destination : ${newOrdreMission.destination}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`
+        message: `Bonjour ${nomDemandeur},\n\nVotre demande d'ordre de mission pour ${newOrdreMission.destination} a bien été transmise au service logistique.\n\nElle est actuellement en attente d'affectation d'un chauffeur et d'un véhicule. Vous recevrez un nouvel e-mail avec votre numéro d'ordre de mission dès que les RH l'auront validé.\n\n📋 Détails :\n📅 Départ : ${newOrdreMission.date_depart}\n📅 Retour : ${newOrdreMission.date_retour}\n📍 Destination : ${newOrdreMission.destination}\n🚌 Moyen : ${newOrdreMission.moyen_deplacement}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`
       });
 
       msgBox.className = 'message-box success';

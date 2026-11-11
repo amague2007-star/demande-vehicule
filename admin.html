@@ -562,20 +562,17 @@
 
     // GESTION DES DROITS D'ACCÈS SELON LE RÔLE
     if (role === 'rh') {
-      // Les RH ne voient que les Ordres de Mission
       document.getElementById('navDemandes').style.display = 'none';
       document.getElementById('navMissions').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
       afficherSection('ordres');
     } else if (role === 'assistant_logistique') {
-      // L'assistant logistique ne voit que les demandes de véhicules
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navMissions').style.display = 'none';
       document.getElementById('navOrdres').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
       afficherSection('demandes');
     } else {
-      // Le super admin (Logistique) voit tout
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navMissions').style.display = 'block';
       document.getElementById('navOrdres').style.display = 'block';
@@ -706,11 +703,7 @@
     container.innerHTML = '<div class="loading">Chargement...</div>';
     try {
       toutesLesDemandes = await apiCall('/demandes?order=created_at.desc');
-      document.getElementById('statAttente').textContent = toutesLesDemandes.filter(d => d.statut === 'en_attente').length;
-      document.getElementById('statValidees').textContent = toutesLesDemandes.filter(d => d.statut === 'validee').length;
-      document.getElementById('statRefusees').textContent = toutesLesDemandes.filter(d => d.statut === 'refusee').length;
-      document.getElementById('statTotal').textContent = toutesLesDemandes.length;
-      afficherDemandes();
+      afficherDemandes(); // On laisse afficherDemandes() gérer les stats et le filtrage
     } catch (err) { container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>'; }
   }
 
@@ -719,22 +712,36 @@
     const container = document.getElementById('demandesContainer');
     const role = getAdminRole();
     
-    // FILTRE SPECIAL POUR L'ASSISTANT LOGISTIQUE
-    let liste = toutesLesDemandes;
+    // 1. FILTRAGE DES DONNÉES SELON LE RÔLE
+    let listeBase = toutesLesDemandes;
+    
     if (role === 'assistant_logistique') {
-      // Ne voit QUE les demandes où le type de véhicule demandé est "Location"
-      liste = liste.filter(d => d.motif && d.motif.toLowerCase().includes('location'));
+      // L'assistant ne voit QUE les demandes de location
+      listeBase = toutesLesDemandes.filter(d => 
+        (d.motif && d.motif.toLowerCase().includes('location')) || 
+        (d.vehicule_assigne && d.vehicule_assigne.toLowerCase().includes('location'))
+      );
+    }
+
+    // 2. MISE A JOUR DES STATISTIQUES (CARTES DU HAUT) BASÉES SUR LE FILTRE
+    document.getElementById('statAttente').textContent = listeBase.filter(d => d.statut === 'en_attente').length;
+    document.getElementById('statValidees').textContent = listeBase.filter(d => d.statut === 'validee').length;
+    document.getElementById('statRefusees').textContent = listeBase.filter(d => d.statut === 'refusee').length;
+    document.getElementById('statTotal').textContent = listeBase.length;
+
+    // 3. FILTRAGE PAR STATUT (MENU DÉROULANT)
+    let listeFinale = listeBase.filter(d => filtre === 'tous' || d.statut === filtre);
+    
+    if (listeFinale.length === 0) { 
+      container.innerHTML = '<div class="empty">📭 Aucune demande</div>'; 
+      return; 
     }
     
-    liste = liste.filter(d => filtre === 'tous' || d.statut === filtre);
-    
-    if (liste.length === 0) { container.innerHTML = '<div class="empty">📭 Aucune demande</div>'; return; }
-    
-    container.innerHTML = liste.map(d => {
+    // 4. AFFICHAGE DES CARTES
+    container.innerHTML = listeFinale.map(d => {
       let actionsHtml = ''; let resultatHtml = '';
       if (d.statut === 'en_attente') {
         actionsHtml = `<button class="btn btn-valider" onclick="ouvrirModalValider(${d.id})">✅ Affecter</button>`;
-        // Seul l'admin logistique peut rejeter
         if (role === 'logistique') {
            actionsHtml += `<button class="btn btn-refuser" onclick="ouvrirModalRefuser(${d.id})">❌ Rejeter</button>`;
         }
@@ -777,7 +784,7 @@
     if (!demandeEnCours) return;
     document.getElementById('modalValiderInfo').textContent = `${demandeEnCours.prenom} ${demandeEnCours.nom} → ${demandeEnCours.destination}`;
     document.getElementById('selectChauffeur').value = ''; document.getElementById('inputChauffeurAutre').style.display = 'none'; document.getElementById('inputChauffeurAutre').value = '';
-    document.getElementById('selectVehiculeType').value = 'Véhicule UNHCR';
+    document.getElementById('selectVehiculeType').value = 'Véhicule Location'; // Par défaut Location pour l'assistant
     document.getElementById('inputVehiculeMarque').value = '';
     document.getElementById('inputVehiculeCouleur').value = '';
     document.getElementById('inputVehiculeImmat').value = '';

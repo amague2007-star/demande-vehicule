@@ -236,6 +236,7 @@
     </div>
     <div class="header-right">
       <button class="nav-btn active" id="navDemandes" onclick="afficherSection('demandes')">📋 Demandes</button>
+      <button class="nav-btn" id="navMissions" onclick="afficherSection('missions')">🧭 Missions Terrain</button>
       <button class="nav-btn" id="navUsers" onclick="afficherSection('users')">👥 Utilisateurs</button>
       <div class="user-badge" id="userBadge">👤 <span id="userName">Admin</span></div>
       <button class="logout-btn" onclick="logout()">Déconnexion</button>
@@ -266,6 +267,30 @@
     </div>
   </div>
 
+  <!-- SECTION MISSIONS TERRAIN -->
+  <div id="missionsSection" style="display:none;">
+    <div class="stats">
+      <div class="stat-card" style="border-left-color:#f39c12;"><div class="label">⏳ En attente</div><div class="value" id="statMissionsAttente">0</div></div>
+      <div class="stat-card validees"><div class="label">✅ Validées</div><div class="value" id="statMissionsValidees">0</div></div>
+      <div class="stat-card refusees"><div class="label">❌ Refusées</div><div class="value" id="statMissionsRefusees">0</div></div>
+      <div class="stat-card total"><div class="label">📊 Total</div><div class="value" id="statMissionsTotal">0</div></div>
+    </div>
+
+    <div class="filters">
+      <select id="filtreStatutMission" onchange="afficherMissions()">
+        <option value="en_attente" selected>⏳ En attente</option>
+        <option value="validee">✅ Validées</option>
+        <option value="refusee">❌ Refusées</option>
+        <option value="tous">📋 Toutes</option>
+      </select>
+      <button onclick="chargerMissions()">🔄 Rafraîchir</button>
+    </div>
+
+    <div class="demandes-container" id="missionsContainer">
+      <div class="loading">Chargement des missions...</div>
+    </div>
+  </div>
+
   <!-- SECTION UTILISATEURS -->
   <div id="usersSection">
     <div class="users-header">
@@ -284,7 +309,7 @@
   </div>
 </div>
 
-<!-- MODALE VALIDER -->
+<!-- MODALE VALIDER DEMANDE VEHICULE -->
 <div class="modal-overlay" id="modalValider">
   <div class="modal">
     <h2>✅ Valider cette demande</h2>
@@ -323,7 +348,7 @@
   </div>
 </div>
 
-<!-- MODALE REFUSER -->
+<!-- MODALE REFUSER DEMANDE VEHICULE -->
 <div class="modal-overlay" id="modalRefuser">
   <div class="modal">
     <h2>❌ Refuser cette demande</h2>
@@ -336,6 +361,62 @@
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
       <button class="btn-refuser" onclick="confirmerRefus()">❌ Refuser et notifier</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE VALIDER MISSION -->
+<div class="modal-overlay" id="modalValiderMission">
+  <div class="modal">
+    <h2>✅ Valider cette mission</h2>
+    <p class="subtitle" id="modalValiderMissionInfo"></p>
+
+    <label>👤 Chauffeur à assigner *</label>
+    <select id="selectChauffeurMission" onchange="toggleAutreMission('chauffeur')">
+      <option value="">-- Sélectionnez un chauffeur --</option>
+      <option value="ABAKTOUM">ABAKTOUM</option>
+      <option value="GALILE">GALILE</option>
+      <option value="HAMAD SALLAH">HAMAD SALLAH</option>
+      <option value="BACHIR">BACHIR</option>
+      <option value="AUTRE">➕ Autre (saisir manuellement)</option>
+    </select>
+    <input type="text" id="inputChauffeurMissionAutre" placeholder="Nom du chauffeur"
+      style="display:none; margin-top:8px;">
+
+    <label>🚙 Véhicule à assigner *</label>
+    <select id="selectVehiculeMission" onchange="toggleAutreMission('vehicule')">
+      <option value="">-- Sélectionnez un véhicule --</option>
+      <option value="HARD TOP">HARD TOP</option>
+      <option value="PRADO">PRADO</option>
+      <option value="AUTRE">➕ Autre (saisir manuellement)</option>
+    </select>
+    <input type="text" id="inputVehiculeMissionAutre" placeholder="Immatriculation / nom du véhicule"
+      style="display:none; margin-top:8px;">
+
+    <label>💬 Message pour l'agent (optionnel)</label>
+    <textarea id="inputMessageValiderMission" rows="3"
+      placeholder="Ex: Présentez-vous au garage 10 minutes avant le départ."></textarea>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
+      <button class="btn-valider" onclick="confirmerValidationMission()">✅ Valider et notifier</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE REFUSER MISSION -->
+<div class="modal-overlay" id="modalRefuserMission">
+  <div class="modal">
+    <h2>❌ Refuser cette mission</h2>
+    <p class="subtitle" id="modalRefuserMissionInfo"></p>
+
+    <label>Motif du refus *</label>
+    <textarea id="inputMotifRefusMission" rows="4"
+      placeholder="Ex: Aucun véhicule disponible à cette heure."></textarea>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
+      <button class="btn-refuser" onclick="confirmerRefusMission()">❌ Refuser et notifier</button>
     </div>
   </div>
 </div>
@@ -381,7 +462,10 @@
 
   const EMAILJS_PUBLIC_KEY = "SUbWMSdrTf7JugMrS";
   const EMAILJS_SERVICE_ID = "service_e6k2e76";
-  const EMAILJS_TEMPLATE_ID = "template_gd96rfl";
+  const EMAILJS_TEMPLATE_ID = "template_gd96rfl"; // Template actuel pour véhicules
+
+  // ⚠️ NOUVEAU TEMPLATE POUR LES MISSIONS (à créer sur EmailJS)
+  const EMAILJS_TEMPLATE_ID_MISSION = "template_mission_terrain"; 
 
   emailjs.init(EMAILJS_PUBLIC_KEY);
 
@@ -395,6 +479,9 @@
   let demandeEnCours = null;
   let toutesLesDemandes = [];
   let tousLesUsers = [];
+
+  let missionEnCours = null;
+  let toutesLesMissions = [];
 
   // ============ HASH MOT DE PASSE (SHA-256) ============
   async function hashPassword(password) {
@@ -487,6 +574,7 @@
     document.getElementById('userBadge').title = adminEmail;
 
     chargerDemandes();
+    chargerMissions();
     chargerUsers();
   }
 
@@ -503,21 +591,33 @@
   // ============ NAVIGATION ============
   function afficherSection(section) {
     const demandesSec = document.getElementById('demandesSection');
+    const missionsSec = document.getElementById('missionsSection');
     const usersSec = document.getElementById('usersSection');
+    
     const navDemandes = document.getElementById('navDemandes');
+    const navMissions = document.getElementById('navMissions');
     const navUsers = document.getElementById('navUsers');
 
-    if (section === 'users') {
-      demandesSec.style.display = 'none';
+    // Reset classes
+    navDemandes.classList.remove('active');
+    navMissions.classList.remove('active');
+    navUsers.classList.remove('active');
+
+    demandesSec.style.display = 'none';
+    missionsSec.style.display = 'none';
+    usersSec.style.display = 'none';
+
+    if (section === 'missions') {
+      missionsSec.style.display = 'block';
+      navMissions.classList.add('active');
+      chargerMissions();
+    } else if (section === 'users') {
       usersSec.style.display = 'block';
-      navDemandes.classList.remove('active');
       navUsers.classList.add('active');
       chargerUsers();
     } else {
       demandesSec.style.display = 'block';
-      usersSec.style.display = 'none';
       navDemandes.classList.add('active');
-      navUsers.classList.remove('active');
       chargerDemandes();
     }
   }
@@ -542,7 +642,7 @@
   }
 
   // ============================================================
-  // GESTION DES UTILISATEURS
+  // GESTION DES UTILISATEURS (Inchangé)
   // ============================================================
   async function chargerUsers() {
     const container = document.getElementById('usersList');
@@ -669,7 +769,7 @@
   }
 
   // ============================================================
-  // DEMANDES
+  // DEMANDES VEHICULES (Inchangé)
   // ============================================================
   async function chargerDemandes() {
     const container = document.getElementById('demandesContainer');
@@ -883,7 +983,7 @@
     document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
   }
 
-  // ============ NOTIFICATION EMAIL ============
+  // ============ NOTIFICATION EMAIL VEHICULE ============
   async function envoyerNotification(demande, statut, details) {
     let sujet, corps;
 
@@ -1163,6 +1263,280 @@ _ONG ADKOUL_`;
 
     window.open(`https://wa.me/${telephone}?text=${encodeURIComponent(message)}`, '_blank');
   }
+
+  // ============================================================
+  // MISSIONS TERRAIN (NOUVEAU)
+  // ============================================================
+  async function chargerMissions() {
+    const container = document.getElementById('missionsContainer');
+    container.innerHTML = '<div class="loading">Chargement...</div>';
+    try {
+      // On suppose que la table s'appelle "missions"
+      toutesLesMissions = await apiCall('/missions?order=created_at.desc');
+      mettreAJourStatsMissions();
+      afficherMissions();
+    } catch (err) {
+      container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '<br><small>(Vérifiez que la table "missions" existe dans Supabase)</small></div>';
+    }
+  }
+
+  function mettreAJourStatsMissions() {
+    document.getElementById('statMissionsAttente').textContent = toutesLesMissions.filter(m => m.statut === 'en_attente').length;
+    document.getElementById('statMissionsValidees').textContent = toutesLesMissions.filter(m => m.statut === 'validee').length;
+    document.getElementById('statMissionsRefusees').textContent = toutesLesMissions.filter(m => m.statut === 'refusee').length;
+    document.getElementById('statMissionsTotal').textContent = toutesLesMissions.length;
+  }
+
+  function afficherMissions() {
+    const filtre = document.getElementById('filtreStatutMission').value;
+    const container = document.getElementById('missionsContainer');
+    let liste = toutesLesMissions;
+    if (filtre !== 'tous') liste = liste.filter(m => m.statut === filtre);
+
+    if (liste.length === 0) {
+      container.innerHTML = '<div class="empty">📭 Aucune mission dans cette catégorie</div>';
+      return;
+    }
+
+    container.innerHTML = liste.map(m => {
+      const dateDebutStr = formatNigerDateShort(m.date_debut);
+      const dateFinStr = formatNigerDateShort(m.date_fin);
+      const createdStr = formatNigerDate(m.created_at);
+
+      let actionsHtml = '';
+      let resultatHtml = '';
+
+      if (m.statut === 'en_attente') {
+        actionsHtml = `
+          <button class="btn btn-valider" onclick="ouvrirModalValiderMission(${m.id})">✅ Valider</button>
+          <button class="btn btn-refuser" onclick="ouvrirModalRefuserMission(${m.id})">❌ Rejeter</button>
+        `;
+      } else if (m.statut === 'validee') {
+        resultatHtml = `<div class="resultat validee">
+          <strong>✅ Validée</strong> le ${formatNigerDate(m.date_validation)} (heure Niger)<br>
+          👤 Chauffeur : <strong>${m.chauffeur_assigne || '-'}</strong> |
+          🚙 Véhicule : <strong>${m.vehicule_assigne || '-'}</strong>
+          ${m.message_admin ? '<br>💬 ' + m.message_admin : ''}
+          ${m.valide_par ? `<span class="par-admin">✔ Validée par : ${m.valide_par}</span>` : ''}
+        </div>`;
+      } else if (m.statut === 'refusee') {
+        resultatHtml = `<div class="resultat refusee">
+          <strong>❌ Refusée</strong> le ${formatNigerDate(m.date_validation)} (heure Niger)<br>
+          Motif : <strong>${m.message_admin || '-'}</strong>
+          ${m.refuse_par ? `<span class="par-admin">✖ Refusée par : ${m.refuse_par}</span>` : ''}
+        </div>`;
+      }
+      actionsHtml += `<button class="btn btn-suppr" onclick="supprimerMission(${m.id})">🗑️ Supprimer</button>`;
+
+      return `
+        <div class="demande-item ${m.statut === 'validee' ? 'validee' : m.statut === 'refusee' ? 'refusee' : ''}">
+          <div class="demande-header">
+            <h3>${m.titre_mission || 'Mission sans titre'} <span>— ${m.nom}</span></h3>
+            <span class="statut ${m.statut}">${
+              m.statut === 'en_attente' ? '⏳ En attente' :
+              m.statut === 'validee' ? '✅ Validée' : '❌ Refusée'
+            }</span>
+          </div>
+          <div class="demande-grid">
+            <div class="info-item"><strong>📅 Dates</strong>Du ${dateDebutStr} au ${dateFinStr}</div>
+            <div class="info-item"><strong>📍 Lieu</strong>${m.lieu}</div>
+            <div class="info-item"><strong>🧭 Type</strong>${m.type_mission}</div>
+            <div class="info-item"><strong>📅 Jours</strong>${m.jours_mission || 'Non précisé'}</div>
+            <div class="info-item"><strong>📧 Email</strong>${m.email}</div>
+            <div class="info-item"><strong>📞 Contact</strong>${m.telephone || 'Non précisé'}</div>
+          </div>
+          <div class="demande-motif">
+            <strong>📝 Description :</strong> ${m.description}<br><br>
+            <strong>🗺️ Itinéraire :</strong> ${m.itineraire}
+          </div>
+          ${resultatHtml}
+          <div style="font-size:12px; color:#999; margin-bottom:12px;">Créée le ${createdStr} (heure Niger)</div>
+          <div class="actions">${actionsHtml}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function toggleAutreMission(type) {
+    const select = document.getElementById(type === 'chauffeur' ? 'selectChauffeurMission' : 'selectVehiculeMission');
+    const input = document.getElementById(type === 'chauffeur' ? 'inputChauffeurMissionAutre' : 'inputVehiculeMissionAutre');
+    if (select.value === 'AUTRE') {
+      input.style.display = 'block';
+      input.focus();
+    } else {
+      input.style.display = 'none';
+      input.value = '';
+    }
+  }
+
+  function ouvrirModalValiderMission(id) {
+    missionEnCours = toutesLesMissions.find(m => m.id === id);
+    if (!missionEnCours) return;
+    document.getElementById('modalValiderMissionInfo').textContent =
+      `${missionEnCours.titre_mission} → ${missionEnCours.lieu} (du ${formatNigerDateShort(missionEnCours.date_debut)} au ${formatNigerDateShort(missionEnCours.date_fin)})`;
+    document.getElementById('selectChauffeurMission').value = '';
+    document.getElementById('inputChauffeurMissionAutre').value = '';
+    document.getElementById('inputChauffeurMissionAutre').style.display = 'none';
+    document.getElementById('selectVehiculeMission').value = '';
+    document.getElementById('inputVehiculeMissionAutre').value = '';
+    document.getElementById('inputVehiculeMissionAutre').style.display = 'none';
+    document.getElementById('inputMessageValiderMission').value = '';
+    document.getElementById('modalValiderMission').classList.add('active');
+  }
+
+  async function confirmerValidationMission() {
+    const selectChauffeur = document.getElementById('selectChauffeurMission').value;
+    let chauffeur = selectChauffeur === 'AUTRE'
+      ? document.getElementById('inputChauffeurMissionAutre').value.trim()
+      : selectChauffeur;
+
+    const selectVehicule = document.getElementById('selectVehiculeMission').value;
+    let vehicule = selectVehicule === 'AUTRE'
+      ? document.getElementById('inputVehiculeMissionAutre').value.trim()
+      : selectVehicule;
+
+    const message = document.getElementById('inputMessageValiderMission').value.trim();
+
+    if (!chauffeur) { alert('⚠️ Sélectionnez ou saisissez un chauffeur.'); return; }
+    if (!vehicule) { alert('⚠️ Sélectionnez ou saisissez un véhicule.'); return; }
+
+    const adminName = getAdminName();
+
+    try {
+      await apiCall('/missions?id=eq.' + missionEnCours.id, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          statut: 'validee',
+          chauffeur_assigne: chauffeur,
+          vehicule_assigne: vehicule,
+          message_admin: message || 'Votre mission a été validée.',
+          date_validation: new Date().toISOString(),
+          valide_par: adminName
+        })
+      });
+
+      fermerModal();
+      await chargerMissions();
+      await envoyerNotificationMission(missionEnCours, 'validee', {
+        chauffeur, vehicule, message: message || 'Votre mission a été validée.'
+      });
+      alert(`✅ Mission validée par ${adminName} et email envoyé à l'agent !`);
+    } catch (err) {
+      alert('❌ Erreur : ' + err.message);
+    }
+  }
+
+  function ouvrirModalRefuserMission(id) {
+    missionEnCours = toutesLesMissions.find(m => m.id === id);
+    if (!missionEnCours) return;
+    document.getElementById('modalRefuserMissionInfo').textContent =
+      `${missionEnCours.titre_mission} → ${missionEnCours.lieu}`;
+    document.getElementById('inputMotifRefusMission').value = '';
+    document.getElementById('modalRefuserMission').classList.add('active');
+  }
+
+  async function confirmerRefusMission() {
+    const motif = document.getElementById('inputMotifRefusMission').value.trim();
+    if (!motif) { alert('⚠️ Le motif du refus est obligatoire.'); return; }
+
+    const adminName = getAdminName();
+
+    try {
+      await apiCall('/missions?id=eq.' + missionEnCours.id, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          statut: 'refusee',
+          message_admin: motif,
+          date_validation: new Date().toISOString(),
+          refuse_par: adminName
+        })
+      });
+
+      fermerModal();
+      await chargerMissions();
+      await envoyerNotificationMission(missionEnCours, 'refusee', { motif });
+      alert(`❌ Mission refusée par ${adminName} et notification envoyée.`);
+    } catch (err) {
+      alert('❌ Erreur : ' + err.message);
+    }
+  }
+
+  async function supprimerMission(id) {
+    if (!confirm('Supprimer définitivement cette mission ?')) return;
+    try {
+      await apiCall('/missions?id=eq.' + id, { method: 'DELETE' });
+      await chargerMissions();
+    } catch (err) {
+      alert('❌ Erreur : ' + err.message);
+    }
+  }
+
+  // ============ NOTIFICATION EMAIL MISSION ============
+  async function envoyerNotificationMission(mission, statut, details) {
+    let sujet, corps;
+
+    if (statut === 'validee') {
+      sujet = `✅ MISSION VALIDÉE - ${mission.titre_mission}`;
+      corps = `Bonjour ${mission.nom},
+
+✅ VOTRE MISSION TERRAIN A ÉTÉ VALIDÉE
+
+📋 Détails de la mission
+────────────────────────
+🧭 Titre : ${mission.titre_mission}
+📍 Lieu : ${mission.lieu}
+📅 Dates : du ${formatNigerDateShort(mission.date_debut)} au ${formatNigerDateShort(mission.date_fin)}
+⏱ Jours : ${mission.jours_mission}
+🗺️ Itinéraire : ${mission.itineraire}
+
+🚗 Affectation
+────────────────────────
+👤 Chauffeur : ${details.chauffeur}
+🚙 Véhicule : ${details.vehicule}
+
+💬 Message du service
+${details.message}
+
+⏰ Merci de vous préparer pour le départ.
+
+Cordialement,
+Service Logistique - ONG ADKOUL
+Solidarité • Éducation • Développement`;
+    } else {
+      sujet = `❌ Réponse à votre demande de mission`;
+      corps = `Bonjour ${mission.nom},
+
+❌ VOTRE DEMANDE DE MISSION A ÉTÉ REFUSÉE
+
+📋 Mission concernée
+────────────────────────
+🧭 Titre : ${mission.titre_mission}
+📍 Lieu : ${mission.lieu}
+
+❌ Motif du refus
+${details.motif}
+
+Vous pouvez soumettre une nouvelle demande à tout moment.
+
+Cordialement,
+Service Logistique - ONG ADKOUL
+Solidarité • Éducation • Développement`;
+    }
+
+    try {
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_MISSION, {
+        to_email: mission.email,
+        subject: sujet,
+        message: corps,
+        name: 'Service Logistique'
+      });
+      console.log('✅ Email mission envoyé à', mission.email);
+    } catch (err) {
+      console.error('❌ Erreur envoi email mission :', err);
+      alert('⚠️ La mission a été enregistrée mais l\'email n\'a pas pu être envoyé.\n\nDétail : ' + (err.text || err.message || JSON.stringify(err)));
+    }
+  }
+
 </script>
 </body>
 </html>

@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ONG ADKOUL — Demande d'Ordre de Mission</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -290,9 +291,15 @@
 </div>
 
 <script>
-  // Configuration Supabase
+  // Configuration Supabase & EmailJS
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
+  
+  const EMAILJS_PUBLIC_KEY = "SUbWMSdrTf7JugMrS";
+  const EMAILJS_SERVICE_ID = "service_e6k2e76";
+  const EMAILJS_TEMPLATE_ID = "template_gd96rfl";
+
+  emailjs.init(EMAILJS_PUBLIC_KEY);
 
   // --- LOGIQUE ACCOMPAGNATEURS DYNAMIQUES ---
   function ajouterAccompagnateur() {
@@ -356,12 +363,15 @@
     });
     const accompagnateursString = accompagnateursArray.join(', ');
 
+    const emailDemandeur = document.getElementById('om_email').value.trim();
+    const nomDemandeur = document.getElementById('om_nom').value.trim();
+
     // Préparation des données pour la NOUVELLE table "missions_2"
     const newOrdreMission = {
-      nom: document.getElementById('om_nom').value.trim(),
+      nom: nomDemandeur,
       poste: document.getElementById('om_poste').value.trim(),
       bureau: document.getElementById('om_bureau').value.trim(),
-      email: document.getElementById('om_email').value.trim(),
+      email: emailDemandeur,
       accompagnateurs: accompagnateursString || null,
       destination: document.getElementById('om_destination').value.trim(),
       objectif: document.getElementById('om_objectif').value.trim(),
@@ -376,6 +386,7 @@
     btn.classList.add('loading');
 
     try {
+      // 1) Insertion dans Supabase
       const response = await fetch(SUPABASE_URL + '/rest/v1/missions_2', {
         method: 'POST',
         headers: {
@@ -387,13 +398,17 @@
         body: JSON.stringify(newOrdreMission)
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error("Erreur DB : " + errorText);
-      }
+      if (!response.ok) throw new Error("Erreur DB : " + await response.text());
+
+      // 2) Envoi de l'e-mail de confirmation (Demandeur + RH en copie)
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_email: emailDemandeur + ", abdoulnasser@adkoul.org, h.almoustapha@adkoul.org",
+        subject: `⏳ Demande d'Ordre de Mission enregistrée - ${nomDemandeur}`,
+        message: `Bonjour ${nomDemandeur},\n\nVotre demande d'ordre de mission pour ${newOrdreMission.destination} a bien été transmise au service logistique.\n\nElle est actuellement en attente d'affectation d'un chauffeur et d'un véhicule. Vous recevrez un nouvel e-mail avec votre numéro d'ordre de mission dès que les RH l'auront validé.\n\n📋 Détails :\n📅 Départ : ${newOrdreMission.date_depart}\n📅 Retour : ${newOrdreMission.date_retour}\n📍 Destination : ${newOrdreMission.destination}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`
+      });
 
       msgBox.className = 'message-box success';
-      msgIcon.textContent = '✅'; msgText.textContent = `Ordre de mission transmis avec succès à la logistique !`;
+      msgIcon.textContent = '✅'; msgText.textContent = `Demande transmise avec succès ! Un e-mail de confirmation vous a été envoyé.`;
       form.reset();
       
       // Réinitialiser la liste des accompagnateurs

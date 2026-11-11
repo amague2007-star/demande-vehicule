@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ONG ADKOUL — Demande de Sortie Véhicule</title>
+<title>ONG ADKOUL — Demande de Mission Terrain</title>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,1317 +16,653 @@
     --accent-orange: #f59e0b;
     --success: #10b981;
     --danger: #ef4444;
-    --warning: #f59e0b;
     --gray-50: #f8fafc;
     --gray-100: #f1f5f9;
     --gray-200: #e2e8f0;
     --gray-300: #cbd5e1;
-    --gray-400: #94a3b8;
-    --gray-500: #64748b;
     --gray-600: #475569;
     --gray-700: #334155;
     --gray-800: #1e293b;
     --gray-900: #0f172a;
-    --radius: 16px;
-    --radius-sm: 12px;
-    --shadow-card: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
-    --shadow-input: 0 1px 2px rgba(0,0,0,0.03);
-    --shadow-focus: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html, body { height: 100%; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
-    background-attachment: fixed;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, var(--gray-50) 0%, #eef2f6 100%);
     min-height: 100vh;
-    padding: 32px 16px;
+    padding: 2rem 1rem;
     color: var(--gray-800);
-    -webkit-font-smoothing: antialiased;
-    position: relative;
-    overflow-x: hidden;
-  }
-  body::before {
-    content: '';
-    position: fixed;
-    top: -200px; right: -100px;
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 65%);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 0;
-  }
-  body::after {
-    content: '';
-    position: fixed;
-    bottom: -250px; left: -150px;
-    width: 700px; height: 700px;
-    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 65%);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .main-card {
-    position: relative;
-    z-index: 1;
-    max-width: 1000px;
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 24px;
-    box-shadow: var(--shadow-card);
-    overflow: hidden;
-    animation: cardFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  @keyframes cardFadeUp {
-    from { opacity: 0; transform: translateY(30px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  .app-header {
-    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
-    color: #fff;
-    padding: 28px 40px;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-  .app-header::before {
-    content: '';
-    position: absolute;
-    top: -100px; right: -80px;
-    width: 300px; height: 300px;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 65%);
-    border-radius: 50%;
-  }
-  .app-header::after {
-    content: '';
-    position: absolute;
-    bottom: -150px; left: -60px;
-    width: 280px; height: 280px;
-    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 65%);
-    border-radius: 50%;
-  }
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    position: relative;
-    z-index: 1;
-    flex: 1;
-    min-width: 260px;
-  }
-  .brand-logo {
-    height: 72px;
-    width: 72px;
-    object-fit: contain;
-    background: #fff;
-    border-radius: 50%;
-    padding: 6px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-    flex-shrink: 0;
-  }
-  .brand-text h1 {
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    margin-bottom: 2px;
-    color: #fff;
-  }
-  .brand-text .subtitle {
-    font-size: 13px;
-    font-weight: 500;
-    opacity: 0.9;
-    color: #dbeafe;
-  }
-  .brand-text .slogan {
-    font-size: 10.5px;
-    font-weight: 500;
-    opacity: 0.75;
-    margin-top: 4px;
-    letter-spacing: 1.2px;
-    color: #bfdbfe;
-  }
-  .header-clock {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.2);
-    backdrop-filter: blur(12px);
-    padding: 12px 18px;
-    border-radius: 14px;
-    position: relative;
-    z-index: 1;
-    flex-shrink: 0;
-  }
-  .clock-icon { font-size: 24px; line-height: 1; }
-  .clock-info { display: flex; flex-direction: column; }
-  .clock-label {
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    opacity: 0.7;
-    font-weight: 600;
-    margin-bottom: 2px;
-  }
-  .clock-time {
-    font-size: 20px;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.5px;
-    line-height: 1.1;
-  }
-  .clock-date { font-size: 10px; opacity: 0.75; margin-top: 1px; }
-  .tabs {
-    display: flex;
-    background: var(--gray-50);
-    border-bottom: 1px solid var(--gray-200);
-    padding: 0 24px;
-    gap: 8px;
-  }
-  .tab {
-    flex: 1;
-    padding: 20px 14px;
-    text-align: center;
-    cursor: pointer;
-    font-weight: 600;
-    color: var(--gray-500);
-    border-bottom: 3px solid transparent;
-    transition: all 0.25s;
-    font-size: 14px;
-    border-radius: 10px 10px 0 0;
-    user-select: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .tab:hover {
-    color: var(--primary);
-    background: rgba(30, 64, 175, 0.04);
-  }
-  .tab.active {
-    color: var(--primary);
-    border-bottom-color: var(--primary);
-    background: #fff;
-    font-weight: 700;
-  }
-  .content { padding: 40px; }
-  .toast {
-    padding: 16px 22px;
-    border-radius: var(--radius-sm);
-    margin-bottom: 28px;
-    display: none;
-    font-weight: 500;
-    white-space: pre-line;
-    font-size: 14px;
     line-height: 1.6;
-    animation: slideDown 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-    align-items: flex-start;
-    gap: 12px;
   }
-  .toast::before { font-size: 18px; flex-shrink: 0; line-height: 1.2; }
-  .toast.success {
-    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-    color: #065f46;
-    border-left: 4px solid var(--success);
-    display: flex;
-  }
-  .toast.success::before { content: '✅'; }
-  .toast.error {
-    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-    color: #991b1b;
-    border-left: 4px solid var(--danger);
-    display: flex;
-  }
-  .toast.error::before { content: '❌'; }
-  .toast.warning {
-    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-    color: #92400e;
-    border-left: 4px solid var(--warning);
-    display: flex;
-  }
-  .toast.warning::before { content: '⚠️'; }
-  @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .info-banner {
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-    border-left: 4px solid var(--primary);
-    padding: 18px 22px;
-    border-radius: var(--radius-sm);
-    font-size: 13.5px;
-    color: #1e40af;
-    margin-bottom: 32px;
-    line-height: 1.65;
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-  }
-  .info-banner .info-icon {
-    font-size: 22px;
-    flex-shrink: 0;
-    line-height: 1;
-    margin-top: 2px;
-  }
-  .info-banner strong { color: #1e3a8a; font-weight: 700; }
-  .section-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 32px 0 20px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid var(--gray-100);
-  }
-  .section-header .section-icon {
-    width: 36px;
-    height: 36px;
+  .container { max-width: 900px; margin: 0 auto; }
+
+  /* HEADER */
+  .header { text-align: center; margin-bottom: 2rem; animation: fadeInDown 0.6s ease-out; }
+  .logo-badge {
+    display: inline-flex; align-items: center; gap: 0.75rem;
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
-    flex-shrink: 0;
+    color: #fff; padding: 0.65rem 1.6rem; border-radius: 100px;
+    font-weight: 700; font-size: 0.95rem; letter-spacing: 0.03em;
+    box-shadow: var(--shadow-md); margin-bottom: 1rem;
   }
-  .section-header h3 {
-    font-size: 15px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: var(--gray-700);
+  .logo-badge .dot {
+    width: 10px; height: 10px; background: var(--accent-orange);
+    border-radius: 50%; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
   }
-  .section-header:first-child { margin-top: 0; }
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+  .header h1 { font-size: 2rem; font-weight: 800; color: var(--gray-900); letter-spacing: -0.03em; margin-bottom: 0.4rem; }
+  .header p { color: var(--gray-600); font-size: 1rem; }
+
+  /* CARD */
+  .card {
+    background: #fff; border-radius: 20px; box-shadow: var(--shadow-xl);
+    padding: 2.5rem 2.5rem 2rem; border: 1px solid rgba(255, 255, 255, 0.8);
+    position: relative; overflow: hidden; animation: fadeInUp 0.6s ease-out 0.1s both;
   }
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    animation: fieldFade 0.5s ease-out backwards;
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-light), var(--accent-orange));
   }
-  .form-group.full { grid-column: 1 / -1; }
-  @keyframes fieldFade {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+
+  /* SECTIONS */
+  .form-section { margin-bottom: 2rem; }
+  .form-section:last-of-type { margin-bottom: 0.5rem; }
+  .section-title {
+    display: flex; align-items: center; gap: 0.6rem;
+    font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--primary); margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem; border-bottom: 2px solid var(--gray-100);
   }
-  label {
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: var(--gray-700);
-    font-size: 13.5px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  .section-title .icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; background: var(--gray-100);
+    border-radius: 8px; font-size: 0.9rem;
   }
-  label .required { color: var(--danger); font-weight: 700; }
-  label .label-icon { font-size: 15px; opacity: 0.75; }
-  .input-wrapper { position: relative; }
-  input, select, textarea {
-    width: 100%;
-    padding: 14px 16px;
-    border: 2px solid var(--gray-200);
-    border-radius: var(--radius-sm);
-    font-size: 14.5px;
-    font-family: inherit;
-    transition: all 0.25s;
-    outline: none;
-    background: #fff;
-    color: var(--gray-800);
-    font-weight: 500;
-    box-shadow: var(--shadow-input);
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  @media (max-width: 640px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .card { padding: 1.75rem 1.25rem; }
+    .header h1 { font-size: 1.6rem; }
   }
-  select {
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 16px center;
-    background-size: 16px;
-    padding-right: 46px;
-    cursor: pointer;
+
+  /* FORM GROUPS */
+  .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.1rem; }
+  .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--gray-700); }
+  .form-group label .required { color: var(--danger); margin-left: 2px; }
+  .form-group input, .form-group select, .form-group textarea {
+    font-family: 'Inter', sans-serif; font-size: 0.9rem;
+    padding: 0.7rem 0.9rem; border: 1.5px solid var(--gray-200);
+    border-radius: 10px; background: var(--gray-50); color: var(--gray-800);
+    transition: all 0.2s ease; width: 100%;
   }
-  input::placeholder, textarea::placeholder { color: var(--gray-400); font-weight: 400; }
-  input:hover, select:hover, textarea:hover { border-color: var(--gray-300); }
-  input:focus, select:focus, textarea:focus {
-    border-color: var(--primary-light);
-    box-shadow: var(--shadow-focus);
-    background: #fff;
-    transform: translateY(-1px);
+  .form-group input::placeholder, .form-group textarea::placeholder { color: var(--gray-300); }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--primary-light); background: #fff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
   }
-  input[readonly], input[readonly]:hover, input[readonly]:focus {
-    background: var(--gray-100);
-    color: var(--gray-600);
-    cursor: not-allowed;
-    font-weight: 700;
-    border-color: var(--gray-200);
-    transform: none;
-    box-shadow: none;
+  .form-group textarea { resize: vertical; min-height: 90px; }
+  .form-group select {
+    cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 0.9rem center;
+    background-size: 16px; padding-right: 2.5rem;
   }
-  textarea { resize: vertical; min-height: 110px; line-height: 1.6; font-weight: 500; }
-  .field-hint {
-    color: var(--gray-500);
-    font-size: 11.5px;
-    margin-top: 6px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-weight: 500;
+
+  /* RADIO */
+  .radio-group { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.25rem; }
+  .radio-item {
+    display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem;
+    font-weight: 500; color: var(--gray-700); cursor: pointer;
+    padding: 0.55rem 1rem; border-radius: 10px;
+    border: 1.5px solid var(--gray-200); background: var(--gray-50);
+    transition: all 0.2s ease; user-select: none;
   }
-  #infoDelai {
-    margin-top: 8px;
-    font-size: 12.5px;
-    font-weight: 600;
-    padding: 8px 12px;
-    border-radius: 8px;
-    display: none;
+  .radio-item:hover { border-color: var(--primary-light); background: #fff; }
+  .radio-item input[type="radio"] { accent-color: var(--primary); cursor: pointer; margin: 0; width: 16px; height: 16px; }
+  .radio-item:has(input:checked) {
+    border-color: var(--primary-light); background: rgba(37, 99, 235, 0.07);
+    color: var(--primary-dark); font-weight: 600;
   }
-  #infoDelai:not(:empty) { display: block; }
-  #infoDelai.ok { background: #ecfdf5; color: #047857; border-left: 3px solid var(--success); }
-  #infoDelai.warn { background: #fffbeb; color: #b45309; border-left: 3px solid var(--warning); }
-  #infoDelai.err { background: #fef2f2; color: #b91c1c; border-left: 3px solid var(--danger); }
+
+  /* CHECKBOX */
+  .checkbox-group { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.25rem; }
+  .checkbox-item {
+    display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem;
+    font-weight: 500; color: var(--gray-700); cursor: pointer;
+    padding: 0.45rem 0.9rem; border-radius: 8px;
+    border: 1.5px solid var(--gray-200); background: var(--gray-50);
+    transition: all 0.2s ease; user-select: none;
+  }
+  .checkbox-item:hover { border-color: var(--primary-light); background: #fff; }
+  .checkbox-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer; margin: 0; }
+  .checkbox-item:has(input:checked) {
+    border-color: var(--primary-light); background: rgba(37, 99, 235, 0.06);
+  }
+
+  /* INFO BOX */
+  .info-box {
+    padding: 0.9rem 1.1rem; border-radius: 10px;
+    background: #eff6ff; border: 1.5px solid #bfdbfe;
+    color: #1e40af; font-size: 0.88rem; line-height: 1.5;
+    transition: all 0.3s ease;
+  }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: var(--gray-100); margin: 0.25rem 0 2rem; }
+
+  /* SUBMIT */
+  .submit-area {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem;
+    padding-top: 1.75rem; border-top: 2px solid var(--gray-100);
+  }
+  .submit-note { font-size: 0.8rem; color: var(--gray-600); display: flex; align-items: center; gap: 0.4rem; }
   .btn-submit {
-    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
-    color: #fff;
-    width: 100%;
-    margin-top: 36px;
-    padding: 18px;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-    letter-spacing: 0.5px;
-    box-shadow: 0 10px 25px rgba(30, 64, 175, 0.3);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
+    font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700; color: #fff;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border: none; padding: 0.85rem 2.2rem; border-radius: 12px;
+    cursor: pointer; box-shadow: var(--shadow-md); transition: all 0.25s ease;
   }
-  .btn-submit::before {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%;
-    width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-    transition: left 0.7s;
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg), 0 0 0 4px rgba(37, 99, 235, 0.15); }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .btn-submit .spinner {
+    width: 18px; height: 18px; border: 2.5px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin 0.7s linear infinite; display: none;
   }
-  .btn-submit:hover:not(:disabled) {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 35px rgba(30, 64, 175, 0.4);
+  .btn-submit.loading .spinner { display: block; }
+  .btn-submit.loading .btn-text { display: none; }
+
+  /* MESSAGES */
+  .message-box {
+    display: none; align-items: center; gap: 0.75rem;
+    padding: 1rem 1.25rem; border-radius: 12px;
+    font-size: 0.9rem; font-weight: 500; margin-top: 1.5rem;
   }
-  .btn-submit:hover:not(:disabled)::before { left: 100%; }
-  .btn-submit:active:not(:disabled) { transform: translateY(-1px); }
-  .btn-submit:disabled {
-    background: var(--gray-400);
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
+  .message-box.success {
+    display: flex; background: #ecfdf5; border: 1.5px solid #a7f3d0;
+    color: #065f46; animation: slideDown 0.35s ease-out;
   }
-  .loader {
-    display: none;
-    text-align: center;
-    padding: 20px;
-    color: var(--primary);
-    font-weight: 600;
-    font-size: 14px;
+  .message-box.error {
+    display: flex; background: #fef2f2; border: 1.5px solid #fecaca;
+    color: #991b1b; animation: slideDown 0.35s ease-out;
   }
-  .loader.active { display: block; }
-  .loader .spinner {
-    display: inline-block;
-    width: 18px; height: 18px;
-    border: 3px solid rgba(30, 64, 175, 0.15);
-    border-top-color: var(--primary);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    vertical-align: middle;
-    margin-right: 10px;
-  }
+  .message-box .msg-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+  /* FOOTER */
+  .footer { text-align: center; margin-top: 2rem; font-size: 0.8rem; color: var(--gray-600); }
+  .footer strong { color: var(--primary); font-weight: 600; }
+
+  /* ANIMATIONS */
+  @keyframes fadeInDown { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .search-box {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 28px;
-    flex-wrap: wrap;
-  }
-  .search-box .input-wrapper { flex: 1; min-width: 240px; }
-  .search-box .btn-search {
-    padding: 14px 28px;
-    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 14.5px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.25s;
-    box-shadow: 0 6px 18px rgba(30, 64, 175, 0.25);
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .search-box .btn-search:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(30, 64, 175, 0.35);
-  }
-  .demande-card {
-    background: #fff;
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius);
-    padding: 24px;
-    margin-bottom: 16px;
-    border-left: 5px solid var(--warning);
-    transition: all 0.25s;
-    animation: fadeUp 0.4s ease-out;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
-  }
-  .demande-card:hover {
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-    transform: translateY(-3px);
-  }
-  .demande-card.validee { border-left-color: var(--success); background: linear-gradient(to right, #f0fdf4 0%, #fff 30%); }
-  .demande-card.refusee { border-left-color: var(--danger); background: linear-gradient(to right, #fef2f2 0%, #fff 30%); }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .demande-card .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 14px;
-  }
-  .demande-card h3 {
-    color: var(--primary-dark);
-    font-size: 17px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .badge-statut {
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 11.5px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .badge-statut.en_attente { background: #fef3c7; color: #b45309; }
-  .badge-statut.validee { background: #d1fae5; color: #065f46; }
-  .badge-statut.refusee { background: #fee2e2; color: #991b1b; }
-  .demande-card p {
-    font-size: 13.5px;
-    color: var(--gray-600);
-    line-height: 1.75;
-    margin-bottom: 6px;
-  }
-  .demande-card p strong { color: var(--gray-800); }
-  .btn-imprimer {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 13px 24px;
-    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 13.5px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 14px;
-    letter-spacing: 0.3px;
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
-    transition: all 0.25s;
-  }
-  .btn-imprimer:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
-  }
-  .resultat-box {
-    padding: 14px 16px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    margin-top: 12px;
-    line-height: 1.65;
-    font-weight: 500;
-  }
-  .resultat-box.validee { background: #ecfdf5; color: #047857; border-left: 4px solid var(--success); }
-  .resultat-box.refusee { background: #fef2f2; color: #b91c1c; border-left: 4px solid var(--danger); }
-  .resultat-box.en_attente { background: #fffbeb; color: #b45309; border-left: 4px solid var(--warning); }
-  .empty-state {
-    text-align: center;
-    color: var(--gray-500);
-    padding: 70px 24px;
-    font-style: italic;
-    font-size: 15px;
-    background: var(--gray-50);
-    border-radius: var(--radius);
-    border: 2px dashed var(--gray-200);
-    line-height: 1.6;
-  }
-  .app-footer {
-    text-align: center;
-    padding: 24px 20px;
-    background: var(--gray-50);
-    border-top: 1px solid var(--gray-200);
-    font-size: 12px;
-    color: var(--gray-500);
-    line-height: 1.6;
-  }
-  .app-footer strong { color: var(--primary-dark); font-weight: 700; }
-  .app-footer .location {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 6px;
-    color: var(--gray-600);
-    font-weight: 600;
-  }
-  @media (max-width: 720px) {
-    body { padding: 12px 8px; }
-    .main-card { border-radius: 20px; }
-    .app-header { padding: 24px 22px; }
-    .brand-logo { height: 58px; width: 58px; }
-    .brand-text h1 { font-size: 18px; }
-    .brand-text .subtitle { font-size: 12px; }
-    .brand-text .slogan { font-size: 9.5px; }
-    .header-clock { padding: 10px 14px; width: 100%; justify-content: center; }
-    .clock-time { font-size: 18px; }
-    .content { padding: 24px 20px; }
-    .form-grid { grid-template-columns: 1fr; gap: 18px; }
-    .tab { font-size: 12.5px; padding: 16px 8px; gap: 4px; }
-    input, select, textarea { font-size: 16px; }
-    .search-box .btn-search { width: 100%; justify-content: center; }
-    .btn-submit { padding: 16px; font-size: 14.5px; }
-    .section-header h3 { font-size: 13px; }
-  }
+  .highlight-border { border-color: var(--danger) !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important; }
 </style>
 </head>
 <body>
 
-<div class="main-card">
-  <div class="app-header">
-    <div class="header-left">
-      <img class="brand-logo" src="https://amague2007-star.github.io/demande-vehicule/logo.png"
-           alt="ONG ADKOUL" onerror="this.style.display='none'">
-      <div class="brand-text">
-        <h1>ONG ADKOUL</h1>
-        <div class="subtitle">Demande de Sortie Véhicule — Service Logistique</div>
-        <div class="slogan">SOLIDARITÉ • ÉDUCATION • DÉVELOPPEMENT</div>
-      </div>
-    </div>
-    <div class="header-clock">
-      <div class="clock-icon">🕐</div>
-      <div class="clock-info">
-        <div class="clock-label">Heure du Niger</div>
-        <div class="clock-time" id="liveClock">--:--:--</div>
-        <div class="clock-date" id="liveDate">—</div>
-      </div>
-    </div>
-  </div>
+<div class="container">
 
-  <div class="tabs">
-    <div class="tab active" id="tabNouvelle" onclick="switchTab('nouvelle', event)">
-      <span>📝</span> Nouvelle Demande
-    </div>
-    <div class="tab" id="tabMesDemandes" onclick="switchTab('mes', event)">
-      <span>📋</span> Suivre mes demandes
-    </div>
-  </div>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo-badge"><span class="dot"></span> ONG ADKOUL</div>
+    <h1>Demande de Mission Terrain</h1>
+    <p>Formulaire officiel — itinéraire, jours et attribution du chauffeur</p>
+  </header>
 
-  <div class="content">
+  <!-- CARD / FORMULAIRE -->
+  <div class="card">
+    <form id="missionForm" novalidate>
 
-    <div id="panelNouvelle">
-      <div id="messageBox" class="toast"></div>
-
-      <div class="info-banner">
-        <span class="info-icon">💡</span>
-        <div>
-          <strong>Information :</strong> Le véhicule et le chauffeur seront attribués par le service Logistique après validation de votre demande. Vous recevrez un email de confirmation.<br>
-          <strong>⏰ Rappel :</strong> Durée maximale de la sortie : <strong>60 minutes</strong>.
+      <!-- ===== DEMANDEUR ===== -->
+      <div class="form-section">
+        <div class="section-title"><span class="icon">👤</span> Demandeur de la mission</div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="m_nom">Nom complet <span class="required">*</span></label>
+            <input type="text" id="m_nom" name="nom" placeholder="Ex : Marie Dossou" required>
+          </div>
+          <div class="form-group">
+            <label for="m_fonction">Fonction / Service <span class="required">*</span></label>
+            <input type="text" id="m_fonction" name="fonction" placeholder="Ex : Chargée de projet" required>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="m_telephone">Téléphone <span class="required">*</span></label>
+            <input type="tel" id="m_telephone" name="telephone" placeholder="Ex : +229 97 00 00 00" required>
+          </div>
+          <div class="form-group">
+            <label for="m_email">Adresse e-mail <span class="required">*</span></label>
+            <input type="email" id="m_email" name="email" placeholder="Ex : m.dossou@adkoul.org" required>
+          </div>
         </div>
       </div>
 
-      <form id="formDemande" onsubmit="soumettre(event)">
+      <div class="divider"></div>
 
-        <div class="section-header">
-          <div class="section-icon">👤</div>
-          <h3>Informations de l'agent</h3>
+      <!-- ===== MISSION ===== -->
+      <div class="form-section">
+        <div class="section-title"><span class="icon">🧭</span> Détails de la mission</div>
+
+        <div class="form-group">
+          <label for="m_titre">Titre de la mission <span class="required">*</span></label>
+          <input type="text" id="m_titre" name="titre_mission" placeholder="Ex : Distribution alimentaire — village de Sakété" required>
         </div>
-        <div class="form-grid">
-          <div class="form-group" style="animation-delay: 0.05s;">
-            <label><span class="label-icon">📛</span> Nom <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <input type="text" id="nom" required placeholder="Ex: DUPONT" autocomplete="family-name">
-            </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="m_lieu">Lieu / Zone d'intervention <span class="required">*</span></label>
+            <input type="text" id="m_lieu" name="lieu" placeholder="Ex : Sakété, Plateau" required>
           </div>
-          <div class="form-group" style="animation-delay: 0.1s;">
-            <label><span class="label-icon">👤</span> Prénom <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <input type="text" id="prenom" required placeholder="Ex: Jean" autocomplete="given-name">
-            </div>
-          </div>
-          <div class="form-group" style="animation-delay: 0.15s;">
-            <label><span class="label-icon">💼</span> Poste occupé <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <select id="poste" required>
-                <option value="">-- Sélectionnez votre poste --</option>
-                <option value="SECRETAIRE EXECUTIF">SECRETAIRE EXECUTIF</option>
-                <option value="CHEF DE PROJET">CHEF DE PROJET</option>
-                <option value="ASSISTANT TECHNIQUE">ASSISTANT TECHNIQUE</option>
-                <option value="DIRECTEUR PROGRAMME">DIRECTEUR PROGRAMME</option>
-                <option value="DIRECTEUR ASSISTANCE HUMANITAIRE">DIRECTEUR ASSISTANCE HUMANITAIRE</option>
-                <option value="DRH">DRH</option>
-                <option value="DLM">DLM</option>
-                <option value="DAF">DAF</option>
-                <option value="ASSISTANT RH">ASSISTANT RH</option>
-                <option value="ASSISTANT LOGISTIQUE">ASSISTANT LOGISTIQUE</option>
-                <option value="ASSISTANT FINANCE">ASSISTANT FINANCE</option>
-                <option value="COMPTABLE">COMPTABLE</option>
-                <option value="CONTROLEUR INTERNE">CONTROLEUR INTERNE</option>
-                <option value="CAISSIERE">CAISSIERE</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group" style="animation-delay: 0.2s;">
-            <label><span class="label-icon">🏢</span> Service / Département <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <select id="service" required>
-                <option value="">-- Sélectionnez un service --</option>
-                <option value="PROGRAMME">PROGRAMME</option>
-                <option value="FINANCE">FINANCE</option>
-                <option value="LOGISTIQUE">LOGISTIQUE</option>
-                <option value="RESSOURCES HUMAINES">RESSOURCES HUMAINES</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group full" style="animation-delay: 0.25s;">
-            <label><span class="label-icon">📧</span> Email de l'agent <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <input type="email" id="email" required placeholder="Ex: agent@adkoul.org" autocomplete="email">
-            </div>
+          <div class="form-group">
+            <label for="m_type">Type de mission <span class="required">*</span></label>
+            <select id="m_type" name="type_mission" required>
+              <option value="" disabled selected>— Sélectionner —</option>
+              <option value="Distribution alimentaire">Distribution alimentaire</option>
+              <option value="Assistance médicale">Assistance médicale</option>
+              <option value="Sensibilisation communautaire">Sensibilisation communautaire</option>
+              <option value="Évaluation terrain">Évaluation terrain</option>
+              <option value="Logistique / transport">Logistique / transport</option>
+              <option value="Autre">Autre</option>
+            </select>
           </div>
         </div>
 
-        <div class="section-header">
-          <div class="section-icon">🚗</div>
-          <h3>Détails de la sortie</h3>
-        </div>
-        <div class="form-grid">
-          <div class="form-group" style="animation-delay: 0.05s;">
-            <label><span class="label-icon">📅</span> Date de sortie</label>
-            <div class="input-wrapper">
-              <input type="date" id="dateSortie" readonly>
-            </div>
-            <small class="field-hint">📌 Aujourd'hui (non modifiable)</small>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="m_date_debut">Date de début <span class="required">*</span></label>
+            <input type="date" id="m_date_debut" name="date_debut" required>
           </div>
-          <div class="form-group" style="animation-delay: 0.1s;">
-            <label><span class="label-icon">🕐</span> Heure de départ <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <input type="time" id="heureDepart" required>
-            </div>
-          </div>
-          <div class="form-group" style="animation-delay: 0.15s;">
-            <label><span class="label-icon">📍</span> Destination <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <input type="text" id="destination" required placeholder="Ex: Marché central">
-            </div>
-          </div>
-          <div class="form-group" style="animation-delay: 0.2s;">
-            <label><span class="label-icon">⏱</span> Durée estimée (minutes) <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <input type="number" id="duree" required min="5" max="60" placeholder="Entre 5 et 60 minutes">
-            </div>
-            <small class="field-hint">⚠️ Maximum 60 minutes (1 heure)</small>
-          </div>
-          <div class="form-group" style="animation-delay: 0.25s;">
-            <label><span class="label-icon">👥</span> Nombre de passagers</label>
-            <div class="input-wrapper">
-              <input type="number" id="passagers" min="1" placeholder="Ex: 3">
-            </div>
-          </div>
-          <div class="form-group" style="animation-delay: 0.3s;">
-            <label><span class="label-icon">🏁</span> Lieu de retour prévu</label>
-            <div class="input-wrapper">
-              <input type="text" id="lieuRetour" value="Au siège" readonly>
-            </div>
-            <small class="field-hint">Retour au siège de l'ONG</small>
+          <div class="form-group">
+            <label for="m_date_fin">Date de fin <span class="required">*</span></label>
+            <input type="date" id="m_date_fin" name="date_fin" required>
           </div>
         </div>
 
-        <div class="section-header">
-          <div class="section-icon">📝</div>
-          <h3>Objet de la mission</h3>
+        <!-- ITINÉRAIRE -->
+        <div class="form-group">
+          <label for="m_itineraire">Itinéraire prévu <span class="required">*</span></label>
+          <textarea id="m_itineraire" name="itineraire" required
+            placeholder="Décrivez le trajet : point de départ → étapes → destination finale. Ex : Cotonou → Bohicon → Dassa → Parakou (nuit à Dassa) → retour Cotonou"></textarea>
         </div>
-        <div class="form-grid">
-          <div class="form-group full" style="animation-delay: 0.05s;">
-            <label><span class="label-icon">📝</span> Motif / Objet de la sortie <span class="required">*</span></label>
-            <div class="input-wrapper">
-              <textarea id="motif" required placeholder="Précisez la raison de la sortie (ex: Achat de fournitures au marché central pour le service pédagogique...)"></textarea>
-            </div>
+
+        <!-- JOURS DE LA MISSION -->
+        <div class="form-group">
+          <label>Jours de la mission <span class="required">*</span></label>
+          <div class="checkbox-group" id="joursGroup">
+            <label class="checkbox-item"><input type="checkbox" name="jours" value="Lundi"> Lundi</label>
+            <label class="checkbox-item"><input type="checkbox" name="jours" value="Mardi"> Mardi</label>
+            <label class="checkbox-item"><input type="checkbox" name="jours" value="Mercredi"> Mercredi</label>
+            <label class="checkbox-item"><input type="checkbox" name="jours" value="Jeudi"> Jeudi</label>
+            <label class="checkbox-item"><input type="checkbox" name="jours" value="Vendredi"> Vendredi</label>
+            <label class="checkbox-item"><input type="checkbox" name="jours" value="Samedi"> Samedi</label>
+            <label class="checkbox-item"><input type="checkbox" name="jours" value="Dimanche"> Dimanche</label>
+          </div>
+          <div class="info-box" id="infoJours" style="margin-top:0.6rem;">
+            📅 <span id="resumeJours">Aucun jour sélectionné</span>
           </div>
         </div>
 
-        <button type="submit" id="btnSubmit" class="btn-submit">
-          <span>✅</span> Envoyer la demande
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="m_participants">Nombre de participants</label>
+            <input type="number" id="m_participants" name="participants" min="1" placeholder="Ex : 4">
+          </div>
+          <div class="form-group">
+            <label for="m_vehicule">Véhicule (facultatif)</label>
+            <select id="m_vehicule" name="vehicule">
+              <option value="" selected>— Aucun véhicule pour l'instant —</option>
+              <option value="Toyota Hilux (AB-123-CD)">Toyota Hilux — AB-123-CD</option>
+              <option value="Toyota Land Cruiser (EF-456-GH)">Toyota Land Cruiser — EF-456-GH</option>
+              <option value="Nissan Patrol (IJ-789-KL)">Nissan Patrol — IJ-789-KL</option>
+              <option value="Mitsubishi Pajero (MN-012-OP)">Mitsubishi Pajero — MN-012-OP</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="m_description">Description / Objectifs <span class="required">*</span></label>
+          <textarea id="m_description" name="description" placeholder="Décrivez brièvement le contexte et les objectifs de la mission..." required></textarea>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ===== CHAUFFEUR ===== -->
+      <div class="form-section">
+        <div class="section-title"><span class="icon">🧑‍✈️</span> Attribution du chauffeur</div>
+
+        <div class="form-group">
+          <label>Comment gérer le chauffeur ? <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-item">
+              <input type="radio" name="mode_chauffeur" value="interne" checked>
+              <span>Je choisis un chauffeur interne</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="mode_chauffeur" value="attribution">
+              <span>Attribution par le responsable</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="mode_chauffeur" value="externe">
+              <span>Chauffeur externe</span>
+            </label>
+          </div>
+        </div>
+
+        <div id="champInterne" class="form-group">
+          <label for="m_chauffeur">Chauffeur interne <span class="required">*</span></label>
+          <select id="m_chauffeur" name="chauffeur">
+            <option value="" disabled selected>— Sélectionner un chauffeur —</option>
+            <option value="M. Koffi">M. Koffi — permis B, 8 ans d'expérience</option>
+            <option value="M. Adjamossi">M. Adjamossi — permis B, 5 ans d'expérience</option>
+            <option value="M. Sossou">M. Sossou — permis C, 12 ans d'expérience</option>
+            <option value="Mme Dossou">Mme Dossou — permis B, 6 ans d'expérience</option>
+          </select>
+        </div>
+
+        <div id="champAttribution" class="form-group" style="display:none;">
+          <div class="info-box">
+            ℹ️ Votre demande sera transmise au <strong>responsable logistique</strong> qui attribuera un chauffeur disponible selon les plannings et compétences requises.
+          </div>
+        </div>
+
+        <div id="champExterne" class="grid-2" style="display:none;">
+          <div class="form-group">
+            <label for="m_chauffeur_ext_nom">Nom du chauffeur externe <span class="required">*</span></label>
+            <input type="text" id="m_chauffeur_ext_nom" name="chauffeur_externe_nom" placeholder="Ex : M. Rakoto">
+          </div>
+          <div class="form-group">
+            <label for="m_chauffeur_ext_tel">Téléphone <span class="required">*</span></label>
+            <input type="tel" id="m_chauffeur_ext_tel" name="chauffeur_externe_tel" placeholder="Ex : +229 97 00 00 00">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="m_competences">Compétences / besoins particuliers</label>
+          <input type="text" id="m_competences" name="competences" placeholder="Ex : connaissance de la zone, permis poids lourd, langue locale...">
+        </div>
+
+        <div class="form-group">
+          <label for="m_observations">Observations</label>
+          <textarea id="m_observations" name="observations" placeholder="Facultatif..." style="min-height:70px;"></textarea>
+        </div>
+      </div>
+
+      <!-- SUBMIT -->
+      <div class="submit-area">
+        <div class="submit-note"><span>🔒</span> Transmission sécurisée</div>
+        <button type="submit" class="btn-submit" id="btnMission">
+          <span class="spinner"></span>
+          <span class="btn-text">Envoyer la demande</span>
         </button>
-        <div id="loader" class="loader"><span class="spinner"></span>Envoi de la demande en cours...</div>
-      </form>
-    </div>
-
-    <div id="panelMes" style="display:none;">
-      <div class="info-banner">
-        <span class="info-icon">🔍</span>
-        <div>
-          <strong>Suivi de vos demandes :</strong> Saisissez l'adresse email que vous avez utilisée lors de votre demande, puis cliquez sur « Rechercher ». Vous pourrez voir le statut et imprimer votre bon de sortie une fois validée.
-        </div>
       </div>
 
-      <div class="search-box">
-        <div class="input-wrapper">
-          <input type="email" id="searchEmail" placeholder="Votre email (ex: agent@adkoul.org)"
-            onkeypress="if(event.key==='Enter') rechercherDemandes()">
-        </div>
-        <button class="btn-search" onclick="rechercherDemandes()">
-          <span>🔍</span> Rechercher
-        </button>
+      <div class="message-box" id="msgMission">
+        <span class="msg-icon" id="msgMissionIcon"></span>
+        <span id="msgMissionText"></span>
       </div>
 
-      <div id="mesDemandesContainer">
-        <div class="empty-state">
-          👆 Saisissez votre email ci-dessus pour voir vos demandes
-        </div>
-      </div>
-    </div>
-
+    </form>
   </div>
 
-  <div class="app-footer">
-    <strong>ONG ADKOUL</strong> — Solidarité • Éducation • Développement<br>
-    <div class="location">📍 Tahoua, Niger — © 2026 Tous droits réservés</div>
-  </div>
+  <footer class="footer">
+    <strong>ONG ADKOUL</strong> — Toute demande doit être validée par le responsable logistique.
+  </footer>
+
 </div>
 
 <script>
-  // ═══════════════════════════════════════════════════════════
-  // CONFIGURATION
-  // ═══════════════════════════════════════════════════════════
-  const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
-  const LOGO_URL = "https://amague2007-star.github.io/demande-vehicule/logo.png";
-
-  const EMAILJS_PUBLIC_KEY = "SUbWMSdrTf7JugMrS";
-  const EMAILJS_SERVICE_ID = "service_e6k2e76";
-  const EMAILJS_TEMPLATE_ID = "template_gd96rfl";
-  const EMAIL_ADMIN = "amague2007@gmail.com";
+  // =============================================
+  //  CONFIG EMAILJS — REMPLACEZ PAR VOS CLÉS
+  // =============================================
+  const EMAILJS_PUBLIC_KEY = 'VOTRE_CLE_PUBLIQUE_EMAILJS';
+  const EMAILJS_SERVICE_ID = 'service_adkoul';
+  const TEMPLATE_MISSION = 'template_mission_terrain';       // → admin / responsable
+  const TEMPLATE_CONFIRMATION = 'template_confirmation_demandeur'; // → demandeur
 
   emailjs.init(EMAILJS_PUBLIC_KEY);
 
-  const RESPONSABLE_FIXE = "ABDOUL AZIZ ADAM";
-  const LIEU_RETOUR_FIXE = "Au siège";
-
-  // ═══════════════════════════════════════════════════════════
-  // HORLOGE — Utilise l'heure locale du PC
-  // ═══════════════════════════════════════════════════════════
-  function updateClock() {
-    const now = new Date();
-    const hh = String(now.getHours()).padStart(2,'0');
-    const mm = String(now.getMinutes()).padStart(2,'0');
-    const ss = String(now.getSeconds()).padStart(2,'0');
-    const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-    const mois = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
-    document.getElementById('liveClock').textContent = hh + ':' + mm + ':' + ss;
-    document.getElementById('liveDate').textContent =
-      jours[now.getDay()] + ' ' + now.getDate() + ' ' + mois[now.getMonth()];
+  // =============================================
+  //  HELPERS
+  // =============================================
+  function markInvalid(el) {
+    el.classList.add('highlight-border');
+    setTimeout(() => el.classList.remove('highlight-border'), 2000);
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // FIXER LA DATE DU JOUR
-  // ═══════════════════════════════════════════════════════════
-  function setDateAujourdhui() {
-    const now = new Date();
-    const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const dd = String(now.getDate()).padStart(2, '0');
-    document.getElementById('dateSortie').value = yyyy + '-' + mm + '-' + dd;
+  // =============================================
+  //  JOURS DE LA MISSION
+  // =============================================
+  const joursCheckboxes = document.querySelectorAll('input[name="jours"]');
+  const resumeJours = document.getElementById('resumeJours');
+  const infoJours = document.getElementById('infoJours');
+
+  function updateJoursSummary() {
+    const selected = Array.from(joursCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+    if (selected.length === 0) {
+      resumeJours.textContent = 'Aucun jour sélectionné';
+      infoJours.style.background = '#fef2f2';
+      infoJours.style.borderColor = '#fecaca';
+      infoJours.style.color = '#991b1b';
+    } else {
+      resumeJours.textContent = `${selected.length} jour(s) — ${selected.join(', ')}`;
+      infoJours.style.background = '#eff6ff';
+      infoJours.style.borderColor = '#bfdbfe';
+      infoJours.style.color = '#1e40af';
+    }
+  }
+  joursCheckboxes.forEach(cb => cb.addEventListener('change', updateJoursSummary));
+  updateJoursSummary();
+
+  // =============================================
+  //  DURÉE CALCULÉE (dates)
+  // =============================================
+  const mDateDebut = document.getElementById('m_date_debut');
+  const mDateFin = document.getElementById('m_date_fin');
+
+  function calculerDuree() {
+    if (!mDateDebut.value || !mDateFin.value) return null;
+    const d1 = new Date(mDateDebut.value);
+    const d2 = new Date(mDateFin.value);
+    const diff = Math.floor((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
+    return diff > 0 ? diff : null;
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // FORMATAGE DES DATES
-  // ═══════════════════════════════════════════════════════════
-  function formatNigerDate(dateStr) {
-    if (!dateStr) return '-';
-    const date = new Date(dateStr);
-    return date.toLocaleString('fr-FR', {
-      day: '2-digit', month: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    });
-  }
-  function formatNigerDateShort(dateStr) {
-    if (!dateStr) return '-';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('fr-FR', {
-      day: '2-digit', month: '2-digit', year: 'numeric'
-    });
-  }
-  function formatNigerDateLong(dateStr) {
-    if (!dateStr) return '-';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('fr-FR', {
-      weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
-    });
-  }
+  mDateDebut.addEventListener('change', () => {
+    if (mDateFin.value && mDateFin.value < mDateDebut.value) mDateFin.value = '';
+    mDateFin.min = mDateDebut.value;
+  });
 
-  // ═══════════════════════════════════════════════════════════
-  // INITIALISATION
-  // ═══════════════════════════════════════════════════════════
-  updateClock();
-  setInterval(updateClock, 1000);
-  setDateAujourdhui();
-  document.getElementById('lieuRetour').value = LIEU_RETOUR_FIXE;
+  // Limite : aujourd'hui minimum
+  const today = new Date().toISOString().split('T')[0];
+  mDateDebut.min = today;
+  mDateFin.min = today;
 
-  function switchTab(tab, event) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    event.target.closest('.tab').classList.add('active');
-    document.getElementById('panelNouvelle').style.display = tab === 'nouvelle' ? 'block' : 'none';
-    document.getElementById('panelMes').style.display = tab === 'mes' ? 'block' : 'none';
+  // =============================================
+  //  MODE CHAUFFEUR
+  // =============================================
+  const modeRadios = document.querySelectorAll('input[name="mode_chauffeur"]');
+  const champInterne = document.getElementById('champInterne');
+  const champAttribution = document.getElementById('champAttribution');
+  const champExterne = document.getElementById('champExterne');
+  const selectChauffeurInterne = document.getElementById('m_chauffeur');
+  const inputExtNom = document.getElementById('m_chauffeur_ext_nom');
+  const inputExtTel = document.getElementById('m_chauffeur_ext_tel');
+
+  function getModeChauffeur() {
+    const checked = document.querySelector('input[name="mode_chauffeur"]:checked');
+    return checked ? checked.value : 'interne';
   }
 
-  function val(id) { return document.getElementById(id).value.trim(); }
+  function updateChauffeurFields() {
+    const mode = getModeChauffeur();
+    champInterne.style.display = 'none';
+    champAttribution.style.display = 'none';
+    champExterne.style.display = 'none';
+    selectChauffeurInterne.removeAttribute('required');
+    inputExtNom.removeAttribute('required');
+    inputExtTel.removeAttribute('required');
 
-  function afficherMessage(texte, type) {
-    const box = document.getElementById('messageBox');
-    box.className = 'toast ' + type;
-    box.textContent = texte;
-    box.scrollIntoView({ behavior:'smooth', block:'center' });
+    if (mode === 'interne') {
+      champInterne.style.display = 'flex';
+      selectChauffeurInterne.setAttribute('required', 'required');
+    } else if (mode === 'attribution') {
+      champAttribution.style.display = 'block';
+    } else if (mode === 'externe') {
+      champExterne.style.display = 'grid';
+      inputExtNom.setAttribute('required', 'required');
+      inputExtTel.setAttribute('required', 'required');
+    }
+  }
+  modeRadios.forEach(r => r.addEventListener('change', updateChauffeurFields));
+  updateChauffeurFields();
+
+  function getNomChauffeurFinal() {
+    const mode = getModeChauffeur();
+    if (mode === 'interne') return selectChauffeurInterne.value || 'Non sélectionné';
+    if (mode === 'attribution') return 'À attribuer par le responsable logistique';
+    if (mode === 'externe') {
+      const nom = inputExtNom.value.trim() || 'Nom non renseigné';
+      const tel = inputExtTel.value.trim();
+      return `Externe : ${nom}${tel ? ' — ' + tel : ''}`;
+    }
+    return 'Non défini';
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // SOUMISSION — AUCUNE VÉRIFICATION D'HEURE
-  // ═══════════════════════════════════════════════════════════
-  async function soumettre(e) {
+  // =============================================
+  //  SOUMISSION
+  // =============================================
+  const form = document.getElementById('missionForm');
+  const msgBox = document.getElementById('msgMission');
+  const msgIcon = document.getElementById('msgMissionIcon');
+  const msgText = document.getElementById('msgMissionText');
+  const btn = document.getElementById('btnMission');
+
+  form.addEventListener('submit', async function (e) {
     e.preventDefault();
+    msgBox.className = 'message-box';
+    msgBox.style.display = 'none';
 
-    const dureeSaisie = parseInt(val('duree'));
-    if (isNaN(dureeSaisie) || dureeSaisie < 5) {
-      afficherMessage('La durée minimale est de 5 minutes.', 'error');
+    // --- Validation ---
+    let isValid = true;
+    form.querySelectorAll('[required]').forEach(field => {
+      if (field.offsetParent === null) return; // champs cachés ignorés
+      if (!field.value.trim()) {
+        markInvalid(field);
+        isValid = false;
+      }
+    });
+
+    const joursCoches = Array.from(joursCheckboxes).filter(c => c.checked).map(c => c.value);
+    if (joursCoches.length === 0) {
+      markInvalid(document.getElementById('joursGroup'));
+      isValid = false;
+    }
+
+    if (mDateDebut.value && mDateFin.value && mDateFin.value < mDateDebut.value) {
+      markInvalid(mDateFin);
+      isValid = false;
+    }
+
+    if (!isValid) {
+      msgBox.className = 'message-box error';
+      msgIcon.textContent = '❌';
+      msgText.textContent = 'Veuillez remplir tous les champs obligatoires (*), dont au moins un jour de mission.';
+      msgBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       return;
     }
-    if (dureeSaisie > 60) {
-      afficherMessage('La durée estimée ne peut pas dépasser 60 minutes (1 heure).\n\nVeuillez réduire la durée.', 'error');
-      return;
-    }
 
-    const dateVal = val('dateSortie');
-    const heureVal = val('heureDepart');
+    // --- Données ---
+    const chauffeurFinal = getNomChauffeurFinal();
+    const modeChauffeur = getModeChauffeur();
+    const duree = calculerDuree();
+    const emailDemandeur = document.getElementById('m_email').value.trim();
+    const nomDemandeur = document.getElementById('m_nom').value.trim();
+    const reference = 'MISSION-' + Date.now().toString().slice(-6);
 
-    if (!dateVal || !heureVal) {
-      afficherMessage('Veuillez renseigner l\'heure de sortie.', 'error');
-      return;
-    }
-
-    // ⚠️ PLUS AUCUNE VÉRIFICATION D'HEURE PASSÉE / FUTURE ICI.
-    // L'utilisateur peut soumettre n'importe quelle heure.
-
-    const demande = {
-      nom: val('nom'),
-      prenom: val('prenom'),
-      poste: val('poste'),
-      service: val('service'),
-      email: val('email').toLowerCase(),
-      contact: '',
-      date_sortie: dateVal,
-      heure_depart: heureVal,
-      destination: val('destination'),
-      duree: dureeSaisie,
-      passagers: val('passagers') ? parseInt(val('passagers')) : null,
-      motif: val('motif'),
-      responsable: RESPONSABLE_FIXE
+    // Paramètres admin / responsable
+    const paramsAdmin = {
+      nom: nomDemandeur,
+      fonction: document.getElementById('m_fonction').value.trim(),
+      telephone: document.getElementById('m_telephone').value.trim(),
+      email: emailDemandeur,
+      titre_mission: document.getElementById('m_titre').value.trim(),
+      lieu: document.getElementById('m_lieu').value.trim(),
+      type_mission: document.getElementById('m_type').value,
+      date_debut: mDateDebut.value,
+      date_fin: mDateFin.value,
+      duree_jours: duree ? duree + ' jour(s)' : '—',
+      jours_mission: joursCoches.join(', '),
+      itineraire: document.getElementById('m_itineraire').value.trim(),
+      participants: document.getElementById('m_participants').value || '—',
+      description: document.getElementById('m_description').value.trim(),
+      mode_chauffeur: modeChauffeur,
+      chauffeur: chauffeurFinal,
+      competences: document.getElementById('m_competences').value.trim() || '—',
+      vehicule: document.getElementById('m_vehicule').value || 'Non défini',
+      observations: document.getElementById('m_observations').value.trim() || '—',
+      reference: reference,
+      date_demande: new Date().toLocaleString('fr-FR', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      })
     };
 
-    const btn = document.getElementById('btnSubmit');
-    const loader = document.getElementById('loader');
+    // Paramètres demandeur (confirmation automatique)
+    const paramsDemandeur = {
+      to_email: emailDemandeur,
+      to_name: nomDemandeur,
+      titre_mission: paramsAdmin.titre_mission,
+      lieu: paramsAdmin.lieu,
+      date_debut: paramsAdmin.date_debut,
+      date_fin: paramsAdmin.date_fin,
+      jours_mission: paramsAdmin.jours_mission,
+      itineraire: paramsAdmin.itineraire,
+      chauffeur: chauffeurFinal,
+      mode_chauffeur: modeChauffeur,
+      vehicule: paramsAdmin.vehicule,
+      reference: reference
+    };
 
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner" style="display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle;"></span> Envoi en cours...';
-    loader.classList.add('active');
-
-    let supabaseOK = false, emailOK = false, erreurs = [];
+    btn.classList.add('loading');
 
     try {
-      const response = await fetch(SUPABASE_URL + '/rest/v1/demandes', {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify(demande)
-      });
-      if (!response.ok) {
-        const errText = await response.text();
-        throw new Error('Supabase ' + response.status + ' : ' + errText);
-      }
-      supabaseOK = true;
-    } catch (err) {
-      console.error('❌ Erreur Supabase :', err);
-      erreurs.push('Base de données : ' + err.message);
-    }
+      // 1) E-mail vers le responsable logistique
+      await emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_MISSION, paramsAdmin);
+      // 2) E-mail automatique au demandeur avec le nom du chauffeur
+      await emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_CONFIRMATION, paramsDemandeur);
 
-    try {
-      const corps = `📋 NOUVELLE DEMANDE DE SORTIE VÉHICULE
+      msgBox.className = 'message-box success';
+      msgIcon.textContent = '✅';
+      msgText.textContent = `Mission envoyée ! Un e-mail de confirmation vient d'être adressé à ${emailDemandeur}. Chauffeur : ${chauffeurFinal}. Réf. ${reference}`;
+      msgBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-👤 AGENT
-────────────────────────────
-Nom : ${demande.nom}
-Prénom : ${demande.prenom}
-Poste : ${demande.poste}
-Service : ${demande.service}
-Email : ${demande.email}
-
-🚗 DÉTAILS DE LA SORTIE
-────────────────────────────
-Date : ${demande.date_sortie}
-Heure de départ : ${demande.heure_depart}
-Destination : ${demande.destination}
-Durée estimée : ${demande.duree} minutes
-Passagers : ${demande.passagers || '-'}
-Retour : ${LIEU_RETOUR_FIXE}
-
-📝 MOTIF
-${demande.motif}
-
-👔 Responsable : ${demande.responsable}
-
-⏰ Connectez-vous à l'espace Admin pour valider ou refuser cette demande.
-
-—
-Service Logistique - ONG ADKOUL
-Solidarité • Éducation • Développement`;
-
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-        to_email: EMAIL_ADMIN,
-        subject: `🚗 Nouvelle demande - ${demande.prenom} ${demande.nom} - ${demande.destination}`,
-        message: corps,
-        name: 'Service Logistique',
-        reply_to: demande.email
-      });
-      emailOK = true;
-    } catch (err) {
-      console.error('❌ Erreur EmailJS :', err);
-      erreurs.push('Notification email : ' + (err.text || err.message || JSON.stringify(err)));
-    }
-
-    if (supabaseOK && emailOK) {
-      afficherMessage('Votre demande a bien été envoyée au service Logistique.\n\nVous recevrez un email après validation.\nVous pouvez suivre son statut dans l\'onglet "📋 Suivre mes demandes".', 'success');
-      e.target.reset();
-      setDateAujourdhui();
-      document.getElementById('lieuRetour').value = LIEU_RETOUR_FIXE;
-    } else if (supabaseOK && !emailOK) {
-      afficherMessage("Votre demande a été enregistrée, mais la notification email n'a pas pu être envoyée.\n\nLe service Logistique la verra dans son tableau de bord.", 'warning');
-      e.target.reset();
-      setDateAujourdhui();
-      document.getElementById('lieuRetour').value = LIEU_RETOUR_FIXE;
-    } else {
-      afficherMessage("Erreur d'envoi : " + erreurs.join(' | '), 'error');
-    }
-
-    btn.disabled = false;
-    btn.innerHTML = '<span>✅</span> Envoyer la demande';
-    loader.classList.remove('active');
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // SUIVI DES DEMANDES
-  // ═══════════════════════════════════════════════════════════
-  async function rechercherDemandes() {
-    const email = document.getElementById('searchEmail').value.trim().toLowerCase();
-    const container = document.getElementById('mesDemandesContainer');
-
-    if (!email) {
-      alert('⚠️ Saisissez votre adresse email.');
-      return;
-    }
-
-    container.innerHTML = '<div class="empty-state">⏳ Chargement de vos demandes...</div>';
-
-    try {
-      const response = await fetch(
-        SUPABASE_URL + '/rest/v1/demandes?email=eq.' + encodeURIComponent(email) + '&order=created_at.desc',
-        {
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY
-          }
-        }
-      );
-
-      if (!response.ok) throw new Error('Erreur ' + response.status);
-
-      const demandes = await response.json();
-
-      if (demandes.length === 0) {
-        container.innerHTML = '<div class="empty-state">📭 Aucune demande trouvée pour cet email.<br><br>Vérifiez l\'adresse ou faites une nouvelle demande.</div>';
-        return;
-      }
-
-      container.innerHTML = demandes.map(d => afficherCarteDemande(d)).join('');
+      form.reset();
+      document.querySelectorAll('.checkbox-item').forEach(el => el.classList.remove('checked'));
+      updateJoursSummary();
+      updateChauffeurFields();
 
     } catch (err) {
-      container.innerHTML = '<div class="empty-state">❌ Erreur : ' + err.message + '</div>';
+      console.error(err);
+      msgBox.className = 'message-box error';
+      msgIcon.textContent = '❌';
+      msgText.textContent = 'Erreur lors de l\'envoi. Vérifiez votre connexion ou contactez le support.';
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('loading');
     }
-  }
-
-  function afficherCarteDemande(d) {
-    const dateStr = formatNigerDateShort(d.date_sortie);
-    const createdStr = formatNigerDate(d.created_at);
-
-    let statut = d.statut;
-    if (!statut || (statut !== 'validee' && statut !== 'refusee')) {
-      statut = 'en_attente';
-    }
-
-    let resultatHtml = '';
-    let statutBadge = '';
-
-    if (statut === 'validee') {
-      statutBadge = '✅ Validée';
-      resultatHtml = `
-        <div class="resultat-box validee">
-          <strong>✅ Validée</strong> le ${formatNigerDate(d.date_validation)}<br>
-          👤 Chauffeur : <strong>${d.chauffeur_assigne || '-'}</strong><br>
-          🚙 Véhicule : <strong>${d.vehicule_assigne || '-'}</strong>
-          ${d.message_admin ? '<br>💬 ' + d.message_admin : ''}
-        </div>
-        <button class="btn-imprimer" onclick="imprimerMonBon(${d.id})">
-          🖨️ Imprimer mon bon de sortie
-        </button>
-      `;
-    } else if (statut === 'refusee') {
-      statutBadge = '❌ Refusée';
-      resultatHtml = `
-        <div class="resultat-box refusee">
-          <strong>❌ Refusée</strong> le ${formatNigerDate(d.date_validation)}<br>
-          Motif : <strong>${d.message_admin || '-'}</strong>
-        </div>
-      `;
-    } else {
-      statutBadge = '⏳ En attente';
-      resultatHtml = `
-        <div class="resultat-box en_attente">
-          ⏳ <strong>En attente de validation</strong> par le service Logistique
-          <br><small style="color:#888;">Demande envoyée le ${createdStr}</small>
-        </div>
-      `;
-    }
-
-    return `
-      <div class="demande-card ${statut}">
-        <div class="card-header">
-          <h3>📍 ${d.destination}</h3>
-          <span class="badge-statut ${statut}">${statutBadge}</span>
-        </div>
-        <p>
-          📅 <strong>${dateStr}</strong> à <strong>${d.heure_depart}</strong>
-          &nbsp;|&nbsp; ⏱ ${d.duree} min
-          ${d.passagers ? '&nbsp;|&nbsp; 👥 ' + d.passagers + ' passager(s)' : ''}
-        </p>
-        <p>📝 <strong>Motif :</strong> ${d.motif}</p>
-        ${resultatHtml}
-      </div>
-    `;
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // IMPRESSION DU BON
-  // ═══════════════════════════════════════════════════════════
-  async function imprimerMonBon(id) {
-    try {
-      const response = await fetch(
-        SUPABASE_URL + '/rest/v1/demandes?id=eq.' + id,
-        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
-      );
-      const data = await response.json();
-      if (!data.length) { alert('Demande introuvable.'); return; }
-      const d = data[0];
-
-      const dateStr = formatNigerDateLong(d.date_sortie);
-      const createdStr = formatNigerDate(d.created_at);
-      const validStr = formatNigerDate(d.date_validation);
-      const numBon = 'BS-' + String(d.id).padStart(5, '0');
-
-      const fenetre = window.open('', '_blank');
-      fenetre.document.write(`
-        <!DOCTYPE html>
-        <html lang="fr">
-        <head>
-          <meta charset="UTF-8">
-          <title>Bon de Sortie ${numBon} - ONG ADKOUL</title>
-          <style>
-            * { margin:0; padding:0; box-sizing:border-box; font-family:'Arial', sans-serif; }
-            html, body { background:#f0f2f5; }
-            body { padding:10px; }
-            .bon {
-              width: 194mm; min-height: 273mm; max-height: 273mm;
-              margin: 10px auto; background:#fff; padding: 10mm 12mm;
-              border-radius:6px; box-shadow:0 4px 20px rgba(0,0,0,0.1);
-              display:flex; flex-direction:column; overflow:hidden;
-            }
-            .header { display:flex; justify-content:space-between; align-items:center;
-              border-bottom:3px solid #1e3c72; padding-bottom:12px; margin-bottom:20px; gap:15px; }
-            .header-logo { display:flex; align-items:center; gap:15px; }
-            .header-logo img { height:65px; width:65px; object-fit:contain; }
-            .header-info h1 { color:#1e3c72; font-size:20px; margin-bottom:2px; }
-            .header-info .subtitle { color:#444; font-size:12px; font-weight:600; }
-            .header-info .slogan { color:#888; font-size:10px; font-style:italic;
-              margin-top:2px; letter-spacing:0.4px; }
-            .header-right { text-align:right; }
-            .bon-num { font-size:13px; color:#1e3c72; font-weight:bold;
-              background:#e8f0fb; padding:6px 14px; border-radius:5px;
-              display:inline-block; margin-bottom:6px; }
-            .date-creation { font-size:9.5px; color:#888; display:block; }
-            .titre-bon { text-align:center; color:#1e3c72; font-size:15px;
-              font-weight:bold; letter-spacing:2px; background:#f8f9fb;
-              padding:10px; border-radius:5px; margin-bottom:20px;
-              border-left:4px solid #1e3c72; }
-            .section { margin-bottom:15px; }
-            .section-titre { background:#1e3c72; color:#fff; padding:6px 12px;
-              font-size:11px; font-weight:bold; letter-spacing:1px;
-              border-radius:4px; margin-bottom:8px; }
-            .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:0 20px; }
-            .ligne { display:flex; padding:5px 0; border-bottom:1px dotted #e0e0e0;
-              font-size:11.5px; line-height:1.35; }
-            .ligne:last-child { border-bottom:none; }
-            .ligne .label { width:130px; color:#666; font-size:11px; font-weight:500; }
-            .ligne .valeur { flex:1; color:#111; font-size:11.5px; font-weight:600;
-              word-break:break-word; }
-            .motif-box { background:#f8f9fb; padding:10px 12px; border-radius:4px;
-              border-left:4px solid #1e3c72; font-size:11px; color:#333;
-              line-height:1.45; white-space:pre-wrap; min-height:50px; }
-            .signatures { display:flex; justify-content:space-between;
-              gap:30px; margin-top:40px; padding-top:0; }
-            .signature-bloc { flex:1; text-align:center; }
-            .signature-titre { font-size:11px; font-weight:bold; color:#333;
-              margin-bottom:5px; text-transform:uppercase; letter-spacing:0.8px; }
-            .signature-sous-titre { font-size:10px; color:#888; margin-bottom:45px; }
-            .signature-ligne { border-top:1.5px solid #333; padding-top:5px;
-              font-size:9.5px; color:#666; min-height:35px; }
-            .signature-sans-ligne { min-height:80px; }
-            .footer { margin-top:auto; padding-top:10px; border-top:1px solid #ddd;
-              text-align:center; font-size:9px; color:#999; line-height:1.4; }
-            .footer strong { color:#1e3c72; }
-            .btn-print-now { display:block; margin:15px auto 30px; background:#1e3c72;
-              color:#fff; padding:10px 25px; border:none; border-radius:6px;
-              font-size:13px; font-weight:bold; cursor:pointer;
-              box-shadow:0 4px 12px rgba(30,60,114,0.3); }
-            .btn-print-now:hover { background:#2a5298; }
-            @media print {
-              html, body { background:#fff; padding:0; margin:0;
-                width:210mm; height:297mm; }
-              .bon { box-shadow:none; margin:0; padding:10mm 12mm;
-                width:210mm; height:297mm;
-                min-height:297mm; max-height:297mm;
-                border-radius:0; overflow:hidden; }
-              .btn-print-now { display:none; }
-              @page { size:A4 portrait; margin:0; }
-              * { -webkit-print-color-adjust:exact !important;
-                  print-color-adjust:exact !important; color-adjust:exact !important; }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="bon">
-            <div class="header">
-              <div class="header-logo">
-                <img src="${LOGO_URL}" alt="ONG ADKOUL" onerror="this.style.display='none'">
-                <div class="header-info">
-                  <h1>ONG ADKOUL</h1>
-                  <div class="subtitle">Service Logistique</div>
-                  <div class="slogan">Solidarité • Éducation • Développement</div>
-                </div>
-              </div>
-              <div class="header-right">
-                <div class="bon-num">N° ${numBon}</div>
-                <span class="date-creation">Créé le ${createdStr}</span>
-              </div>
-            </div>
-            <div class="titre-bon">AUTORISATION DE SORTIE DE VÉHICULE</div>
-            <div class="section">
-              <div class="section-titre">👤 INFORMATIONS DE L'AGENT</div>
-              <div class="grid-2">
-                <div class="ligne"><span class="label">Nom</span><span class="valeur">${d.nom}</span></div>
-                <div class="ligne"><span class="label">Prénom</span><span class="valeur">${d.prenom}</span></div>
-                <div class="ligne"><span class="label">Poste occupé</span><span class="valeur">${d.poste}</span></div>
-                <div class="ligne"><span class="label">Service</span><span class="valeur">${d.service || '—'}</span></div>
-                <div class="ligne"><span class="label">Email</span><span class="valeur">${d.email}</span></div>
-              </div>
-            </div>
-            <div class="section">
-              <div class="section-titre">📍 DÉTAILS DE LA SORTIE</div>
-              <div class="grid-2">
-                <div class="ligne"><span class="label">Date de sortie</span><span class="valeur">${dateStr}</span></div>
-                <div class="ligne"><span class="label">Heure départ</span><span class="valeur">${d.heure_depart}</span></div>
-                <div class="ligne"><span class="label">Destination</span><span class="valeur">${d.destination}</span></div>
-                <div class="ligne"><span class="label">Durée estimée</span><span class="valeur">${d.duree} minutes</span></div>
-                <div class="ligne"><span class="label">Passagers</span><span class="valeur">${d.passagers || '—'}</span></div>
-                <div class="ligne"><span class="label">Retour prévu</span><span class="valeur">Au siège</span></div>
-              </div>
-            </div>
-            <div class="section">
-              <div class="section-titre">📝 MOTIF / OBJET DE LA SORTIE</div>
-              <div class="motif-box">${d.motif}</div>
-            </div>
-            <div class="section">
-              <div class="section-titre">🚗 AFFECTATION</div>
-              <div class="grid-2">
-                <div class="ligne"><span class="label">Chauffeur</span><span class="valeur">${d.chauffeur_assigne || '—'}</span></div>
-                <div class="ligne"><span class="label">Véhicule</span><span class="valeur">${d.vehicule_assigne || '—'}</span></div>
-                <div class="ligne"><span class="label">Validé par</span><span class="valeur">Service Logistique</span></div>
-                <div class="ligne"><span class="label">Date validation</span><span class="valeur">${validStr}</span></div>
-              </div>
-              ${d.message_admin ? `<div class="ligne" style="margin-top:3px;"><span class="label">Message</span><span class="valeur">${d.message_admin}</span></div>` : ''}
-            </div>
-            <div class="signatures">
-              <div class="signature-bloc">
-                <div class="signature-titre">Signature de l'Agent</div>
-                <div class="signature-sous-titre">${d.prenom} ${d.nom}</div>
-                <div class="signature-ligne">Signé le : ____ / ____ / ________</div>
-              </div>
-              <div class="signature-bloc">
-                <div class="signature-titre">Visa du Service Logistique</div>
-                <div class="signature-sous-titre" style="text-transform: uppercase; font-weight: 600; color: #555;">LE GESTIONNAIRE DE PARC</div>
-                <div class="signature-sans-ligne"></div>
-              </div>
-            </div>
-            <div class="footer">
-              <strong>ONG ADKOUL</strong> — Solidarité • Éducation • Développement<br>
-              Bon de sortie N° ${numBon} — Généré automatiquement — Toute reproduction non autorisée est interdite
-            </div>
-          </div>
-          <button class="btn-print-now" onclick="window.print()">🖨️ Imprimer / Enregistrer en PDF</button>
-        </body>
-        </html>
-      `);
-      fenetre.document.close();
-    } catch (err) {
-      alert('❌ Erreur : ' + err.message);
-    }
-  }
+  });
 </script>
+
 </body>
 </html>

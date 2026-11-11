@@ -252,7 +252,7 @@
     <div class="users-info-box">
       💡 <strong>Info :</strong> Les rôles déterminent les accès. 
       <br>• <strong>Logistique</strong> : Accès total (gestion des comptes, véhicules, missions).
-      <br>• <strong>Assistant Logistique</strong> : Saisie des demandes de véhicules uniquement.
+      <br>• <strong>Assistant Logistique</strong> : Saisie des demandes de véhicules de LOCATION uniquement.
       <br>• <strong>RH</strong> : Validation et impression des ordres de mission uniquement.
     </div>
     <div class="users-list" id="usersList">
@@ -266,6 +266,7 @@
   <div class="modal">
     <h2>🚗 Affecter un véhicule</h2>
     <p class="subtitle" id="modalValiderInfo"></p>
+    
     <label>👤 Chauffeur *</label>
     <select id="selectChauffeur" onchange="toggleAutre('chauffeur')">
       <option value="">-- Sélectionnez --</option>
@@ -276,6 +277,7 @@
       <option value="AUTRE">➕ Autre</option>
     </select>
     <input type="text" id="inputChauffeurAutre" placeholder="Nom" style="display:none; margin-top:8px;">
+
     <div class="grid-2" style="margin-top:10px;">
       <div>
         <label>Type de véhicule *</label>
@@ -284,7 +286,7 @@
           <option value="Véhicule Partenaire">Véhicule Partenaire</option>
           <option value="Véhicule Location">Véhicule Location</option>
           <option value="Bus">Bus</option>
-          <option value="Autre">Autre</option>
+          <option value="Avion">Avion</option>
         </select>
       </div>
       <div>
@@ -302,6 +304,7 @@
         <input type="text" id="inputVehiculeImmat" placeholder="Ex: AB-123-CD" required>
       </div>
     </div>
+
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
       <button class="btn-valider" onclick="confirmerValidation()">✅ Enregistrer</button>
@@ -345,7 +348,7 @@
           <option value="Véhicule Partenaire">Véhicule Partenaire</option>
           <option value="Véhicule Location">Véhicule Location</option>
           <option value="Bus">Bus</option>
-          <option value="Autre">Autre</option>
+          <option value="Avion">Avion</option>
         </select>
       </div>
       <div>
@@ -407,7 +410,7 @@
           <option value="Véhicule Partenaire">Véhicule Partenaire</option>
           <option value="Véhicule Location">Véhicule Location</option>
           <option value="Bus">Bus</option>
-          <option value="Autre">Autre</option>
+          <option value="Avion">Avion</option>
         </select>
       </div>
       <div>
@@ -458,7 +461,7 @@
     <label>Rôle *</label>
     <select id="newUserRole">
       <option value="logistique">Logistique (Accès total)</option>
-      <option value="assistant_logistique">Assistant Logistique (Saisie véhicules)</option>
+      <option value="assistant_logistique">Assistant Logistique (Saisie véhicules de Location)</option>
       <option value="rh">RH (Valide et imprime les ordres de mission)</option>
     </select>
     <label>Mot de passe * (min. 6 caractères)</label>
@@ -715,12 +718,26 @@
     const filtre = document.getElementById('filtreStatut').value;
     const container = document.getElementById('demandesContainer');
     const role = getAdminRole();
-    let liste = toutesLesDemandes.filter(d => filtre === 'tous' || d.statut === filtre);
+    
+    // FILTRE SPECIAL POUR L'ASSISTANT LOGISTIQUE
+    let liste = toutesLesDemandes;
+    if (role === 'assistant_logistique') {
+      // Ne voit QUE les demandes où le type de véhicule demandé est "Location"
+      liste = liste.filter(d => d.motif && d.motif.toLowerCase().includes('location'));
+    }
+    
+    liste = liste.filter(d => filtre === 'tous' || d.statut === filtre);
+    
     if (liste.length === 0) { container.innerHTML = '<div class="empty">📭 Aucune demande</div>'; return; }
+    
     container.innerHTML = liste.map(d => {
       let actionsHtml = ''; let resultatHtml = '';
       if (d.statut === 'en_attente') {
-        actionsHtml = `<button class="btn btn-valider" onclick="ouvrirModalValider(${d.id})">✅ Affecter</button><button class="btn btn-refuser" onclick="ouvrirModalRefuser(${d.id})">❌ Rejeter</button>`;
+        actionsHtml = `<button class="btn btn-valider" onclick="ouvrirModalValider(${d.id})">✅ Affecter</button>`;
+        // Seul l'admin logistique peut rejeter
+        if (role === 'logistique') {
+           actionsHtml += `<button class="btn btn-refuser" onclick="ouvrirModalRefuser(${d.id})">❌ Rejeter</button>`;
+        }
       } else if (d.statut === 'validee') {
         resultatHtml = `<div class="resultat validee"><strong>✅ Affectée</strong><br>👤 Chauffeur : <strong>${d.chauffeur_assigne}</strong> | 🚙 Véhicule : <strong>${d.vehicule_assigne}</strong></div>`;
       } else if (d.statut === 'refusee') {
@@ -776,7 +793,7 @@
     const couleur = document.getElementById('inputVehiculeCouleur').value.trim();
     const immat = document.getElementById('inputVehiculeImmat').value.trim();
     
-    if (!chauffeur || !marque || !couleur || !immat) { alert('⚠️ Remplissez tous les champs du véhicule et le chauffeur.'); return; }
+    if (!chauffeur || !marque || !couleur || !immat) { alert('⚠️ Remplissez tous les champs.'); return; }
     
     const vehiculeString = `${type} (${marque} - ${couleur} - ${immat})`;
 

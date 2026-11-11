@@ -12,6 +12,7 @@
     --primary: #1e40af;
     --primary-light: #2563eb;
     --accent-orange: #f59e0b;
+    --success: #27ae60;
     --gray-50: #f8fafc;
     --gray-600: #475569;
     --gray-800: #1e293b;
@@ -51,7 +52,7 @@
     font-weight: 700;
     font-size: 0.95rem;
     letter-spacing: 0.03em;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    box-shadow: var(--shadow-md);
     margin-bottom: 1.5rem;
   }
 
@@ -77,12 +78,13 @@
     margin: 0 auto;
   }
 
+  /* CARTES DE CHOIX */
   .menu-container {
     display: flex;
     gap: 2rem;
     flex-wrap: wrap;
     justify-content: center;
-    max-width: 900px;
+    max-width: 1200px;
     width: 100%;
     animation: fadeInUp 0.6s ease-out 0.1s both;
   }
@@ -91,7 +93,7 @@
     background: #fff;
     border-radius: 20px;
     padding: 2.5rem 2rem;
-    width: 350px;
+    width: 340px;
     text-decoration: none;
     color: inherit;
     box-shadow: var(--shadow-lg);
@@ -113,8 +115,12 @@
     transition: height 0.3s ease;
   }
 
+  /* Couleurs spécifiques par carte */
   .menu-card.mission::before {
     background: linear-gradient(90deg, var(--accent-orange), #fbbf24);
+  }
+  .menu-card.ordre::before {
+    background: linear-gradient(90deg, var(--success), #2ecc71);
   }
 
   .menu-card:hover {
@@ -143,6 +149,10 @@
   .menu-card.mission .card-icon {
     background: #fffbeb;
     color: var(--accent-orange);
+  }
+  .menu-card.ordre .card-icon {
+    background: #e8f8f5;
+    color: var(--success);
   }
 
   .menu-card:hover .card-icon {
@@ -183,15 +193,21 @@
   .menu-card.mission .btn-access {
     background: var(--accent-orange);
   }
+  .menu-card.ordre .btn-access {
+    background: var(--success);
+  }
 
   .menu-card:hover .btn-access {
     background: var(--primary-light);
   }
-
   .menu-card.mission:hover .btn-access {
     background: #d97706;
   }
+  .menu-card.ordre:hover .btn-access {
+    background: #229954;
+  }
 
+  /* FOOTER */
   .footer {
     margin-top: 3rem;
     text-align: center;
@@ -239,6 +255,7 @@
 
   <main class="menu-container">
     
+    <!-- CARTE 1 : SORTIE VÉHICULE -->
     <a href="vehicule.html" class="menu-card">
       <div class="card-icon">🚗</div>
       <h2>Sortie de Véhicule</h2>
@@ -246,10 +263,19 @@
       <span class="btn-access">Remplir la demande →</span>
     </a>
 
+    <!-- CARTE 2 : MISSION TERRAIN -->
     <a href="mission.html" class="menu-card mission">
       <div class="card-icon">🧭</div>
       <h2>Mission Terrain</h2>
       <p>Planification d'une mission sur le terrain avec itinéraire et attribution de chauffeur.</p>
+      <span class="btn-access">Remplir la demande →</span>
+    </a>
+
+    <!-- CARTE 3 : ORDRE DE MISSION (RH) -->
+    <a href="ordre-mission.html" class="menu-card ordre">
+      <div class="card-icon">📄</div>
+      <h2>Ordre de Mission</h2>
+      <p>Formulaire officiel RH pour vos déplacements et ordres de mission.</p>
       <span class="btn-access">Remplir la demande →</span>
     </a>
 

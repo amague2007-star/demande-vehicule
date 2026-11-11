@@ -109,18 +109,18 @@
     background-size: 16px; padding-right: 2.5rem;
   }
 
-  /* RADIO & CHECKBOX */
-  .radio-group, .checkbox-group { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.25rem; }
-  .radio-item, .checkbox-item {
+  /* RADIO */
+  .radio-group { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.25rem; }
+  .radio-item {
     display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem;
     font-weight: 500; color: var(--gray-700); cursor: pointer;
     padding: 0.55rem 1rem; border-radius: 10px;
     border: 1.5px solid var(--gray-200); background: var(--gray-50);
     transition: all 0.2s ease; user-select: none;
   }
-  .radio-item:hover, .checkbox-item:hover { border-color: var(--primary-light); background: #fff; }
-  .radio-item input, .checkbox-item input { accent-color: var(--primary); cursor: pointer; margin: 0; width: 16px; height: 16px; }
-  .radio-item:has(input:checked), .checkbox-item:has(input:checked) {
+  .radio-item:hover { border-color: var(--primary-light); background: #fff; }
+  .radio-item input[type="radio"] { accent-color: var(--primary); cursor: pointer; margin: 0; width: 16px; height: 16px; }
+  .radio-item:has(input:checked) {
     border-color: var(--primary-light); background: rgba(37, 99, 235, 0.07);
     color: var(--primary-dark); font-weight: 600;
   }
@@ -178,7 +178,7 @@
       ONG ADKOUL (Retour)
     </a>
     <h1>Demande de Mission Terrain</h1>
-    <p>Formulaire officiel — itinéraire, jours et attribution du chauffeur</p>
+    <p>Formulaire officiel — itinéraire et attribution du chauffeur</p>
   </header>
 
   <div class="card">
@@ -247,23 +247,9 @@
         </div>
         <div class="form-group">
           <label for="m_itineraire">Itinéraire prévu <span class="required">*</span></label>
-          <textarea id="m_itineraire" required placeholder="Décrivez le trajet : point de départ → étapes → destination finale."></textarea>
+          <textarea id="m_itineraire" required placeholder="Décrivez le trajet : point de départ → étapes → destination finale. Ex : Cotonou → Bohicon → Dassa → Parakou → retour Cotonou"></textarea>
         </div>
-        <div class="form-group">
-          <label>Jours de la mission <span class="required">*</span></label>
-          <div class="checkbox-group" id="joursGroup">
-            <label class="checkbox-item"><input type="checkbox" value="Lundi"> Lundi</label>
-            <label class="checkbox-item"><input type="checkbox" value="Mardi"> Mardi</label>
-            <label class="checkbox-item"><input type="checkbox" value="Mercredi"> Mercredi</label>
-            <label class="checkbox-item"><input type="checkbox" value="Jeudi"> Jeudi</label>
-            <label class="checkbox-item"><input type="checkbox" value="Vendredi"> Vendredi</label>
-            <label class="checkbox-item"><input type="checkbox" value="Samedi"> Samedi</label>
-            <label class="checkbox-item"><input type="checkbox" value="Dimanche"> Dimanche</label>
-          </div>
-          <div class="info-box" id="infoJours" style="margin-top:0.6rem;">
-            📅 <span id="resumeJours">Aucun jour sélectionné</span>
-          </div>
-        </div>
+        
         <div class="grid-2">
           <div class="form-group">
             <label for="m_participants">Nombre de participants</label>
@@ -356,30 +342,23 @@
     setTimeout(() => el.classList.remove('highlight-border'), 2000);
   }
 
-  // Jours
-  const joursCheckboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]');
-  const resumeJours = document.getElementById('resumeJours');
-  const infoJours = document.getElementById('infoJours');
-
-  function updateJoursSummary() {
-    const selected = Array.from(joursCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
-    if (selected.length === 0) {
-      resumeJours.textContent = 'Aucun jour sélectionné';
-      infoJours.style.background = '#fef2f2'; infoJours.style.borderColor = '#fecaca'; infoJours.style.color = '#991b1b';
-    } else {
-      resumeJours.textContent = `${selected.length} jour(s) — ${selected.join(', ')}`;
-      infoJours.style.background = '#eff6ff'; infoJours.style.borderColor = '#bfdbfe'; infoJours.style.color = '#1e40af';
-    }
-  }
-  joursCheckboxes.forEach(cb => cb.addEventListener('change', updateJoursSummary));
-
-  // Dates
+  // Dates (Contrainte : la fin ne peut pas être avant le début)
   const mDateDebut = document.getElementById('m_date_debut');
   const mDateFin = document.getElementById('m_date_fin');
   const today = new Date().toISOString().split('T')[0];
-  mDateDebut.min = today; mDateFin.min = today;
+  
+  mDateDebut.min = today; 
+  mDateFin.min = today;
 
-  // Mode Chauffeur
+  mDateDebut.addEventListener('change', () => {
+    if (mDateFin.value && mDateFin.value < mDateDebut.value) {
+      mDateFin.value = '';
+      markInvalid(mDateFin);
+    }
+    mDateFin.min = mDateDebut.value;
+  });
+
+  // Mode Chauffeur dynamique
   const modeRadios = document.querySelectorAll('input[name="mode_chauffeur"]');
   const champInterne = document.getElementById('champInterne');
   const champAttribution = document.getElementById('champAttribution');
@@ -397,12 +376,14 @@
     champInterne.style.display = 'none';
     champAttribution.style.display = 'none';
     champExterne.style.display = 'none';
+    
     selectChauffeur.removeAttribute('required');
     inputExtNom.removeAttribute('required');
     inputExtTel.removeAttribute('required');
 
     if (mode === 'interne') {
-      champInterne.style.display = 'flex'; selectChauffeur.setAttribute('required', 'required');
+      champInterne.style.display = 'flex'; 
+      selectChauffeur.setAttribute('required', 'required');
     } else if (mode === 'attribution') {
       champAttribution.style.display = 'block';
     } else if (mode === 'externe') {
@@ -421,7 +402,7 @@
     return `Externe : ${inputExtNom.value.trim()} — ${inputExtTel.value.trim()}`;
   }
 
-  // Soumission
+  // Soumission du formulaire
   const form = document.getElementById('missionForm');
   const msgBox = document.getElementById('msgMission');
   const msgIcon = document.getElementById('msgMissionIcon');
@@ -432,14 +413,12 @@
     e.preventDefault();
     msgBox.className = 'message-box';
 
+    // Validation
     let isValid = true;
     form.querySelectorAll('[required]').forEach(field => {
-      if (field.offsetParent === null) return;
+      if (field.offsetParent === null) return; // Ignore les champs cachés
       if (!field.value.trim()) { markInvalid(field); isValid = false; }
     });
-
-    const joursCoches = Array.from(joursCheckboxes).filter(c => c.checked).map(c => c.value);
-    if (joursCoches.length === 0) { markInvalid(document.getElementById('joursGroup')); isValid = false; }
 
     if (!isValid) {
       msgBox.className = 'message-box error';
@@ -447,6 +426,7 @@
       return;
     }
 
+    // Préparation des données
     const newMission = {
       nom: document.getElementById('m_nom').value.trim(),
       fonction: document.getElementById('m_fonction').value.trim(),
@@ -457,7 +437,6 @@
       type_mission: document.getElementById('m_type').value,
       date_debut: mDateDebut.value,
       date_fin: mDateFin.value,
-      jours_mission: joursCoches.join(', '),
       itineraire: document.getElementById('m_itineraire').value.trim(),
       participants: document.getElementById('m_participants').value || null,
       description: document.getElementById('m_description').value.trim(),
@@ -491,8 +470,6 @@
       msgBox.className = 'message-box success';
       msgIcon.textContent = '✅'; msgText.textContent = `Mission envoyée avec succès ! En attente de validation.`;
       form.reset();
-      document.querySelectorAll('.checkbox-item').forEach(el => el.classList.remove('checked'));
-      updateJoursSummary();
       updateChauffeurFields();
 
     } catch (err) {

@@ -324,7 +324,7 @@
       return;
     }
 
-    // Préparation des données
+    // Préparation des données (les champs supprimés ne sont plus envoyés)
     const newMission = {
       nom: document.getElementById('m_nom').value.trim(),
       fonction: document.getElementById('m_fonction').value.trim(),
@@ -339,7 +339,6 @@
       participants: document.getElementById('m_participants').value || null,
       description: document.getElementById('m_description').value.trim(),
       statut: 'en_attente'
-      // Le chauffeur et le véhicule seront ajoutés par l'admin
     };
 
     btn.disabled = true;

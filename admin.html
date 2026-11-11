@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin - ONG ADKOUL - Validation des Demandes</title>
+<title>Admin - ONG ADKOUL - Gestion Logistique</title>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
@@ -231,11 +231,11 @@
       <img src="https://amague2007-star.github.io/demande-vehicule/logo.png" alt="ONG ADKOUL" onerror="this.style.display='none'">
       <div class="brand-text">
         <h1>ONG ADKOUL — Tableau de bord Logistique</h1>
-        <p>Validation des demandes</p>
+        <p>Affectation des véhicules et chauffeurs</p>
       </div>
     </div>
     <div class="header-right">
-      <button class="nav-btn active" id="navDemandes" onclick="afficherSection('demandes')">📋 Demandes</button>
+      <button class="nav-btn active" id="navDemandes" onclick="afficherSection('demandes')">📋 Demandes Véhicules</button>
       <button class="nav-btn" id="navMissions" onclick="afficherSection('missions')">🧭 Missions Terrain</button>
       <button class="nav-btn" id="navUsers" onclick="afficherSection('users')">👥 Utilisateurs</button>
       <div class="user-badge" id="userBadge">👤 <span id="userName">Admin</span></div>
@@ -247,7 +247,7 @@
   <div id="demandesSection">
     <div class="stats">
       <div class="stat-card"><div class="label">⏳ En attente</div><div class="value" id="statAttente">0</div></div>
-      <div class="stat-card validees"><div class="label">✅ Validées</div><div class="value" id="statValidees">0</div></div>
+      <div class="stat-card validees"><div class="label">✅ Affectées</div><div class="value" id="statValidees">0</div></div>
       <div class="stat-card refusees"><div class="label">❌ Refusées</div><div class="value" id="statRefusees">0</div></div>
       <div class="stat-card total"><div class="label">📊 Total</div><div class="value" id="statTotal">0</div></div>
     </div>
@@ -255,7 +255,7 @@
     <div class="filters">
       <select id="filtreStatut" onchange="afficherDemandes()">
         <option value="en_attente" selected>⏳ En attente</option>
-        <option value="validee">✅ Validées</option>
+        <option value="validee">✅ Affectées</option>
         <option value="refusee">❌ Refusées</option>
         <option value="tous">📋 Toutes</option>
       </select>
@@ -271,7 +271,7 @@
   <div id="missionsSection" style="display:none;">
     <div class="stats">
       <div class="stat-card" style="border-left-color:#f39c12;"><div class="label">⏳ En attente</div><div class="value" id="statMissionsAttente">0</div></div>
-      <div class="stat-card validees"><div class="label">✅ Validées</div><div class="value" id="statMissionsValidees">0</div></div>
+      <div class="stat-card validees"><div class="label">✅ Affectées</div><div class="value" id="statMissionsValidees">0</div></div>
       <div class="stat-card refusees"><div class="label">❌ Refusées</div><div class="value" id="statMissionsRefusees">0</div></div>
       <div class="stat-card total"><div class="label">📊 Total</div><div class="value" id="statMissionsTotal">0</div></div>
     </div>
@@ -279,7 +279,7 @@
     <div class="filters">
       <select id="filtreStatutMission" onchange="afficherMissions()">
         <option value="en_attente" selected>⏳ En attente</option>
-        <option value="validee">✅ Validées</option>
+        <option value="validee">✅ Affectées</option>
         <option value="refusee">❌ Refusées</option>
         <option value="tous">📋 Toutes</option>
       </select>
@@ -299,7 +299,7 @@
     </div>
 
     <div class="users-info-box">
-      💡 <strong>Info :</strong> Les administrateurs peuvent valider/refuser les demandes et gérer les autres utilisateurs.
+      💡 <strong>Info :</strong> Les administrateurs peuvent traiter les demandes et gérer les autres utilisateurs.
       Vous ne pouvez pas supprimer votre propre compte ni le dernier admin restant.
     </div>
 
@@ -312,7 +312,7 @@
 <!-- MODALE VALIDER DEMANDE VEHICULE -->
 <div class="modal-overlay" id="modalValider">
   <div class="modal">
-    <h2>✅ Valider cette demande</h2>
+    <h2>🚗 Affecter un véhicule</h2>
     <p class="subtitle" id="modalValiderInfo"></p>
 
     <label>👤 Chauffeur à assigner *</label>
@@ -343,7 +343,7 @@
 
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
-      <button class="btn-valider" onclick="confirmerValidation()">✅ Valider et notifier</button>
+      <button class="btn-valider" onclick="confirmerValidation()">✅ Enregistrer l'affectation</button>
     </div>
   </div>
 </div>
@@ -365,10 +365,10 @@
   </div>
 </div>
 
-<!-- MODALE VALIDER MISSION -->
+<!-- MODALE AFFECTER MISSION -->
 <div class="modal-overlay" id="modalValiderMission">
   <div class="modal">
-    <h2>✅ Valider cette mission</h2>
+    <h2>🚙 Affecter un chauffeur et un véhicule</h2>
     <p class="subtitle" id="modalValiderMissionInfo"></p>
 
     <label>👤 Chauffeur à assigner *</label>
@@ -399,7 +399,7 @@
 
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
-      <button class="btn-valider" onclick="confirmerValidationMission()">✅ Valider et notifier</button>
+      <button class="btn-valider" onclick="confirmerValidationMission()">✅ Enregistrer l'affectation</button>
     </div>
   </div>
 </div>
@@ -463,7 +463,6 @@
   const EMAILJS_PUBLIC_KEY = "SUbWMSdrTf7JugMrS";
   const EMAILJS_SERVICE_ID = "service_e6k2e76";
   
-  // ID du template EmailJS (utilisé pour les véhicules ET les missions)
   const EMAILJS_TEMPLATE_ID = "template_gd96rfl"; 
   const EMAILJS_TEMPLATE_ID_MISSION = "template_gd96rfl"; 
 
@@ -809,17 +808,17 @@
 
       if (d.statut === 'en_attente') {
         actionsHtml = `
-          <button class="btn btn-valider" onclick="ouvrirModalValider(${d.id})">✅ Valider</button>
+          <button class="btn btn-valider" onclick="ouvrirModalValider(${d.id})">✅ Affecter</button>
           <button class="btn btn-refuser" onclick="ouvrirModalRefuser(${d.id})">❌ Rejeter</button>
         `;
       } else if (d.statut === 'validee') {
         const aUnNumero = CHAUFFEURS[d.chauffeur_assigne] !== undefined;
         resultatHtml = `<div class="resultat validee">
-          <strong>✅ Validée</strong> le ${formatNigerDate(d.date_validation)} (heure Niger)<br>
+          <strong>✅ Affectée</strong> le ${formatNigerDate(d.date_validation)} (heure Niger)<br>
           👤 Chauffeur : <strong>${d.chauffeur_assigne || '-'}</strong> |
           🚙 Véhicule : <strong>${d.vehicule_assigne || '-'}</strong>
           ${d.message_admin ? '<br>💬 ' + d.message_admin : ''}
-          ${d.valide_par ? `<span class="par-admin">✔ Validée par : ${d.valide_par}</span>` : ''}
+          ${d.valide_par ? `<span class="par-admin">✔ Traitée par : ${d.valide_par}</span>` : ''}
         </div>`;
         actionsHtml = `
           <button class="btn btn-print-admin" onclick="imprimerBonAdmin(${d.id})">🖨️ Imprimer le bon</button>
@@ -843,7 +842,7 @@
             <h3>${d.prenom} ${d.nom} <span>— ${d.poste}</span></h3>
             <span class="statut ${d.statut}">${
               d.statut === 'en_attente' ? '⏳ En attente' :
-              d.statut === 'validee' ? '✅ Validée' : '❌ Refusée'
+              d.statut === 'validee' ? '✅ Affectée' : '❌ Refusée'
             }</span>
           </div>
           <div class="demande-grid">
@@ -916,7 +915,7 @@
           statut: 'validee',
           chauffeur_assigne: chauffeur,
           vehicule_assigne: vehicule,
-          message_admin: message || 'Votre demande a été validée.',
+          message_admin: message || 'Votre demande a été traitée.',
           date_validation: new Date().toISOString(),
           valide_par: adminName
         })
@@ -925,9 +924,9 @@
       fermerModal();
       await chargerDemandes();
       await envoyerNotification(demandeEnCours, 'validee', {
-        chauffeur, vehicule, message: message || 'Votre demande a été validée.'
+        chauffeur, vehicule, message: message || 'Votre demande a été traitée.'
       });
-      alert(`✅ Demande validée par ${adminName} et email envoyé à l'agent !`);
+      alert(`✅ Demande traitée par ${adminName} et email envoyé à l'agent !`);
     } catch (err) {
       alert('❌ Erreur : ' + err.message);
     }
@@ -987,22 +986,22 @@
     let sujet, corps;
 
     if (statut === 'validee') {
-      sujet = `✅ DEMANDE VALIDÉE - Sortie du ${formatNigerDateShort(demande.date_sortie)}`;
+      sujet = `🚗 Affectation pour votre sortie du ${formatNigerDateShort(demande.date_sortie)}`;
       corps = `Bonjour ${demande.prenom} ${demande.nom},
 
-✅ VOTRE DEMANDE DE SORTIE A ÉTÉ VALIDÉE
+🚗 AFFECTATION DE VÉHICULE
+────────────────────────
+Votre demande de sortie a bien été traitée par le service logistique.
 
 📋 Détails de la sortie
-────────────────────────
 📅 Date : ${formatNigerDateShort(demande.date_sortie)}
 🕐 Heure de départ : ${demande.heure_depart}
 📍 Destination : ${demande.destination}
 ⏱ Durée estimée : ${demande.duree} minutes
 
-🚗 Affectation
-────────────────────────
+🚙 Moyens attribués
 👤 Chauffeur : ${details.chauffeur}
-🚙 Véhicule : ${details.vehicule}
+🚗 Véhicule : ${details.vehicule}
 
 💬 Message du service
 ${details.message}
@@ -1030,7 +1029,7 @@ Vous pouvez soumettre une nouvelle demande à tout moment.
 
 Cordialement,
 Service Logistique - ONG ADKOUL
-Solidarit�� • Éducation • Développement`;
+Solidarité • Éducation • Développement`;
     }
 
     try {
@@ -1193,8 +1192,8 @@ Solidarit�� • Éducation • Développement`;
             <div class="grid-2">
               <div class="ligne"><span class="label">Chauffeur</span><span class="valeur">${d.chauffeur_assigne || '—'}</span></div>
               <div class="ligne"><span class="label">Véhicule</span><span class="valeur">${d.vehicule_assigne || '—'}</span></div>
-              <div class="ligne"><span class="label">Validé par</span><span class="valeur">${d.valide_par || 'Service Logistique'}</span></div>
-              <div class="ligne"><span class="label">Date validation</span><span class="valeur">${validStr} (Niger)</span></div>
+              <div class="ligne"><span class="label">Traité par</span><span class="valeur">${d.valide_par || 'Service Logistique'}</span></div>
+              <div class="ligne"><span class="label">Date affectation</span><span class="valeur">${validStr} (Niger)</span></div>
             </div>
             ${d.message_admin ? `<div class="ligne" style="margin-top:3px;"><span class="label">Message</span><span class="valeur">${d.message_admin}</span></div>` : ''}
           </div>
@@ -1238,7 +1237,7 @@ Solidarit�� • Éducation • Développement`;
     const dateStr = formatNigerDateShort(d.date_sortie);
     const message = `Bonjour ${chauffeur},
 
-🚗 *NOUVELLE MISSION VALIDÉE*
+🚗 *NOUVELLE AFFECTATION*
 
 📋 Détails de la sortie :
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -1306,16 +1305,16 @@ _ONG ADKOUL_`;
 
       if (m.statut === 'en_attente') {
         actionsHtml = `
-          <button class="btn btn-valider" onclick="ouvrirModalValiderMission(${m.id})">✅ Valider</button>
+          <button class="btn btn-valider" onclick="ouvrirModalValiderMission(${m.id})">✅ Affecter</button>
           <button class="btn btn-refuser" onclick="ouvrirModalRefuserMission(${m.id})">❌ Rejeter</button>
         `;
       } else if (m.statut === 'validee') {
         resultatHtml = `<div class="resultat validee">
-          <strong>✅ Validée</strong> le ${formatNigerDate(m.date_validation)} (heure Niger)<br>
+          <strong>✅ Affectée</strong> le ${formatNigerDate(m.date_validation)} (heure Niger)<br>
           👤 Chauffeur : <strong>${m.chauffeur_assigne || '-'}</strong> |
           🚙 Véhicule : <strong>${m.vehicule_assigne || '-'}</strong>
           ${m.message_admin ? '<br>💬 ' + m.message_admin : ''}
-          ${m.valide_par ? `<span class="par-admin">✔ Validée par : ${m.valide_par}</span>` : ''}
+          ${m.valide_par ? `<span class="par-admin">✔ Traitée par : ${m.valide_par}</span>` : ''}
         </div>`;
       } else if (m.statut === 'refusee') {
         resultatHtml = `<div class="resultat refusee">
@@ -1332,7 +1331,7 @@ _ONG ADKOUL_`;
             <h3>${m.titre_mission || 'Mission sans titre'} <span>— ${m.nom}</span></h3>
             <span class="statut ${m.statut}">${
               m.statut === 'en_attente' ? '⏳ En attente' :
-              m.statut === 'validee' ? '✅ Validée' : '❌ Refusée'
+              m.statut === 'validee' ? '✅ Affectée' : '❌ Refusée'
             }</span>
           </div>
           <div class="demande-grid">
@@ -1407,7 +1406,7 @@ _ONG ADKOUL_`;
           statut: 'validee',
           chauffeur_assigne: chauffeur,
           vehicule_assigne: vehicule,
-          message_admin: message || 'Votre mission a été validée.',
+          message_admin: message || 'Votre mission a été traitée.',
           date_validation: new Date().toISOString(),
           valide_par: adminName
         })
@@ -1416,9 +1415,9 @@ _ONG ADKOUL_`;
       fermerModal();
       await chargerMissions();
       await envoyerNotificationMission(missionEnCours, 'validee', {
-        chauffeur, vehicule, message: message || 'Votre mission a été validée.'
+        chauffeur, vehicule, message: message || 'Votre mission a été traitée.'
       });
-      alert(`✅ Mission validée par ${adminName} et email envoyé à l'agent !`);
+      alert(`✅ Mission traitée par ${adminName} et email envoyé à l'agent !`);
     } catch (err) {
       alert('❌ Erreur : ' + err.message);
     }
@@ -1474,27 +1473,27 @@ _ONG ADKOUL_`;
     let sujet, corps;
 
     if (statut === 'validee') {
-      sujet = `✅ MISSION VALIDÉE - ${mission.titre_mission}`;
+      sujet = `🚗 Affectation pour votre mission : ${mission.titre_mission}`;
       corps = `Bonjour ${mission.nom},
 
-✅ VOTRE MISSION TERRAIN A ÉTÉ VALIDÉE
+🚗 AFFECTATION DE VÉHICULE ET CHAUFFEUR
+────────────────────────
+Votre demande de mission a bien été traitée par le service logistique.
 
 📋 Détails de la mission
-────────────────────────
 🧭 Titre : ${mission.titre_mission}
 📍 Lieu : ${mission.lieu}
 📅 Dates : du ${formatNigerDateShort(mission.date_debut)} au ${formatNigerDateShort(mission.date_fin)}
 🗺️ Itinéraire : ${mission.itineraire}
 
-🚗 Affectation
-────────────────────────
+🚙 Moyens attribués
 👤 Chauffeur : ${details.chauffeur}
-🚙 Véhicule : ${details.vehicule}
+🚗 Véhicule : ${details.vehicule}
 
-💬 Message du service
+💬 Message du service logistique
 ${details.message}
 
-⏰ Merci de vous préparer pour le départ.
+👉 Vous pouvez désormais utiliser ces informations pour remplir votre ordre de mission RH.
 
 Cordialement,
 Service Logistique - ONG ADKOUL

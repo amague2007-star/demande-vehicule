@@ -109,22 +109,6 @@
     background-size: 16px; padding-right: 2.5rem;
   }
 
-  /* RADIO */
-  .radio-group { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.25rem; }
-  .radio-item {
-    display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem;
-    font-weight: 500; color: var(--gray-700); cursor: pointer;
-    padding: 0.55rem 1rem; border-radius: 10px;
-    border: 1.5px solid var(--gray-200); background: var(--gray-50);
-    transition: all 0.2s ease; user-select: none;
-  }
-  .radio-item:hover { border-color: var(--primary-light); background: #fff; }
-  .radio-item input[type="radio"] { accent-color: var(--primary); cursor: pointer; margin: 0; width: 16px; height: 16px; }
-  .radio-item:has(input:checked) {
-    border-color: var(--primary-light); background: rgba(37, 99, 235, 0.07);
-    color: var(--primary-dark); font-weight: 600;
-  }
-
   .info-box {
     padding: 0.9rem 1.1rem; border-radius: 10px;
     background: #eff6ff; border: 1.5px solid #bfdbfe;
@@ -178,7 +162,7 @@
       ONG ADKOUL (Retour)
     </a>
     <h1>Demande de Mission Terrain</h1>
-    <p>Formulaire officiel — itinéraire et attribution du chauffeur</p>
+    <p>Formulaire officiel — planification et détails de la mission</p>
   </header>
 
   <div class="card">
@@ -250,21 +234,11 @@
           <textarea id="m_itineraire" required placeholder="Décrivez le trajet : point de départ → étapes → destination finale. Ex : Cotonou → Bohicon → Dassa → Parakou → retour Cotonou"></textarea>
         </div>
         
-        <div class="grid-2">
-          <div class="form-group">
-            <label for="m_participants">Nombre de participants</label>
-            <input type="number" id="m_participants" min="1" placeholder="Ex : 4">
-          </div>
-          <div class="form-group">
-            <label for="m_vehicule">Véhicule (facultatif)</label>
-            <select id="m_vehicule">
-              <option value="" selected>— Aucun pour l'instant —</option>
-              <option value="Toyota Hilux">Toyota Hilux</option>
-              <option value="Toyota Land Cruiser">Toyota Land Cruiser</option>
-              <option value="Nissan Patrol">Nissan Patrol</option>
-            </select>
-          </div>
+        <div class="form-group">
+          <label for="m_participants">Nombre de participants</label>
+          <input type="number" id="m_participants" min="1" placeholder="Ex : 4">
         </div>
+        
         <div class="form-group">
           <label for="m_description">Description / Objectifs <span class="required">*</span></label>
           <textarea id="m_description" placeholder="Décrivez brièvement le contexte et les objectifs..." required></textarea>
@@ -273,40 +247,19 @@
 
       <div class="divider"></div>
 
-      <!-- CHAUFFEUR -->
+      <!-- ATTRIBUTION -->
       <div class="form-section">
-        <div class="section-title"><span class="icon">🧑‍✈️</span> Attribution du chauffeur</div>
+        <div class="section-title"><span class="icon">🚙</span> Affectation (Réservé à l'administration)</div>
+        
+        <div class="info-box" style="margin-bottom: 1rem;">
+          ℹ️ Le choix du <strong>véhicule</strong> et du <strong>chauffeur</strong> sera effectué par le responsable logistique lors de la validation de votre demande.
+        </div>
+        
         <div class="form-group">
-          <label>Comment gérer le chauffeur ? <span class="required">*</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="mode_chauffeur" value="interne" checked><span>Chauffeur interne</span></label>
-            <label class="radio-item"><input type="radio" name="mode_chauffeur" value="attribution"><span>Attribution par le responsable</span></label>
-            <label class="radio-item"><input type="radio" name="mode_chauffeur" value="externe"><span>Chauffeur externe</span></label>
-          </div>
+          <label for="m_competences">Besoins particuliers / Compétences requises (optionnel)</label>
+          <input type="text" id="m_competences" placeholder="Ex : connaissance de la zone, permis poids lourd, langue locale...">
         </div>
-        <div id="champInterne" class="form-group">
-          <label for="m_chauffeur">Chauffeur interne <span class="required">*</span></label>
-          <select id="m_chauffeur">
-            <option value="" disabled selected>— Sélectionner un chauffeur —</option>
-            <option value="M. Koffi">M. Koffi</option>
-            <option value="M. Adjamossi">M. Adjamossi</option>
-            <option value="M. Sossou">M. Sossou</option>
-            <option value="Mme Dossou">Mme Dossou</option>
-          </select>
-        </div>
-        <div id="champAttribution" class="form-group" style="display:none;">
-          <div class="info-box">ℹ️ Un chauffeur vous sera attribué par le responsable logistique.</div>
-        </div>
-        <div id="champExterne" class="grid-2" style="display:none;">
-          <div class="form-group">
-            <label for="m_chauffeur_ext_nom">Nom du chauffeur <span class="required">*</span></label>
-            <input type="text" id="m_chauffeur_ext_nom" placeholder="Nom">
-          </div>
-          <div class="form-group">
-            <label for="m_chauffeur_ext_tel">Téléphone <span class="required">*</span></label>
-            <input type="tel" id="m_chauffeur_ext_tel" placeholder="Téléphone">
-          </div>
-        </div>
+
         <div class="form-group">
           <label for="m_observations">Observations</label>
           <textarea id="m_observations" placeholder="Facultatif..." style="min-height:70px;"></textarea>
@@ -358,50 +311,6 @@
     mDateFin.min = mDateDebut.value;
   });
 
-  // Mode Chauffeur dynamique
-  const modeRadios = document.querySelectorAll('input[name="mode_chauffeur"]');
-  const champInterne = document.getElementById('champInterne');
-  const champAttribution = document.getElementById('champAttribution');
-  const champExterne = document.getElementById('champExterne');
-  const selectChauffeur = document.getElementById('m_chauffeur');
-  const inputExtNom = document.getElementById('m_chauffeur_ext_nom');
-  const inputExtTel = document.getElementById('m_chauffeur_ext_tel');
-
-  function getModeChauffeur() {
-    return document.querySelector('input[name="mode_chauffeur"]:checked').value;
-  }
-
-  function updateChauffeurFields() {
-    const mode = getModeChauffeur();
-    champInterne.style.display = 'none';
-    champAttribution.style.display = 'none';
-    champExterne.style.display = 'none';
-    
-    selectChauffeur.removeAttribute('required');
-    inputExtNom.removeAttribute('required');
-    inputExtTel.removeAttribute('required');
-
-    if (mode === 'interne') {
-      champInterne.style.display = 'flex'; 
-      selectChauffeur.setAttribute('required', 'required');
-    } else if (mode === 'attribution') {
-      champAttribution.style.display = 'block';
-    } else if (mode === 'externe') {
-      champExterne.style.display = 'grid';
-      inputExtNom.setAttribute('required', 'required');
-      inputExtTel.setAttribute('required', 'required');
-    }
-  }
-  modeRadios.forEach(r => r.addEventListener('change', updateChauffeurFields));
-  updateChauffeurFields();
-
-  function getNomChauffeurFinal() {
-    const mode = getModeChauffeur();
-    if (mode === 'interne') return selectChauffeur.value || 'Non sélectionné';
-    if (mode === 'attribution') return 'À attribuer par le responsable logistique';
-    return `Externe : ${inputExtNom.value.trim()} — ${inputExtTel.value.trim()}`;
-  }
-
   // Soumission du formulaire
   const form = document.getElementById('missionForm');
   const msgBox = document.getElementById('msgMission');
@@ -440,11 +349,10 @@
       itineraire: document.getElementById('m_itineraire').value.trim(),
       participants: document.getElementById('m_participants').value || null,
       description: document.getElementById('m_description').value.trim(),
-      mode_chauffeur: getModeChauffeur(),
-      chauffeur: getNomChauffeurFinal(),
-      vehicule: document.getElementById('m_vehicule').value,
+      competences: document.getElementById('m_competences').value.trim() || null,
       observations: document.getElementById('m_observations').value.trim(),
       statut: 'en_attente'
+      // Les champs 'chauffeur' et 'vehicule' seront remplis par l'admin.
     };
 
     btn.disabled = true;
@@ -468,9 +376,8 @@
       }
 
       msgBox.className = 'message-box success';
-      msgIcon.textContent = '✅'; msgText.textContent = `Mission envoyée avec succès ! En attente de validation.`;
+      msgIcon.textContent = '✅'; msgText.textContent = `Mission envoyée avec succès ! En attente d'affectation par l'administration.`;
       form.reset();
-      updateChauffeurFields();
 
     } catch (err) {
       msgBox.className = 'message-box error';

@@ -113,6 +113,7 @@
     padding: 0.9rem 1.1rem; border-radius: 10px;
     background: #eff6ff; border: 1.5px solid #bfdbfe;
     color: #1e40af; font-size: 0.88rem; line-height: 1.5;
+    margin-bottom: 1.5rem;
   }
 
   .divider { height: 1px; background: var(--gray-100); margin: 0.25rem 0 2rem; }
@@ -162,7 +163,7 @@
       ONG ADKOUL (Retour)
     </a>
     <h1>Demande de Mission Terrain</h1>
-    <p>Formulaire officiel — planification et détails de la mission</p>
+    <p>Formulaire officiel — planification de la mission</p>
   </header>
 
   <div class="card">
@@ -247,22 +248,10 @@
 
       <div class="divider"></div>
 
-      <!-- INFORMATIONS COMPLÉMENTAIRES -->
-      <div class="form-section">
-        <div class="section-title"><span class="icon">📝</span> Informations complémentaires</div>
-        
-        <div class="info-box" style="margin-bottom: 1.25rem;">
-          ℹ️ Le choix du <strong>véhicule</strong> et du <strong>chauffeur</strong> sera effectué par le responsable logistique lors de la validation de votre demande.
-        </div>
-
-        <div class="form-group">
-          <label for="m_competences">Besoins particuliers / Compétences requises (optionnel)</label>
-          <input type="text" id="m_competences" placeholder="Ex : connaissance de la zone, permis poids lourd, langue locale...">
-        </div>
-
-        <div class="form-group">
-          <label for="m_observations">Observations</label>
-          <textarea id="m_observations" placeholder="Facultatif..." style="min-height:70px;"></textarea>
+      <!-- INFO ADMIN -->
+      <div class="form-section" style="margin-bottom: 1rem;">
+        <div class="info-box">
+          ℹ️ Le choix du <strong>véhicule</strong> et du <strong>chauffeur</strong> sera effectué par le responsable logistique lors du traitement de votre demande.
         </div>
       </div>
 
@@ -325,7 +314,7 @@
     // Validation
     let isValid = true;
     form.querySelectorAll('[required]').forEach(field => {
-      if (field.offsetParent === null) return; // Ignore les champs cachés
+      if (field.offsetParent === null) return;
       if (!field.value.trim()) { markInvalid(field); isValid = false; }
     });
 
@@ -349,10 +338,8 @@
       itineraire: document.getElementById('m_itineraire').value.trim(),
       participants: document.getElementById('m_participants').value || null,
       description: document.getElementById('m_description').value.trim(),
-      competences: document.getElementById('m_competences').value.trim() || null,
-      observations: document.getElementById('m_observations').value.trim(),
       statut: 'en_attente'
-      // Les champs 'chauffeur' et 'vehicule' seront ajoutés par l'admin plus tard
+      // Le chauffeur et le véhicule seront ajoutés par l'admin
     };
 
     btn.disabled = true;

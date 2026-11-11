@@ -256,6 +256,7 @@
           </div>
         </div>
 
+        <!-- LE MOYEN DE DEPLACEMENT EST DE RETOUR, AVEC LA LISTE EXACTE -->
         <div class="grid-2">
           <div class="form-group">
             <label for="om_moyen">Moyen de déplacement <span class="required">*</span></label>
@@ -375,7 +376,7 @@
     const emailDemandeur = document.getElementById('om_email').value.trim();
     const nomDemandeur = document.getElementById('om_nom').value.trim();
 
-    // Préparation des données
+    // Préparation des données pour la NOUVELLE table "missions_2"
     const newOrdreMission = {
       nom: nomDemandeur,
       poste: document.getElementById('om_poste').value.trim(),
@@ -386,7 +387,7 @@
       objectif: document.getElementById('om_objectif').value.trim(),
       date_depart: dateDepart.value,
       date_retour: dateRetour.value,
-      moyen_deplacement: document.getElementById('om_moyen').value,
+      moyen_deplacement: document.getElementById('om_moyen').value, // LA VALEUR SELECTIONNEE
       imputation_budgetaire: document.getElementById('om_budget').value.trim(),
       statut: 'en_attente'
     };

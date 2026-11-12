@@ -47,6 +47,12 @@
   .filters select, .filters button { padding:10px 18px; border:2px solid #e0e0e0; border-radius:8px; font-size:14px; background:#fff; cursor:pointer; font-weight:600; }
   .filters button { background:#1e3c72; color:#fff; border-color:#1e3c72; }
 
+  /* NOUVEAU : MENU PAR ONGLETS (RUBRIQUES) */
+  .type-tabs { display:flex; gap:10px; padding:0 30px 20px; flex-wrap:wrap; }
+  .type-tab { padding:10px 18px; border:2px solid #e0e0e0; border-radius:8px; font-size:14px; background:#fff; cursor:pointer; font-weight:600; color:#555; transition:0.2s; }
+  .type-tab:hover { background:#f8f9fa; }
+  .type-tab.active { background:#1e3c72; color:#fff; border-color:#1e3c72; }
+
   .demandes-container { padding:0 30px 40px; }
   .demande-item { background:#fff; border-radius:12px; padding:22px; box-shadow:0 3px 15px rgba(0,0,0,0.08); margin-bottom:18px; border-left:6px solid #f39c12; }
   .demande-item.validee { border-left-color:#27ae60; background:#f8fff9; }
@@ -136,6 +142,7 @@
     .user-row { flex-direction:column; align-items:flex-start; }
     .user-actions { width:100%; }
     .btn-del-user { flex:1; justify-content:center; }
+    .type-tab { flex: 1 1 30%; text-align: center; }
   }
 </style>
 </head>
@@ -198,20 +205,32 @@
     </div>
   </div>
 
-  <!-- SECTION ORDRES DE MISSION -->
+  <!-- SECTION ORDRES DE MISSION (AVEC ONGLETS PAR RUBRIQUE) -->
   <div id="ordresSection" style="display:none;">
+    
+    <!-- NOUVEAU : LES 5 ONGLETS -->
+    <div class="type-tabs" id="typeTabs">
+      <button class="type-tab active" onclick="changerTypeOrdre('tous', this)">📁 Tous</button>
+      <button class="type-tab" onclick="changerTypeOrdre('Véhicule UNHCR', this)">🚙 UNHCR</button>
+      <button class="type-tab" onclick="changerTypeOrdre('Véhicule Partenaire', this)">🤝 Partenaire</button>
+      <button class="type-tab" onclick="changerTypeOrdre('Véhicule Location', this)">🏢 Location</button>
+      <button class="type-tab" onclick="changerTypeOrdre('Bus', this)">🚌 Bus</button>
+      <button class="type-tab" onclick="changerTypeOrdre('Avion', this)">✈️ Vol</button>
+    </div>
+
     <div class="stats">
       <div class="stat-card" style="border-left-color:#f39c12;"><div class="label">⏳ À traiter (Logistique)</div><div class="value" id="statOrdresAttente">0</div></div>
       <div class="stat-card" style="border-left-color:#f39c12;"><div class="label">⏳ À traiter (RH)</div><div class="value" id="statOrdresAffectes">0</div></div>
       <div class="stat-card validees"><div class="label">✅ Validés</div><div class="value" id="statOrdresValides">0</div></div>
       <div class="stat-card total"><div class="label">📊 Total</div><div class="value" id="statOrdresTotal">0</div></div>
     </div>
+    
     <div class="filters">
       <select id="filtreStatutOrdre" onchange="afficherOrdres()">
         <option value="en_attente" selected>⏳ En attente (Logistique)</option>
         <option value="affecte_logistique">⏳ En attente (RH)</option>
         <option value="validee">✅ Validés</option>
-        <option value="tous">📋 Tous</option>
+        <option value="tous">📋 Tous les statuts</option>
       </select>
       <button onclick="chargerOrdres()">🔄 Rafraîchir</button>
     </div>
@@ -414,6 +433,7 @@
   let demandeEnCours = null, toutesLesDemandes = [];
   let ordreEnCours = null, tousLesOrdres = [];
   let tousLesUsers = [];
+  let typeOrdreActif = 'tous'; // Pour gérer l'onglet actif (UNHCR, Partenaire, etc.)
 
   // DATES
   function formatNigerDate(dateStr) {
@@ -479,23 +499,19 @@
 
     // GESTION DES DROITS D'ACCÈS SELON LE RÔLE
     if (role === 'rh') {
-      // RH : Uniquement Ordres de Mission
       document.getElementById('navDemandes').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
       afficherSection('ordres');
     } else if (role === 'assistant_logistique') {
-      // Assistant Logistique : Uniquement Demandes Véhicules (filtrées Location)
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navOrdres').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
       afficherSection('demandes');
     } else if (role === 'directeur_logistique') {
-      // Directeur Logistique : Uniquement Ordres de Mission (lecture seule)
       document.getElementById('navDemandes').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
       afficherSection('ordres');
     } else {
-      // Logistique Admin : Tout
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navOrdres').style.display = 'block';
       document.getElementById('navUsers').style.display = 'block';
@@ -633,7 +649,6 @@
     
     let listeBase = toutesLesDemandes;
     
-    // FILTRE POUR L'ASSISTANT LOGISTIQUE (LOCATION UNIQUEMENT)
     if (role === 'assistant_logistique') {
       listeBase = toutesLesDemandes.filter(d => 
         (d.motif && d.motif.toLowerCase().includes('location')) || 
@@ -641,7 +656,6 @@
       );
     }
 
-    // MISE A JOUR DES STATS BASÉES SUR LE FILTRE
     document.getElementById('statAttente').textContent = listeBase.filter(d => d.statut === 'en_attente').length;
     document.getElementById('statValidees').textContent = listeBase.filter(d => d.statut === 'validee').length;
     document.getElementById('statRefusees').textContent = listeBase.filter(d => d.statut === 'refusee').length;
@@ -747,30 +761,53 @@
 
   async function supprimerDemande(id) { if (confirm('Supprimer ?')) { await apiCall('/demandes?id=eq.' + id, { method: 'DELETE' }); chargerDemandes(); } }
 
-  // ORDRES DE MISSION
+  // ==========================================
+  // ORDRES DE MISSION (AVEC GESTION DES ONGLETS)
+  // ==========================================
+  
+  function changerTypeOrdre(type, btn) {
+    typeOrdreActif = type;
+    document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    afficherOrdres(); // On rafraichit l'affichage avec le nouveau filtre
+  }
+
   async function chargerOrdres() {
     const container = document.getElementById('ordresContainer');
     container.innerHTML = '<div class="loading">Chargement...</div>';
     try {
       tousLesOrdres = await apiCall('/missions_2?order=created_at.desc');
-      document.getElementById('statOrdresAttente').textContent = tousLesOrdres.filter(o => o.statut === 'en_attente').length;
-      document.getElementById('statOrdresAffectes').textContent = tousLesOrdres.filter(o => o.statut === 'affecte_logistique').length;
-      document.getElementById('statOrdresValides').textContent = tousLesOrdres.filter(o => o.statut === 'validee').length;
-      document.getElementById('statOrdresTotal').textContent = tousLesOrdres.length;
       afficherOrdres();
     } catch (err) { container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>'; }
   }
 
   function afficherOrdres() {
-    const filtre = document.getElementById('filtreStatutOrdre').value;
+    const filtreStatut = document.getElementById('filtreStatutOrdre').value;
     const container = document.getElementById('ordresContainer');
-    let liste = tousLesOrdres.filter(o => filtre === 'tous' || o.statut === filtre);
-    
-    if (liste.length === 0) { container.innerHTML = '<div class="empty">📭 Aucun ordre de mission</div>'; return; }
-    
     const role = getAdminRole();
+    
+    // 1. FILTRE PAR ONGLET (RUBRIQUE)
+    let listeBase = tousLesOrdres;
+    if (typeOrdreActif !== 'tous') {
+      // On compare le moyen_deplacement de la mission avec l'onglet sélectionné
+      listeBase = listeBase.filter(o => o.moyen_deplacement === typeOrdreActif);
+    }
 
-    container.innerHTML = liste.map(o => {
+    // 2. MISE A JOUR DES STATISTIQUES (CARTES)
+    document.getElementById('statOrdresAttente').textContent = listeBase.filter(o => o.statut === 'en_attente').length;
+    document.getElementById('statOrdresAffectes').textContent = listeBase.filter(o => o.statut === 'affecte_logistique').length;
+    document.getElementById('statOrdresValides').textContent = listeBase.filter(o => o.statut === 'validee').length;
+    document.getElementById('statOrdresTotal').textContent = listeBase.length;
+
+    // 3. FILTRE PAR STATUT (MENU DÉROULANT)
+    let listeFinale = listeBase.filter(o => filtreStatut === 'tous' || o.statut === filtreStatut);
+    
+    if (listeFinale.length === 0) { 
+      container.innerHTML = '<div class="empty">📭 Aucun ordre de mission pour cette rubrique</div>'; 
+      return; 
+    }
+
+    container.innerHTML = listeFinale.map(o => {
       let actionsHtml = ''; let resultatHtml = '';
       
       if (o.statut === 'en_attente') {
@@ -790,7 +827,6 @@
         actionsHtml = `<button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>`;
       }
       
-      // Seul le super admin peut supprimer
       if (role === 'logistique') {
         actionsHtml += `<button class="btn btn-suppr" onclick="supprimerOrdre(${o.id})">🗑️ Supprimer</button>`;
       }
@@ -805,7 +841,7 @@
             <div class="info-item"><strong>📅 Départ</strong>${formatNigerDateShort(o.date_depart)}</div>
             <div class="info-item"><strong>📅 Retour</strong>${formatNigerDateShort(o.date_retour)}</div>
             <div class="info-item"><strong>🧭 Objectif</strong>${o.objectif}</div>
-            <div class="info-item"><strong>🚌 Moyen</strong>${o.moyen_deplacement}</div>
+            <div class="info-item"><strong>🚌 Moyen demandé</strong>${o.moyen_deplacement}</div>
             <div class="info-item"><strong>💼 Poste</strong>${o.poste}</div>
             <div class="info-item"><strong>👥 Accompagnateurs</strong>${o.accompagnateurs || 'Aucun'}</div>
           </div>
@@ -829,7 +865,10 @@
     if (!ordreEnCours) return;
     document.getElementById('modalValiderOrdreInfo').textContent = `Mission à ${ordreEnCours.destination} pour ${ordreEnCours.nom}`;
     document.getElementById('selectChauffeurOrdre').value = ''; document.getElementById('inputChauffeurOrdreAutre').style.display = 'none'; document.getElementById('inputChauffeurOrdreAutre').value = '';
-    document.getElementById('selectVehiculeOrdreType').value = 'Véhicule UNHCR';
+    
+    // Pré-sélectionner le type de véhicule selon ce que l'agent a demandé
+    document.getElementById('selectVehiculeOrdreType').value = ordreEnCours.moyen_deplacement;
+    
     document.getElementById('inputVehiculeOrdreMarque').value = '';
     document.getElementById('inputVehiculeOrdreCouleur').value = '';
     document.getElementById('inputVehiculeOrdreImmat').value = '';

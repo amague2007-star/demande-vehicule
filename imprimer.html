@@ -7,6 +7,14 @@
 <style>
   body { font-family: Arial, Helvetica, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
   .document { background: #fff; max-width: 800px; margin: 0 auto; padding: 40px 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); color: #000; }
+  
+  /* NOUVEAU : Style pour l'en-tête image */
+  .entete-document {
+    width: 100%;
+    margin-bottom: 30px;
+    display: block;
+  }
+
   .header h1 { font-size: 24px; font-weight: bold; margin: 0 0 5px 0; }
   .header h2 { font-size: 14px; font-weight: normal; font-style: italic; margin: 0 0 20px 0; color: #333; }
   .titre-om { text-align: center; font-size: 20px; font-weight: bold; margin: 20px 0 30px 0; }
@@ -70,7 +78,6 @@
     if (!ordreId) { refuser("Aucun identifiant fourni dans le lien."); return; }
 
     try {
-      // Requête directe à Supabase sans vérification d'authentification stricte
       const response = await fetch(`${SUPABASE_URL}/rest/v1/missions_2?id=eq.${encodeURIComponent(ordreId)}&select=*`, {
         headers: {
           'apikey': SUPABASE_KEY,
@@ -88,7 +95,13 @@
       if (data && data.length > 0) {
         const d = data[0];
         
+        // ⚠️ REMPLACEZ LE LIEN CI-DESSOUS PAR LE LIEN DE VOTRE IMAGE ⚠️
+        const lienEntete = "https://github.com/amague2007-star/demande-vehicule/assets/VOTRE_ID_IMAGE"; 
+
         document.getElementById('documentContent').innerHTML = `
+          <!-- EN-TÊTE AVEC IMAGE -->
+          <img src="${lienEntete}" alt="En-tête ONG ADKOUL" class="entete-document">
+
           <!-- PAGE 1 -->
           <div class="header">
             <h1>ONG ADKOUL</h1>

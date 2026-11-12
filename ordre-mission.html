@@ -221,6 +221,20 @@
       <div class="form-section">
         <div class="section-title"><span class="icon">📄</span> Détails de l'ordre de mission</div>
         
+        <!-- NOUVEAU : PROJET -->
+        <div class="form-group">
+          <label for="om_projet">Projet concerné <span class="required">*</span></label>
+          <select id="om_projet" required>
+            <option value="" disabled selected>— Sélectionner le projet —</option>
+            <option value="HCR">HCR</option>
+            <option value="PAM">PAM</option>
+            <option value="UNICEF">UNICEF</option>
+            <option value="ECHO">ECHO</option>
+            <option value="Fonds Propres">Fonds Propres</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+
         <!-- ACCOMPAGNATEURS DYNAMIQUES -->
         <div class="form-group">
           <label>Accompagnateur(s)</label>
@@ -256,7 +270,6 @@
           </div>
         </div>
 
-        <!-- LE MOYEN DE DEPLACEMENT EST DE RETOUR, AVEC LA LISTE EXACTE -->
         <div class="grid-2">
           <div class="form-group">
             <label for="om_moyen">Moyen de déplacement <span class="required">*</span></label>
@@ -264,7 +277,7 @@
               <option value="" disabled selected>— Sélectionner —</option>
               <option value="Véhicule UNHCR">Véhicule UNHCR</option>
               <option value="Véhicule Partenaire">Véhicule Partenaire</option>
-              <option value="Véhicule de Location">Véhicule de Location</option>
+              <option value="Véhicule Location">Véhicule de Location</option>
               <option value="Bus">Bus</option>
               <option value="Avion">Avion</option>
             </select>
@@ -376,8 +389,9 @@
     const emailDemandeur = document.getElementById('om_email').value.trim();
     const nomDemandeur = document.getElementById('om_nom').value.trim();
 
-    // Préparation des données pour la NOUVELLE table "missions_2"
+    // Préparation des données
     const newOrdreMission = {
+      projet: document.getElementById('om_projet').value, // <-- NOUVEAU CHAMP
       nom: nomDemandeur,
       poste: document.getElementById('om_poste').value.trim(),
       bureau: document.getElementById('om_bureau').value.trim(),
@@ -387,7 +401,7 @@
       objectif: document.getElementById('om_objectif').value.trim(),
       date_depart: dateDepart.value,
       date_retour: dateRetour.value,
-      moyen_deplacement: document.getElementById('om_moyen').value, // LA VALEUR SELECTIONNEE
+      moyen_deplacement: document.getElementById('om_moyen').value,
       imputation_budgetaire: document.getElementById('om_budget').value.trim(),
       statut: 'en_attente'
     };
@@ -414,7 +428,7 @@
       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
         to_email: emailDemandeur + ", abdoulnasser@adkoul.org, h.almoustapha@adkoul.org",
         subject: `⏳ Demande d'Ordre de Mission enregistrée - ${nomDemandeur}`,
-        message: `Bonjour ${nomDemandeur},\n\nVotre demande d'ordre de mission pour ${newOrdreMission.destination} a bien été transmise au service logistique.\n\nElle est actuellement en attente d'affectation d'un chauffeur et d'un véhicule. Vous recevrez un nouvel e-mail avec votre numéro d'ordre de mission dès que les RH l'auront validé.\n\n📋 Détails :\n📅 Départ : ${newOrdreMission.date_depart}\n📅 Retour : ${newOrdreMission.date_retour}\n📍 Destination : ${newOrdreMission.destination}\n🚌 Moyen : ${newOrdreMission.moyen_deplacement}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`
+        message: `Bonjour ${nomDemandeur},\n\nVotre demande d'ordre de mission pour le projet ${newOrdreMission.projet} à ${newOrdreMission.destination} a bien été transmise au service logistique.\n\nElle est actuellement en attente d'affectation d'un chauffeur et d'un véhicule. Vous recevrez un nouvel e-mail avec votre numéro d'ordre de mission dès que les RH l'auront validé.\n\n📋 Détails :\n📅 Départ : ${newOrdreMission.date_depart}\n📅 Retour : ${newOrdreMission.date_retour}\n📍 Destination : ${newOrdreMission.destination}\n🚌 Moyen : ${newOrdreMission.moyen_deplacement}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`
       });
 
       msgBox.className = 'message-box success';

@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ONG ADKOUL — Portail des Demandes</title>
+  
+<!-- ========================================== -->
+<!-- NOUVEAU : BALISES POUR L'APPLICATION MOBILE -->
+<!-- ========================================== -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1e3c72">
+<link rel="apple-touch-icon" href="https://amague2007-star.github.io/demande-vehicule/logo.png">
+<!-- ========================================== -->
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -242,7 +251,7 @@
 
   <main class="menu-container">
     
-    <!-- CARTE 1 : SORTIE VÉHICULE (Laissée telle quelle) -->
+    <!-- CARTE 1 : SORTIE VÉHICULE -->
     <a href="vehicule.html" class="menu-card">
       <div class="card-icon">🚗</div>
       <h2>Sortie de Véhicule</h2>
@@ -264,6 +273,23 @@
     <strong>ONG ADKOUL</strong> — Solidarité • Éducation • Développement<br>
     Toute demande est soumise à validation par le responsable logistique.
   </footer>
+
+  <!-- ========================================== -->
+  <!-- SCRIPT POUR ACTIVER L'APPLICATION MOBILE   -->
+  <!-- ========================================== -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(registration => {
+            console.log('Service Worker enregistré avec succès:', registration.scope);
+          })
+          .catch(error => {
+            console.log('Échec de l\'enregistrement du Service Worker:', error);
+          });
+      });
+    }
+  </script>
 
 </body>
 </html>

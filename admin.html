@@ -2,230 +2,1108 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow">
-<title>ADKOUL — Administration logistique</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - ONG ADKOUL - Gestion Logistique</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
-:root{font-family:Arial,Helvetica,sans-serif;color:#14233c;background:#f3f6fb}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh}
-button,input{font:inherit}
-button{cursor:pointer}
-button:disabled{cursor:wait;opacity:.6}
-a{color:#1e40af}
-#pageConnexion{min-height:100vh;display:grid;place-items:center;background:linear-gradient(120deg,#1e3c72,#2856bc);padding:16px}
-.connexion{background:#fff;border-radius:16px;padding:32px;width:min(100%,420px);box-shadow:0 12px 35px #10274a55}
-h1{font-size:1.65rem;color:#173871}
-h2{font-size:1.25rem}
-.connexion h1{text-align:center}
-.connexion label{display:block;margin:16px 0 6px;font-weight:700}
-.connexion input{width:100%;padding:12px;border:1px solid #aeb9cb;border-radius:8px}
-.action{border:0;border-radius:9px;background:#2059bd;color:#fff;padding:11px 16px;font-weight:700}
-.connexion .action{width:100%;margin-top:22px}
-.error{color:#b42318}
-.notice{color:#46566c}
-#messageConnexion{min-height:24px}
-#application{display:none}
-header{background:#173871;color:white;padding:18px clamp(16px,4vw,48px);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
-header strong{font-size:1.35rem}
-header small{display:block;margin-top:5px;opacity:.9}
-.logout{background:#bd3030}
-main{max-width:1200px;padding:28px 16px;margin:0 auto}
-.intro{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.intro h1{margin:0}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:20px 0}
-.stat{background:#fff;border:1px solid #e5ebf5;border-radius:10px;padding:16px}
-.stat strong{display:block;font-size:1.8rem;margin-top:8px;color:#17407e}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
-.tabs button{border:1px solid #bccae2;background:#fff;color:#173871;border-radius:8px;padding:12px 14px}
-.tabs button[aria-selected="true"]{background:#173871;color:white}
-.panel{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px}
-.controls{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:14px 0}
-#filtre{border:1px solid #aeb9cb;border-radius:8px;padding:11px;max-width:100%;width:310px}
-.tableWrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:600px}
-th,td{padding:12px 9px;border-bottom:1px solid #e5eaf2;text-align:left;font-size:.92rem;vertical-align:top}
-th{background:#eef3fb;color:#173871}
-#statutListe{min-height:22px}
-.badgeStatut{background:#eef3fb;border-radius:30px;padding:5px 9px;display:inline-block;white-space:nowrap}
-.print{color:#174da3;text-decoration:underline}
-footer{text-align:center;color:#607086;padding:24px;font-size:.85rem}
-@media(max-width:650px){.connexion{padding:24px}.panel{padding:12px}}
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
+  body { background:#f0f2f5; min-height:100vh; }
+
+  #loginScreen { display:flex; align-items:center; justify-content:center; min-height:100vh; background:linear-gradient(135deg,#1e3c72,#2a5298); }
+  .login-box { background:#fff; padding:40px; border-radius:15px; box-shadow:0 20px 60px rgba(0,0,0,0.3); max-width:420px; width:90%; }
+  .login-logo { text-align:center; margin-bottom:20px; }
+  .login-logo img { height:90px; width:90px; object-fit:contain; }
+  .login-box h1 { color:#1e3c72; text-align:center; margin-bottom:5px; font-size:22px; }
+  .login-box .subtitle { text-align:center; color:#666; margin-bottom:8px; font-size:14px; }
+  .login-box .slogan { text-align:center; color:#999; margin-bottom:25px; font-size:11px; font-style:italic; letter-spacing:0.5px; }
+  .login-box input { width:100%; padding:13px; border:2px solid #e0e0e0; border-radius:8px; margin-bottom:15px; font-size:15px; }
+  .login-box input:focus { outline:none; border-color:#1e3c72; }
+  .login-box button { width:100%; padding:14px; background:#1e3c72; color:#fff; border:none; border-radius:8px; font-size:15px; font-weight:600; cursor:pointer; }
+  .login-box button:hover { background:#2a5298; }
+  .login-error { color:#e74c3c; text-align:center; margin-top:10px; font-size:14px; }
+
+  #dashboard { display:none; }
+  header { background:#1e3c72; color:#fff; padding:15px 30px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+  header .header-brand { display:flex; align-items:center; gap:15px; }
+  header img { height:50px; width:50px; object-fit:contain; background:#fff; border-radius:50%; padding:3px; }
+  header .brand-text h1 { font-size:17px; margin-bottom:2px; }
+  header .brand-text p { font-size:12px; opacity:0.85; }
+  .header-right { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .user-badge { background:rgba(255,255,255,0.15); padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; }
+  
+  /* NOUVEAU : GESTION DES BOUTONS ET PASTILLES */
+  .nav-btn { position: relative; background:rgba(255,255,255,0.2); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; transition:0.2s; }
+  .nav-btn:hover { background:rgba(255,255,255,0.35); }
+  .nav-btn.active { background:#fff; color:#1e3c72; }
+  
+  .notification-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #e74c3c;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 3px 6px;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    display: none; /* Caché par défaut */
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
+  .logout-btn { background:#e74c3c; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; }
+
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:15px; padding:25px 30px; }
+  .stat-card { background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.05); border-left:5px solid #f39c12; }
+  .stat-card.validees { border-left-color:#27ae60; }
+  .stat-card.refusees { border-left-color:#e74c3c; }
+  .stat-card.total { border-left-color:#1e3c72; }
+  .stat-card .label { color:#666; font-size:13px; margin-bottom:8px; }
+  .stat-card .value { color:#1e3c72; font-size:32px; font-weight:bold; }
+
+  /* BARRE DE RECHERCHE ET FILTRES */
+  .filters { padding:0 30px 20px; display:flex; gap:10px; flex-wrap:wrap; align-items: center; }
+  .filters select, .filters button, .filters input { padding:10px 18px; border:2px solid #e0e0e0; border-radius:8px; font-size:14px; background:#fff; cursor:pointer; font-weight:600; outline: none; }
+  .filters button { background:#1e3c72; color:#fff; border-color:#1e3c72; }
+  .filters input { cursor: text; font-weight: 400; min-width: 250px; }
+  .filters input:focus { border-color: #1e3c72; }
+  .btn-export { background:#27ae60 !important; border-color:#27ae60 !important; margin-left: auto; }
+
+  /* ONGLETS RUBRIQUES */
+  .type-tabs { display:flex; gap:10px; padding:0 30px 20px; flex-wrap:wrap; }
+  .type-tab { padding:10px 18px; border:2px solid #e0e0e0; border-radius:8px; font-size:14px; background:#fff; cursor:pointer; font-weight:600; color:#555; transition:0.2s; }
+  .type-tab:hover { background:#f8f9fa; }
+  .type-tab.active { background:#1e3c72; color:#fff; border-color:#1e3c72; }
+
+  .demandes-container { padding:0 30px 40px; }
+  .demande-item { background:#fff; border-radius:12px; padding:22px; box-shadow:0 3px 15px rgba(0,0,0,0.08); margin-bottom:18px; border-left:6px solid #f39c12; }
+  .demande-item.validee { border-left-color:#27ae60; background:#f8fff9; }
+  .demande-item.refusee { border-left-color:#e74c3c; background:#fff8f8; }
+
+  .demande-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:18px; }
+  .demande-header h3 { color:#1e3c72; font-size:18px; }
+  .demande-header h3 span { font-weight:400; color:#666; }
+  .statut { padding:6px 14px; border-radius:20px; font-size:12px; font-weight:700; text-transform:uppercase; }
+  .statut.en_attente { background:#fef5e7; color:#d68910; border:2px solid #f39c12; }
+  .statut.affecte_logistique { background:#fff3cd; color:#856404; border:2px solid #ffeeba; }
+  .statut.validee { background:#d5f4e6; color:#1e8449; border:2px solid #27ae60; }
+  .statut.refusee { background:#fadbd8; color:#922b21; border:2px solid #e74c3c; }
+
+  .demande-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-bottom:18px; }
+  .info-item { font-size:14px; color:#555; }
+  .info-item strong { color:#333; display:block; margin-bottom:3px; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; }
+  .demande-motif { background:#f8f9fb; padding:14px; border-radius:8px; font-size:14px; color:#555; margin-bottom:18px; border-left:3px solid #1e3c72; }
+
+  .actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:10px; padding-top:18px; border-top:1px solid #eee; }
+  .btn { padding:14px 28px; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px; text-transform:uppercase; letter-spacing:0.5px; transition:0.2s; }
+  .btn-valider { background:#27ae60; color:#fff; box-shadow:0 4px 12px rgba(39,174,96,0.3); }
+  .btn-valider:hover { background:#229954; transform:translateY(-2px); }
+  .btn-orange { background:#f39c12; color:#fff; box-shadow:0 4px 12px rgba(243,156,18,0.3); }
+  .btn-orange:hover { background:#d68910; transform:translateY(-2px); }
+  .btn-refuser { background:#e74c3c; color:#fff; box-shadow:0 4px 12px rgba(231,76,60,0.3); }
+  .btn-refuser:hover { background:#c0392b; transform:translateY(-2px); }
+  .btn-suppr { background:#95a5a6; color:#fff; padding:8px 14px; font-size:12px; margin-left:auto; }
+  .btn-suppr:hover { background:#7f8c8d; }
+  .btn-print-admin { background:#2c3e50; color:#fff; padding:12px 22px; font-size:13px; box-shadow:0 4px 12px rgba(44,62,80,0.3); }
+  .btn-print-admin:hover { background:#1a252f; transform:translateY(-2px); }
+
+  .resultat { padding:14px; border-radius:8px; font-size:14px; margin-bottom:10px; }
+  .resultat.validee { background:#d5f4e6; color:#1e8449; border-left:4px solid #27ae60; }
+  .resultat.refusee { background:#fadbd8; color:#922b21; border-left:4px solid #e74c3c; }
+  .resultat .par-admin { display:block; margin-top:6px; font-size:12px; opacity:0.8; font-style:italic; }
+
+  .modal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center; padding:20px; }
+  .modal-overlay.active { display:flex; }
+  .modal { background:#fff; padding:30px; border-radius:15px; max-width:520px; width:100%; max-height:90vh; overflow-y:auto; }
+  .modal h2 { color:#1e3c72; margin-bottom:8px; }
+  .modal p.subtitle { color:#666; font-size:14px; margin-bottom:20px; }
+  .modal label { display:block; font-weight:600; margin-bottom:6px; color:#333; font-size:14px; margin-top:14px; }
+  .modal input, .modal textarea, .modal select { width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px; font-size:14px; font-family:inherit; background:#fff; }
+  .modal input:focus, .modal textarea:focus, .modal select:focus { outline:none; border-color:#1e3c72; }
+  .modal-actions { display:flex; gap:10px; margin-top:22px; }
+  .modal-actions button { flex:1; padding:14px; border:none; border-radius:8px; font-size:15px; font-weight:700; cursor:pointer; }
+  .modal-actions .btn-cancel { background:#ecf0f1; color:#555; }
+
+  .empty { text-align:center; color:#999; padding:60px 20px; font-style:italic; font-size:15px; background:#fff; border-radius:12px; }
+  .loading { text-align:center; padding:40px; color:#666; }
+
+  #usersSection { display:none; padding:25px 30px 40px; }
+  .users-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+  .users-header h2 { color:#1e3c72; font-size:22px; }
+  .btn-add-user { background:#27ae60; color:#fff; padding:12px 22px; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px; box-shadow:0 4px 12px rgba(39,174,96,0.3); transition:0.2s; }
+  .btn-add-user:hover { background:#229954; transform:translateY(-2px); }
+
+  .users-list { display:flex; flex-direction:column; gap:12px; }
+  .user-row { background:#fff; padding:18px 22px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.06); border-left:5px solid #1e3c72; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; transition:0.2s; }
+  .user-row:hover { box-shadow:0 4px 20px rgba(0,0,0,0.1); }
+  .user-row.current { border-left-color:#f39c12; background:#fffbf0; }
+  .user-info { display:flex; flex-direction:column; gap:4px; flex:1; min-width:200px; }
+  .user-info .user-name { font-size:16px; font-weight:700; color:#1e3c72; display:flex; align-items:center; gap:8px; }
+  .user-info .user-name .badge-me { font-size:10px; background:#f39c12; color:#fff; padding:2px 8px; border-radius:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+  .user-info .user-email { font-size:13px; color:#666; }
+  .user-info .user-date { font-size:11px; color:#999; font-style:italic; }
+  .user-actions { display:flex; gap:10px; }
+  .btn-del-user { background:#e74c3c; color:#fff; padding:10px 18px; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; transition:0.2s; }
+  .btn-del-user:hover { background:#c0392b; transform:translateY(-2px); }
+  .btn-del-user:disabled { background:#bdc3c7; cursor:not-allowed; transform:none; }
+
+  .users-info-box { background:#e8f0fb; border-left:4px solid #1e3c72; padding:14px 18px; border-radius:8px; font-size:13px; color:#1e3c72; margin-bottom:20px; line-height:1.5; }
+
+  .password-reveal { display:flex; gap:10px; }
+  .password-reveal input { flex:1; }
+  .btn-reveal { background:#ecf0f1; color:#555; border:none; padding:0 14px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; }
+
+  @media (max-width:600px) {
+    .btn { padding:12px 20px; font-size:14px; }
+    header { padding:12px 15px; }
+    header .brand-text h1 { font-size:14px; }
+    header .brand-text p { font-size:11px; }
+    header img { height:40px; width:40px; }
+    .user-badge { font-size:11px; padding:5px 10px; }
+    .nav-btn { font-size:11px; padding:6px 10px; }
+    .user-row { flex-direction:column; align-items:flex-start; }
+    .user-actions { width:100%; }
+    .btn-del-user { flex:1; justify-content:center; }
+    .type-tab { flex: 1 1 30%; text-align: center; }
+    .btn-export { margin-left: 0; width: 100%; justify-content: center; }
+  }
 </style>
 </head>
 <body>
-<div id="pageConnexion">
-  <section class="connexion" aria-labelledby="titreConnexion">
-    <h1 id="titreConnexion">Administration ADKOUL</h1>
-    <p class="notice">Connexion réservée aux utilisateurs habilités.</p>
-    <form id="formConnexion">
-      <label for="email">Adresse e-mail</label>
-      <input id="email" type="email" value="abdoul.aziz@adkoul.org" autocomplete="username" required>
-      <label for="password">Mot de passe Supabase Auth</label>
-      <input id="password" type="password" autocomplete="current-password" required>
-      <button class="action" id="btnConnexion" type="submit">Se connecter</button>
-    </form>
-    <p id="messageConnexion" role="status" aria-live="polite"></p>
-    <a href="index.html">Retour à l'accueil</a>
-  </section>
-</div>
-<div id="application">
-  <header>
-    <div><strong>ONG ADKOUL</strong><small>Gestion des demandes — espace de consultation</small></div>
-    <div><span id="nomUtilisateur"></span> · <b id="roleUtilisateur"></b> <button id="deconnexion" class="action logout" type="button">Déconnexion</button></div>
-  </header>
-  <main>
-    <div class="intro">
-      <div><h1>Tableau de bord</h1><p class="notice">Consultation des demandes selon votre rôle. Les affectations et validations ne sont pas encore activées.</p></div>
-      <button class="action" id="actualiser" type="button">Actualiser</button>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="https://amague2007-star.github.io/demande-vehicule/logo.png" alt="ONG ADKOUL" onerror="this.style.display='none'">
     </div>
-    <div class="stats" id="stats"></div>
-    <nav class="tabs" id="onglets" aria-label="Catégories des demandes"></nav>
-    <section class="panel" aria-labelledby="titreListe">
-      <h2 id="titreListe">Demandes</h2>
-      <p class="notice" id="descriptionListe"></p>
-      <div class="controls">
-        <label for="filtre">Rechercher : <input type="search" id="filtre" placeholder="Nom, destination, statut"></label>
-        <span class="notice" id="totalListe"></span>
-      </div>
-      <p id="statutListe" role="status" aria-live="polite"></p>
-      <div class="tableWrap"><table><thead id="entete"></thead><tbody id="lignes"></tbody></table></div>
-    </section>
-  </main>
-  <footer>ONG ADKOUL — Données privées, accès contrôlé par Supabase RLS.</footer>
+    <h1>ONG ADKOUL</h1>
+    <p class="subtitle">Espace de Gestion</p>
+    <p class="slogan">Solidarité • Éducation • Développement</p>
+    <input type="email" id="adminEmail" placeholder="Adresse email" autocomplete="username" onkeypress="if(event.key==='Enter') document.getElementById('adminPassword').focus()">
+    <input type="password" id="adminPassword" placeholder="Mot de passe" autocomplete="current-password" onkeypress="if(event.key==='Enter') login()">
+    <button onclick="login()">Se connecter</button>
+    <div id="loginError" class="login-error"></div>
+  </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <header>
+    <div class="header-brand">
+      <img src="https://amague2007-star.github.io/demande-vehicule/logo.png" alt="ONG ADKOUL" onerror="this.style.display='none'">
+      <div class="brand-text">
+        <h1>ONG ADKOUL — Tableau de bord</h1>
+        <p>Gestion des véhicules et ordres de mission</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <!-- AJOUT DES BADGES DE NOTIFICATION ICI -->
+      <button class="nav-btn active" id="navDemandes" onclick="afficherSection('demandes')">
+        📋 Demandes Véhicules <span class="notification-badge" id="badgeDemandes">0</span>
+      </button>
+      <button class="nav-btn" id="navOrdres" onclick="afficherSection('ordres')">
+        📄 Ordres de Mission (RH) <span class="notification-badge" id="badgeOrdres">0</span>
+      </button>
+      <button class="nav-btn" id="navUsers" onclick="afficherSection('users')">👥 Utilisateurs</button>
+      <div class="user-badge" id="userBadge">👤 <span id="userName">Admin</span></div>
+      <button class="logout-btn" onclick="logout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <!-- SECTION DEMANDES VEHICULES -->
+  <div id="demandesSection">
+    <div class="stats">
+      <div class="stat-card"><div class="label">⏳ En attente</div><div class="value" id="statAttente">0</div></div>
+      <div class="stat-card validees"><div class="label">✅ Affectées</div><div class="value" id="statValidees">0</div></div>
+      <div class="stat-card refusees"><div class="label">❌ Refusées</div><div class="value" id="statRefusees">0</div></div>
+      <div class="stat-card total"><div class="label">📊 Total</div><div class="value" id="statTotal">0</div></div>
+    </div>
+    <div class="filters">
+      <select id="filtreStatut" onchange="afficherDemandes()">
+        <option value="en_attente" selected>⏳ En attente</option>
+        <option value="validee">✅ Affectées</option>
+        <option value="refusee">❌ Refusées</option>
+        <option value="tous">📋 Toutes</option>
+      </select>
+      <input type="text" id="searchDemandes" placeholder="🔍 Rechercher (nom, destination...)" onkeyup="afficherDemandes()">
+      <button onclick="chargerDemandes()">🔄 Rafraîchir</button>
+      <button class="btn-export" onclick="exporterCSV('demandes')">📥 Exporter Excel</button>
+    </div>
+    <div class="demandes-container" id="demandesContainer">
+      <div class="loading">Chargement...</div>
+    </div>
+  </div>
+
+  <!-- SECTION ORDRES DE MISSION (AVEC ONGLETS PAR RUBRIQUE) -->
+  <div id="ordresSection" style="display:none;">
+    
+    <!-- LES ONGLETS -->
+    <div class="type-tabs" id="typeTabs">
+      <button class="type-tab active" onclick="changerTypeOrdre('tous', this)">📁 Tous</button>
+      <button class="type-tab" onclick="changerTypeOrdre('Véhicule UNHCR', this)">🚙 UNHCR</button>
+      <button class="type-tab" onclick="changerTypeOrdre('Véhicule Partenaire', this)">🤝 Partenaire</button>
+      <button class="type-tab" onclick="changerTypeOrdre('Véhicule Location', this)">🏢 Location</button>
+      <button class="type-tab" onclick="changerTypeOrdre('Bus', this)">🚌 Bus</button>
+      <button class="type-tab" onclick="changerTypeOrdre('Avion', this)">✈️ Vol</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card" style="border-left-color:#f39c12;"><div class="label">⏳ À traiter (Logistique)</div><div class="value" id="statOrdresAttente">0</div></div>
+      <div class="stat-card" style="border-left-color:#f39c12;"><div class="label">⏳ À traiter (RH)</div><div class="value" id="statOrdresAffectes">0</div></div>
+      <div class="stat-card validees"><div class="label">✅ Validés</div><div class="value" id="statOrdresValides">0</div></div>
+      <div class="stat-card total"><div class="label">📊 Total</div><div class="value" id="statOrdresTotal">0</div></div>
+    </div>
+    
+    <div class="filters">
+      <select id="filtreStatutOrdre" onchange="afficherOrdres()">
+        <option value="en_attente" selected>⏳ En attente (Logistique)</option>
+        <option value="affecte_logistique">⏳ En attente (RH)</option>
+        <option value="validee">✅ Validés</option>
+        <option value="tous">📋 Tous les statuts</option>
+      </select>
+      <input type="text" id="searchOrdres" placeholder="🔍 Rechercher (nom, destination...)" onkeyup="afficherOrdres()">
+      <button onclick="chargerOrdres()">🔄 Rafraîchir</button>
+      <button class="btn-export" onclick="exporterCSV('ordres')">📥 Exporter Excel</button>
+    </div>
+    <div class="demandes-container" id="ordresContainer">
+      <div class="loading">Chargement des ordres de mission...</div>
+    </div>
+  </div>
+
+  <!-- SECTION UTILISATEURS -->
+  <div id="usersSection">
+    <div class="users-header">
+      <h2>👥 Gestion des utilisateurs</h2>
+      <button class="btn-add-user" onclick="ouvrirModalAjoutUser()">➕ Ajouter un utilisateur</button>
+    </div>
+    <div class="users-info-box">
+      💡 <strong>Info :</strong> Les rôles déterminent les accès. 
+      <br>• <strong>Logistique</strong> : Accès total (gestion des comptes, véhicules, missions).
+      <br>• <strong>Directeur Logistique</strong> : Lecture seule sur les missions (pas de validation, pas de véhicules).
+      <br>• <strong>Assistant Logistique</strong> : Saisie des demandes de véhicules de LOCATION uniquement.
+      <br>• <strong>RH</strong> : Validation et impression des ordres de mission uniquement.
+    </div>
+    <div class="users-list" id="usersList">
+      <div class="loading">Chargement des utilisateurs...</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALES VEHICULES -->
+<div class="modal-overlay" id="modalValider">
+  <div class="modal">
+    <h2>🚗 Affecter un véhicule</h2>
+    <p class="subtitle" id="modalValiderInfo"></p>
+    
+    <label>👤 Chauffeur *</label>
+    <select id="selectChauffeur" onchange="toggleAutre('chauffeur')">
+      <option value="">-- Sélectionnez --</option>
+      <option value="ABAKTOUM">ABAKTOUM</option>
+      <option value="GALILE">GALILE</option>
+      <option value="HAMAD SALLAH">HAMAD SALLAH</option>
+      <option value="BACHIR">BACHIR</option>
+      <option value="AUTRE">➕ Autre</option>
+    </select>
+    <input type="text" id="inputChauffeurAutre" placeholder="Nom" style="display:none; margin-top:8px;">
+
+    <div class="grid-2" style="margin-top:10px;">
+      <div>
+        <label>Type de véhicule *</label>
+        <select id="selectVehiculeType">
+          <option value="Véhicule UNHCR">Véhicule UNHCR</option>
+          <option value="Véhicule Partenaire">Véhicule Partenaire</option>
+          <option value="Véhicule Location">Véhicule Location</option>
+          <option value="Bus">Bus</option>
+          <option value="Avion">Avion</option>
+        </select>
+      </div>
+      <div>
+        <label>Marque *</label>
+        <input type="text" id="inputVehiculeMarque" placeholder="Ex: Toyota" required>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:10px;">
+      <div>
+        <label>Couleur *</label>
+        <input type="text" id="inputVehiculeCouleur" placeholder="Ex: Blanche" required>
+      </div>
+      <div>
+        <label>N° Immatriculation *</label>
+        <input type="text" id="inputVehiculeImmat" placeholder="Ex: AB-123-CD" required>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
+      <button class="btn-valider" onclick="confirmerValidation()">✅ Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalRefuser">
+  <div class="modal">
+    <h2>❌ Refuser cette demande</h2>
+    <p class="subtitle" id="modalRefuserInfo"></p>
+    <label>Motif *</label>
+    <textarea id="inputMotifRefus" rows="4"></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
+      <button class="btn-refuser" onclick="confirmerRefus()">❌ Refuser</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALES ORDRES DE MISSION -->
+<div class="modal-overlay" id="modalValiderOrdre">
+  <div class="modal">
+    <h2>📄 Affectation Logistique</h2>
+    <p class="subtitle" id="modalValiderOrdreInfo"></p>
+    <label>👤 Chauffeur à assigner *</label>
+    <select id="selectChauffeurOrdre" onchange="toggleAutreOrdre('chauffeur')">
+      <option value="">-- Sélectionnez un chauffeur --</option>
+      <option value="ABAKTOUM">ABAKTOUM</option>
+      <option value="GALILE">GALILE</option>
+      <option value="HAMAD SALLAH">HAMAD SALLAH</option>
+      <option value="BACHIR">BACHIR</option>
+      <option value="AUTRE">➕ Autre</option>
+    </select>
+    <input type="text" id="inputChauffeurOrdreAutre" placeholder="Nom du chauffeur" style="display:none; margin-top:8px;">
+
+    <div class="grid-2" style="margin-top:10px;">
+      <div>
+        <label>Type de véhicule *</label>
+        <select id="selectVehiculeOrdreType">
+          <option value="Véhicule UNHCR">Véhicule UNHCR</option>
+          <option value="Véhicule Partenaire">Véhicule Partenaire</option>
+          <option value="Véhicule Location">Véhicule Location</option>
+          <option value="Bus">Bus</option>
+          <option value="Avion">Avion</option>
+        </select>
+      </div>
+      <div>
+        <label>Marque *</label>
+        <input type="text" id="inputVehiculeOrdreMarque" placeholder="Ex: Toyota" required>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:10px;">
+      <div>
+        <label>Couleur *</label>
+        <input type="text" id="inputVehiculeOrdreCouleur" placeholder="Ex: Blanche" required>
+      </div>
+      <div>
+        <label>N° Immatriculation *</label>
+        <input type="text" id="inputVehiculeOrdreImmat" placeholder="Ex: AB-123-CD" required>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
+      <button class="btn-valider" onclick="confirmerValidationOrdre()">✅ Affecter le matériel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalNumeroRH">
+  <div class="modal">
+    <h2>📄 Validation RH</h2>
+    <p class="subtitle" id="modalNumeroRHInfo"></p>
+    <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
+      En cliquant sur valider, le système va <strong>générer automatiquement un numéro d'ordre de mission</strong> et envoyer un e-mail au demandeur avec le document prêt à imprimer.
+    </p>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
+      <button class="btn-orange" onclick="confirmerNumeroRH()">✅ Générer le N° et notifier</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE AJOUT UTILISATEUR -->
+<div class="modal-overlay" id="modalAjoutUser">
+  <div class="modal">
+    <h2>➕ Ajouter un utilisateur</h2>
+    <label>Nom complet *</label>
+    <input type="text" id="newUserName" placeholder="Ex: Amadou Diallo">
+    <label>Adresse email *</label>
+    <input type="email" id="newUserEmail" placeholder="Ex: amadou@adkoul.org" autocomplete="off">
+    <label>Rôle *</label>
+    <select id="newUserRole">
+      <option value="logistique">Logistique (Accès total)</option>
+      <option value="directeur_logistique">Directeur Logistique (Lecture seule)</option>
+      <option value="assistant_logistique">Assistant Logistique (Saisie véhicules de Location)</option>
+      <option value="rh">RH (Valide et imprime les ordres de mission)</option>
+    </select>
+    <label>Mot de passe * (min. 6 caractères)</label>
+    <div class="password-reveal">
+      <input type="password" id="newUserPassword" placeholder="Mot de passe" autocomplete="new-password">
+      <button class="btn-reveal" type="button" onclick="togglePassword('newUserPassword', this)">👁️</button>
+    </div>
+    <label>Confirmer le mot de passe *</label>
+    <input type="password" id="newUserPassword2" placeholder="Retapez le mot de passe" autocomplete="new-password">
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
+      <button class="btn-valider" onclick="confirmerAjoutUser()">✅ Créer le compte</button>
+    </div>
+  </div>
+</div>
+
 <script>
-"use strict";
-const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
-const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
-const client = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
-const ROLES = new Set(["rh","directeur_logistique","logistique","assistant_logistique"]);
-const MODULES = [
-  {id:"demandes",titre:"Sorties de véhicules",description:"Demandes de sortie de véhicules",roles:["logistique","assistant_logistique","directeur_logistique"],champs:["id","nom","prenom","destination","date_sortie","statut"],libelles:["Référence","Nom","Prénom","Destination","Date de sortie","Statut"]},
-  {id:"missions",titre:"Missions terrain",description:"Demandes de mission terrain",roles:["logistique","assistant_logistique","directeur_logistique","rh"],champs:["id","nom","titre_mission","lieu","date_debut","statut"],libelles:["Référence","Nom","Mission","Lieu","Début","Statut"]},
-  {id:"missions_2",titre:"Ordres de mission",description:"Demandes d'ordres de mission",roles:["logistique","directeur_logistique","rh"],champs:["id","nom","destination","date_depart","statut","projet"],libelles:["Référence","Nom","Destination","Départ","Statut","Projet"]}
-];
-let profilActuel=null, moduleActuel=null, resultats=[];
-const el=id=>document.getElementById(id);
-function message(texte,erreur){el("messageConnexion").textContent=texte;el("messageConnexion").className=erreur?"error":"notice";}
-function montrerConnexion(){el("application").style.display="none";el("pageConnexion").style.display="grid";profilActuel=null;resultats=[];}
-function montrerApplication(profil,user){
-  profilActuel=profil;
-  el("nomUtilisateur").textContent=profil.nom||user.email;
-  el("roleUtilisateur").textContent=profil.role;
-  el("pageConnexion").style.display="none";el("application").style.display="block";
-  const autorises=MODULES.filter(m=>m.roles.includes(String(profil.role).toLowerCase()));
-  const nav=el("onglets");nav.replaceChildren();
-  autorises.forEach(m=>{
-    const b=document.createElement("button");b.type="button";b.textContent=m.titre;b.setAttribute("aria-selected","false");
-    b.addEventListener("click",()=>chargerModule(m));b.dataset.module=m.id;nav.appendChild(b);
-  });
-  const stat=el("stats");stat.replaceChildren();
-  autorises.forEach(m=>{
-    const box=document.createElement("div");box.className="stat";
-    const label=document.createElement("span");label.textContent=m.titre;
-    const value=document.createElement("strong");value.id="compte_"+m.id;value.textContent="—";
-    box.append(label,value);stat.appendChild(box);
-  });
-  if(autorises.length)chargerModule(autorises[0]);
-  else{el("statutListe").textContent="Aucune rubrique autorisée pour ce rôle.";}
-  actualiserCompteurs(autorises);
-}
-async function verifierProfil(user){
-  if(!user||!user.email)return null;
-  const {data,error}=await client.from("admins").select("nom,role,email").ilike("email",user.email).maybeSingle();
-  if(error)throw error;
-  if(!data||!ROLES.has(String(data.role||"").trim().toLowerCase()))return null;
-  return data;
-}
-async function ouvrirSession(){
-  if(!client){message("Bibliothèque de connexion indisponible.",true);el("btnConnexion").disabled=true;return;}
-  try{
-    const {data,error}=await client.auth.getUser();
-    if(error||!data.user){montrerConnexion();return;}
-    const profil=await verifierProfil(data.user);
-    if(!profil){await client.auth.signOut();montrerConnexion();message("Compte non autorisé.",true);return;}
-    montrerApplication(profil,data.user);
-  }catch(e){console.error("Contrôle de session impossible",e);montrerConnexion();message("Impossible de vérifier les accès.",true);}
-}
-el("formConnexion").addEventListener("submit",async event=>{
-  event.preventDefault();if(!client)return;
-  const btn=el("btnConnexion");btn.disabled=true;message("Vérification…",false);
-  try{
-    const {data,error}=await client.auth.signInWithPassword({
-      email:el("email").value.trim(),password:el("password").value
+  // CONFIGURATION
+  const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
+  const EMAILJS_PUBLIC_KEY = "SUbWMSdrTf7JugMrS";
+  const EMAILJS_SERVICE_ID = "service_e6k2e76";
+  const EMAILJS_TEMPLATE_ID = "template_gd96rfl"; 
+
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+
+  const CHAUFFEURS = {
+    "ABAKTOUM": "22789915798", "BACHIR": "22797747561",
+    "GALILE": "22798524300", "HAMAD SALLAH": "22797301132"
+  };
+
+  let demandeEnCours = null, toutesLesDemandes = [];
+  let ordreEnCours = null, tousLesOrdres = [];
+  let tousLesUsers = [];
+  let typeOrdreActif = 'tous';
+
+  // DATES
+  function formatNigerDate(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    const nigerDate = new Date(date.getTime() + (60 * 60 * 1000));
+    return nigerDate.toLocaleString('fr-FR', { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+  function formatNigerDateShort(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    const nigerDate = new Date(date.getTime() + (60 * 60 * 1000));
+    return nigerDate.toLocaleDateString('fr-FR', { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  // HASH
+  async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  // AUTH
+  async function login() {
+    const email = document.getElementById('adminEmail').value.trim().toLowerCase();
+    const password = document.getElementById('adminPassword').value;
+    const errorEl = document.getElementById('loginError');
+    if (!email || !password) { errorEl.textContent = "⚠️ Renseignez vos identifiants."; return; }
+    errorEl.textContent = "⏳ Vérification...";
+    try {
+      const hash = await hashPassword(password);
+      const users = await apiCall(`/admins?email=eq.${encodeURIComponent(email)}&password_hash=eq.${hash}&select=id,email,nom,role`);
+      if (users && users.length === 1) {
+        sessionStorage.setItem('admin_logged', 'true');
+        sessionStorage.setItem('admin_id', users[0].id);
+        sessionStorage.setItem('admin_email', users[0].email);
+        sessionStorage.setItem('admin_name', users[0].nom);
+        sessionStorage.setItem('admin_role', users[0].role || 'logistique');
+        errorEl.textContent = '';
+        afficherDashboard();
+      } else { errorEl.textContent = "❌ Email ou mot de passe incorrect"; }
+    } catch (err) { errorEl.textContent = "❌ Erreur : " + err.message; }
+  }
+
+  function logout() { sessionStorage.clear(); location.reload(); }
+
+  // NOUVELLE FONCTION : MISE A JOUR DES PASTILLES
+  function mettreAJourNotifications() {
+    // Pour les véhicules
+    const attenteVehicules = toutesLesDemandes.filter(d => d.statut === 'en_attente').length;
+    const badgeD = document.getElementById('badgeDemandes');
+    if (attenteVehicules > 0) {
+      badgeD.textContent = attenteVehicules;
+      badgeD.style.display = 'inline-block';
+    } else {
+      badgeD.style.display = 'none';
+    }
+
+    // Pour les missions
+    const attenteMissions = tousLesOrdres.filter(o => o.statut === 'en_attente').length;
+    const badgeO = document.getElementById('badgeOrdres');
+    if (attenteMissions > 0) {
+      badgeO.textContent = attenteMissions;
+      badgeO.style.display = 'inline-block';
+    } else {
+      badgeO.style.display = 'none';
+    }
+  }
+
+  function afficherDashboard() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    
+    const adminName = sessionStorage.getItem('admin_name') || 'Admin';
+    const role = sessionStorage.getItem('admin_role') || 'logistique';
+    
+    document.getElementById('userName').textContent = adminName;
+    document.getElementById('userBadge').title = sessionStorage.getItem('admin_email') || '';
+
+    // GESTION DES DROITS D'ACCÈS SELON LE RÔLE
+    if (role === 'rh') {
+      document.getElementById('navDemandes').style.display = 'none';
+      document.getElementById('navUsers').style.display = 'none';
+      afficherSection('ordres');
+    } else if (role === 'assistant_logistique') {
+      document.getElementById('navDemandes').style.display = 'block';
+      document.getElementById('navOrdres').style.display = 'none';
+      document.getElementById('navUsers').style.display = 'none';
+      afficherSection('demandes');
+    } else if (role === 'directeur_logistique') {
+      document.getElementById('navDemandes').style.display = 'none';
+      document.getElementById('navUsers').style.display = 'none';
+      afficherSection('ordres');
+    } else {
+      document.getElementById('navDemandes').style.display = 'block';
+      document.getElementById('navOrdres').style.display = 'block';
+      document.getElementById('navUsers').style.display = 'block';
+      afficherSection('demandes');
+    }
+
+    chargerDemandes(); chargerOrdres(); chargerUsers();
+  }
+
+  if (sessionStorage.getItem('admin_logged') === 'true') afficherDashboard();
+
+  function getAdminName() { return sessionStorage.getItem('admin_name') || 'Admin'; }
+  function getAdminId() { return parseInt(sessionStorage.getItem('admin_id')) || null; }
+  function getAdminRole() { return sessionStorage.getItem('admin_role') || 'logistique'; }
+
+  // NAVIGATION
+  function afficherSection(section) {
+    ['demandes', 'ordres', 'users'].forEach(sec => {
+      document.getElementById(sec + 'Section').style.display = 'none';
+      document.getElementById('nav' + sec.charAt(0).toUpperCase() + sec.slice(1)).classList.remove('active');
     });
-    if(error||!data.user){message("Identifiants invalides ou compte non activé.",true);return;}
-    const profil=await verifierProfil(data.user);
-    if(!profil){await client.auth.signOut();message("Profil ou rôle non autorisé.",true);return;}
-    el("password").value="";message("",false);montrerApplication(profil,data.user);
-  }catch(e){console.error("Échec de connexion",e);await client.auth.signOut().catch(()=>{});message("Connexion impossible. Vérifiez les droits Supabase.",true);}
-  finally{btn.disabled=false;}
-});
-el("deconnexion").addEventListener("click",async()=>{
-  if(!client)return;
-  const {error}=await client.auth.signOut();
-  if(error){el("statutListe").textContent="Déconnexion impossible.";return;}
-  montrerConnexion();message("Session terminée.",false);
-});
-async function chargerModule(m){
-  if(!profilActuel||!m.roles.includes(String(profilActuel.role).toLowerCase()))return;
-  moduleActuel=m;resultats=[];el("filtre").value="";
-  el("titreListe").textContent=m.titre;el("descriptionListe").textContent=m.description;
-  el("statutListe").textContent="Chargement…";el("lignes").replaceChildren();el("entete").replaceChildren();
-  el("onglets").querySelectorAll("button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.module===m.id)));
-  const tr=document.createElement("tr");
-  m.libelles.forEach(t=>{const th=document.createElement("th");th.textContent=t;tr.appendChild(th);});
-  if(m.id==="missions_2"&&["rh","directeur_logistique"].includes(String(profilActuel.role).toLowerCase())){
-    const th=document.createElement("th");th.textContent="Impression";tr.appendChild(th);
-  }
-  el("entete").appendChild(tr);
-  const current=m.id;
-  try{
-    const {data,error}=await client.from(m.id).select(m.champs.join(",")).limit(100);
-    if(error)throw error;
-    if(moduleActuel.id!==current)return;
-    resultats=data||[];el("statutListe").textContent="";
-    afficherLignes();
-  }catch(e){
-    if(moduleActuel.id===current){el("statutListe").textContent="Lecture refusée ou indisponible. Vérifiez les politiques Supabase RLS.";el("totalListe").textContent="—";}
-    console.error("Lecture refusée",current,e);
-  }
-}
-function afficherLignes(){
-  if(!moduleActuel)return;
-  const tbody=el("lignes");tbody.replaceChildren();
-  const mot=el("filtre").value.trim().toLocaleLowerCase("fr");
-  const filtered=resultats.filter(d=>moduleActuel.champs.some(k=>String(d[k]??"").toLocaleLowerCase("fr").includes(mot)));
-  for(const data of filtered){
-    const tr=document.createElement("tr");
-    for(const champ of moduleActuel.champs){
-      const td=document.createElement("td");
-      if(champ==="statut"){const span=document.createElement("span");span.className="badgeStatut";span.textContent=String(data[champ]??"—");td.appendChild(span);}
-      else{td.textContent=String(data[champ]??"—");}
-      tr.appendChild(td);
+
+    if (section === 'ordres') {
+      document.getElementById('ordresSection').style.display = 'block';
+      document.getElementById('navOrdres').classList.add('active');
+      chargerOrdres();
+    } else if (section === 'users') {
+      document.getElementById('usersSection').style.display = 'block';
+      document.getElementById('navUsers').classList.add('active');
+      chargerUsers();
+    } else {
+      document.getElementById('demandesSection').style.display = 'block';
+      document.getElementById('navDemandes').classList.add('active');
+      chargerDemandes();
     }
-    if(moduleActuel.id==="missions_2"&&["rh","directeur_logistique"].includes(String(profilActuel.role).toLowerCase())){
-      const td=document.createElement("td"),link=document.createElement("a");
-      link.className="print";link.textContent="Ouvrir";link.href="impression-ordre.html?id="+encodeURIComponent(data.id);
-      link.rel="noopener";td.appendChild(link);tr.appendChild(td);
+  }
+
+  // API SUPABASE
+  async function apiCall(path, options = {}) {
+    const url = SUPABASE_URL + '/rest/v1' + path;
+    const headers = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation', ...options.headers };
+    const response = await fetch(url, { ...options, headers });
+    if (!response.ok) { const text = await response.text(); throw new Error('Erreur ' + response.status + ' : ' + text); }
+    const text = await response.text();
+    return text ? JSON.parse(text) : [];
+  }
+
+  // UTILISATEURS
+  async function chargerUsers() {
+    const container = document.getElementById('usersList');
+    container.innerHTML = '<div class="loading">Chargement...</div>';
+    try {
+      tousLesUsers = await apiCall('/admins?order=created_at.asc&select=id,email,nom,role,created_at');
+      afficherUsers();
+    } catch (err) { container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>'; }
+  }
+
+  function afficherUsers() {
+    const container = document.getElementById('usersList');
+    const myId = getAdminId();
+    if (!tousLesUsers.length) { container.innerHTML = '<div class="empty">📭 Aucun utilisateur.</div>'; return; }
+    container.innerHTML = tousLesUsers.map(u => {
+      const isMe = u.id === myId;
+      const canDelete = !isMe && tousLesUsers.length > 1;
+      let roleLabel = '';
+      if (u.role === 'rh') roleLabel = '<span style="color:#d68910; font-weight:bold;">[RH]</span>';
+      else if (u.role === 'assistant_logistique') roleLabel = '<span style="color:#2980b9; font-weight:bold;">[Assist. Log.]</span>';
+      else if (u.role === 'directeur_logistique') roleLabel = '<span style="color:#8e44ad; font-weight:bold;">[Dir. Logistique]</span>';
+      else roleLabel = '<span style="color:#1e3c72; font-weight:bold;">[Logistique]</span>';
+
+      return `
+        <div class="user-row ${isMe ? 'current' : ''}">
+          <div class="user-info">
+            <div class="user-name">👤 ${u.nom} ${roleLabel} ${isMe ? '<span class="badge-me">Moi</span>' : ''}</div>
+            <div class="user-email">📧 ${u.email}</div>
+            <div class="user-date">Créé le ${u.created_at ? formatNigerDate(u.created_at) : '—'}</div>
+          </div>
+          <div class="user-actions">
+            <button class="btn-del-user" ${canDelete ? '' : 'disabled'} onclick="supprimerUser(${u.id}, '${u.email.replace(/'/g, "\\'")}')">🗑️ Supprimer</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function ouvrirModalAjoutUser() {
+    document.getElementById('newUserName').value = '';
+    document.getElementById('newUserEmail').value = '';
+    document.getElementById('newUserPassword').value = '';
+    document.getElementById('newUserPassword2').value = '';
+    document.getElementById('modalAjoutUser').classList.add('active');
+  }
+
+  function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    input.type = input.type === 'password' ? 'text' : 'password';
+    btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+  }
+
+  async function confirmerAjoutUser() {
+    const nom = document.getElementById('newUserName').value.trim();
+    const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
+    const role = document.getElementById('newUserRole').value;
+    const pwd = document.getElementById('newUserPassword').value;
+    const pwd2 = document.getElementById('newUserPassword2').value;
+    if (!nom || !email.includes('@') || pwd.length < 6 || pwd !== pwd2) { alert('⚠️ Vérifiez les champs.'); return; }
+    try {
+      const existing = await apiCall(`/admins?email=eq.${encodeURIComponent(email)}&select=id`);
+      if (existing && existing.length > 0) { alert('❌ Cet email est déjà utilisé.'); return; }
+      const hash = await hashPassword(pwd);
+      await apiCall('/admins', { method: 'POST', body: JSON.stringify({ email, password_hash: hash, nom, role }) });
+      fermerModal(); await chargerUsers(); alert(`✅ Utilisateur "${nom}" créé (Rôle : ${role}).`);
+    } catch (err) { alert('❌ ' + err.message); }
+  }
+
+  async function supprimerUser(id, email) {
+    if (tousLesUsers.length <= 1 || id === getAdminId()) { alert('⚠️ Action impossible.'); return; }
+    if (!confirm(`Supprimer l'utilisateur ${email} ?`)) return;
+    try { await apiCall(`/admins?id=eq.${id}`, { method: 'DELETE' }); await chargerUsers(); } catch (err) { alert('❌ ' + err.message); }
+  }
+
+  // DEMANDES VEHICULES
+  async function chargerDemandes() {
+    const container = document.getElementById('demandesContainer');
+    container.innerHTML = '<div class="loading">Chargement...</div>';
+    try {
+      toutesLesDemandes = await apiCall('/demandes?order=created_at.desc');
+      mettreAJourNotifications(); // <-- NOUVEAU
+      afficherDemandes();
+    } catch (err) { container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>'; }
+  }
+
+  function afficherDemandes() {
+    const filtre = document.getElementById('filtreStatut').value;
+    const recherche = document.getElementById('searchDemandes').value.toLowerCase();
+    const container = document.getElementById('demandesContainer');
+    const role = getAdminRole();
+    
+    let listeBase = toutesLesDemandes;
+    
+    if (role === 'assistant_logistique') {
+      listeBase = toutesLesDemandes.filter(d => 
+        (d.motif && d.motif.toLowerCase().includes('location')) || 
+        (d.vehicule_assigne && d.vehicule_assigne.toLowerCase().includes('location'))
+      );
     }
-    tbody.appendChild(tr);
+
+    document.getElementById('statAttente').textContent = listeBase.filter(d => d.statut === 'en_attente').length;
+    document.getElementById('statValidees').textContent = listeBase.filter(d => d.statut === 'validee').length;
+    document.getElementById('statRefusees').textContent = listeBase.filter(d => d.statut === 'refusee').length;
+    document.getElementById('statTotal').textContent = listeBase.length;
+
+    let listeFinale = listeBase.filter(d => {
+      const matchStatut = filtre === 'tous' || d.statut === filtre;
+      const matchSearch = !recherche || 
+        (d.nom && d.nom.toLowerCase().includes(recherche)) ||
+        (d.prenom && d.prenom.toLowerCase().includes(recherche)) ||
+        (d.destination && d.destination.toLowerCase().includes(recherche)) ||
+        (d.motif && d.motif.toLowerCase().includes(recherche));
+      return matchStatut && matchSearch;
+    });
+    
+    if (listeFinale.length === 0) { 
+      container.innerHTML = '<div class="empty">📭 Aucune demande ne correspond à votre recherche</div>'; 
+      return; 
+    }
+    
+    container.innerHTML = listeFinale.map(d => {
+      let actionsHtml = ''; let resultatHtml = '';
+      if (d.statut === 'en_attente') {
+        if (role === 'logistique' || role === 'assistant_logistique') {
+           actionsHtml = `<button class="btn btn-valider" onclick="ouvrirModalValider(${d.id})">✅ Affecter</button>`;
+        }
+        if (role === 'logistique') {
+           actionsHtml += `<button class="btn btn-refuser" onclick="ouvrirModalRefuser(${d.id})">❌ Rejeter</button>`;
+        }
+      } else if (d.statut === 'validee') {
+        resultatHtml = `<div class="resultat validee"><strong>✅ Affectée</strong><br>👤 Chauffeur : <strong>${d.chauffeur_assigne}</strong> | 🚙 Véhicule : <strong>${d.vehicule_assigne}</strong></div>`;
+      } else if (d.statut === 'refusee') {
+        resultatHtml = `<div class="resultat refusee"><strong>❌ Refusée</strong><br>Motif : ${d.message_admin}</div>`;
+      }
+      
+      if (role === 'logistique') {
+        actionsHtml += `<button class="btn btn-suppr" onclick="supprimerDemande(${d.id})">🗑️ Supprimer</button>`;
+      }
+
+      return `
+        <div class="demande-item ${d.statut === 'validee' ? 'validee' : d.statut === 'refusee' ? 'refusee' : ''}">
+          <div class="demande-header"><h3>${d.prenom} ${d.nom} <span>— ${d.poste}</span></h3><span class="statut ${d.statut}">${d.statut === 'en_attente' ? '⏳ En attente' : d.statut === 'validee' ? '✅ Affectée' : '❌ Refusée'}</span></div>
+          <div class="demande-grid">
+            <div class="info-item"><strong>📅 Date</strong>${formatNigerDateShort(d.date_sortie)} à ${d.heure_depart}</div>
+            <div class="info-item"><strong>📍 Destination</strong>${d.destination}</div>
+            <div class="info-item"><strong>⏱ Durée</strong>${d.duree} min</div>
+          </div>
+          <div class="demande-motif"><strong>📝 Motif :</strong> ${d.motif}</div>
+          ${resultatHtml}
+          <div class="actions">${actionsHtml}</div>
+        </div>`;
+    }).join('');
   }
-  if(!filtered.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=moduleActuel.champs.length+1;td.textContent="Aucun résultat.";tr.appendChild(td);tbody.appendChild(tr);}
-  el("totalListe").textContent=filtered.length+" résultat(s) sur "+resultats.length+" chargé(s) (100 maximum)";
-}
-el("filtre").addEventListener("input",afficherLignes);
-el("actualiser").addEventListener("click",()=>{if(!profilActuel)return;const roles=MODULES.filter(m=>m.roles.includes(String(profilActuel.role).toLowerCase()));actualiserCompteurs(roles);if(moduleActuel)chargerModule(moduleActuel);});
-async function actualiserCompteurs(modules){
-  for(const m of modules){
-    const label=el("compte_"+m.id);if(!label)continue;
-    const {count,error}=await client.from(m.id).select("id",{count:"exact",head:true});
-    label.textContent=error?"—":String(count??0);
+
+  function toggleAutre(type) {
+    const select = document.getElementById(type === 'chauffeur' ? 'selectChauffeur' : 'selectVehicule');
+    const input = document.getElementById(type === 'chauffeur' ? 'inputChauffeurAutre' : 'inputVehiculeAutre');
+    if(input) {
+      input.style.display = select.value === 'AUTRE' ? 'block' : 'none';
+      if (select.value !== 'AUTRE') input.value = '';
+    }
   }
-}
-ouvrirSession();
+
+  function ouvrirModalValider(id) {
+    demandeEnCours = toutesLesDemandes.find(d => d.id === id);
+    if (!demandeEnCours) return;
+    document.getElementById('modalValiderInfo').textContent = `${demandeEnCours.prenom} ${demandeEnCours.nom} → ${demandeEnCours.destination}`;
+    document.getElementById('selectChauffeur').value = ''; document.getElementById('inputChauffeurAutre').style.display = 'none'; document.getElementById('inputChauffeurAutre').value = '';
+    document.getElementById('selectVehiculeType').value = 'Véhicule Location';
+    document.getElementById('inputVehiculeMarque').value = '';
+    document.getElementById('inputVehiculeCouleur').value = '';
+    document.getElementById('inputVehiculeImmat').value = '';
+    document.getElementById('modalValider').classList.add('active');
+  }
+
+  async function confirmerValidation() {
+    const sc = document.getElementById('selectChauffeur').value;
+    let chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurAutre').value.trim() : sc;
+    
+    const type = document.getElementById('selectVehiculeType').value;
+    const marque = document.getElementById('inputVehiculeMarque').value.trim();
+    const couleur = document.getElementById('inputVehiculeCouleur').value.trim();
+    const immat = document.getElementById('inputVehiculeImmat').value.trim();
+    
+    if (!chauffeur || !marque || !couleur || !immat) { alert('⚠️ Remplissez tous les champs.'); return; }
+    
+    const vehiculeString = `${type} (${marque} - ${couleur} - ${immat})`;
+
+    try {
+      await apiCall('/demandes?id=eq.' + demandeEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'validee', chauffeur_assigne: chauffeur, vehicule_assigne: vehiculeString, date_validation: new Date().toISOString(), valide_par: getAdminName() }) });
+      fermerModal(); await chargerDemandes(); alert('✅ Demande traitée.');
+    } catch (err) { alert('❌ ' + err.message); }
+  }
+
+  function ouvrirModalRefuser(id) {
+    demandeEnCours = toutesLesDemandes.find(d => d.id === id);
+    if (!demandeEnCours) return;
+    document.getElementById('modalRefuserInfo').textContent = `${demandeEnCours.prenom} ${demandeEnCours.nom}`;
+    document.getElementById('inputMotifRefus').value = '';
+    document.getElementById('modalRefuser').classList.add('active');
+  }
+
+  async function confirmerRefus() {
+    const motif = document.getElementById('inputMotifRefus').value.trim();
+    if (!motif) { alert('⚠️ Motif obligatoire.'); return; }
+    try {
+      await apiCall('/demandes?id=eq.' + demandeEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'refusee', message_admin: motif, date_validation: new Date().toISOString(), refuse_par: getAdminName() }) });
+      fermerModal(); await chargerDemandes(); alert('❌ Demande refusée.');
+    } catch (err) { alert('❌ ' + err.message); }
+  }
+
+  async function supprimerDemande(id) { if (confirm('Supprimer ?')) { await apiCall('/demandes?id=eq.' + id, { method: 'DELETE' }); chargerDemandes(); } }
+
+  // ORDRES DE MISSION (AVEC GESTION DES ONGLETS ET RECHERCHE)
+  function changerTypeOrdre(type, btn) {
+    typeOrdreActif = type;
+    document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    afficherOrdres();
+  }
+
+  async function chargerOrdres() {
+    const container = document.getElementById('ordresContainer');
+    container.innerHTML = '<div class="loading">Chargement...</div>';
+    try {
+      tousLesOrdres = await apiCall('/missions_2?order=created_at.desc');
+      mettreAJourNotifications(); // <-- NOUVEAU
+      afficherOrdres();
+    } catch (err) { container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>'; }
+  }
+
+  function afficherOrdres() {
+    const filtreStatut = document.getElementById('filtreStatutOrdre').value;
+    const recherche = document.getElementById('searchOrdres').value.toLowerCase();
+    const container = document.getElementById('ordresContainer');
+    const role = getAdminRole();
+    
+    let listeBase = tousLesOrdres;
+    if (typeOrdreActif !== 'tous') {
+      listeBase = listeBase.filter(o => o.moyen_deplacement === typeOrdreActif);
+    }
+
+    document.getElementById('statOrdresAttente').textContent = listeBase.filter(o => o.statut === 'en_attente').length;
+    document.getElementById('statOrdresAffectes').textContent = listeBase.filter(o => o.statut === 'affecte_logistique').length;
+    document.getElementById('statOrdresValides').textContent = listeBase.filter(o => o.statut === 'validee').length;
+    document.getElementById('statOrdresTotal').textContent = listeBase.length;
+
+    let listeFinale = listeBase.filter(o => {
+      const matchStatut = filtreStatut === 'tous' || o.statut === filtreStatut;
+      const matchSearch = !recherche || 
+        (o.nom && o.nom.toLowerCase().includes(recherche)) ||
+        (o.destination && o.destination.toLowerCase().includes(recherche)) ||
+        (o.objectif && o.objectif.toLowerCase().includes(recherche));
+      return matchStatut && matchSearch;
+    });
+    
+    if (listeFinale.length === 0) { 
+      container.innerHTML = '<div class="empty">📭 Aucun ordre de mission ne correspond</div>'; 
+      return; 
+    }
+
+    container.innerHTML = listeFinale.map(o => {
+      let actionsHtml = ''; let resultatHtml = '';
+      
+      if (o.statut === 'en_attente') {
+        if (role === 'logistique') {
+          actionsHtml = `<button class="btn btn-valider" onclick="ouvrirModalValiderOrdre(${o.id})">✅ Affecter Chauffeur/Véhicule</button>`;
+        } else {
+          actionsHtml = `<span style="color:#d68910; font-weight:bold;">⏳ En attente de la logistique</span>`;
+        }
+      } else if (o.statut === 'affecte_logistique') {
+        resultatHtml = `<div class="resultat validee" style="background:#fff3cd; color:#856404; border-color:#ffeeba;"><strong>⏳ Attente N° Ordre (RH)</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne}</strong></div>`;
+        
+        if (role === 'rh' || role === 'logistique') {
+           actionsHtml = `<button class="btn btn-orange" onclick="ouvrirModalNumeroRH(${o.id})">🔢 Valider (Générer N° RH)</button>`;
+        }
+      } else if (o.statut === 'validee') {
+        resultatHtml = `<div class="resultat validee"><strong>✅ Validé (N° ${o.message_admin})</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne}</strong></div>`;
+        actionsHtml = `<button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>`;
+      }
+      
+      if (role === 'logistique') {
+        actionsHtml += `<button class="btn btn-suppr" onclick="supprimerOrdre(${o.id})">🗑️ Supprimer</button>`;
+      }
+
+      return `
+        <div class="demande-item ${o.statut === 'validee' ? 'validee' : ''}">
+          <div class="demande-header">
+            <h3>${o.nom} <span>— ${o.destination}</span></h3>
+            <span class="statut ${o.statut}">${o.statut === 'en_attente' ? '⏳ Attente Log.' : o.statut === 'affecte_logistique' ? '⏳ Attente RH' : '✅ Validé'}</span>
+          </div>
+          <div class="demande-grid">
+            <div class="info-item"><strong>📅 Départ</strong>${formatNigerDateShort(o.date_depart)}</div>
+            <div class="info-item"><strong>📅 Retour</strong>${formatNigerDateShort(o.date_retour)}</div>
+            <div class="info-item"><strong>🧭 Objectif</strong>${o.objectif}</div>
+            <div class="info-item"><strong>🚌 Moyen demandé</strong>${o.moyen_deplacement}</div>
+            <div class="info-item"><strong>💼 Poste</strong>${o.poste}</div>
+            <div class="info-item"><strong>👥 Accompagnateurs</strong>${o.accompagnateurs || 'Aucun'}</div>
+          </div>
+          ${resultatHtml}
+          <div class="actions">${actionsHtml}</div>
+        </div>`;
+    }).join('');
+  }
+
+  // --- EXPORT EXCEL (CSV) ---
+  function exporterCSV(source) {
+    let lignes = [];
+    
+    if (source === 'demandes') {
+      lignes.push(["Date", "Nom", "Prenom", "Poste", "Destination", "Motif", "Statut", "Chauffeur", "Vehicule"].join(";"));
+      const filtre = document.getElementById('filtreStatut').value;
+      const recherche = document.getElementById('searchDemandes').value.toLowerCase();
+      const role = getAdminRole();
+      
+      let liste = toutesLesDemandes;
+      if (role === 'assistant_logistique') {
+        liste = liste.filter(d => (d.motif && d.motif.toLowerCase().includes('location')) || (d.vehicule_assigne && d.vehicule_assigne.toLowerCase().includes('location')));
+      }
+      liste = liste.filter(d => (filtre === 'tous' || d.statut === filtre) && (!recherche || d.nom.toLowerCase().includes(recherche) || d.destination.toLowerCase().includes(recherche)));
+
+      liste.forEach(d => {
+        lignes.push([d.date_sortie, d.nom, d.prenom, d.poste, d.destination, d.motif, d.statut, d.chauffeur_assigne || '', d.vehicule_assigne || ''].join(";"));
+      });
+    } else if (source === 'ordres') {
+      lignes.push(["Date depart", "Date retour", "Nom", "Poste", "Destination", "Objectif", "Moyen", "Statut", "N° Ordre", "Chauffeur", "Vehicule"].join(";"));
+      const filtreStatut = document.getElementById('filtreStatutOrdre').value;
+      const recherche = document.getElementById('searchOrdres').value.toLowerCase();
+      
+      let liste = tousLesOrdres;
+      if (typeOrdreActif !== 'tous') liste = liste.filter(o => o.moyen_deplacement === typeOrdreActif);
+      liste = liste.filter(o => (filtreStatut === 'tous' || o.statut === filtreStatut) && (!recherche || o.nom.toLowerCase().includes(recherche) || o.destination.toLowerCase().includes(recherche)));
+
+      liste.forEach(o => {
+        lignes.push([o.date_depart, o.date_retour, o.nom, o.poste, o.destination, o.objectif, o.moyen_deplacement, o.statut, o.message_admin || '', o.chauffeur_assigne || '', o.vehicule_assigne || ''].join(";"));
+      });
+    }
+
+    // Téléchargement du fichier
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + lignes.join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `Export_${source}_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function toggleAutreOrdre(type) {
+    const select = document.getElementById(type === 'chauffeur' ? 'selectChauffeurOrdre' : 'selectVehiculeOrdre');
+    const input = document.getElementById(type === 'chauffeur' ? 'inputChauffeurOrdreAutre' : 'inputVehiculeOrdreAutre');
+    if(input) {
+      input.style.display = select.value === 'AUTRE' ? 'block' : 'none';
+      if (select.value !== 'AUTRE') input.value = '';
+    }
+  }
+
+  function ouvrirModalValiderOrdre(id) {
+    ordreEnCours = tousLesOrdres.find(o => o.id === id);
+    if (!ordreEnCours) return;
+    document.getElementById('modalValiderOrdreInfo').textContent = `Mission à ${ordreEnCours.destination} pour ${ordreEnCours.nom}`;
+    document.getElementById('selectChauffeurOrdre').value = ''; document.getElementById('inputChauffeurOrdreAutre').style.display = 'none'; document.getElementById('inputChauffeurOrdreAutre').value = '';
+    document.getElementById('selectVehiculeOrdreType').value = ordreEnCours.moyen_deplacement;
+    document.getElementById('inputVehiculeOrdreMarque').value = '';
+    document.getElementById('inputVehiculeOrdreCouleur').value = '';
+    document.getElementById('inputVehiculeOrdreImmat').value = '';
+    document.getElementById('modalValiderOrdre').classList.add('active');
+  }
+
+  async function confirmerValidationOrdre() {
+    const sc = document.getElementById('selectChauffeurOrdre').value;
+    let chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurOrdreAutre').value.trim() : sc;
+    
+    const type = document.getElementById('selectVehiculeOrdreType').value;
+    const marque = document.getElementById('inputVehiculeOrdreMarque').value.trim();
+    const couleur = document.getElementById('inputVehiculeOrdreCouleur').value.trim();
+    const immat = document.getElementById('inputVehiculeOrdreImmat').value.trim();
+    
+    if (!chauffeur || !marque || !couleur || !immat) { alert('⚠️ Remplissez tous les champs.'); return; }
+    const vehiculeString = `${type} (${marque} - ${couleur} - ${immat})`;
+    
+    try {
+      await apiCall('/missions_2?id=eq.' + ordreEnCours.id, { 
+        method: 'PATCH', 
+        body: JSON.stringify({ 
+          statut: 'affecte_logistique', 
+          chauffeur_assigne: chauffeur, 
+          vehicule_assigne: vehiculeString, 
+          date_validation: new Date().toISOString(), 
+          valide_par: getAdminName() 
+        }) 
+      });
+      fermerModal(); 
+      await chargerOrdres(); 
+
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_email: "abdoulnasser@adkoul.org, h.almoustapha@adkoul.org",
+        subject: `📢 Action requise : Attribuer un numéro d'ordre (${ordreEnCours.nom})`,
+        message: `Bonjour l'équipe RH,\n\nLa logistique a affecté un chauffeur et un véhicule pour la mission de ${ordreEnCours.nom} à ${ordreEnCours.destination}.\n\nMerci de vous connecter sur le tableau de bord pour valider et générer le numéro d'ordre de mission.\n\nCordialement,\nLa Logistique`
+      });
+
+      alert(`✅ Affectation logistique enregistrée. Les RH ont été notifiés.`);
+    } catch (err) { alert('❌ ' + err.message); }
+  }
+
+  function ouvrirModalNumeroRH(id) {
+    ordreEnCours = tousLesOrdres.find(o => o.id === id);
+    if (!ordreEnCours) return;
+    document.getElementById('modalNumeroRHInfo').textContent = `Mission à ${ordreEnCours.destination} pour ${ordreEnCours.nom}`;
+    document.getElementById('modalNumeroRH').classList.add('active');
+  }
+
+  async function confirmerNumeroRH() {
+    const annee = new Date().getFullYear();
+    const idFormatte = String(ordreEnCours.id).padStart(4, '0');
+    const numeroGenere = `OM-${annee}-${idFormatte}`;
+
+    try {
+      await apiCall('/missions_2?id=eq.' + ordreEnCours.id, { 
+        method: 'PATCH', 
+        body: JSON.stringify({ 
+          statut: 'validee', 
+          message_admin: numeroGenere
+        }) 
+      });
+
+      fermerModal(); 
+      await chargerOrdres(); 
+
+      const lienImpression = `https://amague2007-star.github.io/demande-vehicule/impression-ordre.html?id=${ordreEnCours.id}`;
+      
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_email: ordreEnCours.email,
+        subject: `✅ Votre Ordre de Mission est prêt (N° ${numeroGenere})`,
+        message: `Bonjour ${ordreEnCours.nom},\n\nVotre ordre de mission a été validé par les Ressources Humaines.\n\n🔢 Numéro : ${numeroGenere}\n👤 Chauffeur : ${ordreEnCours.chauffeur_assigne}\n🚙 Véhicule : ${ordreEnCours.vehicule_assigne}\n\n👉 Cliquez sur ce lien pour imprimer votre document officiel :\n${lienImpression}\n\nCordialement,\nLe Service RH - ONG ADKOUL`
+      });
+
+      alert(`✅ Numéro ${numeroGenere} généré et e-mail transmis à l'agent !`);
+    } catch (err) { alert('❌ ' + err.message); }
+  }
+
+  async function supprimerOrdre(id) { 
+    if (confirm('Supprimer cet ordre de mission ?')) { 
+      await apiCall('/missions_2?id=eq.' + id, { method: 'DELETE' }); 
+      chargerOrdres(); 
+    } 
+  }
+
+  // IMPRESSION
+  async function imprimerOrdreMission(id) {
+    const data = tousLesOrdres.find(o => o.id === id);
+    if (!data) return;
+
+    const fenetre = window.open('', '_blank');
+    fenetre.document.write(`
+      <!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Ordre de Mission</title>
+        <style>
+          body { font-family: 'Times New Roman', Times, serif; padding: 40px; color: #000; line-height: 1.5; }
+          .header { text-align: center; margin-bottom: 40px; } .header h1 { font-size: 20px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; } .header h2 { font-size: 16px; font-weight: normal; }
+          .bureau { text-align: right; font-weight: bold; margin-bottom: 30px; } .titre { text-align: center; font-size: 22px; font-weight: bold; text-decoration: underline; margin-bottom: 40px; }
+          .contenu { margin-left: 20px; margin-bottom: 40px; font-size: 15px; } .ligne { margin-bottom: 15px; } .label { font-weight: bold; display: inline-block; width: 220px; }
+          .signature { display: flex; justify-content: space-between; margin-top: 60px; } .signature-bloc { text-align: center; width: 45%; } .signature-titre { font-weight: bold; margin-bottom: 10px; }
+          @media print { body { padding: 0; } }
+        </style></head><body>
+        <div class="header"><h1>ONG ADKOUL</h1><h2>Solidarité • Éducation • Développement</h2></div>
+        <div class="bureau">Bureau : ${data.bureau}</div>
+        <div class="titre">ORDRE DE MISSION N° ${data.message_admin || '—'}</div>
+        <div class="contenu">
+          <p style="margin-bottom: 20px;"><strong>LE SECRETAIRE EXECUTIF DE L'ONG ADKOUL AUTORISE :</strong></p>
+          <div class="ligne"><span class="label">CHEF DE MISSION :</span> ${data.nom}</div>
+          <div class="ligne"><span class="label">EMPLOI OCCUPÉ :</span> ${data.poste}</div>
+          <div class="ligne"><span class="label">ACCOMPAGNATEURS :</span> ${data.accompagnateurs || '—'}</div>
+          <div class="ligne"><span class="label">DE SE RENDRE EN MISSION À :</span> ${data.destination}</div>
+          <div class="ligne"><span class="label">OBJECTIF DE LA MISSION :</span> ${data.objectif}</div>
+          <div class="ligne"><span class="label">MOYEN DE DÉPLACEMENT :</span> ${data.moyen_deplacement}</div>
+          <div class="ligne"><span class="label">CHAUFFEUR :</span> ${data.chauffeur_assigne || '—'}</div>
+          <div class="ligne"><span class="label">VÉHICULE :</span> ${data.vehicule_assigne || '—'}</div>
+          <div class="ligne"><span class="label">DATE DE DÉPART :</span> ${formatNigerDateShort(data.date_depart)}</div>
+          <div class="ligne"><span class="label">DATE DE RETOUR PRÉVUE :</span> ${formatNigerDateShort(data.date_retour)}</div>
+          <div class="ligne"><span class="label">IMPUTATION BUDGÉTAIRE :</span> ${data.imputation_budgetaire}</div>
+        </div>
+        <div class="signature">
+          <div class="signature-bloc"><div class="signature-titre">DATE ET SIGNATURE</div><div>Fait à ${data.bureau}, le ${formatNigerDateShort(data.date_depart)}</div><br><br><br><div>_______________________</div><div><strong>L'Agent</strong></div></div>
+          <div class="signature-bloc"><div class="signature-titre">&nbsp;</div><div>&nbsp;</div><br><br><br><div>_______________________</div><div><strong>LE SECRÉTAIRE EXÉCUTIF</strong></div></div>
+        </div>
+        <button onclick="window.print()" style="margin-top: 50px; padding: 15px; background: #27ae60; color: #fff; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold;">🖨️ Imprimer</button>
+      </body></html>
+    `);
+    fenetre.document.close();
+  }
+
 </script>
 </body>
 </html>

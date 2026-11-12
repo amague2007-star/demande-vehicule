@@ -48,7 +48,6 @@
   /* --- SECTION ACCUEIL / GRAPHIQUES --- */
   #accueilSection { padding: 30px; display: block; }
   
-  /* NOUVEAU : FILTRE DATE */
   .dash-filters { display: flex; justify-content: flex-end; margin-bottom: 20px; }
   .dash-filters select { padding: 10px 18px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-weight: 600; color: #1e3c72; outline: none; cursor: pointer; }
 
@@ -225,7 +224,6 @@
 
   <!-- SECTION ACCUEIL / GRAPHIQUES -->
   <div id="accueilSection">
-    <!-- NOUVEAU FILTRE DATE -->
     <div class="dash-filters">
       <select id="filtreDateAccueil" onchange="mettreAJourGraphiques()">
         <option value="tout">📅 Toutes les périodes</option>
@@ -878,7 +876,12 @@
     } catch (err) { alert('❌ ' + err.message); }
   }
 
-  async function supprimerDemande(id) { if (confirm('Supprimer ?')) { await apiCall('/demandes?id=eq.' + id, { method: 'DELETE' }); chargerDemandes(); } }
+  async function supprimerDemande(id) { 
+    if (confirm('⚠️ ATTENTION : Cette action supprimera DÉFINITIVEMENT la demande.\n\nConfirmer la suppression ?')) { 
+      await apiCall('/demandes?id=eq.' + id, { method: 'DELETE' }); 
+      chargerDemandes(); 
+    } 
+  }
 
   // ORDRES DE MISSION
   function changerTypeOrdre(type, btn) {
@@ -953,6 +956,9 @@
         if (role === 'rh' || role === 'logistique') {
            actionsHtml += `<button class="btn btn-orange" onclick="ouvrirModalNumeroRH(${o.id})">🔢 Valider (Générer N° RH)</button>`;
         }
+        if (role === 'logistique') {
+          actionsHtml += `<button class="btn btn-orange" onclick="annulerValidationRH(${o.id})" style="padding:8px 14px; font-size:12px; background:#f39c12;">↩️ Annuler validation RH</button>`;
+        }
       } else if (o.statut === 'validee') {
         resultatHtml = `<div class="resultat validee"><strong>✅ Validé (N° ${o.message_admin})</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne}</strong><br>${o.affecte_par ? `<span class="par-admin">✔ Affecté par : ${o.affecte_par}</span>` : ''}${o.valide_rh_par ? `<span class="par-admin">✔ Validé (RH) par : ${o.valide_rh_par}</span>` : ''}</div>`;
         
@@ -963,6 +969,9 @@
           <button class="btn btn-print-admin" onclick="telechargerOrdreMission(${o.id})" style="background:#e67e22;">📥 Télécharger</button>
           <button class="btn btn-whatsapp" onclick="notifierWhatsAppMission(${o.id})">💬 Notifier le chauffeur</button>
         `;
+        if (role === 'logistique') {
+          actionsHtml += `<button class="btn btn-orange" onclick="annulerValidationRH(${o.id})" style="padding:8px 14px; font-size:12px; background:#f39c12;">↩️ Annuler validation RH</button>`;
+        }
       }
       
       if (role === 'logistique') {
@@ -1066,6 +1075,19 @@
     
     if (!chauffeur || !marque || !couleur || !immat) { alert('⚠️ Remplissez tous les champs.'); return; }
     const vehiculeString = `${type} (${marque} - ${couleur} - ${immat})`;
+
+    // Vérification de conflit de dates
+    const conflit = tousLesOrdres.find(o => 
+      o.id !== ordreEnCours.id && 
+      o.statut !== 'refusee' && 
+      o.vehicule_assigne === vehiculeString &&
+      ((new Date(ordreEnCours.date_depart) <= new Date(o.date_retour)) && (new Date(ordreEnCours.date_retour) >= new Date(o.date_depart)))
+    );
+
+    if (conflit) {
+      alert(`⚠️ ATTENTION : Ce véhicule est déjà affecté à la mission de ${conflit.nom} du ${formatNigerDateShort(conflit.date_depart)} au ${formatNigerDateShort(conflit.date_retour)}.`);
+      return; // On bloque la validation
+    }
     
     try {
       await apiCall('/missions_2?id=eq.' + ordreEnCours.id, { 
@@ -1075,7 +1097,7 @@
           chauffeur_assigne: chauffeur, 
           vehicule_assigne: vehiculeString, 
           date_validation: new Date().toISOString(), 
-          affecte_par: getAdminName() // <-- NOUVEAU : Traçabilité
+          affecte_par: getAdminName() // Traçabilité
         }) 
       });
       fermerModal(); 
@@ -1109,7 +1131,7 @@
         body: JSON.stringify({ 
           statut: 'validee', 
           message_admin: numeroGenere,
-          valide_rh_par: getAdminName() // <-- NOUVEAU : Traçabilité
+          valide_rh_par: getAdminName() // Traçabilité
         }) 
       });
 
@@ -1128,8 +1150,20 @@
     } catch (err) { alert('❌ ' + err.message); }
   }
 
+  async function annulerValidationRH(id) {
+    if (!confirm('Voulez-vous vraiment annuler la validation RH et le numéro d\'ordre ?')) return;
+    try {
+      await apiCall('/missions_2?id=eq.' + id, { 
+        method: 'PATCH', 
+        body: JSON.stringify({ statut: 'affecte_logistique', message_admin: null }) 
+      });
+      await chargerOrdres();
+      alert('↩️ Validation RH annulée. La mission est de nouveau en attente des RH.');
+    } catch (err) { alert('❌ ' + err.message); }
+  }
+
   async function supprimerOrdre(id) { 
-    if (confirm('Supprimer cet ordre de mission ?')) { 
+    if (confirm('⚠️ ATTENTION : Cette action supprimera DÉFINITIVEMENT l\'ordre de mission.\n\nConfirmer la suppression ?')) { 
       await apiCall('/missions_2?id=eq.' + id, { method: 'DELETE' }); 
       chargerOrdres(); 
     } 
@@ -1137,22 +1171,10 @@
 
   // --- IMPRESSION / VOIR / TELECHARGER ---
   
-  // 1. BOUTON VOIR
-  function voirOrdreMission(id) {
-    genererDocumentOrdre(id, 'voir');
-  }
+  function voirOrdreMission(id) { genererDocumentOrdre(id, 'voir'); }
+  function imprimerOrdreMission(id) { genererDocumentOrdre(id, 'imprimer'); }
+  function telechargerOrdreMission(id) { genererDocumentOrdre(id, 'telecharger'); }
 
-  // 2. BOUTON IMPRIMER
-  function imprimerOrdreMission(id) {
-    genererDocumentOrdre(id, 'imprimer');
-  }
-
-  // 3. BOUTON TELECHARGER
-  function telechargerOrdreMission(id) {
-    genererDocumentOrdre(id, 'telecharger');
-  }
-
-  // FONCTION GÉNÉRALE
   function genererDocumentOrdre(id, mode) {
     const data = tousLesOrdres.find(o => o.id === id);
     if (!data) return;

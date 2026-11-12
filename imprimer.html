@@ -4,9 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Impression Ordre de Mission - ONG ADKOUL</title>
+<!-- Bibliothèque pour générer le PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
-  body { font-family: Arial, Helvetica, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
-  .document { background: #fff; max-width: 800px; margin: 0 auto; padding: 40px 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); color: #000; }
+  body { font-family: 'Times New Roman', Times, serif; background: #f0f2f5; margin: 0; padding: 20px; }
+  
+  .document { 
+    background: #fff; 
+    max-width: 800px; 
+    margin: 0 auto; 
+    padding: 30px 40px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+    color: #000;
+    line-height: 1.5;
+  }
   
   /* En-tête avec la bannière */
   .entete-document {
@@ -21,39 +32,62 @@
   .logo-centre {
     display: block;
     margin: 0 auto 20px auto;
-    width: 120px;
+    width: 100px;
     height: auto;
   }
 
-  .header h1 { font-size: 24px; font-weight: bold; margin: 0 0 5px 0; text-align: center; }
-  .header h2 { font-size: 14px; font-weight: normal; font-style: italic; margin: 0 0 20px 0; color: #333; text-align: center; }
-  .titre-om { text-align: center; font-size: 20px; font-weight: bold; margin: 20px 0 30px 0; text-transform: uppercase; }
-  .bureau { font-weight: bold; margin-bottom: 20px; font-size: 15px; }
-  .contenu { font-size: 15px; line-height: 1.4; }
-  .contenu p { margin-bottom: 20px; font-weight: bold; }
-  .ligne { margin-bottom: 10px; display: flex; }
-  .label { font-weight: bold; width: 220px; flex-shrink: 0; text-transform: uppercase; }
-  .valeur { flex-grow: 1; }
-  .footer-page1 { margin-top: 40px; }
-  .footer-page1 p { margin-bottom: 5px; }
-  .signature-bas { margin-top: 30px; text-align: right; }
+  .header h1 { font-size: 22px; font-weight: bold; margin: 0 0 5px 0; text-align: center; text-transform: uppercase; }
+  .header h2 { font-size: 16px; font-weight: normal; font-style: italic; margin: 0 0 20px 0; color: #333; text-align: center; }
+  
+  .titre-om { 
+    text-align: center; 
+    font-size: 20px; 
+    font-weight: bold; 
+    margin: 20px 0 30px 0; 
+    text-transform: uppercase; 
+    text-decoration: underline;
+  }
+  
+  .bureau { font-weight: bold; margin-bottom: 20px; font-size: 16px; }
+  
+  .contenu { font-size: 16px; line-height: 1.8; }
+  .contenu p { margin-bottom: 20px; font-weight: bold; text-transform: uppercase; }
+  
+  /* Lignes de texte avec pointillés */
+  .ligne { margin-bottom: 12px; display: flex; align-items: flex-end; }
+  .label { font-weight: bold; width: 250px; flex-shrink: 0; text-transform: uppercase; }
+  .valeur { flex-grow: 1; border-bottom: 1px dotted #000; padding-left: 10px; font-weight: 500; }
+  
+  /* Signatures */
+  .footer-page1 { margin-top: 50px; display: flex; justify-content: space-between; }
+  .bloc-signature { text-align: center; width: 250px; }
+  .bloc-signature p { margin-bottom: 5px; font-weight: bold; }
+  .espace-signature { height: 80px; }
 
+  /* --- CONFIGURATION SPÉCIFIQUE POUR L'IMPRESSION ET LE PDF --- */
   @media print {
     body { background: #fff; padding: 0; margin: 0; }
-    .document { box-shadow: none; padding: 0; max-width: 100%; }
+    .document { box-shadow: none; padding: 0; max-width: 100%; margin: 0; }
     .btn-print { display: none; }
-    @page { size: A4 portrait; margin: 20mm; }
+    @page { size: A4 portrait; margin: 15mm; }
     .page-2 { page-break-before: always; border-top: none !important; margin-top: 0 !important; padding-top: 0 !important; }
   }
 
+  /* Page 2 (Cadres de visas) */
   .page-2 { margin-top: 40px; border-top: 2px dashed #ccc; padding-top: 40px; }
   .cadre-signature { border: 1px solid #000; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; font-size: 13px; page-break-inside: avoid; height: 150px; box-sizing: border-box; }
   .colonne-signature { width: 48%; display: flex; flex-direction: column; justify-content: space-between; }
   .ligne-top { display: flex; justify-content: space-between; margin-bottom: 10px; }
   .ligne-milieu { display: flex; gap: 5px; margin-bottom: 10px; }
   .ligne-bas { display: flex; gap: 5px; }
-  .btn-print { display: block; width: 250px; margin: 30px auto 0; padding: 15px; background: #27ae60; color: #fff; text-align: center; text-decoration: none; font-family: sans-serif; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; font-size: 16px; }
+  
+  /* Boutons */
+  .actions-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
+  .btn { padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-size: 16px; font-weight: bold; color: #fff; display: flex; align-items: center; gap: 8px; font-family: sans-serif; }
+  .btn-print { background: #27ae60; }
   .btn-print:hover { background: #229954; }
+  .btn-download { background: #1e3c72; }
+  .btn-download:hover { background: #2a5298; }
 </style>
 </head>
 <body>
@@ -62,22 +96,27 @@
   <p style="text-align: center; color: #666; padding: 50px; font-family: sans-serif;">⏳ Chargement des données...</p>
 </div>
 
-<button class="btn-print" id="btnPrint" style="display: none;" onclick="window.print()">🖨️ Imprimer le document</button>
+<!-- Boutons qui n'apparaîtront pas sur le PDF -->
+<div class="actions-buttons" id="actionButtons" style="display: none;">
+  <button class="btn btn-print" onclick="window.print()">🖨️ Imprimer</button>
+  <button class="btn btn-download" id="btnDownloadPdf">📥 Télécharger en PDF</button>
+</div>
 
 <script>
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
 
   const contenu = document.getElementById("documentContent");
+  const actionButtons = document.getElementById("actionButtons");
   const escapeHtml = value => String(value ?? "—").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   
   function refuser(texte) {
     contenu.innerHTML = `<p style="text-align: center; color: red;">${texte}</p>`;
-    document.getElementById("btnPrint").style.display = "none";
   }
 
   const urlParams = new URLSearchParams(window.location.search);
   const ordreId = urlParams.get('id');
+  const autoDownload = urlParams.get('download') === 'true'; // Détecte si on vient du bouton "Télécharger"
 
   function formatDate(dateStr) {
     if (!dateStr) return '—';
@@ -96,29 +135,25 @@
         cache: "no-store"
       });
 
-      if (!response.ok) {
-        throw new Error("Erreur de connexion à la base de données.");
-      }
-
+      if (!response.ok) throw new Error("Erreur de connexion à la base de données.");
       const data = await response.json();
 
       if (data && data.length > 0) {
         const d = data[0];
         
+        // On construit le HTML avec une mise en page officielle (Times New Roman, pointillés)
         document.getElementById('documentContent').innerHTML = `
-          <!-- BANNIÈRE EN-TÊTE -->
           <img src="entete.jpg" alt="En-tête ONG ADKOUL" class="entete-document">
-
-          <!-- LOGO CENTRAL -->
           <img src="logo.png" alt="Logo ONG ADKOUL" class="logo-centre">
 
-          <!-- PAGE 1 -->
           <div class="header">
             <h1>ORDRE DE MISSION</h1>
             <h2>Référence : ${escapeHtml(d.id)}</h2>
           </div>
           
-          <div class="bureau">Bureau : ${escapeHtml(d.bureau)}</div>
+          <div class="titre-om">DEMANDE D'ORDRE DE MISSION</div>
+          
+          <div class="bureau">Bureau : <span style="border-bottom: 1px dotted #000; padding: 0 10px;">${escapeHtml(d.bureau)}</span></div>
           
           <div class="contenu">
             <p>LE SECRETAIRE EXECUTIF DE L'ONG ADKOUL AUTORISE :</p>
@@ -126,26 +161,26 @@
             <div class="ligne"><span class="label">CHEF DE MISSION :</span> <span class="valeur">${escapeHtml(d.nom)}</span></div>
             <div class="ligne"><span class="label">EMPLOI OCCUPE :</span> <span class="valeur">${escapeHtml(d.poste)}</span></div>
             <div class="ligne"><span class="label">ACCOMPAGNATEURS :</span> <span class="valeur">${escapeHtml(d.accompagnateurs || '—')}</span></div>
-            <div class="ligne"><span class="label">DE SE RENDRE EN MISSION A :</span> <span class="valeur">${escapeHtml(d.destination)}</span></div>
-            <div class="ligne"><span class="label">OBJECTIF DE LA MISSION :</span> <span class="valeur">${escapeHtml(d.objectif)}</span></div>
+            <div class="ligne"><span class="label">DESTINATION :</span> <span class="valeur">${escapeHtml(d.destination)}</span></div>
+            <div class="ligne"><span class="label">OBJECTIF :</span> <span class="valeur">${escapeHtml(d.objectif)}</span></div>
             <div class="ligne"><span class="label">MOYEN DE DEPLACEMENT :</span> <span class="valeur">${escapeHtml(d.moyen_deplacement)}</span></div>
             <div class="ligne"><span class="label">CHAUFFEUR :</span> <span class="valeur">${escapeHtml(d.chauffeur_assigne || '—')}</span></div>
             <div class="ligne"><span class="label">VÉHICULE :</span> <span class="valeur">${escapeHtml(d.vehicule_assigne || '—')}</span></div>
             <div class="ligne"><span class="label">DATE DE DEPART :</span> <span class="valeur">${formatDate(d.date_depart)}</span></div>
-            <div class="ligne"><span class="label">DATE DE RETOUR PREVUE :</span> <span class="valeur">${formatDate(d.date_retour)}</span></div>
+            <div class="ligne"><span class="label">DATE DE RETOUR :</span> <span class="valeur">${formatDate(d.date_retour)}</span></div>
             <div class="ligne"><span class="label">IMPUTATION BUDGETAIRE :</span> <span class="valeur">${escapeHtml(d.imputation_budgetaire)}</span></div>
           </div>
 
           <div class="footer-page1">
-            <p>DATE ET SIGNATURE :</p>
-            <p>Fait à ${escapeHtml(d.bureau)}, le ${formatDate(d.date_depart)}</p>
-            
-            <div class="signature-bas">
-              <p style="font-weight: bold;">SECRETAIRE EXECUTIF</p>
+            <div class="bloc-signature">
+              <p>Fait à ${escapeHtml(d.bureau)}, le ${formatDate(d.date_depart)}</p>
+            </div>
+            <div class="bloc-signature">
+              <p>LE SECRETAIRE EXECUTIF</p>
+              <div class="espace-signature"></div>
             </div>
           </div>
 
-          <!-- PAGE 2 : CADRES DE VISAS -->
           <div class="page-2">
             ${Array(4).fill(`
             <div class="cadre-signature">
@@ -167,7 +202,33 @@
             `).join('')}
           </div>
         `;
-        document.getElementById('btnPrint').style.display = 'block';
+        
+        actionButtons.style.display = 'flex';
+
+        // GESTION DU BOUTON TÉLÉCHARGER PDF
+        document.getElementById('btnDownloadPdf').addEventListener('click', () => {
+          const element = document.getElementById('documentContent');
+          
+          // Options de génération du PDF
+          const opt = {
+            margin:       [10, 10, 10, 10], // Marges en mm
+            filename:     `Ordre_Mission_${d.nom.replace(/\s+/g, '_')}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true }, // scale 2 pour une bonne qualité
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          };
+
+          // Lance le téléchargement
+          html2pdf().set(opt).from(element).save();
+        });
+
+        // Si on a cliqué sur "Télécharger" depuis admin.html, on lance le téléchargement automatique
+        if (autoDownload) {
+          setTimeout(() => {
+            document.getElementById('btnDownloadPdf').click();
+          }, 1000); // Petit délai pour laisser les images charger
+        }
+
       } else {
         refuser("Erreur : Ordre de mission introuvable dans la base de données.");
       }

@@ -925,12 +925,25 @@
       } else if (o.statut === 'affecte_logistique') {
         resultatHtml = `<div class="resultat validee" style="background:#fff3cd; color:#856404; border-color:#ffeeba;"><strong>⏳ Attente N° Ordre (RH)</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne}</strong></div>`;
         
+        // BOUTONS VOIR ET IMPRIMER
+        actionsHtml = `
+          <button class="btn btn-print-admin" onclick="voirOrdreMission(${o.id})" style="background:#3498db;">👁️ Voir</button>
+          <button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>
+          <button class="btn btn-print-admin" onclick="telechargerOrdreMission(${o.id})" style="background:#e67e22;">📥 Télécharger</button>
+        `;
+
         if (role === 'rh' || role === 'logistique') {
-           actionsHtml = `<button class="btn btn-orange" onclick="ouvrirModalNumeroRH(${o.id})">🔢 Valider (Générer N° RH)</button>`;
+           actionsHtml += `<button class="btn btn-orange" onclick="ouvrirModalNumeroRH(${o.id})">🔢 Valider (Générer N° RH)</button>`;
         }
       } else if (o.statut === 'validee') {
         resultatHtml = `<div class="resultat validee"><strong>✅ Validé (N° ${o.message_admin})</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne}</strong></div>`;
-        actionsHtml = `<button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>`;
+        
+        // BOUTONS VOIR ET IMPRIMER
+        actionsHtml = `
+          <button class="btn btn-print-admin" onclick="voirOrdreMission(${o.id})" style="background:#3498db;">👁️ Voir</button>
+          <button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>
+          <button class="btn btn-print-admin" onclick="telechargerOrdreMission(${o.id})" style="background:#e67e22;">📥 Télécharger</button>
+        `;
       }
       
       if (role === 'logistique') {
@@ -1102,21 +1115,43 @@
     } 
   }
 
-  // IMPRESSION
-  async function imprimerOrdreMission(id) {
+  // --- IMPRESSION / VOIR / TELECHARGER ---
+  
+  // 1. BOUTON VOIR
+  function voirOrdreMission(id) {
+    genererDocumentOrdre(id, 'voir');
+  }
+
+  // 2. BOUTON IMPRIMER
+  function imprimerOrdreMission(id) {
+    genererDocumentOrdre(id, 'imprimer');
+  }
+
+  // 3. BOUTON TELECHARGER
+  function telechargerOrdreMission(id) {
+    genererDocumentOrdre(id, 'telecharger');
+  }
+
+  // FONCTION GÉNÉRALE
+  function genererDocumentOrdre(id, mode) {
     const data = tousLesOrdres.find(o => o.id === id);
     if (!data) return;
 
     const fenetre = window.open('', '_blank');
     fenetre.document.write(`
-      <!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Ordre de Mission</title>
+      <!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Ordre de Mission N°${data.message_admin || ''} - ${data.nom}</title>
         <style>
-          body { font-family: 'Times New Roman', Times, serif; padding: 40px; color: #000; line-height: 1.5; }
+          body { font-family: 'Times New Roman', Times, serif; padding: 40px; color: #000; line-height: 1.5; background: #fff; }
           .header { text-align: center; margin-bottom: 40px; } .header h1 { font-size: 20px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; } .header h2 { font-size: 16px; font-weight: normal; }
           .bureau { text-align: right; font-weight: bold; margin-bottom: 30px; } .titre { text-align: center; font-size: 22px; font-weight: bold; text-decoration: underline; margin-bottom: 40px; }
           .contenu { margin-left: 20px; margin-bottom: 40px; font-size: 15px; } .ligne { margin-bottom: 15px; } .label { font-weight: bold; display: inline-block; width: 220px; }
           .signature { display: flex; justify-content: space-between; margin-top: 60px; } .signature-bloc { text-align: center; width: 45%; } .signature-titre { font-weight: bold; margin-bottom: 10px; }
-          @media print { body { padding: 0; } }
+          
+          @media print { 
+            body { padding: 0; } 
+            .no-print { display: none; }
+            @page { size: A4 portrait; margin: 20mm; }
+          }
         </style></head><body>
         <div class="header"><h1>ONG ADKOUL</h1><h2>Solidarité • Éducation • Développement</h2></div>
         <div class="bureau">Bureau : ${data.bureau}</div>
@@ -1140,7 +1175,11 @@
           <div class="signature-bloc"><div class="signature-titre">DATE ET SIGNATURE</div><div>Fait à ${data.bureau}, le ${formatNigerDateShort(data.date_depart)}</div><br><br><br><div>_______________________</div><div><strong>L'Agent</strong></div></div>
           <div class="signature-bloc"><div class="signature-titre">&nbsp;</div><div>&nbsp;</div><br><br><br><div>_______________________</div><div><strong>LE SECRÉTAIRE EXÉCUTIF</strong></div></div>
         </div>
-        <button onclick="window.print()" style="margin-top: 50px; padding: 15px; background: #27ae60; color: #fff; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold;">🖨️ Imprimer</button>
+        
+        ${mode === 'voir' ? `<button class="no-print" onclick="window.print()" style="margin-top: 50px; padding: 15px; background: #27ae60; color: #fff; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold;">🖨️ Imprimer / Enregistrer en PDF</button>` : ''}
+        
+        ${mode === 'imprimer' || mode === 'telecharger' ? '<script>window.onload = function() { setTimeout(function(){ window.print(); }, 500); };</script>' : ''}
+        
       </body></html>
     `);
     fenetre.document.close();

@@ -1,77 +1,53 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<title>Admin - Connexion</title>
-<style>
-  body { font-family: Arial; background: #1e3c72; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-  .box { background: white; padding: 40px; border-radius: 15px; width: 350px; }
-  h2 { color: #1e3c72; text-align: center; }
-  input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-  button { width: 100%; padding: 14px; background: #27ae60; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-  #message { margin-top: 15px; text-align: center; font-weight: bold; }
-  #dashboardTest { display: none; text-align: center; }
-</style>
-</head>
-<body>
-
-<div class="box" id="loginBox">
-  <h2>Connexion Admin</h2>
-  <input type="email" id="email" value="abdoul.aziz@adkoul.org">
-  <input type="password" id="password" value="admin123">
-  <button onclick="seConnecter()">Se connecter</button>
-  <div id="message"></div>
-</div>
-
-<div class="box" id="dashboardTest">
-  <h2>✅ Connexion Réussie !</h2>
-  <p>Bienvenue <span id="nomUser"></span></p>
-  <p>Rôle : <span id="roleUser"></span></p>
-  <button onclick="location.reload()" style="background:#e74c3c;">Se déconnecter</button>
-</div>
-
+<html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>ADKOUL — Connexion administrateur</title>
+<style>body{font:16px Arial,sans-serif;background:#1e3c72;min-height:100vh;margin:0;display:grid;place-items:center}.box{background:white;border-radius:15px;padding:32px;width:min(90%,380px);box-sizing:border-box}h2{text-align:center;color:#1e3c72}label{display:block;margin:12px 0 5px}input,button{box-sizing:border-box;width:100%;padding:12px;border-radius:8px}input{border:1px solid #aaa}button{margin-top:15px;color:white;background:#227e46;border:0;cursor:pointer}button:disabled{opacity:.5}#dashboard{display:none}#message{text-align:center;min-height:20px}</style></head>
+<body><section class="box" id="login"><h2>Connexion administrateur</h2><form id="loginForm">
+<label for="email">E-mail</label><input id="email" type="email" autocomplete="username" required>
+<label for="password">Mot de passe</label><input id="password" type="password" autocomplete="current-password" required>
+<button id="submit" type="submit">Se connecter</button></form><p id="message" role="status"></p><a href="./index.html">Accueil</a></section>
+<section class="box" id="dashboard"><h2>Connexion réussie</h2><p>Compte : <span id="userLabel"></span></p><p>Rôle : administrateur</p><button type="button" id="logout">Se déconnecter</button></section>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-  const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
-
-  async function hashPassword(password) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-
-  async function seConnecter() {
-    const email = document.getElementById('email').value.trim().toLowerCase();
-    const password = document.getElementById('password').value;
-    const msg = document.getElementById('message');
-
-    msg.textContent = "⏳ Vérification...";
-    msg.style.color = "blue";
-
-    try {
-      const hash = await hashPassword(password);
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/admins?email=eq.${encodeURIComponent(email)}&password_hash=eq.${hash}&select=*`, {
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
-      });
-
-      const users = await response.json();
-      
-      if (users && users.length === 1) {
-        document.getElementById('loginBox').style.display = 'none';
-        document.getElementById('dashboardTest').style.display = 'block';
-        document.getElementById('nomUser').textContent = users[0].nom;
-        document.getElementById('roleUser').textContent = users[0].role;
-      } else {
-        msg.textContent = "❌ Email ou mot de passe incorrect.";
-        msg.style.color = "red";
-      }
-    } catch (err) {
-      msg.textContent = "❌ Erreur : " + err.message;
-      msg.style.color = "red";
-    }
-  }
-</script>
-
-</body>
-</html>
+"use strict";
+const URL_SUPABASE="https://mvmzhdvkeromtljnvrow.supabase.co";
+const CLE_PUBLIQUE="sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
+const client=window.supabase?.createClient(URL_SUPABASE,CLE_PUBLIQUE);
+const login=document.getElementById("login"),dashboard=document.getElementById("dashboard");
+const message=document.getElementById("message"),submit=document.getElementById("submit");
+function erreur(texte){message.textContent=texte;message.style.color="#b42318";}
+function montrer(admin,user){login.style.display="none";dashboard.style.display="block";document.getElementById("userLabel").textContent=admin.nom||user.email;}
+function masquer(){dashboard.style.display="none";login.style.display="block";}
+async function verifRole(user){
+  if(!user?.email) return null;
+  // La table admins et ses autorisations doivent être protégées par les politiques RLS.
+  const {data,error}=await client.from("admins").select("nom,role").ilike("email",user.email).maybeSingle();
+  if(error) throw error;
+  return String(data?.role||"").toLowerCase()==="admin"?data:null;
+}
+async function sessionActuelle(){
+ if(!client){erreur("Service de connexion indisponible.");submit.disabled=true;return;}
+ try{
+   const {data,error}=await client.auth.getUser();
+   if(error||!data.user){masquer();return;}
+   const admin=await verifRole(data.user);
+   if(!admin){await client.auth.signOut();masquer();return;}
+   montrer(admin,data.user);
+ }catch(e){masquer();erreur("Vérification des droits impossible.");}
+}
+document.getElementById("loginForm").addEventListener("submit",async event=>{
+ event.preventDefault();if(!client)return;submit.disabled=true;message.textContent="Vérification…";
+ try{
+  const email=document.getElementById("email").value.trim();
+  const password=document.getElementById("password").value;
+  const {data,error}=await client.auth.signInWithPassword({email,password});
+  if(error||!data.user){erreur("Identifiants invalides ou compte non activé.");return;}
+  const admin=await verifRole(data.user);
+  if(!admin){await client.auth.signOut();erreur("Accès administrateur refusé.");return;}
+  document.getElementById("password").value="";message.textContent="";montrer(admin,data.user);
+ }catch(e){await client.auth.signOut().catch(()=>{});erreur("Connexion ou autorisation indisponible.");}
+ finally{submit.disabled=false;}
+});
+document.getElementById("logout").addEventListener("click",async()=>{if(client)await client.auth.signOut();masquer();message.textContent="Session terminée.";});
+sessionActuelle();
+</script></body></html>

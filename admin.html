@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin - ONG ADKOUL - Gestion Logistique</title>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<!-- NOUVEAU : CHART.JS POUR LES GRAPHIQUES -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
@@ -33,7 +32,6 @@
   .header-right { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
   .user-badge { background:rgba(255,255,255,0.15); padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; }
   
-  /* BOUTONS ET PASTILLES */
   .nav-btn { position: relative; background:rgba(255,255,255,0.2); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; transition:0.2s; }
   .nav-btn:hover { background:rgba(255,255,255,0.35); }
   .nav-btn.active { background:#fff; color:#1e3c72; }
@@ -205,7 +203,6 @@
       </div>
     </div>
     <div class="header-right">
-      <!-- NOUVEL ONGLET ACCUEIL -->
       <button class="nav-btn" id="navAccueil" onclick="afficherSection('accueil')">📊 Accueil</button>
       <button class="nav-btn" id="navDemandes" onclick="afficherSection('demandes')">
         📋 Demandes Véhicules <span class="notification-badge" id="badgeDemandes">0</span>
@@ -245,6 +242,13 @@
         <h3>Répartition par Moyen de Déplacement</h3>
         <div class="chart-container"><canvas id="chartMoyens"></canvas></div>
       </div>
+      <div class="chart-box">
+        <h3>Répartition par Projet</h3>
+        <div class="chart-container"><canvas id="chartProjets"></canvas></div>
+      </div>
+    </div>
+    
+    <div class="charts-grid" style="grid-template-columns: 1fr;">
       <div class="chart-box">
         <h3>Statut des Ordres de Mission</h3>
         <div class="chart-container"><canvas id="chartStatuts"></canvas></div>
@@ -507,9 +511,9 @@
   let tousLesUsers = [];
   let typeOrdreActif = 'tous';
 
-  // VARIABLES POUR LES GRAPHIQUES
   let chartMoyensInstance = null;
   let chartStatutsInstance = null;
+  let chartProjetsInstance = null; // NOUVEAU
 
   // DATES
   function formatNigerDate(dateStr) {
@@ -577,7 +581,6 @@
     document.getElementById('userName').textContent = adminName;
     document.getElementById('userBadge').title = sessionStorage.getItem('admin_email') || '';
 
-    // GESTION DES DROITS D'ACCÈS SELON LE RÔLE
     if (role === 'rh') {
       document.getElementById('navAccueil').style.display = 'none';
       document.getElementById('navDemandes').style.display = 'none';
@@ -593,13 +596,13 @@
       document.getElementById('navAccueil').style.display = 'block';
       document.getElementById('navDemandes').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
-      afficherSection('accueil'); // Le directeur voit l'accueil
+      afficherSection('accueil');
     } else {
       document.getElementById('navAccueil').style.display = 'block';
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navOrdres').style.display = 'block';
       document.getElementById('navUsers').style.display = 'block';
-      afficherSection('accueil'); // L'admin voit l'accueil par défaut
+      afficherSection('accueil');
     }
 
     chargerDemandes(); chargerOrdres(); chargerUsers();
@@ -621,7 +624,7 @@
     if (section === 'accueil') {
       document.getElementById('accueilSection').style.display = 'block';
       document.getElementById('navAccueil').classList.add('active');
-      mettreAJourGraphiques(); // Mettre à jour les graphiques à l'affichage
+      mettreAJourGraphiques();
     } else if (section === 'ordres') {
       document.getElementById('ordresSection').style.display = 'block';
       document.getElementById('navOrdres').classList.add('active');
@@ -900,6 +903,7 @@
       const matchSearch = !recherche || 
         (o.nom && o.nom.toLowerCase().includes(recherche)) ||
         (o.destination && o.destination.toLowerCase().includes(recherche)) ||
+        (o.projet && o.projet.toLowerCase().includes(recherche)) ||
         (o.objectif && o.objectif.toLowerCase().includes(recherche));
       return matchStatut && matchSearch;
     });
@@ -944,6 +948,7 @@
             <div class="info-item"><strong>📅 Retour</strong>${formatNigerDateShort(o.date_retour)}</div>
             <div class="info-item"><strong>🧭 Objectif</strong>${o.objectif}</div>
             <div class="info-item"><strong>🚌 Moyen demandé</strong>${o.moyen_deplacement}</div>
+            <div class="info-item"><strong>📁 Projet</strong>${o.projet || 'Non défini'}</div>
             <div class="info-item"><strong>💼 Poste</strong>${o.poste}</div>
             <div class="info-item"><strong>👥 Accompagnateurs</strong>${o.accompagnateurs || 'Aucun'}</div>
           </div>
@@ -973,7 +978,7 @@
         lignes.push([d.date_sortie, d.nom, d.prenom, d.poste, d.destination, d.motif, d.statut, d.chauffeur_assigne || '', d.vehicule_assigne || ''].join(";"));
       });
     } else if (source === 'ordres') {
-      lignes.push(["Date depart", "Date retour", "Nom", "Poste", "Destination", "Objectif", "Moyen", "Statut", "N° Ordre", "Chauffeur", "Vehicule"].join(";"));
+      lignes.push(["Date depart", "Date retour", "Nom", "Poste", "Destination", "Projet", "Objectif", "Moyen", "Statut", "N° Ordre", "Chauffeur", "Vehicule"].join(";"));
       const filtreStatut = document.getElementById('filtreStatutOrdre').value;
       const recherche = document.getElementById('searchOrdres').value.toLowerCase();
       
@@ -982,7 +987,7 @@
       liste = liste.filter(o => (filtreStatut === 'tous' || o.statut === filtreStatut) && (!recherche || o.nom.toLowerCase().includes(recherche) || o.destination.toLowerCase().includes(recherche)));
 
       liste.forEach(o => {
-        lignes.push([o.date_depart, o.date_retour, o.nom, o.poste, o.destination, o.objectif, o.moyen_deplacement, o.statut, o.message_admin || '', o.chauffeur_assigne || '', o.vehicule_assigne || ''].join(";"));
+        lignes.push([o.date_depart, o.date_retour, o.nom, o.poste, o.destination, o.projet || '', o.objectif, o.moyen_deplacement, o.statut, o.message_admin || '', o.chauffeur_assigne || '', o.vehicule_assigne || ''].join(";"));
       });
     }
 
@@ -1120,6 +1125,7 @@
           <p style="margin-bottom: 20px;"><strong>LE SECRETAIRE EXECUTIF DE L'ONG ADKOUL AUTORISE :</strong></p>
           <div class="ligne"><span class="label">CHEF DE MISSION :</span> ${data.nom}</div>
           <div class="ligne"><span class="label">EMPLOI OCCUPÉ :</span> ${data.poste}</div>
+          <div class="ligne"><span class="label">PROJET :</span> ${data.projet || '—'}</div>
           <div class="ligne"><span class="label">ACCOMPAGNATEURS :</span> ${data.accompagnateurs || '—'}</div>
           <div class="ligne"><span class="label">DE SE RENDRE EN MISSION À :</span> ${data.destination}</div>
           <div class="ligne"><span class="label">OBJECTIF DE LA MISSION :</span> ${data.objectif}</div>
@@ -1169,7 +1175,26 @@
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
     });
 
-    // 3. Graphique des Statuts (Barres)
+    // 3. Graphique des Projets (Donut)
+    const projetsUniques = [...new Set(tousLesOrdres.map(o => o.projet))].filter(p => p); // Liste unique des projets
+    const countsProjets = projetsUniques.map(p => tousLesOrdres.filter(o => o.projet === p).length);
+    
+    if (chartProjetsInstance) chartProjetsInstance.destroy();
+    const ctxProjets = document.getElementById('chartProjets').getContext('2d');
+    chartProjetsInstance = new Chart(ctxProjets, {
+      type: 'pie',
+      data: {
+        labels: projetsUniques,
+        datasets: [{
+          data: countsProjets,
+          backgroundColor: ['#1e40af', '#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#fcd34d'],
+          borderWidth: 0
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    });
+
+    // 4. Graphique des Statuts (Barres)
     const attente = tousLesOrdres.filter(o => o.statut === 'en_attente').length;
     const attenteRH = tousLesOrdres.filter(o => o.statut === 'affecte_logistique').length;
     const valides = tousLesOrdres.filter(o => o.statut === 'validee').length;

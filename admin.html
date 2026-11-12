@@ -43,9 +43,15 @@
   .stat-card .label { color:#666; font-size:13px; margin-bottom:8px; }
   .stat-card .value { color:#1e3c72; font-size:32px; font-weight:bold; }
 
-  .filters { padding:0 30px 20px; display:flex; gap:10px; flex-wrap:wrap; }
-  .filters select, .filters button { padding:10px 18px; border:2px solid #e0e0e0; border-radius:8px; font-size:14px; background:#fff; cursor:pointer; font-weight:600; }
+  /* NOUVEAU : BARRE DE RECHERCHE */
+  .filters { padding:0 30px 20px; display:flex; gap:10px; flex-wrap:wrap; align-items: center; }
+  .filters select, .filters button, .filters input { padding:10px 18px; border:2px solid #e0e0e0; border-radius:8px; font-size:14px; background:#fff; cursor:pointer; font-weight:600; outline: none; }
   .filters button { background:#1e3c72; color:#fff; border-color:#1e3c72; }
+  .filters input { cursor: text; font-weight: 400; min-width: 250px; }
+  .filters input:focus { border-color: #1e3c72; }
+
+  /* NOUVEAU : BOUTON EXPORT */
+  .btn-export { background:#27ae60 !important; border-color:#27ae60 !important; margin-left: auto; }
 
   /* NOUVEAU : MENU PAR ONGLETS (RUBRIQUES) */
   .type-tabs { display:flex; gap:10px; padding:0 30px 20px; flex-wrap:wrap; }
@@ -143,6 +149,7 @@
     .user-actions { width:100%; }
     .btn-del-user { flex:1; justify-content:center; }
     .type-tab { flex: 1 1 30%; text-align: center; }
+    .btn-export { margin-left: 0; width: 100%; justify-content: center; }
   }
 </style>
 </head>
@@ -198,7 +205,9 @@
         <option value="refusee">❌ Refusées</option>
         <option value="tous">📋 Toutes</option>
       </select>
+      <input type="text" id="searchDemandes" placeholder="🔍 Rechercher (nom, destination...)" onkeyup="afficherDemandes()">
       <button onclick="chargerDemandes()">🔄 Rafraîchir</button>
+      <button class="btn-export" onclick="exporterCSV('demandes')">📥 Exporter Excel</button>
     </div>
     <div class="demandes-container" id="demandesContainer">
       <div class="loading">Chargement...</div>
@@ -208,7 +217,7 @@
   <!-- SECTION ORDRES DE MISSION (AVEC ONGLETS PAR RUBRIQUE) -->
   <div id="ordresSection" style="display:none;">
     
-    <!-- NOUVEAU : LES 5 ONGLETS -->
+    <!-- LES ONGLETS -->
     <div class="type-tabs" id="typeTabs">
       <button class="type-tab active" onclick="changerTypeOrdre('tous', this)">📁 Tous</button>
       <button class="type-tab" onclick="changerTypeOrdre('Véhicule UNHCR', this)">🚙 UNHCR</button>
@@ -232,7 +241,9 @@
         <option value="validee">✅ Validés</option>
         <option value="tous">📋 Tous les statuts</option>
       </select>
+      <input type="text" id="searchOrdres" placeholder="🔍 Rechercher (nom, destination...)" onkeyup="afficherOrdres()">
       <button onclick="chargerOrdres()">🔄 Rafraîchir</button>
+      <button class="btn-export" onclick="exporterCSV('ordres')">📥 Exporter Excel</button>
     </div>
     <div class="demandes-container" id="ordresContainer">
       <div class="loading">Chargement des ordres de mission...</div>
@@ -433,7 +444,7 @@
   let demandeEnCours = null, toutesLesDemandes = [];
   let ordreEnCours = null, tousLesOrdres = [];
   let tousLesUsers = [];
-  let typeOrdreActif = 'tous'; // Pour gérer l'onglet actif (UNHCR, Partenaire, etc.)
+  let typeOrdreActif = 'tous';
 
   // DATES
   function formatNigerDate(dateStr) {
@@ -447,12 +458,6 @@
     const date = new Date(dateStr);
     const nigerDate = new Date(date.getTime() + (60 * 60 * 1000));
     return nigerDate.toLocaleDateString('fr-FR', { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' });
-  }
-  function formatNigerDateLong(dateStr) {
-    if (!dateStr) return '-';
-    const date = new Date(dateStr);
-    const nigerDate = new Date(date.getTime() + (60 * 60 * 1000));
-    return nigerDate.toLocaleDateString('fr-FR', { timeZone: 'UTC', weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
   }
 
   // HASH
@@ -644,6 +649,7 @@
 
   function afficherDemandes() {
     const filtre = document.getElementById('filtreStatut').value;
+    const recherche = document.getElementById('searchDemandes').value.toLowerCase();
     const container = document.getElementById('demandesContainer');
     const role = getAdminRole();
     
@@ -661,10 +667,19 @@
     document.getElementById('statRefusees').textContent = listeBase.filter(d => d.statut === 'refusee').length;
     document.getElementById('statTotal').textContent = listeBase.length;
 
-    let listeFinale = listeBase.filter(d => filtre === 'tous' || d.statut === filtre);
+    // Filtrage par statut ET par recherche
+    let listeFinale = listeBase.filter(d => {
+      const matchStatut = filtre === 'tous' || d.statut === filtre;
+      const matchSearch = !recherche || 
+        (d.nom && d.nom.toLowerCase().includes(recherche)) ||
+        (d.prenom && d.prenom.toLowerCase().includes(recherche)) ||
+        (d.destination && d.destination.toLowerCase().includes(recherche)) ||
+        (d.motif && d.motif.toLowerCase().includes(recherche));
+      return matchStatut && matchSearch;
+    });
     
     if (listeFinale.length === 0) { 
-      container.innerHTML = '<div class="empty">📭 Aucune demande</div>'; 
+      container.innerHTML = '<div class="empty">📭 Aucune demande ne correspond à votre recherche</div>'; 
       return; 
     }
     
@@ -761,15 +776,12 @@
 
   async function supprimerDemande(id) { if (confirm('Supprimer ?')) { await apiCall('/demandes?id=eq.' + id, { method: 'DELETE' }); chargerDemandes(); } }
 
-  // ==========================================
-  // ORDRES DE MISSION (AVEC GESTION DES ONGLETS)
-  // ==========================================
-  
+  // ORDRES DE MISSION (AVEC GESTION DES ONGLETS ET RECHERCHE)
   function changerTypeOrdre(type, btn) {
     typeOrdreActif = type;
     document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
     if(btn) btn.classList.add('active');
-    afficherOrdres(); // On rafraichit l'affichage avec le nouveau filtre
+    afficherOrdres();
   }
 
   async function chargerOrdres() {
@@ -783,27 +795,31 @@
 
   function afficherOrdres() {
     const filtreStatut = document.getElementById('filtreStatutOrdre').value;
+    const recherche = document.getElementById('searchOrdres').value.toLowerCase();
     const container = document.getElementById('ordresContainer');
     const role = getAdminRole();
     
-    // 1. FILTRE PAR ONGLET (RUBRIQUE)
     let listeBase = tousLesOrdres;
     if (typeOrdreActif !== 'tous') {
-      // On compare le moyen_deplacement de la mission avec l'onglet sélectionné
       listeBase = listeBase.filter(o => o.moyen_deplacement === typeOrdreActif);
     }
 
-    // 2. MISE A JOUR DES STATISTIQUES (CARTES)
     document.getElementById('statOrdresAttente').textContent = listeBase.filter(o => o.statut === 'en_attente').length;
     document.getElementById('statOrdresAffectes').textContent = listeBase.filter(o => o.statut === 'affecte_logistique').length;
     document.getElementById('statOrdresValides').textContent = listeBase.filter(o => o.statut === 'validee').length;
     document.getElementById('statOrdresTotal').textContent = listeBase.length;
 
-    // 3. FILTRE PAR STATUT (MENU DÉROULANT)
-    let listeFinale = listeBase.filter(o => filtreStatut === 'tous' || o.statut === filtreStatut);
+    let listeFinale = listeBase.filter(o => {
+      const matchStatut = filtreStatut === 'tous' || o.statut === filtreStatut;
+      const matchSearch = !recherche || 
+        (o.nom && o.nom.toLowerCase().includes(recherche)) ||
+        (o.destination && o.destination.toLowerCase().includes(recherche)) ||
+        (o.objectif && o.objectif.toLowerCase().includes(recherche));
+      return matchStatut && matchSearch;
+    });
     
     if (listeFinale.length === 0) { 
-      container.innerHTML = '<div class="empty">📭 Aucun ordre de mission pour cette rubrique</div>'; 
+      container.innerHTML = '<div class="empty">📭 Aucun ordre de mission ne correspond</div>'; 
       return; 
     }
 
@@ -851,6 +867,50 @@
     }).join('');
   }
 
+  // --- EXPORT EXCEL (CSV) ---
+  function exporterCSV(source) {
+    let lignes = [];
+    
+    if (source === 'demandes') {
+      lignes.push(["Date", "Nom", "Prenom", "Poste", "Destination", "Motif", "Statut", "Chauffeur", "Vehicule"].join(";"));
+      const filtre = document.getElementById('filtreStatut').value;
+      const recherche = document.getElementById('searchDemandes').value.toLowerCase();
+      const role = getAdminRole();
+      
+      let liste = toutesLesDemandes;
+      if (role === 'assistant_logistique') {
+        liste = liste.filter(d => (d.motif && d.motif.toLowerCase().includes('location')) || (d.vehicule_assigne && d.vehicule_assigne.toLowerCase().includes('location')));
+      }
+      liste = liste.filter(d => (filtre === 'tous' || d.statut === filtre) && (!recherche || d.nom.toLowerCase().includes(recherche) || d.destination.toLowerCase().includes(recherche)));
+
+      liste.forEach(d => {
+        lignes.push([d.date_sortie, d.nom, d.prenom, d.poste, d.destination, d.motif, d.statut, d.chauffeur_assigne || '', d.vehicule_assigne || ''].join(";"));
+      });
+    } else if (source === 'ordres') {
+      lignes.push(["Date depart", "Date retour", "Nom", "Poste", "Destination", "Objectif", "Moyen", "Statut", "N° Ordre", "Chauffeur", "Vehicule"].join(";"));
+      const filtreStatut = document.getElementById('filtreStatutOrdre').value;
+      const recherche = document.getElementById('searchOrdres').value.toLowerCase();
+      
+      let liste = tousLesOrdres;
+      if (typeOrdreActif !== 'tous') liste = liste.filter(o => o.moyen_deplacement === typeOrdreActif);
+      liste = liste.filter(o => (filtreStatut === 'tous' || o.statut === filtreStatut) && (!recherche || o.nom.toLowerCase().includes(recherche) || o.destination.toLowerCase().includes(recherche)));
+
+      liste.forEach(o => {
+        lignes.push([o.date_depart, o.date_retour, o.nom, o.poste, o.destination, o.objectif, o.moyen_deplacement, o.statut, o.message_admin || '', o.chauffeur_assigne || '', o.vehicule_assigne || ''].join(";"));
+      });
+    }
+
+    // Téléchargement du fichier
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + lignes.join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `Export_${source}_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   function toggleAutreOrdre(type) {
     const select = document.getElementById(type === 'chauffeur' ? 'selectChauffeurOrdre' : 'selectVehiculeOrdre');
     const input = document.getElementById(type === 'chauffeur' ? 'inputChauffeurOrdreAutre' : 'inputVehiculeOrdreAutre');
@@ -865,10 +925,7 @@
     if (!ordreEnCours) return;
     document.getElementById('modalValiderOrdreInfo').textContent = `Mission à ${ordreEnCours.destination} pour ${ordreEnCours.nom}`;
     document.getElementById('selectChauffeurOrdre').value = ''; document.getElementById('inputChauffeurOrdreAutre').style.display = 'none'; document.getElementById('inputChauffeurOrdreAutre').value = '';
-    
-    // Pré-sélectionner le type de véhicule selon ce que l'agent a demandé
     document.getElementById('selectVehiculeOrdreType').value = ordreEnCours.moyen_deplacement;
-    
     document.getElementById('inputVehiculeOrdreMarque').value = '';
     document.getElementById('inputVehiculeOrdreCouleur').value = '';
     document.getElementById('inputVehiculeOrdreImmat').value = '';

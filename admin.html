@@ -104,7 +104,7 @@ const ROLES = new Set(["rh","directeur_logistique","logistique","assistant_logis
 const MODULES = [
   {id:"demandes",titre:"Sorties de véhicules",description:"Demandes de sortie de véhicules",roles:["logistique","assistant_logistique","directeur_logistique"],champs:["id","nom","prenom","destination","date_sortie","statut"],libelles:["Référence","Nom","Prénom","Destination","Date de sortie","Statut"]},
   {id:"missions",titre:"Missions terrain",description:"Demandes de mission terrain",roles:["logistique","assistant_logistique","directeur_logistique","rh"],champs:["id","nom","titre_mission","lieu","date_debut","statut"],libelles:["Référence","Nom","Mission","Lieu","Début","Statut"]},
-  {id:"missions_2",titre:"Ordres de mission",description:"Demandes d'ordres de mission",roles:["logistique","directeur_logistique","rh"],champs:["id","nom","destination","date_depart","statut","message_admin"],libelles:["Référence","Nom","Destination","Départ","Statut","N° ordre"]}
+  {id:"missions_2",titre:"Ordres de mission",description:"Demandes d'ordres de mission",roles:["logistique","directeur_logistique","rh"],champs:["id","nom","destination","date_depart","statut","projet"],libelles:["Référence","Nom","Destination","Départ","Statut","Projet"]}
 ];
 let profilActuel=null, moduleActuel=null, resultats=[];
 const el=id=>document.getElementById(id);

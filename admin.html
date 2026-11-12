@@ -30,9 +30,32 @@
   header .brand-text p { font-size:12px; opacity:0.85; }
   .header-right { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
   .user-badge { background:rgba(255,255,255,0.15); padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; }
-  .nav-btn { background:rgba(255,255,255,0.2); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; transition:0.2s; }
+  
+  /* NOUVEAU : GESTION DES BOUTONS ET PASTILLES */
+  .nav-btn { position: relative; background:rgba(255,255,255,0.2); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; transition:0.2s; }
   .nav-btn:hover { background:rgba(255,255,255,0.35); }
   .nav-btn.active { background:#fff; color:#1e3c72; }
+  
+  .notification-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #e74c3c;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 3px 6px;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    display: none; /* Caché par défaut */
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
   .logout-btn { background:#e74c3c; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; }
 
   .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:15px; padding:25px 30px; }
@@ -43,17 +66,15 @@
   .stat-card .label { color:#666; font-size:13px; margin-bottom:8px; }
   .stat-card .value { color:#1e3c72; font-size:32px; font-weight:bold; }
 
-  /* NOUVEAU : BARRE DE RECHERCHE */
+  /* BARRE DE RECHERCHE ET FILTRES */
   .filters { padding:0 30px 20px; display:flex; gap:10px; flex-wrap:wrap; align-items: center; }
   .filters select, .filters button, .filters input { padding:10px 18px; border:2px solid #e0e0e0; border-radius:8px; font-size:14px; background:#fff; cursor:pointer; font-weight:600; outline: none; }
   .filters button { background:#1e3c72; color:#fff; border-color:#1e3c72; }
   .filters input { cursor: text; font-weight: 400; min-width: 250px; }
   .filters input:focus { border-color: #1e3c72; }
-
-  /* NOUVEAU : BOUTON EXPORT */
   .btn-export { background:#27ae60 !important; border-color:#27ae60 !important; margin-left: auto; }
 
-  /* NOUVEAU : MENU PAR ONGLETS (RUBRIQUES) */
+  /* ONGLETS RUBRIQUES */
   .type-tabs { display:flex; gap:10px; padding:0 30px 20px; flex-wrap:wrap; }
   .type-tab { padding:10px 18px; border:2px solid #e0e0e0; border-radius:8px; font-size:14px; background:#fff; cursor:pointer; font-weight:600; color:#555; transition:0.2s; }
   .type-tab:hover { background:#f8f9fa; }
@@ -182,8 +203,13 @@
       </div>
     </div>
     <div class="header-right">
-      <button class="nav-btn active" id="navDemandes" onclick="afficherSection('demandes')">📋 Demandes Véhicules</button>
-      <button class="nav-btn" id="navOrdres" onclick="afficherSection('ordres')">📄 Ordres de Mission (RH)</button>
+      <!-- AJOUT DES BADGES DE NOTIFICATION ICI -->
+      <button class="nav-btn active" id="navDemandes" onclick="afficherSection('demandes')">
+        📋 Demandes Véhicules <span class="notification-badge" id="badgeDemandes">0</span>
+      </button>
+      <button class="nav-btn" id="navOrdres" onclick="afficherSection('ordres')">
+        📄 Ordres de Mission (RH) <span class="notification-badge" id="badgeOrdres">0</span>
+      </button>
       <button class="nav-btn" id="navUsers" onclick="afficherSection('users')">👥 Utilisateurs</button>
       <div class="user-badge" id="userBadge">👤 <span id="userName">Admin</span></div>
       <button class="logout-btn" onclick="logout()">Déconnexion</button>
@@ -492,6 +518,29 @@
 
   function logout() { sessionStorage.clear(); location.reload(); }
 
+  // NOUVELLE FONCTION : MISE A JOUR DES PASTILLES
+  function mettreAJourNotifications() {
+    // Pour les véhicules
+    const attenteVehicules = toutesLesDemandes.filter(d => d.statut === 'en_attente').length;
+    const badgeD = document.getElementById('badgeDemandes');
+    if (attenteVehicules > 0) {
+      badgeD.textContent = attenteVehicules;
+      badgeD.style.display = 'inline-block';
+    } else {
+      badgeD.style.display = 'none';
+    }
+
+    // Pour les missions
+    const attenteMissions = tousLesOrdres.filter(o => o.statut === 'en_attente').length;
+    const badgeO = document.getElementById('badgeOrdres');
+    if (attenteMissions > 0) {
+      badgeO.textContent = attenteMissions;
+      badgeO.style.display = 'inline-block';
+    } else {
+      badgeO.style.display = 'none';
+    }
+  }
+
   function afficherDashboard() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
@@ -643,6 +692,7 @@
     container.innerHTML = '<div class="loading">Chargement...</div>';
     try {
       toutesLesDemandes = await apiCall('/demandes?order=created_at.desc');
+      mettreAJourNotifications(); // <-- NOUVEAU
       afficherDemandes();
     } catch (err) { container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>'; }
   }
@@ -667,7 +717,6 @@
     document.getElementById('statRefusees').textContent = listeBase.filter(d => d.statut === 'refusee').length;
     document.getElementById('statTotal').textContent = listeBase.length;
 
-    // Filtrage par statut ET par recherche
     let listeFinale = listeBase.filter(d => {
       const matchStatut = filtre === 'tous' || d.statut === filtre;
       const matchSearch = !recherche || 
@@ -789,6 +838,7 @@
     container.innerHTML = '<div class="loading">Chargement...</div>';
     try {
       tousLesOrdres = await apiCall('/missions_2?order=created_at.desc');
+      mettreAJourNotifications(); // <-- NOUVEAU
       afficherOrdres();
     } catch (err) { container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>'; }
   }

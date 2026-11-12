@@ -229,6 +229,7 @@
     <div class="users-info-box">
       💡 <strong>Info :</strong> Les rôles déterminent les accès. 
       <br>• <strong>Logistique</strong> : Accès total (gestion des comptes, véhicules, missions).
+      <br>• <strong>Directeur Logistique</strong> : Lecture seule sur les missions (pas de validation, pas de véhicules).
       <br>• <strong>Assistant Logistique</strong> : Saisie des demandes de véhicules de LOCATION uniquement.
       <br>• <strong>RH</strong> : Validation et impression des ordres de mission uniquement.
     </div>
@@ -377,6 +378,7 @@
     <label>Rôle *</label>
     <select id="newUserRole">
       <option value="logistique">Logistique (Accès total)</option>
+      <option value="directeur_logistique">Directeur Logistique (Lecture seule)</option>
       <option value="assistant_logistique">Assistant Logistique (Saisie véhicules de Location)</option>
       <option value="rh">RH (Valide et imprime les ordres de mission)</option>
     </select>
@@ -477,15 +479,23 @@
 
     // GESTION DES DROITS D'ACCÈS SELON LE RÔLE
     if (role === 'rh') {
+      // RH : Uniquement Ordres de Mission
       document.getElementById('navDemandes').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
       afficherSection('ordres');
     } else if (role === 'assistant_logistique') {
+      // Assistant Logistique : Uniquement Demandes Véhicules (filtrées Location)
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navOrdres').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
       afficherSection('demandes');
+    } else if (role === 'directeur_logistique') {
+      // Directeur Logistique : Uniquement Ordres de Mission (lecture seule)
+      document.getElementById('navDemandes').style.display = 'none';
+      document.getElementById('navUsers').style.display = 'none';
+      afficherSection('ordres');
     } else {
+      // Logistique Admin : Tout
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navOrdres').style.display = 'block';
       document.getElementById('navUsers').style.display = 'block';
@@ -553,6 +563,7 @@
       let roleLabel = '';
       if (u.role === 'rh') roleLabel = '<span style="color:#d68910; font-weight:bold;">[RH]</span>';
       else if (u.role === 'assistant_logistique') roleLabel = '<span style="color:#2980b9; font-weight:bold;">[Assist. Log.]</span>';
+      else if (u.role === 'directeur_logistique') roleLabel = '<span style="color:#8e44ad; font-weight:bold;">[Dir. Logistique]</span>';
       else roleLabel = '<span style="color:#1e3c72; font-weight:bold;">[Logistique]</span>';
 
       return `
@@ -646,7 +657,9 @@
     container.innerHTML = listeFinale.map(d => {
       let actionsHtml = ''; let resultatHtml = '';
       if (d.statut === 'en_attente') {
-        actionsHtml = `<button class="btn btn-valider" onclick="ouvrirModalValider(${d.id})">✅ Affecter</button>`;
+        if (role === 'logistique' || role === 'assistant_logistique') {
+           actionsHtml = `<button class="btn btn-valider" onclick="ouvrirModalValider(${d.id})">✅ Affecter</button>`;
+        }
         if (role === 'logistique') {
            actionsHtml += `<button class="btn btn-refuser" onclick="ouvrirModalRefuser(${d.id})">❌ Rejeter</button>`;
         }
@@ -777,6 +790,7 @@
         actionsHtml = `<button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>`;
       }
       
+      // Seul le super admin peut supprimer
       if (role === 'logistique') {
         actionsHtml += `<button class="btn btn-suppr" onclick="supprimerOrdre(${o.id})">🗑️ Supprimer</button>`;
       }

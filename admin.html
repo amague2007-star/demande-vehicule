@@ -573,7 +573,7 @@
     return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
-  // AUTH (SIMPLIFIÉE COMME LE TEST QUI MARCHE)
+  // AUTH
   async function login() {
     const email = document.getElementById('adminEmail').value.trim().toLowerCase();
     const password = document.getElementById('adminPassword').value;
@@ -1002,4 +1002,156 @@
            actionsHtml += `<button class="btn btn-orange" onclick="ouvrirModalNumeroRH(${o.id})">🔢 Valider RH</button>`;
         }
       } else if (o.statut === 'validee') {
-        resultatHtml = `<div class="resultat validee"><strong>✅ Validé (N° ${o.message_admin})</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne}</strong>
+        resultatHtml = `<div class="resultat validee"><strong>✅ Validé (N° ${o.message_admin})</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne}</strong></div>`;
+        
+        actionsHtml = `
+          <button class="btn btn-print-admin" onclick="voirOrdreMission(${o.id})" style="background:#3498db;">👁️ Voir</button>
+          <button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>
+          <button class="btn btn-print-admin" onclick="telechargerOrdreMission(${o.id})" style="background:#e67e22;">📥 Télécharger</button>
+          <button class="btn btn-whatsapp" onclick="notifierWhatsAppMission(${o.id})">💬 Notifier</button>
+        `;
+      }
+
+      if (role === 'logistique') {
+        actionsHtml += `<button class="btn btn-suppr" onclick="supprimerOrdre(${o.id})">🗑️ Supprimer</button>`;
+      }
+
+      return `
+        <div class="demande-item ${o.statut === 'validee' ? 'validee' : o.statut === 'affecte_logistique' ? 'validee' : ''} ${classRetard}">
+          <div class="demande-header">
+            <h3>${o.nom} <span>— ${o.poste}</span></h3>
+            <span class="statut ${o.statut}">${o.statut === 'en_attente' ? '⏳ En attente' : o.statut === 'affecte_logistique' ? '⏳ Attente RH' : '✅ Validé'}</span>
+          </div>
+          <div class="demande-grid">
+            <div class="info-item"><strong>📅 Départ</strong>${formatNigerDateShort(o.date_depart)}</div>
+            <div class="info-item"><strong>📅 Retour</strong>${formatNigerDateShort(o.date_retour)}</div>
+            <div class="info-item"><strong>📍 Destination</strong>${o.destination}</div>
+            <div class="info-item"><strong>🚌 Moyen</strong>${o.moyen_deplacement}</div>
+            <div class="info-item"><strong>📁 Projet</strong>${o.projet || '-'}</div>
+          </div>
+          <div class="demande-motif"><strong>🎯 Objectif :</strong> ${o.objectif}</div>
+          ${resultatHtml}
+          <div class="actions">${actionsHtml}</div>
+        </div>`;
+    }).join('');
+  }
+
+  function toggleAutreOrdre(type) {
+    const select = document.getElementById('selectChauffeurOrdre');
+    const input = document.getElementById('inputChauffeurOrdreAutre');
+    if(input) {
+      input.style.display = select.value === 'AUTRE' ? 'block' : 'none';
+      if (select.value !== 'AUTRE') input.value = '';
+    }
+  }
+
+  function ouvrirModalValiderOrdre(id) {
+    ordreEnCours = tousLesOrdres.find(o => o.id === id);
+    if (!ordreEnCours) return;
+    document.getElementById('modalValiderOrdreInfo').textContent = `${ordreEnCours.nom} → ${ordreEnCours.destination}`;
+    document.getElementById('selectChauffeurOrdre').value = '';
+    document.getElementById('inputChauffeurOrdreAutre').style.display = 'none'; 
+    document.getElementById('inputChauffeurOrdreAutre').value = '';
+    document.getElementById('selectVehiculeOrdreType').value = 'Véhicule Location';
+    document.getElementById('inputVehiculeOrdreMarque').value = '';
+    document.getElementById('inputVehiculeOrdreCouleur').value = '';
+    document.getElementById('inputVehiculeOrdreImmat').value = '';
+    document.getElementById('inputNotesInternes').value = '';
+    document.getElementById('modalValiderOrdre').classList.add('active');
+  }
+
+  async function confirmerValidationOrdre() {
+    const sc = document.getElementById('selectChauffeurOrdre').value;
+    let chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurOrdreAutre').value.trim() : sc;
+    
+    const type = document.getElementById('selectVehiculeOrdreType').value;
+    const marque = document.getElementById('inputVehiculeOrdreMarque').value.trim();
+    const couleur = document.getElementById('inputVehiculeOrdreCouleur').value.trim();
+    const immat = document.getElementById('inputVehiculeOrdreImmat').value.trim();
+    const notes = document.getElementById('inputNotesInternes').value.trim();
+    
+    if (!chauffeur || !marque || !couleur || !immat) { alert('⚠️ Remplissez tous les champs.'); return; }
+    
+    const vehiculeString = `${type} (${marque} - ${couleur} - ${immat})`;
+
+    try {
+      await apiCall('/missions_2?id=eq.' + ordreEnCours.id, { 
+        method: 'PATCH', 
+        body: JSON.stringify({ 
+          statut: 'affecte_logistique', 
+          chauffeur_assigne: chauffeur, 
+          vehicule_assigne: vehiculeString, 
+          notes_internes: notes || null,
+          affecte_par: getAdminName() 
+        }) 
+      });
+      fermerModal(); await chargerOrdres(); alert('✅ Ordre de mission affecté. En attente RH.');
+    } catch (err) { alert('❌ ' + err.message); }
+  }
+
+  function ouvrirModalNumeroRH(id) {
+    ordreEnCours = tousLesOrdres.find(o => o.id === id);
+    if (!ordreEnCours) return;
+    document.getElementById('modalNumeroRHInfo').textContent = `${ordreEnCours.nom} → ${ordreEnCours.destination}`;
+    document.getElementById('modalNumeroRH').classList.add('active');
+  }
+
+  async function confirmerNumeroRH() {
+    const numOrdre = prompt("Entrez le numéro d'ordre de mission (ex: 001/2024/ADKOUL) :");
+    if (!numOrdre) { alert('⚠️ Action annulée.'); return; }
+    try {
+      await apiCall('/missions_2?id=eq.' + ordreEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'validee', message_admin: numOrdre, valide_par: getAdminName() }) });
+      fermerModal(); await chargerOrdres(); alert('✅ Ordre de mission validé !');
+    } catch (err) { alert('❌ ' + err.message); }
+  }
+
+  async function supprimerOrdre(id) { 
+    if (confirm('⚠️ Suppression définitive.\n\nConfirmer ?')) { 
+      await apiCall('/missions_2?id=eq.' + id, { method: 'DELETE' }); 
+      chargerOrdres(); 
+    } 
+  }
+
+  function fermerModal() {
+    document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+  }
+
+  function voirOrdreMission(id) {
+    window.open(`imprimer.html?id=${id}`, '_blank');
+  }
+
+  function imprimerOrdreMission(id) {
+    window.open(`imprimer.html?id=${id}`, '_blank');
+  }
+
+  function telechargerOrdreMission(id) {
+    alert("La fonction de téléchargement PDF sera disponible prochainement. Veuillez utiliser l'impression (Ctrl+P) et choisir 'Enregistrer au format PDF'.");
+    window.open(`imprimer.html?id=${id}`, '_blank');
+  }
+
+  function notifierWhatsAppMission(id) {
+    const o = tousLesOrdres.find(o => o.id === id);
+    if (!o) return;
+    
+    let tel = CHAUFFEURS[o.chauffeur_assigne] || "";
+    if (!tel && o.chauffeur_assigne) {
+      tel = prompt(`Entrez le numéro WhatsApp de ${o.chauffeur_assigne} (ex: 227XXXXXXXX) :`, "");
+    }
+    
+    const message = `Bonjour, voici l'ordre de mission pour *${o.nom}*.\n📍 Destination : ${o.destination}\n📅 Départ : ${formatNigerDateShort(o.date_depart)}\n🚙 Véhicule : ${o.vehicule_assigne}\n\nMerci de consulter le document officiel.`;
+    const url = tel ? `https://wa.me/${tel.replace(/\D/g,'')}?text=${encodeURIComponent(message)}` : `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  }
+
+  function exporterCSV(type) {
+    alert(`📥 L'export Excel des ${type === 'demandes' ? 'demandes' : 'ordres de mission'} sera disponible prochainement.`);
+  }
+
+  function mettreAJourGraphiques() {
+    // Placeholder pour la mise à jour des graphiques
+    console.log("Mise à jour des graphiques...");
+  }
+</script>
+
+</body>
+</html>

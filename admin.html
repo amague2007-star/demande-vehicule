@@ -1,231 +1,587 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>ADKOUL — Administration logistique</title>
+<title>ADKOUL — Tableau de bord (présentation du 12/11/2026 à 8 h 42)</title>
+<link rel="icon" href="./logo.webp" type="image/webp">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
-:root{font-family:Arial,Helvetica,sans-serif;color:#14233c;background:#f3f6fb}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh}
-button,input{font:inherit}
-button{cursor:pointer}
-button:disabled{cursor:wait;opacity:.6}
-a{color:#1e40af}
-#pageConnexion{min-height:100vh;display:grid;place-items:center;background:linear-gradient(120deg,#1e3c72,#2856bc);padding:16px}
-.connexion{background:#fff;border-radius:16px;padding:32px;width:min(100%,420px);box-shadow:0 12px 35px #10274a55}
-h1{font-size:1.65rem;color:#173871}
-h2{font-size:1.25rem}
-.connexion h1{text-align:center}
-.connexion label{display:block;margin:16px 0 6px;font-weight:700}
-.connexion input{width:100%;padding:12px;border:1px solid #aeb9cb;border-radius:8px}
-.action{border:0;border-radius:9px;background:#2059bd;color:#fff;padding:11px 16px;font-weight:700}
-.connexion .action{width:100%;margin-top:22px}
-.error{color:#b42318}
-.notice{color:#46566c}
-#messageConnexion{min-height:24px}
-#application{display:none}
-header{background:#173871;color:white;padding:18px clamp(16px,4vw,48px);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
-header strong{font-size:1.35rem}
-header small{display:block;margin-top:5px;opacity:.9}
-.logout{background:#bd3030}
-main{max-width:1200px;padding:28px 16px;margin:0 auto}
-.intro{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.intro h1{margin:0}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:20px 0}
-.stat{background:#fff;border:1px solid #e5ebf5;border-radius:10px;padding:16px}
-.stat strong{display:block;font-size:1.8rem;margin-top:8px;color:#17407e}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
-.tabs button{border:1px solid #bccae2;background:#fff;color:#173871;border-radius:8px;padding:12px 14px}
-.tabs button[aria-selected="true"]{background:#173871;color:white}
-.panel{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px}
-.controls{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:14px 0}
-#filtre{border:1px solid #aeb9cb;border-radius:8px;padding:11px;max-width:100%;width:310px}
-.tableWrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:600px}
-th,td{padding:12px 9px;border-bottom:1px solid #e5eaf2;text-align:left;font-size:.92rem;vertical-align:top}
-th{background:#eef3fb;color:#173871}
-#statutListe{min-height:22px}
-.badgeStatut{background:#eef3fb;border-radius:30px;padding:5px 9px;display:inline-block;white-space:nowrap}
-.print{color:#174da3;text-decoration:underline}
-footer{text-align:center;color:#607086;padding:24px;font-size:.85rem}
-@media(max-width:650px){.connexion{padding:24px}.panel{padding:12px}}
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
+  body { background:#f0f2f5; min-height:100vh; }
+
+  #loginScreen { display:flex; align-items:center; justify-content:center; min-height:100vh; background:linear-gradient(135deg,#1e3c72,#2a5298); }
+  .login-box { background:#fff; padding:40px; border-radius:15px; box-shadow:0 20px 60px rgba(0,0,0,0.3); max-width:420px; width:90%; }
+  .login-logo { text-align:center; margin-bottom:20px; }
+  .login-logo img { height:90px; width:90px; object-fit:contain; }
+  .login-box h1 { color:#1e3c72; text-align:center; margin-bottom:5px; font-size:22px; }
+  .login-box .subtitle { text-align:center; color:#666; margin-bottom:8px; font-size:14px; }
+  .login-box .slogan { text-align:center; color:#999; margin-bottom:25px; font-size:11px; font-style:italic; letter-spacing:0.5px; }
+  .login-box input { width:100%; padding:13px; border:2px solid #e0e0e0; border-radius:8px; margin-bottom:15px; font-size:15px; }
+  .login-box input:focus { outline:none; border-color:#1e3c72; }
+  .login-box button { width:100%; padding:14px; background:#1e3c72; color:#fff; border:none; border-radius:8px; font-size:15px; font-weight:600; cursor:pointer; }
+  .login-box button:hover { background:#2a5298; }
+  .login-error { color:#e74c3c; text-align:center; margin-top:10px; font-size:14px; }
+
+  #dashboard { display:none; }
+  header { background:#1e3c72; color:#fff; padding:15px 30px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+  header .header-brand { display:flex; align-items:center; gap:15px; }
+  header img { height:50px; width:50px; object-fit:contain; background:#fff; border-radius:50%; padding:3px; }
+  header .brand-text h1 { font-size:17px; margin-bottom:2px; }
+  header .brand-text p { font-size:12px; opacity:0.85; }
+  .header-right { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .user-badge { background:rgba(255,255,255,0.15); padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; }
+  
+  .nav-btn { position: relative; background:rgba(255,255,255,0.2); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; transition:0.2s; }
+  .nav-btn:hover { background:rgba(255,255,255,0.35); }
+  .nav-btn.active { background:#fff; color:#1e3c72; }
+  
+  .notification-badge {
+    position: absolute; top: -6px; right: -6px; background: #e74c3c; color: white;
+    font-size: 10px; font-weight: bold; padding: 3px 6px; border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3); display: none; animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+
+  .logout-btn { background:#e74c3c; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; }
+
+  /* --- SECTION ACCUEIL / GRAPHIQUES --- */
+  #accueilSection { padding: 30px; display: block; }
+  .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+  .dash-card { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border-bottom: 4px solid #1e3c72; }
+  .dash-card h3 { color: #666; font-size: 14px; margin-bottom: 10px; text-transform: uppercase; }
+  .dash-card .number { color: #1e3c72; font-size: 36px; font-weight: bold; }
+  
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+  .chart-box { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); height: 350px; display: flex; flex-direction: column; }
+  .chart-box h3 { color: #1e3c72; font-size: 16px; margin-bottom: 15px; text-align: center; }
+  .chart-container { position: relative; flex: 1; width: 100%; }
+  
+  @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } }
+
+  /* --- AUTRES SECTIONS --- */
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:15px; padding:25px 30px; }
+  .stat-card { background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.05); border-left:5px solid #f39c12; }
+  .stat-card.validees { border-left-color:#27ae60; }
+  .stat-card.refusees { border-left-color:#e74c3c; }
+  .stat-card.total { border-left-color:#1e3c72; }
+  .stat-card .label { color:#666; font-size:13px; margin-bottom:8px; }
+  .stat-card .value { color:#1e3c72; font-size:32px; font-weight:bold; }
+
+  .filters { padding:0 30px 20px; display:flex; gap:10px; flex-wrap:wrap; align-items: center; }
+  .filters select, .filters button, .filters input { padding:10px 18px; border:2px solid #e0e0e0; border-radius:8px; font-size:14px; background:#fff; cursor:pointer; font-weight:600; outline: none; }
+  .filters button { background:#1e3c72; color:#fff; border-color:#1e3c72; }
+  .filters input { cursor: text; font-weight: 400; min-width: 250px; }
+  .filters input:focus { border-color: #1e3c72; }
+  .btn-export { background:#27ae60 !important; border-color:#27ae60 !important; margin-left: auto; }
+
+  .type-tabs { display:flex; gap:10px; padding:0 30px 20px; flex-wrap:wrap; }
+  .type-tab { padding:10px 18px; border:2px solid #e0e0e0; border-radius:8px; font-size:14px; background:#fff; cursor:pointer; font-weight:600; color:#555; transition:0.2s; }
+  .type-tab:hover { background:#f8f9fa; }
+  .type-tab.active { background:#1e3c72; color:#fff; border-color:#1e3c72; }
+
+  .demandes-container { padding:0 30px 40px; }
+  .demande-item { background:#fff; border-radius:12px; padding:22px; box-shadow:0 3px 15px rgba(0,0,0,0.08); margin-bottom:18px; border-left:6px solid #f39c12; }
+  .demande-item.validee { border-left-color:#27ae60; background:#f8fff9; }
+  .demande-item.refusee { border-left-color:#e74c3c; background:#fff8f8; }
+
+  .demande-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:18px; }
+  .demande-header h3 { color:#1e3c72; font-size:18px; }
+  .demande-header h3 span { font-weight:400; color:#666; }
+  .statut { padding:6px 14px; border-radius:20px; font-size:12px; font-weight:700; text-transform:uppercase; }
+  .statut.en_attente { background:#fef5e7; color:#d68910; border:2px solid #f39c12; }
+  .statut.affecte_logistique { background:#fff3cd; color:#856404; border:2px solid #ffeeba; }
+  .statut.validee { background:#d5f4e6; color:#1e8449; border:2px solid #27ae60; }
+  .statut.refusee { background:#fadbd8; color:#922b21; border:2px solid #e74c3c; }
+
+  .demande-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-bottom:18px; }
+  .info-item { font-size:14px; color:#555; }
+  .info-item strong { color:#333; display:block; margin-bottom:3px; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; }
+  .demande-motif { background:#f8f9fb; padding:14px; border-radius:8px; font-size:14px; color:#555; margin-bottom:18px; border-left:3px solid #1e3c72; }
+
+  .actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:10px; padding-top:18px; border-top:1px solid #eee; }
+  .btn { padding:14px 28px; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px; text-transform:uppercase; letter-spacing:0.5px; transition:0.2s; }
+  .btn-valider { background:#27ae60; color:#fff; box-shadow:0 4px 12px rgba(39,174,96,0.3); }
+  .btn-valider:hover { background:#229954; transform:translateY(-2px); }
+  .btn-orange { background:#f39c12; color:#fff; box-shadow:0 4px 12px rgba(243,156,18,0.3); }
+  .btn-orange:hover { background:#d68910; transform:translateY(-2px); }
+  .btn-refuser { background:#e74c3c; color:#fff; box-shadow:0 4px 12px rgba(231,76,60,0.3); }
+  .btn-refuser:hover { background:#c0392b; transform:translateY(-2px); }
+  .btn-suppr { background:#95a5a6; color:#fff; padding:8px 14px; font-size:12px; margin-left:auto; }
+  .btn-suppr:hover { background:#7f8c8d; }
+  .btn-print-admin { background:#2c3e50; color:#fff; padding:12px 22px; font-size:13px; box-shadow:0 4px 12px rgba(44,62,80,0.3); }
+  .btn-print-admin:hover { background:#1a252f; transform:translateY(-2px); }
+
+  .resultat { padding:14px; border-radius:8px; font-size:14px; margin-bottom:10px; }
+  .resultat.validee { background:#d5f4e6; color:#1e8449; border-left:4px solid #27ae60; }
+  .resultat.refusee { background:#fadbd8; color:#922b21; border-left:4px solid #e74c3c; }
+  .resultat .par-admin { display:block; margin-top:6px; font-size:12px; opacity:0.8; font-style:italic; }
+
+  .modal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center; padding:20px; }
+  .modal-overlay.active { display:flex; }
+  .modal { background:#fff; padding:30px; border-radius:15px; max-width:520px; width:100%; max-height:90vh; overflow-y:auto; }
+  .modal h2 { color:#1e3c72; margin-bottom:8px; }
+  .modal p.subtitle { color:#666; font-size:14px; margin-bottom:20px; }
+  .modal label { display:block; font-weight:600; margin-bottom:6px; color:#333; font-size:14px; margin-top:14px; }
+  .modal input, .modal textarea, .modal select { width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px; font-size:14px; font-family:inherit; background:#fff; }
+  .modal input:focus, .modal textarea:focus, .modal select:focus { outline:none; border-color:#1e3c72; }
+  .modal-actions { display:flex; gap:10px; margin-top:22px; }
+  .modal-actions button { flex:1; padding:14px; border:none; border-radius:8px; font-size:15px; font-weight:700; cursor:pointer; }
+  .modal-actions .btn-cancel { background:#ecf0f1; color:#555; }
+
+  .empty { text-align:center; color:#999; padding:60px 20px; font-style:italic; font-size:15px; background:#fff; border-radius:12px; }
+  .loading { text-align:center; padding:40px; color:#666; }
+
+  #usersSection { display:none; padding:25px 30px 40px; }
+  .users-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+  .users-header h2 { color:#1e3c72; font-size:22px; }
+  .btn-add-user { background:#27ae60; color:#fff; padding:12px 22px; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px; box-shadow:0 4px 12px rgba(39,174,96,0.3); transition:0.2s; }
+  .btn-add-user:hover { background:#229954; transform:translateY(-2px); }
+
+  .users-list { display:flex; flex-direction:column; gap:12px; }
+  .user-row { background:#fff; padding:18px 22px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.06); border-left:5px solid #1e3c72; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; transition:0.2s; }
+  .user-row:hover { box-shadow:0 4px 20px rgba(0,0,0,0.1); }
+  .user-row.current { border-left-color:#f39c12; background:#fffbf0; }
+  .user-info { display:flex; flex-direction:column; gap:4px; flex:1; min-width:200px; }
+  .user-info .user-name { font-size:16px; font-weight:700; color:#1e3c72; display:flex; align-items:center; gap:8px; }
+  .user-info .user-name .badge-me { font-size:10px; background:#f39c12; color:#fff; padding:2px 8px; border-radius:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+  .user-info .user-email { font-size:13px; color:#666; }
+  .user-info .user-date { font-size:11px; color:#999; font-style:italic; }
+  .user-actions { display:flex; gap:10px; }
+  .btn-del-user { background:#e74c3c; color:#fff; padding:10px 18px; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; transition:0.2s; }
+  .btn-del-user:hover { background:#c0392b; transform:translateY(-2px); }
+  .btn-del-user:disabled { background:#bdc3c7; cursor:not-allowed; transform:none; }
+
+  .users-info-box { background:#e8f0fb; border-left:4px solid #1e3c72; padding:14px 18px; border-radius:8px; font-size:13px; color:#1e3c72; margin-bottom:20px; line-height:1.5; }
+
+  .password-reveal { display:flex; gap:10px; }
+  .password-reveal input { flex:1; }
+  .btn-reveal { background:#ecf0f1; color:#555; border:none; padding:0 14px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; }
+
+  @media (max-width:600px) {
+    .btn { padding:12px 20px; font-size:14px; }
+    header { padding:12px 15px; }
+    header .brand-text h1 { font-size:14px; }
+    header .brand-text p { font-size:11px; }
+    header img { height:40px; width:40px; }
+    .user-badge { font-size:11px; padding:5px 10px; }
+    .nav-btn { font-size:11px; padding:6px 10px; }
+    .user-row { flex-direction:column; align-items:flex-start; }
+    .user-actions { width:100%; }
+    .btn-del-user { flex:1; justify-content:center; }
+    .type-tab { flex: 1 1 30%; text-align: center; }
+    .btn-export { margin-left: 0; width: 100%; justify-content: center; }
+  }
+</style><style>
+.readonly-banner{background:#fff3cd;color:#60470a;padding:10px 18px;text-align:center;font-size:13px;font-weight:700}
+.btn-export:disabled,.btn-add-user:disabled{opacity:.45;cursor:not-allowed}
+.adkoul-warning{padding:18px;border-radius:9px;background:#fff;color:#852c24;border:1px solid #edcec9;margin:18px 30px}
+.demande-item .safe-actions{display:flex;align-items:center;gap:8px;margin-top:12px}
+.demande-item .safe-actions a{color:#1e3c72;font-weight:700}
+.login-box form{display:block}
+.login-box button:disabled{opacity:.55;cursor:wait}
+@media(max-width:600px){.readonly-banner{font-size:12px}}
 </style>
 </head>
 <body>
-<div id="pageConnexion">
-  <section class="connexion" aria-labelledby="titreConnexion">
-    <h1 id="titreConnexion">Administration ADKOUL</h1>
-    <p class="notice">Connexion réservée aux utilisateurs habilités.</p>
-    <form id="formConnexion">
-      <label for="email">Adresse e-mail</label>
-      <input id="email" type="email" value="abdoul.aziz@adkoul.org" autocomplete="username" required>
-      <label for="password">Mot de passe Supabase Auth</label>
-      <input id="password" type="password" autocomplete="current-password" required>
-      <button class="action" id="btnConnexion" type="submit">Se connecter</button>
-    </form>
-    <p id="messageConnexion" role="status" aria-live="polite"></p>
-    <a href="index.html">Retour à l'accueil</a>
-  </section>
-</div>
-<div id="application">
-  <header>
-    <div><strong>ONG ADKOUL</strong><small>Gestion des demandes — espace de consultation</small></div>
-    <div><span id="nomUtilisateur"></span> · <b id="roleUtilisateur"></b> <button id="deconnexion" class="action logout" type="button">Déconnexion</button></div>
-  </header>
-  <main>
-    <div class="intro">
-      <div><h1>Tableau de bord</h1><p class="notice">Consultation des demandes selon votre rôle. Les affectations et validations ne sont pas encore activées.</p></div>
-      <button class="action" id="actualiser" type="button">Actualiser</button>
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="./logo.webp" alt="ONG ADKOUL">
     </div>
-    <div class="stats" id="stats"></div>
-    <nav class="tabs" id="onglets" aria-label="Catégories des demandes"></nav>
-    <section class="panel" aria-labelledby="titreListe">
-      <h2 id="titreListe">Demandes</h2>
-      <p class="notice" id="descriptionListe"></p>
-      <div class="controls">
-        <label for="filtre">Rechercher : <input type="search" id="filtre" placeholder="Nom, destination, statut"></label>
-        <span class="notice" id="totalListe"></span>
-      </div>
-      <p id="statutListe" role="status" aria-live="polite"></p>
-      <div class="tableWrap"><table><thead id="entete"></thead><tbody id="lignes"></tbody></table></div>
-    </section>
-  </main>
-  <footer>ONG ADKOUL — Données privées, accès contrôlé par Supabase RLS.</footer>
+    <h1>ONG ADKOUL</h1>
+    <p class="subtitle">Espace de Gestion</p>
+    <p class="slogan">Solidarité • Éducation • Développement</p>
+    <form id="loginForm" autocomplete="on"><input type="email" id="adminEmail" required placeholder="Adresse email" autocomplete="username" >
+    <input type="password" id="adminPassword" required placeholder="Mot de passe" autocomplete="current-password" >
+    <button id="btnLogin" type="submit">Se connecter</button></form>
+    <div id="loginError" class="login-error"></div>
+  </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="readonly-banner">🔒 Interface historique restaurée — consultation uniquement. Affectations, validations et gestion des comptes suspendues en attendant les tests RLS.</div>
+  <header>
+    <div class="header-brand">
+      <img src="./logo.webp" alt="ONG ADKOUL">
+      <div class="brand-text">
+        <h1>ONG ADKOUL — Tableau de bord</h1>
+        <p>Gestion des véhicules et ordres de mission · Vue historique</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="nav-btn" id="navAccueil" onclick="afficherSection('accueil')">📊 Accueil</button>
+      <button class="nav-btn" id="navDemandes" onclick="afficherSection('demandes')">
+        📋 Demandes Véhicules <span class="notification-badge" id="badgeDemandes">0</span>
+      </button>
+      <button class="nav-btn" id="navOrdres" onclick="afficherSection('ordres')">
+        📄 Ordres de Mission (RH) <span class="notification-badge" id="badgeOrdres">0</span>
+      </button>
+      <button class="nav-btn" id="navUsers" onclick="afficherSection('users')">👥 Utilisateurs</button>
+      <div class="user-badge" id="userBadge">👤 <span id="userName">Admin</span></div>
+      <button class="logout-btn" onclick="logout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <!-- SECTION ACCUEIL / GRAPHIQUES -->
+  <div id="accueilSection">
+    <div class="dashboard-cards">
+      <div class="dash-card">
+        <h3>Total Demandes Véhicules</h3>
+        <div class="number" id="dashTotalVehicules">0</div>
+      </div>
+      <div class="dash-card" style="border-bottom-color: #f39c12;">
+        <h3>Total Missions Terrain</h3>
+        <div class="number" id="dashTotalMissions">0</div>
+      </div>
+      <div class="dash-card" style="border-bottom-color: #27ae60;">
+        <h3>Missions Validées (RH)</h3>
+        <div class="number" id="dashMissionsValidees">0</div>
+      </div>
+      <div class="dash-card" style="border-bottom-color: #e74c3c;">
+        <h3>Demandes en Attente</h3>
+        <div class="number" id="dashEnAttente">0</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-box">
+        <h3>Répartition par Moyen de Déplacement</h3>
+        <div class="chart-container"><canvas id="chartMoyens"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <h3>Répartition par Projet</h3>
+        <div class="chart-container"><canvas id="chartProjets"></canvas></div>
+      </div>
+    </div>
+    
+    <div class="charts-grid" style="grid-template-columns: 1fr;">
+      <div class="chart-box">
+        <h3>Statut des Ordres de Mission</h3>
+        <div class="chart-container"><canvas id="chartStatuts"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION DEMANDES VEHICULES -->
+  <div id="demandesSection" style="display:none;">
+    <div class="stats">
+      <div class="stat-card"><div class="label">⏳ En attente</div><div class="value" id="statAttente">0</div></div>
+      <div class="stat-card validees"><div class="label">✅ Affectées</div><div class="value" id="statValidees">0</div></div>
+      <div class="stat-card refusees"><div class="label">❌ Refusées</div><div class="value" id="statRefusees">0</div></div>
+      <div class="stat-card total"><div class="label">📊 Total</div><div class="value" id="statTotal">0</div></div>
+    </div>
+    <div class="filters">
+      <select id="filtreStatut" onchange="afficherDemandes()">
+        <option value="en_attente" selected>⏳ En attente</option>
+        <option value="validee">✅ Affectées</option>
+        <option value="refusee">❌ Refusées</option>
+        <option value="tous">📋 Toutes</option>
+      </select>
+      <input type="text" id="searchDemandes" placeholder="🔍 Rechercher (nom, destination...)" onkeyup="afficherDemandes()">
+      <button onclick="chargerDemandes()">🔄 Rafraîchir</button>
+      <button class="btn-export" type="button" disabled title="Export désactivé jusqu’à validation des politiques RLS">📥 Exporter Excel (désactivé)</button>
+    </div>
+    <div class="demandes-container" id="demandesContainer">
+      <div class="loading">Chargement...</div>
+    </div>
+  </div>
+
+  <!-- SECTION ORDRES DE MISSION -->
+  <div id="ordresSection" style="display:none;">
+    
+    <div class="type-tabs" id="typeTabs">
+      <button class="type-tab active" onclick="changerTypeOrdre('tous', this)">📁 Tous</button>
+      <button class="type-tab" onclick="changerTypeOrdre('Véhicule UNHCR', this)">🚙 UNHCR</button>
+      <button class="type-tab" onclick="changerTypeOrdre('Véhicule Partenaire', this)">🤝 Partenaire</button>
+      <button class="type-tab" onclick="changerTypeOrdre('Véhicule Location', this)">🏢 Location</button>
+      <button class="type-tab" onclick="changerTypeOrdre('Bus', this)">🚌 Bus</button>
+      <button class="type-tab" onclick="changerTypeOrdre('Avion', this)">✈️ Vol</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card" style="border-left-color:#f39c12;"><div class="label">⏳ À traiter (Logistique)</div><div class="value" id="statOrdresAttente">0</div></div>
+      <div class="stat-card" style="border-left-color:#f39c12;"><div class="label">⏳ À traiter (RH)</div><div class="value" id="statOrdresAffectes">0</div></div>
+      <div class="stat-card validees"><div class="label">✅ Validés</div><div class="value" id="statOrdresValides">0</div></div>
+      <div class="stat-card total"><div class="label">📊 Total</div><div class="value" id="statOrdresTotal">0</div></div>
+    </div>
+    
+    <div class="filters">
+      <select id="filtreStatutOrdre" onchange="afficherOrdres()">
+        <option value="en_attente" selected>⏳ En attente (Logistique)</option>
+        <option value="affecte_logistique">⏳ En attente (RH)</option>
+        <option value="validee">✅ Validés</option>
+        <option value="tous">📋 Tous les statuts</option>
+      </select>
+      <input type="text" id="searchOrdres" placeholder="🔍 Rechercher (nom, destination...)" onkeyup="afficherOrdres()">
+      <button onclick="chargerOrdres()">🔄 Rafraîchir</button>
+      <button class="btn-export" type="button" disabled title="Export désactivé jusqu’à validation des politiques RLS">📥 Exporter Excel (désactivé)</button>
+    </div>
+    <div class="demandes-container" id="ordresContainer">
+      <div class="loading">Chargement des ordres de mission...</div>
+    </div>
+  </div>
+
+  <!-- SECTION UTILISATEURS -->
+  <div id="usersSection">
+    <div class="users-header">
+      <h2>👥 Gestion des utilisateurs</h2>
+      <button class="btn-add-user" type="button" disabled title="Gestion des comptes désactivée pendant la sécurisation">➕ Ajouter un utilisateur (désactivé)</button>
+    </div>
+    <div class="users-info-box">
+      💡 <strong>Info :</strong> Les rôles déterminent les accès. 
+      <br>• <strong>Logistique</strong> : Accès total (gestion des comptes, véhicules, missions).
+      <br>• <strong>Directeur Logistique</strong> : Lecture seule sur les missions (pas de validation, pas de véhicules).
+      <br>• <strong>Assistant Logistique</strong> : Saisie des demandes de véhicules de LOCATION uniquement.
+      <br>• <strong>RH</strong> : Validation et impression des ordres de mission uniquement.
+    </div>
+    <div class="users-list" id="usersList">
+      <div class="loading">Seul le profil connecté peut être affiché pour le moment.</div>
+    </div>
+  </div>
+</div>
+
+
 <script>
 "use strict";
-const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
-const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
-const client = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
-const ROLES = new Set(["rh","directeur_logistique","logistique","assistant_logistique"]);
-const MODULES = [
-  {id:"demandes",titre:"Sorties de véhicules",description:"Demandes de sortie de véhicules",roles:["logistique","assistant_logistique","directeur_logistique"],champs:["id","nom","prenom","destination","date_sortie","statut"],libelles:["Référence","Nom","Prénom","Destination","Date de sortie","Statut"]},
-  {id:"missions",titre:"Missions terrain",description:"Demandes de mission terrain",roles:["logistique","assistant_logistique","directeur_logistique","rh"],champs:["id","nom","titre_mission","lieu","date_debut","statut"],libelles:["Référence","Nom","Mission","Lieu","Début","Statut"]},
-  {id:"missions_2",titre:"Ordres de mission",description:"Demandes d'ordres de mission",roles:["logistique","directeur_logistique","rh"],champs:["id","nom","destination","date_depart","statut","projet"],libelles:["Référence","Nom","Destination","Départ","Statut","Projet"]}
-];
-let profilActuel=null, moduleActuel=null, resultats=[];
-const el=id=>document.getElementById(id);
-function message(texte,erreur){el("messageConnexion").textContent=texte;el("messageConnexion").className=erreur?"error":"notice";}
-function montrerConnexion(){el("application").style.display="none";el("pageConnexion").style.display="grid";profilActuel=null;resultats=[];}
-function montrerApplication(profil,user){
-  profilActuel=profil;
-  el("nomUtilisateur").textContent=profil.nom||user.email;
-  el("roleUtilisateur").textContent=profil.role;
-  el("pageConnexion").style.display="none";el("application").style.display="block";
-  const autorises=MODULES.filter(m=>m.roles.includes(String(profil.role).toLowerCase()));
-  const nav=el("onglets");nav.replaceChildren();
-  autorises.forEach(m=>{
-    const b=document.createElement("button");b.type="button";b.textContent=m.titre;b.setAttribute("aria-selected","false");
-    b.addEventListener("click",()=>chargerModule(m));b.dataset.module=m.id;nav.appendChild(b);
-  });
-  const stat=el("stats");stat.replaceChildren();
-  autorises.forEach(m=>{
-    const box=document.createElement("div");box.className="stat";
-    const label=document.createElement("span");label.textContent=m.titre;
-    const value=document.createElement("strong");value.id="compte_"+m.id;value.textContent="—";
-    box.append(label,value);stat.appendChild(box);
-  });
-  if(autorises.length)chargerModule(autorises[0]);
-  else{el("statutListe").textContent="Aucune rubrique autorisée pour ce rôle.";}
-  actualiserCompteurs(autorises);
+// REPRISE PRESENTATION HISTORIQUE DU 12 NOVEMBRE 2026 VERS 9H.
+// Seul le HTML/CSS d'origine est réutilisé. Aucune ancienne routine
+// d'authentification par hash, de modification SQL, ni de mot de passe codé en dur.
+const URL_SUPABASE="https://mvmzhdvkeromtljnvrow.supabase.co";
+const CLE_PUBLIQUE="sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
+const client=window.supabase?.createClient(URL_SUPABASE,CLE_PUBLIQUE);
+const $=id=>document.getElementById(id);
+const ROLES=new Set(["logistique","directeur_logistique","assistant_logistique","rh"]);
+const PEUT_VOIR_VEHICULES=new Set(["logistique"]);
+const PEUT_VOIR_ORDRES=new Set(["logistique","directeur_logistique","rh"]);
+const PEUT_VOIR_MISSIONS=new Set(["logistique","directeur_logistique"]);
+let compte=null, donneesDemandes=[],donneesOrdres=[],donneesMissions=[];
+let chartMoyens=null,chartProjets=null,chartStatuts=null;
+let donneesDemandesChargees=false,donneesOrdresChargees=false,donneesMissionsChargees=false;
+let filtreTypeOrdre="tous";
+
+function statutTexte(v){return String(v??"—");}
+function texteSecurise(v){return String(v??"—");}
+function compter(vals,statut){return vals.filter(d=>d.statut===statut).length;}
+function errorZone(id,texte){const elem=$(id);elem.replaceChildren();const p=document.createElement("div");p.className="adkoul-warning";p.textContent=texte;elem.appendChild(p);}
+function valeur(id,n){const el=$(id);if(el)el.textContent=String(n);}
+function peutVehicules(){return !!compte&&PEUT_VOIR_VEHICULES.has(compte.role);}
+function peutOrdres(){return !!compte&&PEUT_VOIR_ORDRES.has(compte.role);}
+function peutMissions(){return !!compte&&PEUT_VOIR_MISSIONS.has(compte.role);}
+function setBadge(id,n){const e=$(id);e.textContent=String(n);e.style.display=n>0?"inline-block":"none";}
+async function obtenirProfil(user){
+  if(!user?.email) return null;
+  const res=await client.from("admins").select("email,nom,role").ilike("email",user.email).maybeSingle();
+  if(res.error) throw res.error;
+  const profil=res.data;
+  const role=String(profil?.role||"").trim().toLowerCase();
+  if(!ROLES.has(role))return null;
+  return {email:profil.email,nom:profil.nom||user.email,role};
 }
-async function verifierProfil(user){
-  if(!user||!user.email)return null;
-  const {data,error}=await client.from("admins").select("nom,role,email").ilike("email",user.email).maybeSingle();
-  if(error)throw error;
-  if(!data||!ROLES.has(String(data.role||"").trim().toLowerCase()))return null;
-  return data;
+function afficherLogin(texte=""){
+  compte=null;$("loginScreen").style.display="flex";$("dashboard").style.display="none";
+  $("loginError").textContent=texte;
 }
-async function ouvrirSession(){
-  if(!client){message("Bibliothèque de connexion indisponible.",true);el("btnConnexion").disabled=true;return;}
+async function ouvrirDashboard(profil){
+  compte=profil;
+  $("loginScreen").style.display="none";$("dashboard").style.display="block";
+  $("adminPassword").value="";
+  $("userName").textContent=profil.nom+" ("+profil.role+")";
+  $("navDemandes").hidden=!peutVehicules();
+  $("navOrdres").hidden=!peutOrdres();
+  $("navUsers").hidden=profil.role!=="logistique";
+  document.querySelectorAll(".btn-export,.btn-add-user").forEach(b=>{b.disabled=true;});
+  $("usersList").textContent="Profil connecté : "+profil.nom+" — "+profil.role+". Gestion des comptes désactivée.";
+  afficherSection("accueil");
+  if(peutVehicules()) await chargerDemandes();
+  if(peutOrdres()) await chargerOrdres();
+  if(peutMissions()) await chargerMissions();
+  mettreAJourGraphiques();
+}
+async function verifierSession(){
+  if(!client){afficherLogin("Service de connexion indisponible.");$("btnLogin").disabled=true;return;}
   try{
     const {data,error}=await client.auth.getUser();
-    if(error||!data.user){montrerConnexion();return;}
-    const profil=await verifierProfil(data.user);
-    if(!profil){await client.auth.signOut();montrerConnexion();message("Compte non autorisé.",true);return;}
-    montrerApplication(profil,data.user);
-  }catch(e){console.error("Contrôle de session impossible",e);montrerConnexion();message("Impossible de vérifier les accès.",true);}
+    if(error||!data?.user){afficherLogin();return;}
+    const profil=await obtenirProfil(data.user);
+    if(!profil){await client.auth.signOut();afficherLogin("Rôle non autorisé.");return;}
+    await ouvrirDashboard(profil);
+  }catch(e){
+    console.error("Erreur de vérification",e);
+    afficherLogin("Impossible de vérifier le profil. Vérifiez les droits RLS.");
+  }
 }
-el("formConnexion").addEventListener("submit",async event=>{
-  event.preventDefault();if(!client)return;
-  const btn=el("btnConnexion");btn.disabled=true;message("Vérification…",false);
+$("loginForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+  if(!client)return;
+  const btn=$("btnLogin");btn.disabled=true;$("loginError").textContent="Vérification de la connexion...";
   try{
-    const {data,error}=await client.auth.signInWithPassword({
-      email:el("email").value.trim(),password:el("password").value
-    });
-    if(error||!data.user){message("Identifiants invalides ou compte non activé.",true);return;}
-    const profil=await verifierProfil(data.user);
-    if(!profil){await client.auth.signOut();message("Profil ou rôle non autorisé.",true);return;}
-    el("password").value="";message("",false);montrerApplication(profil,data.user);
-  }catch(e){console.error("Échec de connexion",e);await client.auth.signOut().catch(()=>{});message("Connexion impossible. Vérifiez les droits Supabase.",true);}
-  finally{btn.disabled=false;}
+    const {data,error}=await client.auth.signInWithPassword({email:$("adminEmail").value.trim(),password:$("adminPassword").value});
+    if(error||!data?.user){$("loginError").textContent="Identifiants invalides ou compte non activé.";return;}
+    const profil=await obtenirProfil(data.user);
+    if(!profil){await client.auth.signOut();$("loginError").textContent="Profil non autorisé.";return;}
+    $("loginError").textContent="";
+    await ouvrirDashboard(profil);
+  }catch(e){
+    await client.auth.signOut().catch(()=>{});
+    $("loginError").textContent="Connexion ou vérification des droits indisponible.";
+    console.error("Authentification",e);
+  }finally{btn.disabled=false;}
 });
-el("deconnexion").addEventListener("click",async()=>{
+async function logout(){
   if(!client)return;
   const {error}=await client.auth.signOut();
-  if(error){el("statutListe").textContent="Déconnexion impossible.";return;}
-  montrerConnexion();message("Session terminée.",false);
-});
-async function chargerModule(m){
-  if(!profilActuel||!m.roles.includes(String(profilActuel.role).toLowerCase()))return;
-  moduleActuel=m;resultats=[];el("filtre").value="";
-  el("titreListe").textContent=m.titre;el("descriptionListe").textContent=m.description;
-  el("statutListe").textContent="Chargement…";el("lignes").replaceChildren();el("entete").replaceChildren();
-  el("onglets").querySelectorAll("button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.module===m.id)));
-  const tr=document.createElement("tr");
-  m.libelles.forEach(t=>{const th=document.createElement("th");th.textContent=t;tr.appendChild(th);});
-  if(m.id==="missions_2"&&["rh","directeur_logistique"].includes(String(profilActuel.role).toLowerCase())){
-    const th=document.createElement("th");th.textContent="Impression";tr.appendChild(th);
-  }
-  el("entete").appendChild(tr);
-  const current=m.id;
-  try{
-    const {data,error}=await client.from(m.id).select(m.champs.join(",")).limit(100);
-    if(error)throw error;
-    if(moduleActuel.id!==current)return;
-    resultats=data||[];el("statutListe").textContent="";
-    afficherLignes();
-  }catch(e){
-    if(moduleActuel.id===current){el("statutListe").textContent="Lecture refusée ou indisponible. Vérifiez les politiques Supabase RLS.";el("totalListe").textContent="—";}
-    console.error("Lecture refusée",current,e);
+  if(error){alert("Déconnexion impossible. Réessayez.");return;}
+  donneesDemandes=[];donneesOrdres=[];donneesMissions=[];
+  afficherLogin("Session terminée.");
+}
+function afficherSection(section){
+  if(!compte)return;
+  if(section==="demandes"&&!peutVehicules())return;
+  if(section==="ordres"&&!peutOrdres())return;
+  if(section==="users"&&compte.role!=="logistique")return;
+  const map={accueil:"accueilSection",demandes:"demandesSection",ordres:"ordresSection",users:"usersSection"};
+  for(const [key,id] of Object.entries(map)){
+    $(id).style.display=key===section?"block":"none";
+    const btn=$("nav"+key.charAt(0).toUpperCase()+key.slice(1));
+    if(btn)btn.classList.toggle("active",key===section);
   }
 }
-function afficherLignes(){
-  if(!moduleActuel)return;
-  const tbody=el("lignes");tbody.replaceChildren();
-  const mot=el("filtre").value.trim().toLocaleLowerCase("fr");
-  const filtered=resultats.filter(d=>moduleActuel.champs.some(k=>String(d[k]??"").toLocaleLowerCase("fr").includes(mot)));
-  for(const data of filtered){
-    const tr=document.createElement("tr");
-    for(const champ of moduleActuel.champs){
-      const td=document.createElement("td");
-      if(champ==="statut"){const span=document.createElement("span");span.className="badgeStatut";span.textContent=String(data[champ]??"—");td.appendChild(span);}
-      else{td.textContent=String(data[champ]??"—");}
-      tr.appendChild(td);
-    }
-    if(moduleActuel.id==="missions_2"&&["rh","directeur_logistique"].includes(String(profilActuel.role).toLowerCase())){
-      const td=document.createElement("td"),link=document.createElement("a");
-      link.className="print";link.textContent="Ouvrir";link.href="impression-ordre.html?id="+encodeURIComponent(data.id);
-      link.rel="noopener";td.appendChild(link);tr.appendChild(td);
-    }
-    tbody.appendChild(tr);
-  }
-  if(!filtered.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=moduleActuel.champs.length+1;td.textContent="Aucun résultat.";tr.appendChild(td);tbody.appendChild(tr);}
-  el("totalListe").textContent=filtered.length+" résultat(s) sur "+resultats.length+" chargé(s) (100 maximum)";
+async function chargerDemandes(){
+  if(!peutVehicules())return;
+  errorZone("demandesContainer","Chargement...");
+  const {data,error}=await client.from("demandes")
+    .select("id,nom,prenom,poste,destination,date_sortie,statut")
+    .limit(1000);
+  if(error){donneesDemandesChargees=false;errorZone("demandesContainer","Accès aux demandes indisponible : contrôlez les politiques RLS.");console.error("Demandes",error);return;}
+  donneesDemandes=data||[];donneesDemandesChargees=true;
+  valeur("statTotal",donneesDemandes.length);
+  valeur("statAttente",compter(donneesDemandes,"en_attente"));
+  valeur("statValidees",compter(donneesDemandes,"validee"));
+  valeur("statRefusees",compter(donneesDemandes,"refusee"));
+  setBadge("badgeDemandes",compter(donneesDemandes,"en_attente"));
+  afficherDemandes();mettreAJourGraphiques();
 }
-el("filtre").addEventListener("input",afficherLignes);
-el("actualiser").addEventListener("click",()=>{if(!profilActuel)return;const roles=MODULES.filter(m=>m.roles.includes(String(profilActuel.role).toLowerCase()));actualiserCompteurs(roles);if(moduleActuel)chargerModule(moduleActuel);});
-async function actualiserCompteurs(modules){
-  for(const m of modules){
-    const label=el("compte_"+m.id);if(!label)continue;
-    const {count,error}=await client.from(m.id).select("id",{count:"exact",head:true});
-    label.textContent=error?"—":String(count??0);
-  }
+async function chargerOrdres(){
+  if(!peutOrdres())return;
+  errorZone("ordresContainer","Chargement...");
+  const {data,error}=await client.from("missions_2")
+    .select("id,nom,destination,date_depart,statut,projet,moyen_deplacement")
+    .limit(1000);
+  if(error){donneesOrdresChargees=false;errorZone("ordresContainer","Accès aux ordres indisponible : contrôlez les politiques RLS.");console.error("Ordres",error);return;}
+  donneesOrdres=data||[];donneesOrdresChargees=true;
+  valeur("statOrdresTotal",donneesOrdres.length);
+  valeur("statOrdresAttente",compter(donneesOrdres,"en_attente"));
+  valeur("statOrdresAffectes",compter(donneesOrdres,"affecte_logistique"));
+  valeur("statOrdresValides",compter(donneesOrdres,"validee"));
+  setBadge("badgeOrdres",compter(donneesOrdres,"en_attente"));
+  afficherOrdres();mettreAJourGraphiques();
 }
-ouvrirSession();
+async function chargerMissions(){
+  if(!peutMissions())return;
+  const {data,error}=await client.from("missions").select("id,statut").limit(1000);
+  if(error){donneesMissionsChargees=false;console.error("Missions",error);mettreAJourGraphiques();return;}
+  donneesMissions=data||[];donneesMissionsChargees=true;mettreAJourGraphiques();
+}
+function creerCarte(entete,details,statut,imprimer=null){
+  const card=document.createElement("article");card.className="demande-item";
+  if(statut==="validee")card.classList.add("validee");
+  if(statut==="refusee")card.classList.add("refusee");
+  const top=document.createElement("div");top.className="demande-header";
+  const titre=document.createElement("h3");titre.textContent=entete;top.appendChild(titre);
+  const badge=document.createElement("span");badge.className="statut "+String(statut||"").replace(/[^a-z0-9_]/gi,"");badge.textContent=statutTexte(statut);top.appendChild(badge);
+  const grid=document.createElement("div");grid.className="demande-grid";
+  for(const [nom,val] of details){
+    const bloc=document.createElement("div");bloc.className="detail-item";
+    const titre=document.createElement("strong");titre.textContent=nom+" : ";
+    const value=document.createElement("span");value.textContent=texteSecurise(val);
+    bloc.append(titre,value);grid.appendChild(bloc);
+  }
+  card.append(top,grid);
+  if(imprimer!==null){
+    const div=document.createElement("div");div.className="safe-actions";
+    const link=document.createElement("a");
+    link.href="impression-ordre.html?id="+encodeURIComponent(imprimer);
+    link.textContent="Voir l’ordre de mission";link.rel="noopener";
+    div.appendChild(link);card.appendChild(div);
+  }
+  return card;
+}
+function afficherDemandes(){
+  if(!peutVehicules())return;
+  if(!donneesDemandesChargees){errorZone("demandesContainer","Les demandes ne sont pas encore chargées.");return;}
+  const statut=$("filtreStatut").value;
+  const q=$("searchDemandes").value.toLocaleLowerCase("fr").trim();
+  const cible=$("demandesContainer");cible.replaceChildren();
+  const visibles=donneesDemandes.filter(d=>
+    (statut==="tous"||d.statut===statut)&&
+    [d.nom,d.prenom,d.destination,d.poste].some(x=>String(x||"").toLocaleLowerCase("fr").includes(q))
+  );
+  for(const d of visibles){
+    cible.appendChild(creerCarte((d.prenom||"")+" "+(d.nom||"")+" — Demande #"+d.id,
+      [["Destination",d.destination],["Départ",d.date_sortie],["Poste",d.poste]],d.statut));
+  }
+  if(!visibles.length)errorZone("demandesContainer","Aucune demande dans ce filtre.");
+}
+function changerTypeOrdre(type,bouton){
+  filtreTypeOrdre=type;
+  document.querySelectorAll(".type-tab").forEach(e=>e.classList.remove("active"));
+  if(bouton)bouton.classList.add("active");
+  afficherOrdres();
+}
+function afficherOrdres(){
+  if(!peutOrdres())return;
+  if(!donneesOrdresChargees){errorZone("ordresContainer","Les ordres ne sont pas encore chargés.");return;}
+  const statut=$("filtreStatutOrdre").value;
+  const q=$("searchOrdres").value.toLocaleLowerCase("fr").trim();
+  const cible=$("ordresContainer");cible.replaceChildren();
+  const visibles=donneesOrdres.filter(d=>
+    (statut==="tous"||d.statut===statut)&&
+    (filtreTypeOrdre==="tous"||d.moyen_deplacement===filtreTypeOrdre)&&
+    [d.nom,d.destination,d.projet].some(x=>String(x||"").toLocaleLowerCase("fr").includes(q))
+  );
+  for(const d of visibles){
+    cible.appendChild(creerCarte((d.nom||"")+" — Ordre #"+d.id,
+      [["Destination",d.destination],["Départ",d.date_depart],["Projet",d.projet],["Transport",d.moyen_deplacement]],
+      d.statut,["rh","directeur_logistique"].includes(compte.role)?d.id:null));
+  }
+  if(!visibles.length)errorZone("ordresContainer","Aucun ordre dans ce filtre.");
+}
+function mettreAJourGraphiques(){
+  valeur("dashTotalVehicules",donneesDemandesChargees?donneesDemandes.length:"—");
+  valeur("dashTotalMissions",donneesMissionsChargees?donneesMissions.length:"—");
+  valeur("dashMissionsValidees",donneesOrdresChargees?compter(donneesOrdres,"validee"):"—");
+  valeur("dashEnAttente",
+    donneesDemandesChargees&&donneesOrdresChargees?
+      compter(donneesDemandes,"en_attente")+compter(donneesOrdres,"en_attente"):"—");
+  if(typeof window.Chart!=="function"||!donneesOrdresChargees)return;
+  const moyens=new Map(),projets=new Map(),statuts=new Map();
+  for(const d of donneesOrdres){
+    const moyen=d.moyen_deplacement||"Non précisé";
+    const projet=d.projet||"Non précisé";
+    const statut=d.statut||"Inconnu";
+    moyens.set(moyen,(moyens.get(moyen)||0)+1);
+    projets.set(projet,(projets.get(projet)||0)+1);
+    statuts.set(statut,(statuts.get(statut)||0)+1);
+  }
+  function chart(canvas,ancienne,type,data){
+    if(ancienne)ancienne.destroy();
+    return new window.Chart($(canvas).getContext("2d"),{
+      type,
+      data:{labels:[...data.keys()],datasets:[{data:[...data.values()],
+        backgroundColor:["#2980b9","#f39c12","#27ae60","#8e44ad","#e74c3c","#16a085"]}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:type!=="bar",position:"bottom"}},
+        scales:type==="bar"?{y:{beginAtZero:true,ticks:{precision:0}}}:{}}
+    });
+  }
+  chartMoyens=chart("chartMoyens",chartMoyens,"doughnut",moyens);
+  chartProjets=chart("chartProjets",chartProjets,"pie",projets);
+  chartStatuts=chart("chartStatuts",chartStatuts,"bar",statuts);
+}
+verifierSession();
 </script>
 </body>
 </html>

@@ -215,7 +215,7 @@
     const user=identite?.user;
     if(authError||!user?.email){refuser("Connexion requise : ouvrez la page admin.html.");return;}
     const {data:profil,error:roleError}=await client.from("admins").select("role").ilike("email",user.email).maybeSingle();
-    if(roleError||!["admin","rh"].includes(String(profil?.role||"").toLowerCase())){refuser("Accès refusé.");return;}
+    if(roleError||!["rh","directeur_logistique"].includes(String(profil?.role||"").toLowerCase())){refuser("Accès refusé.");return;}
     const {data:session,error:sessionError}=await client.auth.getSession();
     if(sessionError||!session?.session?.access_token){refuser("Session expirée.");return;}
     fetch(SUPABASE_URL + '/rest/v1/missions_2?id=eq.' + encodeURIComponent(ordreId), {

@@ -69,6 +69,7 @@
   .stat-card.validees { border-left-color:#27ae60; }
   .stat-card.refusees { border-left-color:#e74c3c; }
   .stat-card.total { border-left-color:#1e3c72; }
+  .stat-card.retard { border-left-color:#e74c3c; background: #fff8f8; }
   .stat-card .label { color:#666; font-size:13px; margin-bottom:8px; }
   .stat-card .value { color:#1e3c72; font-size:32px; font-weight:bold; }
 
@@ -88,6 +89,7 @@
   .demande-item { background:#fff; border-radius:12px; padding:22px; box-shadow:0 3px 15px rgba(0,0,0,0.08); margin-bottom:18px; border-left:6px solid #f39c12; }
   .demande-item.validee { border-left-color:#27ae60; background:#f8fff9; }
   .demande-item.refusee { border-left-color:#e74c3c; background:#fff8f8; }
+  .demande-item.retard { border-left-color: #e74c3c; border-left-width: 8px; }
 
   .demande-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:18px; }
   .demande-header h3 { color:#1e3c72; font-size:18px; }
@@ -122,6 +124,8 @@
   .resultat.validee { background:#d5f4e6; color:#1e8449; border-left:4px solid #27ae60; }
   .resultat.refusee { background:#fadbd8; color:#922b21; border-left:4px solid #e74c3c; }
   .resultat .par-admin { display:block; margin-top:6px; font-size:12px; opacity:0.8; font-style:italic; }
+  
+  .notes-internes-box { background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 8px; font-size: 13px; color: #856404; margin-top: 10px; font-style: italic; }
 
   .modal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center; padding:20px; }
   .modal-overlay.active { display:flex; }
@@ -311,6 +315,7 @@
       <div class="stat-card" style="border-left-color:#f39c12;"><div class="label">⏳ À traiter (Logistique)</div><div class="value" id="statOrdresAttente">0</div></div>
       <div class="stat-card" style="border-left-color:#f39c12;"><div class="label">⏳ À traiter (RH)</div><div class="value" id="statOrdresAffectes">0</div></div>
       <div class="stat-card validees"><div class="label">✅ Validés</div><div class="value" id="statOrdresValides">0</div></div>
+      <div class="stat-card retard"><div class="label">⚠️ En retard (départ < 48h)</div><div class="value" id="statOrdresRetard">0</div></div>
       <div class="stat-card total"><div class="label">📊 Total</div><div class="value" id="statOrdresTotal">0</div></div>
     </div>
     
@@ -319,6 +324,7 @@
         <option value="en_attente" selected>⏳ En attente (Logistique)</option>
         <option value="affecte_logistique">⏳ En attente (RH)</option>
         <option value="validee">✅ Validés</option>
+        <option value="retard">⚠️ Missions en retard</option>
         <option value="tous">📋 Tous les statuts</option>
       </select>
       <input type="text" id="searchOrdres" placeholder="🔍 Rechercher (nom, destination...)" onkeyup="afficherOrdres()">
@@ -455,6 +461,9 @@
         <input type="text" id="inputVehiculeOrdreImmat" placeholder="Ex: AB-123-CD" required>
       </div>
     </div>
+
+    <label>📝 Notes internes (optionnel - visible uniquement par les admins)</label>
+    <textarea id="inputNotesInternes" rows="2" placeholder="Ex: Chauffeur prévenu par téléphone..."></textarea>
 
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
@@ -902,6 +911,16 @@
     } catch (err) { container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>'; }
   }
 
+  function estEnRetard(o) {
+    // Retard si la date de départ est dans moins de 48h et que le statut n'est pas validé
+    if (o.statut === 'validee') return false;
+    if (!o.date_depart) return false;
+    const dateDepart = new Date(o.date_depart);
+    const now = new Date();
+    const diffHeures = (dateDepart - now) / (1000 * 60 * 60);
+    return diffHeures >= 0 && diffHeures <= 48;
+  }
+
   function afficherOrdres() {
     const filtreStatut = document.getElementById('filtreStatutOrdre').value;
     const recherche = document.getElementById('searchOrdres').value.toLowerCase();
@@ -916,10 +935,15 @@
     document.getElementById('statOrdresAttente').textContent = listeBase.filter(o => o.statut === 'en_attente').length;
     document.getElementById('statOrdresAffectes').textContent = listeBase.filter(o => o.statut === 'affecte_logistique').length;
     document.getElementById('statOrdresValides').textContent = listeBase.filter(o => o.statut === 'validee').length;
+    document.getElementById('statOrdresRetard').textContent = listeBase.filter(o => estEnRetard(o)).length;
     document.getElementById('statOrdresTotal').textContent = listeBase.length;
 
     let listeFinale = listeBase.filter(o => {
-      const matchStatut = filtreStatut === 'tous' || o.statut === filtreStatut;
+      let matchStatut = false;
+      if (filtreStatut === 'tous') matchStatut = true;
+      else if (filtreStatut === 'retard') matchStatut = estEnRetard(o);
+      else matchStatut = o.statut === filtreStatut;
+
       const matchSearch = !recherche || 
         (o.nom && o.nom.toLowerCase().includes(recherche)) ||
         (o.destination && o.destination.toLowerCase().includes(recherche)) ||
@@ -936,6 +960,9 @@
     container.innerHTML = listeFinale.map(o => {
       let actionsHtml = ''; let resultatHtml = '';
       
+      const retard = estEnRetard(o);
+      const classRetard = retard ? 'retard' : '';
+
       if (o.statut === 'en_attente') {
         if (role === 'logistique') {
           actionsHtml = `<button class="btn btn-valider" onclick="ouvrirModalValiderOrdre(${o.id})">✅ Affecter Chauffeur/Véhicule</button>`;
@@ -945,7 +972,6 @@
       } else if (o.statut === 'affecte_logistique') {
         resultatHtml = `<div class="resultat validee" style="background:#fff3cd; color:#856404; border-color:#ffeeba;"><strong>⏳ Attente N° Ordre (RH)</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne}</strong>${o.affecte_par ? `<span class="par-admin">✔ Affecté par : ${o.affecte_par}</span>` : ''}</div>`;
         
-        // BOUTONS VOIR ET IMPRIMER
         actionsHtml = `
           <button class="btn btn-print-admin" onclick="voirOrdreMission(${o.id})" style="background:#3498db;">👁️ Voir</button>
           <button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>
@@ -956,13 +982,9 @@
         if (role === 'rh' || role === 'logistique') {
            actionsHtml += `<button class="btn btn-orange" onclick="ouvrirModalNumeroRH(${o.id})">🔢 Valider (Générer N° RH)</button>`;
         }
-        if (role === 'logistique') {
-          actionsHtml += `<button class="btn btn-orange" onclick="annulerValidationRH(${o.id})" style="padding:8px 14px; font-size:12px; background:#f39c12;">↩️ Annuler validation RH</button>`;
-        }
       } else if (o.statut === 'validee') {
         resultatHtml = `<div class="resultat validee"><strong>✅ Validé (N° ${o.message_admin})</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne}</strong><br>${o.affecte_par ? `<span class="par-admin">✔ Affecté par : ${o.affecte_par}</span>` : ''}${o.valide_rh_par ? `<span class="par-admin">✔ Validé (RH) par : ${o.valide_rh_par}</span>` : ''}</div>`;
         
-        // BOUTONS VOIR ET IMPRIMER
         actionsHtml = `
           <button class="btn btn-print-admin" onclick="voirOrdreMission(${o.id})" style="background:#3498db;">👁️ Voir</button>
           <button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>
@@ -979,13 +1001,13 @@
       }
 
       return `
-        <div class="demande-item ${o.statut === 'validee' ? 'validee' : ''}">
+        <div class="demande-item ${o.statut === 'validee' ? 'validee' : ''} ${classRetard}">
           <div class="demande-header">
             <h3>${o.nom} <span>— ${o.destination}</span></h3>
             <span class="statut ${o.statut}">${o.statut === 'en_attente' ? '⏳ Attente Log.' : o.statut === 'affecte_logistique' ? '⏳ Attente RH' : '✅ Validé'}</span>
           </div>
           <div class="demande-grid">
-            <div class="info-item"><strong>📅 Départ</strong>${formatNigerDateShort(o.date_depart)}</div>
+            <div class="info-item"><strong>📅 Départ</strong>${formatNigerDateShort(o.date_depart)} ${retard ? '⚠️ (Urgent)' : ''}</div>
             <div class="info-item"><strong>📅 Retour</strong>${formatNigerDateShort(o.date_retour)}</div>
             <div class="info-item"><strong>🧭 Objectif</strong>${o.objectif}</div>
             <div class="info-item"><strong>🚌 Moyen demandé</strong>${o.moyen_deplacement}</div>
@@ -994,6 +1016,7 @@
             <div class="info-item"><strong>👥 Accompagnateurs</strong>${o.accompagnateurs || 'Aucun'}</div>
           </div>
           ${resultatHtml}
+          ${o.notes_internes ? `<div class="notes-internes-box"><strong>📝 Note interne :</strong> ${o.notes_internes}</div>` : ''}
           <div class="actions">${actionsHtml}</div>
         </div>`;
     }).join('');
@@ -1019,7 +1042,7 @@
         lignes.push([d.date_sortie, d.nom, d.prenom, d.poste, d.destination, d.motif, d.statut, d.chauffeur_assigne || '', d.vehicule_assigne || ''].join(";"));
       });
     } else if (source === 'ordres') {
-      lignes.push(["Date depart", "Date retour", "Nom", "Poste", "Destination", "Projet", "Objectif", "Moyen", "Statut", "N° Ordre", "Chauffeur", "Vehicule"].join(";"));
+      lignes.push(["Date depart", "Date retour", "Nom", "Poste", "Destination", "Projet", "Objectif", "Moyen", "Statut", "N° Ordre", "Chauffeur", "Vehicule", "Notes internes"].join(";"));
       const filtreStatut = document.getElementById('filtreStatutOrdre').value;
       const recherche = document.getElementById('searchOrdres').value.toLowerCase();
       
@@ -1028,7 +1051,7 @@
       liste = liste.filter(o => (filtreStatut === 'tous' || o.statut === filtreStatut) && (!recherche || o.nom.toLowerCase().includes(recherche) || o.destination.toLowerCase().includes(recherche)));
 
       liste.forEach(o => {
-        lignes.push([o.date_depart, o.date_retour, o.nom, o.poste, o.destination, o.projet || '', o.objectif, o.moyen_deplacement, o.statut, o.message_admin || '', o.chauffeur_assigne || '', o.vehicule_assigne || ''].join(";"));
+        lignes.push([o.date_depart, o.date_retour, o.nom, o.poste, o.destination, o.projet || '', o.objectif, o.moyen_deplacement, o.statut, o.message_admin || '', o.chauffeur_assigne || '', o.vehicule_assigne || '', o.notes_internes || ''].join(";"));
       });
     }
 
@@ -1061,6 +1084,7 @@
     document.getElementById('inputVehiculeOrdreMarque').value = '';
     document.getElementById('inputVehiculeOrdreCouleur').value = '';
     document.getElementById('inputVehiculeOrdreImmat').value = '';
+    document.getElementById('inputNotesInternes').value = ordreEnCours.notes_internes || ''; // Pré-remplir si existant
     document.getElementById('modalValiderOrdre').classList.add('active');
   }
 
@@ -1072,6 +1096,7 @@
     const marque = document.getElementById('inputVehiculeOrdreMarque').value.trim();
     const couleur = document.getElementById('inputVehiculeOrdreCouleur').value.trim();
     const immat = document.getElementById('inputVehiculeOrdreImmat').value.trim();
+    const notes = document.getElementById('inputNotesInternes').value.trim();
     
     if (!chauffeur || !marque || !couleur || !immat) { alert('⚠️ Remplissez tous les champs.'); return; }
     const vehiculeString = `${type} (${marque} - ${couleur} - ${immat})`;
@@ -1097,7 +1122,8 @@
           chauffeur_assigne: chauffeur, 
           vehicule_assigne: vehiculeString, 
           date_validation: new Date().toISOString(), 
-          affecte_par: getAdminName() // Traçabilité
+          affecte_par: getAdminName(),
+          notes_internes: notes || null
         }) 
       });
       fermerModal(); 
@@ -1131,7 +1157,7 @@
         body: JSON.stringify({ 
           statut: 'validee', 
           message_admin: numeroGenere,
-          valide_rh_par: getAdminName() // Traçabilité
+          valide_rh_par: getAdminName()
         }) 
       });
 

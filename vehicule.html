@@ -558,7 +558,7 @@
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error("Erreur de base de données : " + errorText);
+        throw new Error("Enregistrement impossible.");
       }
 
       // 2) Notification optionnelle (si EmailJS est configuré pour recevoir un accusé)
@@ -581,7 +581,7 @@
 
     } catch (error) {
       console.error('Erreur :', error);
-      showMessage('error', error.message || 'Une erreur est survenue lors de l\'envoi. Veuillez réessayer.');
+      showMessage('error', 'Enregistrement non confirmé. Veuillez réessayer ou contacter le service responsable.');
     } finally {
       btnSubmit.disabled = false;
       btnSubmit.classList.remove('loading');

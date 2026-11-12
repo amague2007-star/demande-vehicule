@@ -191,10 +191,15 @@
 
 <button class="btn-print" id="btnPrint" style="display: none;" onclick="window.print()">🖨️ Imprimer le document</button>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
 
+  const client=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY);
+  const contenu=document.getElementById("documentContent");
+  const escapeHtml=value=>String(value??"—").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  function refuser(texte){contenu.textContent=texte;document.getElementById("btnPrint").style.display="none";}
   const urlParams = new URLSearchParams(window.location.search);
   const ordreId = urlParams.get('id');
 
@@ -203,11 +208,21 @@
     return new Date(dateStr).toLocaleDateString('fr-FR');
   }
 
-  if (ordreId) {
-    fetch(SUPABASE_URL + '/rest/v1/missions_2?id=eq.' + ordreId, {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+  async function consulter(){
+    if(!ordreId){refuser("Aucun identifiant fourni.");return;}
+    if(!client){refuser("Authentification indisponible.");return;}
+    const {data:identite,error:authError}=await client.auth.getUser();
+    const user=identite?.user;
+    if(authError||!user?.email){refuser("Connexion requise : ouvrez la page admin.html.");return;}
+    const {data:profil,error:roleError}=await client.from("admins").select("role").ilike("email",user.email).maybeSingle();
+    if(roleError||!["admin","rh"].includes(String(profil?.role||"").toLowerCase())){refuser("Accès refusé.");return;}
+    const {data:session,error:sessionError}=await client.auth.getSession();
+    if(sessionError||!session?.session?.access_token){refuser("Session expirée.");return;}
+    fetch(SUPABASE_URL + '/rest/v1/missions_2?id=eq.' + encodeURIComponent(ordreId), {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + session.session.access_token },
+      cache: "no-store"
     })
-    .then(res => res.json())
+    .then(res => {if(!res.ok)throw Error("Accès à la demande refusé.");return res.json();})
     .then(data => {
       if (data && data.length > 0) {
         const d = data[0];
@@ -220,28 +235,28 @@
             <h2>Solidarité • Éducation • Développement</h2>
           </div>
           
-          <div class="titre-om">ORDRE DE MISSION N° ${d.message_admin || '—'}</div>
+          <div class="titre-om">ORDRE DE MISSION N° ${escapeHtml(d.message_admin || '—')}</div>
           
-          <div class="bureau">Bureau : ${d.bureau}</div>
+          <div class="bureau">Bureau : ${escapeHtml(d.bureau)}</div>
           
           <div class="contenu">
             <p>LE SECRETAIRE EXECUTIF DE L'ONG ADKOUL AUTORISE :</p>
             
-            <div class="ligne"><span class="label">CHEF DE MISSION :</span> <span class="valeur">${d.nom}</span></div>
-            <div class="ligne"><span class="label">EMPLOI OCCUPE :</span> <span class="valeur">${d.poste}</span></div>
-            <div class="ligne"><span class="label">ACCOMPAGNATEURS :</span> <span class="valeur">${d.accompagnateurs || '—'}</span></div>
-            <div class="ligne"><span class="label">DE SE RENDRE EN MISSION A :</span> <span class="valeur">${d.destination}</span></div>
-            <div class="ligne"><span class="label">OBJECTIF DE LA MISSION :</span> <span class="valeur">${d.objectif}</span></div>
-            <div class="ligne"><span class="label">MOYEN DE DEPLACEMENT :</span> <span class="valeur">${d.moyen_deplacement}</span></div>
-            <div class="ligne"><span class="label">CHAUFFEUR :</span> <span class="valeur">${d.chauffeur_assigne || '—'}</span></div>
+            <div class="ligne"><span class="label">CHEF DE MISSION :</span> <span class="valeur">${escapeHtml(d.nom)}</span></div>
+            <div class="ligne"><span class="label">EMPLOI OCCUPE :</span> <span class="valeur">${escapeHtml(d.poste)}</span></div>
+            <div class="ligne"><span class="label">ACCOMPAGNATEURS :</span> <span class="valeur">${escapeHtml(d.accompagnateurs || '—')}</span></div>
+            <div class="ligne"><span class="label">DE SE RENDRE EN MISSION A :</span> <span class="valeur">${escapeHtml(d.destination)}</span></div>
+            <div class="ligne"><span class="label">OBJECTIF DE LA MISSION :</span> <span class="valeur">${escapeHtml(d.objectif)}</span></div>
+            <div class="ligne"><span class="label">MOYEN DE DEPLACEMENT :</span> <span class="valeur">${escapeHtml(d.moyen_deplacement)}</span></div>
+            <div class="ligne"><span class="label">CHAUFFEUR :</span> <span class="valeur">${escapeHtml(d.chauffeur_assigne || '—')}</span></div>
             <div class="ligne"><span class="label">DATE DE DEPART :</span> <span class="valeur">${formatDate(d.date_depart)}</span></div>
             <div class="ligne"><span class="label">DATE DE RETOUR PREVUE :</span> <span class="valeur">${formatDate(d.date_retour)}</span></div>
-            <div class="ligne"><span class="label">IMPUTATION BUDGETAIRE :</span> <span class="valeur">${d.imputation_budgetaire}</span></div>
+            <div class="ligne"><span class="label">IMPUTATION BUDGETAIRE :</span> <span class="valeur">${escapeHtml(d.imputation_budgetaire)}</span></div>
           </div>
 
           <div class="footer-page1">
             <p>DATE ET SIGNATURE :</p>
-            <p>Fait à ${d.bureau}, le ${formatDate(d.date_depart)}</p>
+            <p>Fait à ${escapeHtml(d.bureau)}, le ${formatDate(d.date_depart)}</p>
             
             <div class="signature-bas">
               <p style="font-weight: bold;">SECRETAIRE EXECUTIF</p>
@@ -333,9 +348,8 @@
     .catch(err => {
       document.getElementById('documentContent').innerHTML = `<p style="text-align: center; color: red;">Erreur : ${err.message}</p>`;
     });
-  } else {
-    document.getElementById('documentContent').innerHTML = `<p style="text-align: center; color: red;">Aucun identifiant de mission fourni.</p>`;
   }
+  consulter().catch(err=>{console.error("Consultation refusée :",err);refuser("Consultation impossible. Vérifiez votre session et vos droits.");});
 </script>
 
 </body>

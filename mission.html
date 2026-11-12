@@ -358,7 +358,7 @@
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error("Erreur DB : " + errorText);
+        throw new Error("Enregistrement impossible.");
       }
 
       msgBox.className = 'message-box success';
@@ -367,7 +367,7 @@
 
     } catch (err) {
       msgBox.className = 'message-box error';
-      msgIcon.textContent = '❌'; msgText.textContent = err.message;
+      console.error('Échec d’enregistrement :',err); msgIcon.textContent = '❌'; msgText.textContent = 'Enregistrement non confirmé. Veuillez réessayer ou contacter le service responsable.';
     } finally {
       btn.disabled = false;
       btn.classList.remove('loading');

@@ -422,17 +422,26 @@
         body: JSON.stringify(newOrdreMission)
       });
 
-      if (!response.ok) throw new Error("Erreur DB : " + await response.text());
+      if (!response.ok) throw new Error("Enregistrement impossible.");
 
       // 2) Envoi de l'e-mail de confirmation (Demandeur + RH en copie)
+      let emailEnvoye = false;
+      try {
       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
         to_email: emailDemandeur + ", abdoulnasser@adkoul.org, h.almoustapha@adkoul.org",
         subject: `⏳ Demande d'Ordre de Mission enregistrée - ${nomDemandeur}`,
         message: `Bonjour ${nomDemandeur},\n\nVotre demande d'ordre de mission pour le projet ${newOrdreMission.projet} à ${newOrdreMission.destination} a bien été transmise au service logistique.\n\nElle est actuellement en attente d'affectation d'un chauffeur et d'un véhicule. Vous recevrez un nouvel e-mail avec votre numéro d'ordre de mission dès que les RH l'auront validé.\n\n📋 Détails :\n📅 Départ : ${newOrdreMission.date_depart}\n📅 Retour : ${newOrdreMission.date_retour}\n📍 Destination : ${newOrdreMission.destination}\n🚌 Moyen : ${newOrdreMission.moyen_deplacement}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`
       });
 
+      emailEnvoye = true;
+      } catch (erreurCourriel) {
+        console.warn("Demande enregistrée, confirmation e-mail non vérifiée :", erreurCourriel);
+      }
       msgBox.className = 'message-box success';
-      msgIcon.textContent = '✅'; msgText.textContent = `Demande transmise avec succès ! Un e-mail de confirmation vous a été envoyé.`;
+      msgIcon.textContent = '✅';
+      msgText.textContent = emailEnvoye
+        ? "Demande enregistrée, confirmation envoyée."
+        : "Demande enregistrée. Confirmation e-mail non vérifiée.";
       form.reset();
       
       // Réinitialiser la liste des accompagnateurs
@@ -444,7 +453,7 @@
 
     } catch (err) {
       msgBox.className = 'message-box error';
-      msgIcon.textContent = '❌'; msgText.textContent = err.message;
+      console.error('Échec d’enregistrement :',err); msgIcon.textContent = '❌'; msgText.textContent = 'Enregistrement non confirmé. Veuillez réessayer ou contacter le service responsable.';
     } finally {
       btn.disabled = false;
       btn.classList.remove('loading');

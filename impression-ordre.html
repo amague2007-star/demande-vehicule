@@ -218,7 +218,7 @@
     if(roleError||!["rh","directeur_logistique"].includes(String(profil?.role||"").toLowerCase())){refuser("Accès refusé.");return;}
     const {data:session,error:sessionError}=await client.auth.getSession();
     if(sessionError||!session?.session?.access_token){refuser("Session expirée.");return;}
-    fetch(SUPABASE_URL + '/rest/v1/missions_2?id=eq.' + encodeURIComponent(ordreId), {
+    fetch(SUPABASE_URL + '/rest/v1/missions_2?id=eq.' + encodeURIComponent(ordreId) + '&select=' + encodeURIComponent('id,nom,poste,accompagnateurs,destination,objectif,moyen_deplacement,chauffeur_assigne,date_depart,date_retour,imputation_budgetaire,bureau,statut'), {
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + session.session.access_token },
       cache: "no-store"
     })
@@ -235,7 +235,7 @@
             <h2>Solidarité • Éducation • Développement</h2>
           </div>
           
-          <div class="titre-om">ORDRE DE MISSION N° ${escapeHtml(d.message_admin || '—')}</div>
+          <div class="titre-om">DEMANDE D'ORDRE DE MISSION — Référence ${escapeHtml(d.id)}</div>
           
           <div class="bureau">Bureau : ${escapeHtml(d.bureau)}</div>
           

@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin - ONG ADKOUL - Gestion Logistique</title>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<!-- EMAILJS DÉSACTIVÉ TEMPORAIREMENT (PROBLÈME ABONNEMENT) -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script> -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
@@ -286,7 +287,7 @@
       </div>
     </div>
 
-    <!-- NOUVEAU : TOP 5 -->
+    <!-- TOP 5 -->
     <div class="top5-grid">
       <div class="top5-box">
         <h4>🏆 Top 5 Agents (Missions)</h4>
@@ -548,11 +549,13 @@
   // CONFIGURATION
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
+  
+  // EMAILJS DÉSACTIVÉ TEMPORAIREMENT
   const EMAILJS_PUBLIC_KEY = "SUbWMSdrTf7JugMrS";
   const EMAILJS_SERVICE_ID = "service_e6k2e76";
   const EMAILJS_TEMPLATE_ID = "template_gd96rfl"; 
 
-  emailjs.init(EMAILJS_PUBLIC_KEY);
+  // emailjs.init(EMAILJS_PUBLIC_KEY);
 
   const CHAUFFEURS = {
     "ABAKTOUM": "22789915798", "BACHIR": "22797747561",
@@ -1157,13 +1160,16 @@
       fermerModal(); 
       await chargerOrdres(); 
 
+      // EmailJS désactivé temporairement
+      /*
       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
         to_email: "abdoulnasser@adkoul.org, h.almoustapha@adkoul.org",
         subject: `📢 Action requise : Attribuer un numéro d'ordre (${ordreEnCours.nom})`,
         message: `Bonjour l'équipe RH,\n\nLa logistique a affecté un chauffeur et un véhicule pour la mission de ${ordreEnCours.nom} à ${ordreEnCours.destination}.\n\nMerci de vous connecter sur le tableau de bord pour valider et générer le numéro d'ordre de mission.\n\nCordialement,\nLa Logistique`
       });
+      */
 
-      alert(`✅ Affectation logistique enregistrée. Les RH ont été notifiés.`);
+      alert(`✅ Affectation logistique enregistrée.`);
     } catch (err) { alert('❌ ' + err.message); }
   }
 
@@ -1194,13 +1200,16 @@
 
       const lienImpression = `https://amague2007-star.github.io/demande-vehicule/impression-ordre.html?id=${ordreEnCours.id}`;
       
+      // EmailJS désactivé temporairement
+      /*
       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
         to_email: ordreEnCours.email,
         subject: `✅ Votre Ordre de Mission est prêt (N° ${numeroGenere})`,
         message: `Bonjour ${ordreEnCours.nom},\n\nVotre ordre de mission a été validé par les Ressources Humaines.\n\n🔢 Numéro : ${numeroGenere}\n👤 Chauffeur : ${ordreEnCours.chauffeur_assigne}\n🚙 Véhicule : ${ordreEnCours.vehicule_assigne}\n\n👉 Cliquez sur ce lien pour imprimer votre document officiel :\n${lienImpression}\n\nCordialement,\nLe Service RH - ONG ADKOUL`
       });
+      */
 
-      alert(`✅ Numéro ${numeroGenere} généré et e-mail transmis à l'agent !`);
+      alert(`✅ Numéro ${numeroGenere} généré !`);
     } catch (err) { alert('❌ ' + err.message); }
   }
 

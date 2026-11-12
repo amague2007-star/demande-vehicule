@@ -1,449 +1,231 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-
-<title>ADKOUL - Administration</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>ADKOUL — Administration logistique</title>
 <style>
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #1e3c72, #2563eb);
-  min-height: 100vh;
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.box {
-  background: white;
-  padding: 35px;
-  border-radius: 15px;
-  width: 390px;
-  max-width: 92%;
-  box-shadow: 0 12px 30px rgba(0,0,0,.2);
-}
-
-h2 {
-  color: #1e3c72;
-  text-align: center;
-}
-
-label {
-  display: block;
-  margin: 14px 0 6px;
-  font-weight: bold;
-}
-
-input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 15px;
-}
-
-button {
-  width: 100%;
-  padding: 14px;
-  background: #27ae60;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  margin-top: 20px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 15px;
-}
-
-button:disabled {
-  opacity: .6;
-  cursor: wait;
-}
-
-#message {
-  text-align: center;
-  font-weight: bold;
-  margin-top: 15px;
-}
-
-#dashboard {
-  display: none;
-  text-align: center;
-}
-
-.logout {
-  background: #dc2626;
-}
-
-.retour {
-  display: block;
-  text-align: center;
-  margin-top: 20px;
-  color: #1e3c72;
-}
+:root{font-family:Arial,Helvetica,sans-serif;color:#14233c;background:#f3f6fb}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh}
+button,input{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:wait;opacity:.6}
+a{color:#1e40af}
+#pageConnexion{min-height:100vh;display:grid;place-items:center;background:linear-gradient(120deg,#1e3c72,#2856bc);padding:16px}
+.connexion{background:#fff;border-radius:16px;padding:32px;width:min(100%,420px);box-shadow:0 12px 35px #10274a55}
+h1{font-size:1.65rem;color:#173871}
+h2{font-size:1.25rem}
+.connexion h1{text-align:center}
+.connexion label{display:block;margin:16px 0 6px;font-weight:700}
+.connexion input{width:100%;padding:12px;border:1px solid #aeb9cb;border-radius:8px}
+.action{border:0;border-radius:9px;background:#2059bd;color:#fff;padding:11px 16px;font-weight:700}
+.connexion .action{width:100%;margin-top:22px}
+.error{color:#b42318}
+.notice{color:#46566c}
+#messageConnexion{min-height:24px}
+#application{display:none}
+header{background:#173871;color:white;padding:18px clamp(16px,4vw,48px);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+header strong{font-size:1.35rem}
+header small{display:block;margin-top:5px;opacity:.9}
+.logout{background:#bd3030}
+main{max-width:1200px;padding:28px 16px;margin:0 auto}
+.intro{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.intro h1{margin:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:20px 0}
+.stat{background:#fff;border:1px solid #e5ebf5;border-radius:10px;padding:16px}
+.stat strong{display:block;font-size:1.8rem;margin-top:8px;color:#17407e}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.tabs button{border:1px solid #bccae2;background:#fff;color:#173871;border-radius:8px;padding:12px 14px}
+.tabs button[aria-selected="true"]{background:#173871;color:white}
+.panel{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px}
+.controls{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:14px 0}
+#filtre{border:1px solid #aeb9cb;border-radius:8px;padding:11px;max-width:100%;width:310px}
+.tableWrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:600px}
+th,td{padding:12px 9px;border-bottom:1px solid #e5eaf2;text-align:left;font-size:.92rem;vertical-align:top}
+th{background:#eef3fb;color:#173871}
+#statutListe{min-height:22px}
+.badgeStatut{background:#eef3fb;border-radius:30px;padding:5px 9px;display:inline-block;white-space:nowrap}
+.print{color:#174da3;text-decoration:underline}
+footer{text-align:center;color:#607086;padding:24px;font-size:.85rem}
+@media(max-width:650px){.connexion{padding:24px}.panel{padding:12px}}
 </style>
 </head>
-
 <body>
-
-<section class="box" id="loginBox">
-
-  <h2>Administration ADKOUL</h2>
-
-  <form id="loginForm">
-
-    <label for="email">Adresse e-mail</label>
-
-    <input
-      type="email"
-      id="email"
-      value="abdoul.aziz@adkoul.org"
-      autocomplete="username"
-      required
-    >
-
-    <label for="password">Mot de passe</label>
-
-    <input
-      type="password"
-      id="password"
-      placeholder="Mot de passe Supabase Auth"
-      autocomplete="current-password"
-      required
-    >
-
-    <button type="submit" id="btnLogin">
-      Se connecter
-    </button>
-
-  </form>
-
-  <p id="message" role="status" aria-live="polite"></p>
-
-  <a href="index.html" class="retour">
-    Retour à l'accueil
-  </a>
-
-</section>
-
-<section class="box" id="dashboard">
-
-  <h2>Bienvenue sur ADKOUL</h2>
-
-  <p>
-    Utilisateur :
-    <strong id="nomUser"></strong>
-  </p>
-
-  <p>
-    Rôle :
-    <strong id="roleUser"></strong>
-  </p>
-
-  <p>Session authentifiée avec Supabase.</p>
-
-  <button type="button" class="logout" id="btnLogout">
-    Se déconnecter
-  </button>
-
-  <a href="index.html" class="retour">
-    Accueil
-  </a>
-
-</section>
-
+<div id="pageConnexion">
+  <section class="connexion" aria-labelledby="titreConnexion">
+    <h1 id="titreConnexion">Administration ADKOUL</h1>
+    <p class="notice">Connexion réservée aux utilisateurs habilités.</p>
+    <form id="formConnexion">
+      <label for="email">Adresse e-mail</label>
+      <input id="email" type="email" value="abdoul.aziz@adkoul.org" autocomplete="username" required>
+      <label for="password">Mot de passe Supabase Auth</label>
+      <input id="password" type="password" autocomplete="current-password" required>
+      <button class="action" id="btnConnexion" type="submit">Se connecter</button>
+    </form>
+    <p id="messageConnexion" role="status" aria-live="polite"></p>
+    <a href="index.html">Retour à l'accueil</a>
+  </section>
+</div>
+<div id="application">
+  <header>
+    <div><strong>ONG ADKOUL</strong><small>Gestion des demandes — espace de consultation</small></div>
+    <div><span id="nomUtilisateur"></span> · <b id="roleUtilisateur"></b> <button id="deconnexion" class="action logout" type="button">Déconnexion</button></div>
+  </header>
+  <main>
+    <div class="intro">
+      <div><h1>Tableau de bord</h1><p class="notice">Consultation des demandes selon votre rôle. Les affectations et validations ne sont pas encore activées.</p></div>
+      <button class="action" id="actualiser" type="button">Actualiser</button>
+    </div>
+    <div class="stats" id="stats"></div>
+    <nav class="tabs" id="onglets" aria-label="Catégories des demandes"></nav>
+    <section class="panel" aria-labelledby="titreListe">
+      <h2 id="titreListe">Demandes</h2>
+      <p class="notice" id="descriptionListe"></p>
+      <div class="controls">
+        <label for="filtre">Rechercher : <input type="search" id="filtre" placeholder="Nom, destination, statut"></label>
+        <span class="notice" id="totalListe"></span>
+      </div>
+      <p id="statutListe" role="status" aria-live="polite"></p>
+      <div class="tableWrap"><table><thead id="entete"></thead><tbody id="lignes"></tbody></table></div>
+    </section>
+  </main>
+  <footer>ONG ADKOUL — Données privées, accès contrôlé par Supabase RLS.</footer>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
 <script>
 "use strict";
-
-// CONFIGURATION SUPABASE
-
-const SUPABASE_URL =
-  "https://mvmzhdvkeromtljnvrow.supabase.co";
-
-const SUPABASE_KEY =
-  "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
-
-// COMPTE AUTORISE POUR CETTE PAGE
-
-const EMAIL_AUTORISE =
-  "abdoul.aziz@adkoul.org";
-
-// ROLES EXISTANTS DANS LA BASE
-
-const ROLES_RECONNUS = new Set([
-  "rh",
-  "directeur_logistique",
-  "logistique",
-  "assistant_logistique"
-]);
-
-const client = window.supabase
-  ? window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    )
-  : null;
-
-const loginBox =
-  document.getElementById("loginBox");
-
-const dashboard =
-  document.getElementById("dashboard");
-
-const message =
-  document.getElementById("message");
-
-const btnLogin =
-  document.getElementById("btnLogin");
-
-// AFFICHAGE DES MESSAGES
-
-function afficherMessage(texte, erreur = false) {
-  message.textContent = texte;
-  message.style.color = erreur ? "#dc2626" : "#1e3c72";
+const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
+const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
+const client = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+const ROLES = new Set(["rh","directeur_logistique","logistique","assistant_logistique"]);
+const MODULES = [
+  {id:"demandes",titre:"Sorties de véhicules",description:"Demandes de sortie de véhicules",roles:["logistique","assistant_logistique","directeur_logistique"],champs:["id","nom","prenom","destination","date_sortie","statut"],libelles:["Référence","Nom","Prénom","Destination","Date de sortie","Statut"]},
+  {id:"missions",titre:"Missions terrain",description:"Demandes de mission terrain",roles:["logistique","assistant_logistique","directeur_logistique","rh"],champs:["id","nom","titre_mission","lieu","date_debut","statut"],libelles:["Référence","Nom","Mission","Lieu","Début","Statut"]},
+  {id:"missions_2",titre:"Ordres de mission",description:"Demandes d'ordres de mission",roles:["logistique","directeur_logistique","rh"],champs:["id","nom","destination","date_depart","statut","message_admin"],libelles:["Référence","Nom","Destination","Départ","Statut","N° ordre"]}
+];
+let profilActuel=null, moduleActuel=null, resultats=[];
+const el=id=>document.getElementById(id);
+function message(texte,erreur){el("messageConnexion").textContent=texte;el("messageConnexion").className=erreur?"error":"notice";}
+function montrerConnexion(){el("application").style.display="none";el("pageConnexion").style.display="grid";profilActuel=null;resultats=[];}
+function montrerApplication(profil,user){
+  profilActuel=profil;
+  el("nomUtilisateur").textContent=profil.nom||user.email;
+  el("roleUtilisateur").textContent=profil.role;
+  el("pageConnexion").style.display="none";el("application").style.display="block";
+  const autorises=MODULES.filter(m=>m.roles.includes(String(profil.role).toLowerCase()));
+  const nav=el("onglets");nav.replaceChildren();
+  autorises.forEach(m=>{
+    const b=document.createElement("button");b.type="button";b.textContent=m.titre;b.setAttribute("aria-selected","false");
+    b.addEventListener("click",()=>chargerModule(m));b.dataset.module=m.id;nav.appendChild(b);
+  });
+  const stat=el("stats");stat.replaceChildren();
+  autorises.forEach(m=>{
+    const box=document.createElement("div");box.className="stat";
+    const label=document.createElement("span");label.textContent=m.titre;
+    const value=document.createElement("strong");value.id="compte_"+m.id;value.textContent="—";
+    box.append(label,value);stat.appendChild(box);
+  });
+  if(autorises.length)chargerModule(autorises[0]);
+  else{el("statutListe").textContent="Aucune rubrique autorisée pour ce rôle.";}
+  actualiserCompteurs(autorises);
 }
-
-// AFFICHAGE DU TABLEAU DE CONNEXION
-
-function afficherDashboard(profil, utilisateur) {
-
-  document.getElementById("nomUser").textContent =
-    profil.nom || utilisateur.email;
-
-  document.getElementById("roleUser").textContent =
-    profil.role;
-
-  loginBox.style.display = "none";
-  dashboard.style.display = "block";
-}
-
-// AFFICHAGE DU FORMULAIRE
-
-function afficherConnexion() {
-  dashboard.style.display = "none";
-  loginBox.style.display = "block";
-}
-
-// VERIFICATION DU PROFIL
-
-async function verifierProfil(utilisateur) {
-
-  if (!utilisateur || !utilisateur.email) {
-    return null;
-  }
-
-  const email =
-    utilisateur.email.trim().toLowerCase();
-
-  if (email !== EMAIL_AUTORISE) {
-    return null;
-  }
-
-  const { data, error } = await client
-    .from("admins")
-    .select("nom, role")
-    .ilike("email", email)
-    .maybeSingle();
-
-  if (error || !data) {
-    return null;
-  }
-
-  const role =
-    String(data.role || "").trim().toLowerCase();
-
-  if (!ROLES_RECONNUS.has(role)) {
-    return null;
-  }
-
+async function verifierProfil(user){
+  if(!user||!user.email)return null;
+  const {data,error}=await client.from("admins").select("nom,role,email").ilike("email",user.email).maybeSingle();
+  if(error)throw error;
+  if(!data||!ROLES.has(String(data.role||"").trim().toLowerCase()))return null;
   return data;
 }
-
-// CONNEXION
-
-async function seConnecter(event) {
-
-  event.preventDefault();
-
-  if (!client) {
-    afficherMessage(
-      "Bibliothèque Supabase indisponible.",
-      true
-    );
-    return;
+async function ouvrirSession(){
+  if(!client){message("Bibliothèque de connexion indisponible.",true);el("btnConnexion").disabled=true;return;}
+  try{
+    const {data,error}=await client.auth.getUser();
+    if(error||!data.user){montrerConnexion();return;}
+    const profil=await verifierProfil(data.user);
+    if(!profil){await client.auth.signOut();montrerConnexion();message("Compte non autorisé.",true);return;}
+    montrerApplication(profil,data.user);
+  }catch(e){console.error("Contrôle de session impossible",e);montrerConnexion();message("Impossible de vérifier les accès.",true);}
+}
+el("formConnexion").addEventListener("submit",async event=>{
+  event.preventDefault();if(!client)return;
+  const btn=el("btnConnexion");btn.disabled=true;message("Vérification…",false);
+  try{
+    const {data,error}=await client.auth.signInWithPassword({
+      email:el("email").value.trim(),password:el("password").value
+    });
+    if(error||!data.user){message("Identifiants invalides ou compte non activé.",true);return;}
+    const profil=await verifierProfil(data.user);
+    if(!profil){await client.auth.signOut();message("Profil ou rôle non autorisé.",true);return;}
+    el("password").value="";message("",false);montrerApplication(profil,data.user);
+  }catch(e){console.error("Échec de connexion",e);await client.auth.signOut().catch(()=>{});message("Connexion impossible. Vérifiez les droits Supabase.",true);}
+  finally{btn.disabled=false;}
+});
+el("deconnexion").addEventListener("click",async()=>{
+  if(!client)return;
+  const {error}=await client.auth.signOut();
+  if(error){el("statutListe").textContent="Déconnexion impossible.";return;}
+  montrerConnexion();message("Session terminée.",false);
+});
+async function chargerModule(m){
+  if(!profilActuel||!m.roles.includes(String(profilActuel.role).toLowerCase()))return;
+  moduleActuel=m;resultats=[];el("filtre").value="";
+  el("titreListe").textContent=m.titre;el("descriptionListe").textContent=m.description;
+  el("statutListe").textContent="Chargement…";el("lignes").replaceChildren();el("entete").replaceChildren();
+  el("onglets").querySelectorAll("button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.module===m.id)));
+  const tr=document.createElement("tr");
+  m.libelles.forEach(t=>{const th=document.createElement("th");th.textContent=t;tr.appendChild(th);});
+  if(m.id==="missions_2"&&["rh","directeur_logistique"].includes(String(profilActuel.role).toLowerCase())){
+    const th=document.createElement("th");th.textContent="Impression";tr.appendChild(th);
   }
-
-  const email = document
-    .getElementById("email")
-    .value.trim().toLowerCase();
-
-  const password = document
-    .getElementById("password")
-    .value;
-
-  if (email !== EMAIL_AUTORISE) {
-    afficherMessage(
-      "Adresse e-mail non autorisée.",
-      true
-    );
-    return;
-  }
-
-  btnLogin.disabled = true;
-
-  afficherMessage("Vérification en cours...");
-
-  try {
-
-    const { data, error } =
-      await client.auth.signInWithPassword({
-        email: email,
-        password: password
-      });
-
-    if (error || !data.user) {
-      afficherMessage(
-        "Identifiants incorrects ou compte non activé.",
-        true
-      );
-      return;
-    }
-
-    const profil =
-      await verifierProfil(data.user);
-
-    if (!profil) {
-
-      await client.auth.signOut();
-
-      afficherMessage(
-        "Accès refusé : profil non autorisé.",
-        true
-      );
-
-      return;
-    }
-
-    document.getElementById("password").value = "";
-
-    afficherMessage("");
-
-    afficherDashboard(profil, data.user);
-
-  } catch (error) {
-
-    await client.auth.signOut().catch(() => {});
-
-    afficherMessage(
-      "Erreur de connexion ou de vérification.",
-      true
-    );
-
-  } finally {
-
-    btnLogin.disabled = false;
-
+  el("entete").appendChild(tr);
+  const current=m.id;
+  try{
+    const {data,error}=await client.from(m.id).select(m.champs.join(",")).limit(100);
+    if(error)throw error;
+    if(moduleActuel.id!==current)return;
+    resultats=data||[];el("statutListe").textContent="";
+    afficherLignes();
+  }catch(e){
+    if(moduleActuel.id===current){el("statutListe").textContent="Lecture refusée ou indisponible. Vérifiez les politiques Supabase RLS.";el("totalListe").textContent="—";}
+    console.error("Lecture refusée",current,e);
   }
 }
-
-// VERIFICATION DE SESSION
-
-async function verifierSession() {
-
-  if (!client) {
-    afficherMessage(
-      "Service Supabase indisponible.",
-      true
-    );
-    btnLogin.disabled = true;
-    return;
+function afficherLignes(){
+  if(!moduleActuel)return;
+  const tbody=el("lignes");tbody.replaceChildren();
+  const mot=el("filtre").value.trim().toLocaleLowerCase("fr");
+  const filtered=resultats.filter(d=>moduleActuel.champs.some(k=>String(d[k]??"").toLocaleLowerCase("fr").includes(mot)));
+  for(const data of filtered){
+    const tr=document.createElement("tr");
+    for(const champ of moduleActuel.champs){
+      const td=document.createElement("td");
+      if(champ==="statut"){const span=document.createElement("span");span.className="badgeStatut";span.textContent=String(data[champ]??"—");td.appendChild(span);}
+      else{td.textContent=String(data[champ]??"—");}
+      tr.appendChild(td);
+    }
+    if(moduleActuel.id==="missions_2"&&["rh","directeur_logistique"].includes(String(profilActuel.role).toLowerCase())){
+      const td=document.createElement("td"),link=document.createElement("a");
+      link.className="print";link.textContent="Ouvrir";link.href="impression-ordre.html?id="+encodeURIComponent(data.id);
+      link.rel="noopener";td.appendChild(link);tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
   }
-
-  try {
-
-    const { data, error } =
-      await client.auth.getUser();
-
-    if (error || !data.user) {
-      afficherConnexion();
-      return;
-    }
-
-    const profil =
-      await verifierProfil(data.user);
-
-    if (!profil) {
-
-      await client.auth.signOut();
-
-      afficherConnexion();
-      return;
-    }
-
-    afficherDashboard(profil, data.user);
-
-  } catch (error) {
-
-    afficherConnexion();
-
-    afficherMessage(
-      "Vérification de session impossible.",
-      true
-    );
+  if(!filtered.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=moduleActuel.champs.length+1;td.textContent="Aucun résultat.";tr.appendChild(td);tbody.appendChild(tr);}
+  el("totalListe").textContent=filtered.length+" résultat(s) sur "+resultats.length+" chargé(s) (100 maximum)";
+}
+el("filtre").addEventListener("input",afficherLignes);
+el("actualiser").addEventListener("click",()=>{if(!profilActuel)return;const roles=MODULES.filter(m=>m.roles.includes(String(profilActuel.role).toLowerCase()));actualiserCompteurs(roles);if(moduleActuel)chargerModule(moduleActuel);});
+async function actualiserCompteurs(modules){
+  for(const m of modules){
+    const label=el("compte_"+m.id);if(!label)continue;
+    const {count,error}=await client.from(m.id).select("id",{count:"exact",head:true});
+    label.textContent=error?"—":String(count??0);
   }
 }
-
-// DECONNEXION
-
-async function seDeconnecter() {
-
-  if (client) {
-
-    const { error } =
-      await client.auth.signOut();
-
-    if (error) {
-      afficherMessage(
-        "Déconnexion impossible.",
-        true
-      );
-      return;
-    }
-  }
-
-  afficherConnexion();
-
-  document.getElementById("password").value = "";
-
-  afficherMessage("Session terminée.");
-}
-
-// EVENEMENTS
-
-document
-  .getElementById("loginForm")
-  .addEventListener("submit", seConnecter);
-
-document
-  .getElementById("btnLogout")
-  .addEventListener("click", seDeconnecter);
-
-// INITIALISATION
-
-verifierSession();
-
+ouvrirSession();
 </script>
-
 </body>
 </html>

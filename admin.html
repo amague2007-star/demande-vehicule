@@ -164,12 +164,11 @@
       <img src="https://amague2007-star.github.io/demande-vehicule/logo.png" alt="ONG ADKOUL" onerror="this.style.display='none'">
       <div class="brand-text">
         <h1>ONG ADKOUL — Tableau de bord</h1>
-        <p>Gestion des véhicules, missions et ordres de mission</p>
+        <p>Gestion des véhicules et ordres de mission</p>
       </div>
     </div>
     <div class="header-right">
       <button class="nav-btn active" id="navDemandes" onclick="afficherSection('demandes')">📋 Demandes Véhicules</button>
-      <button class="nav-btn" id="navMissions" onclick="afficherSection('missions')">🧭 Missions Terrain</button>
       <button class="nav-btn" id="navOrdres" onclick="afficherSection('ordres')">📄 Ordres de Mission (RH)</button>
       <button class="nav-btn" id="navUsers" onclick="afficherSection('users')">👥 Utilisateurs</button>
       <div class="user-badge" id="userBadge">👤 <span id="userName">Admin</span></div>
@@ -195,28 +194,6 @@
       <button onclick="chargerDemandes()">🔄 Rafraîchir</button>
     </div>
     <div class="demandes-container" id="demandesContainer">
-      <div class="loading">Chargement...</div>
-    </div>
-  </div>
-
-  <!-- SECTION MISSIONS TERRAIN -->
-  <div id="missionsSection" style="display:none;">
-    <div class="stats">
-      <div class="stat-card"><div class="label">⏳ En attente</div><div class="value" id="statMissionsAttente">0</div></div>
-      <div class="stat-card validees"><div class="label">✅ Affectées</div><div class="value" id="statMissionsValidees">0</div></div>
-      <div class="stat-card refusees"><div class="label">❌ Refusées</div><div class="value" id="statMissionsRefusees">0</div></div>
-      <div class="stat-card total"><div class="label">📊 Total</div><div class="value" id="statMissionsTotal">0</div></div>
-    </div>
-    <div class="filters">
-      <select id="filtreStatutMission" onchange="afficherMissions()">
-        <option value="en_attente" selected>⏳ En attente</option>
-        <option value="validee">✅ Affectées</option>
-        <option value="refusee">❌ Refusées</option>
-        <option value="tous">📋 Toutes</option>
-      </select>
-      <button onclick="chargerMissions()">🔄 Rafraîchir</button>
-    </div>
-    <div class="demandes-container" id="missionsContainer">
       <div class="loading">Chargement...</div>
     </div>
   </div>
@@ -321,67 +298,6 @@
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
       <button class="btn-refuser" onclick="confirmerRefus()">❌ Refuser</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODALES MISSIONS TERRAIN -->
-<div class="modal-overlay" id="modalValiderMission">
-  <div class="modal">
-    <h2>🚙 Affecter un chauffeur</h2>
-    <p class="subtitle" id="modalValiderMissionInfo"></p>
-    <label>👤 Chauffeur *</label>
-    <select id="selectChauffeurMission" onchange="toggleAutreMission('chauffeur')">
-      <option value="">-- Sélectionnez --</option>
-      <option value="ABAKTOUM">ABAKTOUM</option>
-      <option value="GALILE">GALILE</option>
-      <option value="HAMAD SALLAH">HAMAD SALLAH</option>
-      <option value="BACHIR">BACHIR</option>
-      <option value="AUTRE">➕ Autre</option>
-    </select>
-    <input type="text" id="inputChauffeurMissionAutre" placeholder="Nom" style="display:none; margin-top:8px;">
-    <div class="grid-2" style="margin-top:10px;">
-      <div>
-        <label>Type de véhicule *</label>
-        <select id="selectVehiculeMissionType">
-          <option value="Véhicule UNHCR">Véhicule UNHCR</option>
-          <option value="Véhicule Partenaire">Véhicule Partenaire</option>
-          <option value="Véhicule Location">Véhicule Location</option>
-          <option value="Bus">Bus</option>
-          <option value="Avion">Avion</option>
-        </select>
-      </div>
-      <div>
-        <label>Marque *</label>
-        <input type="text" id="inputVehiculeMissionMarque" placeholder="Ex: Toyota" required>
-      </div>
-    </div>
-    <div class="grid-2" style="margin-top:10px;">
-      <div>
-        <label>Couleur *</label>
-        <input type="text" id="inputVehiculeMissionCouleur" placeholder="Ex: Blanche" required>
-      </div>
-      <div>
-        <label>N° Immatriculation *</label>
-        <input type="text" id="inputVehiculeMissionImmat" placeholder="Ex: AB-123-CD" required>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
-      <button class="btn-valider" onclick="confirmerValidationMission()">✅ Enregistrer</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="modalRefuserMission">
-  <div class="modal">
-    <h2>❌ Refuser cette mission</h2>
-    <p class="subtitle" id="modalRefuserMissionInfo"></p>
-    <label>Motif *</label>
-    <textarea id="inputMotifRefusMission" rows="4"></textarea>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
-      <button class="btn-refuser" onclick="confirmerRefusMission()">❌ Refuser</button>
     </div>
   </div>
 </div>
@@ -494,7 +410,6 @@
   };
 
   let demandeEnCours = null, toutesLesDemandes = [];
-  let missionEnCours = null, toutesLesMissions = [];
   let ordreEnCours = null, tousLesOrdres = [];
   let tousLesUsers = [];
 
@@ -563,24 +478,21 @@
     // GESTION DES DROITS D'ACCÈS SELON LE RÔLE
     if (role === 'rh') {
       document.getElementById('navDemandes').style.display = 'none';
-      document.getElementById('navMissions').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
       afficherSection('ordres');
     } else if (role === 'assistant_logistique') {
       document.getElementById('navDemandes').style.display = 'block';
-      document.getElementById('navMissions').style.display = 'none';
       document.getElementById('navOrdres').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
       afficherSection('demandes');
     } else {
       document.getElementById('navDemandes').style.display = 'block';
-      document.getElementById('navMissions').style.display = 'block';
       document.getElementById('navOrdres').style.display = 'block';
       document.getElementById('navUsers').style.display = 'block';
       afficherSection('demandes');
     }
 
-    chargerDemandes(); chargerMissions(); chargerOrdres(); chargerUsers();
+    chargerDemandes(); chargerOrdres(); chargerUsers();
   }
 
   if (sessionStorage.getItem('admin_logged') === 'true') afficherDashboard();
@@ -591,16 +503,12 @@
 
   // NAVIGATION
   function afficherSection(section) {
-    ['demandes', 'missions', 'ordres', 'users'].forEach(sec => {
+    ['demandes', 'ordres', 'users'].forEach(sec => {
       document.getElementById(sec + 'Section').style.display = 'none';
       document.getElementById('nav' + sec.charAt(0).toUpperCase() + sec.slice(1)).classList.remove('active');
     });
 
-    if (section === 'missions') {
-      document.getElementById('missionsSection').style.display = 'block';
-      document.getElementById('navMissions').classList.add('active');
-      chargerMissions();
-    } else if (section === 'ordres') {
+    if (section === 'ordres') {
       document.getElementById('ordresSection').style.display = 'block';
       document.getElementById('navOrdres').classList.add('active');
       chargerOrdres();
@@ -703,7 +611,7 @@
     container.innerHTML = '<div class="loading">Chargement...</div>';
     try {
       toutesLesDemandes = await apiCall('/demandes?order=created_at.desc');
-      afficherDemandes(); // On laisse afficherDemandes() gérer les stats et le filtrage
+      afficherDemandes();
     } catch (err) { container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>'; }
   }
 
@@ -712,24 +620,22 @@
     const container = document.getElementById('demandesContainer');
     const role = getAdminRole();
     
-    // 1. FILTRAGE DES DONNÉES SELON LE RÔLE
     let listeBase = toutesLesDemandes;
     
+    // FILTRE POUR L'ASSISTANT LOGISTIQUE (LOCATION UNIQUEMENT)
     if (role === 'assistant_logistique') {
-      // L'assistant ne voit QUE les demandes de location
       listeBase = toutesLesDemandes.filter(d => 
         (d.motif && d.motif.toLowerCase().includes('location')) || 
         (d.vehicule_assigne && d.vehicule_assigne.toLowerCase().includes('location'))
       );
     }
 
-    // 2. MISE A JOUR DES STATISTIQUES (CARTES DU HAUT) BASÉES SUR LE FILTRE
+    // MISE A JOUR DES STATS BASÉES SUR LE FILTRE
     document.getElementById('statAttente').textContent = listeBase.filter(d => d.statut === 'en_attente').length;
     document.getElementById('statValidees').textContent = listeBase.filter(d => d.statut === 'validee').length;
     document.getElementById('statRefusees').textContent = listeBase.filter(d => d.statut === 'refusee').length;
     document.getElementById('statTotal').textContent = listeBase.length;
 
-    // 3. FILTRAGE PAR STATUT (MENU DÉROULANT)
     let listeFinale = listeBase.filter(d => filtre === 'tous' || d.statut === filtre);
     
     if (listeFinale.length === 0) { 
@@ -737,7 +643,6 @@
       return; 
     }
     
-    // 4. AFFICHAGE DES CARTES
     container.innerHTML = listeFinale.map(d => {
       let actionsHtml = ''; let resultatHtml = '';
       if (d.statut === 'en_attente') {
@@ -784,7 +689,7 @@
     if (!demandeEnCours) return;
     document.getElementById('modalValiderInfo').textContent = `${demandeEnCours.prenom} ${demandeEnCours.nom} → ${demandeEnCours.destination}`;
     document.getElementById('selectChauffeur').value = ''; document.getElementById('inputChauffeurAutre').style.display = 'none'; document.getElementById('inputChauffeurAutre').value = '';
-    document.getElementById('selectVehiculeType').value = 'Véhicule Location'; // Par défaut Location pour l'assistant
+    document.getElementById('selectVehiculeType').value = 'Véhicule Location';
     document.getElementById('inputVehiculeMarque').value = '';
     document.getElementById('inputVehiculeCouleur').value = '';
     document.getElementById('inputVehiculeImmat').value = '';
@@ -828,110 +733,6 @@
   }
 
   async function supprimerDemande(id) { if (confirm('Supprimer ?')) { await apiCall('/demandes?id=eq.' + id, { method: 'DELETE' }); chargerDemandes(); } }
-
-  // MISSIONS TERRAIN
-  async function chargerMissions() {
-    const container = document.getElementById('missionsContainer');
-    container.innerHTML = '<div class="loading">Chargement...</div>';
-    try {
-      toutesLesMissions = await apiCall('/missions?order=created_at.desc');
-      document.getElementById('statMissionsAttente').textContent = toutesLesMissions.filter(m => m.statut === 'en_attente').length;
-      document.getElementById('statMissionsValidees').textContent = toutesLesMissions.filter(m => m.statut === 'validee').length;
-      document.getElementById('statMissionsRefusees').textContent = toutesLesMissions.filter(m => m.statut === 'refusee').length;
-      document.getElementById('statMissionsTotal').textContent = toutesLesMissions.length;
-      afficherMissions();
-    } catch (err) { container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>'; }
-  }
-
-  function afficherMissions() {
-    const filtre = document.getElementById('filtreStatutMission').value;
-    const container = document.getElementById('missionsContainer');
-    let liste = toutesLesMissions.filter(m => filtre === 'tous' || m.statut === filtre);
-    if (liste.length === 0) { container.innerHTML = '<div class="empty">📭 Aucune mission</div>'; return; }
-    container.innerHTML = liste.map(m => {
-      let actionsHtml = ''; let resultatHtml = '';
-      if (m.statut === 'en_attente') {
-        actionsHtml = `<button class="btn btn-valider" onclick="ouvrirModalValiderMission(${m.id})">✅ Affecter</button><button class="btn btn-refuser" onclick="ouvrirModalRefuserMission(${m.id})">❌ Rejeter</button>`;
-      } else if (m.statut === 'validee') {
-        resultatHtml = `<div class="resultat validee"><strong>✅ Affectée</strong><br>👤 Chauffeur : <strong>${m.chauffeur_assigne}</strong> | 🚙 Véhicule : <strong>${m.vehicule_assigne}</strong></div>`;
-      } else if (m.statut === 'refusee') {
-        resultatHtml = `<div class="resultat refusee"><strong>❌ Refusée</strong><br>Motif : ${m.message_admin}</div>`;
-      }
-      actionsHtml += `<button class="btn btn-suppr" onclick="supprimerMission(${m.id})">🗑️ Supprimer</button>`;
-      return `
-        <div class="demande-item ${m.statut === 'validee' ? 'validee' : m.statut === 'refusee' ? 'refusee' : ''}">
-          <div class="demande-header"><h3>${m.titre_mission} <span>— ${m.nom}</span></h3><span class="statut ${m.statut}">${m.statut === 'en_attente' ? '⏳ En attente' : m.statut === 'validee' ? '✅ Affectée' : '❌ Refusée'}</span></div>
-          <div class="demande-grid">
-            <div class="info-item"><strong>📅 Dates</strong>Du ${formatNigerDateShort(m.date_debut)} au ${formatNigerDateShort(m.date_fin)}</div>
-            <div class="info-item"><strong>📍 Lieu</strong>${m.lieu}</div>
-            <div class="info-item"><strong>🧭 Type</strong>${m.type_mission}</div>
-          </div>
-          <div class="demande-motif"><strong>📝 Description :</strong> ${m.description}<br><br><strong>🗺️ Itinéraire :</strong> ${m.itineraire}</div>
-          ${resultatHtml}
-          <div class="actions">${actionsHtml}</div>
-        </div>`;
-    }).join('');
-  }
-
-  function toggleAutreMission(type) {
-    const select = document.getElementById(type === 'chauffeur' ? 'selectChauffeurMission' : 'selectVehiculeMission');
-    const input = document.getElementById(type === 'chauffeur' ? 'inputChauffeurMissionAutre' : 'inputVehiculeMissionAutre');
-    if(input) {
-      input.style.display = select.value === 'AUTRE' ? 'block' : 'none';
-      if (select.value !== 'AUTRE') input.value = '';
-    }
-  }
-
-  function ouvrirModalValiderMission(id) {
-    missionEnCours = toutesLesMissions.find(m => m.id === id);
-    if (!missionEnCours) return;
-    document.getElementById('modalValiderMissionInfo').textContent = `${missionEnCours.titre_mission} → ${missionEnCours.lieu}`;
-    document.getElementById('selectChauffeurMission').value = ''; document.getElementById('inputChauffeurMissionAutre').style.display = 'none'; document.getElementById('inputChauffeurMissionAutre').value = '';
-    document.getElementById('selectVehiculeMissionType').value = 'Véhicule UNHCR';
-    document.getElementById('inputVehiculeMissionMarque').value = '';
-    document.getElementById('inputVehiculeMissionCouleur').value = '';
-    document.getElementById('inputVehiculeMissionImmat').value = '';
-    document.getElementById('modalValiderMission').classList.add('active');
-  }
-
-  async function confirmerValidationMission() {
-    const sc = document.getElementById('selectChauffeurMission').value;
-    let chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurMissionAutre').value.trim() : sc;
-    
-    const type = document.getElementById('selectVehiculeMissionType').value;
-    const marque = document.getElementById('inputVehiculeMissionMarque').value.trim();
-    const couleur = document.getElementById('inputVehiculeMissionCouleur').value.trim();
-    const immat = document.getElementById('inputVehiculeMissionImmat').value.trim();
-    
-    if (!chauffeur || !marque || !couleur || !immat) { alert('⚠️ Remplissez tous les champs.'); return; }
-    const vehiculeString = `${type} (${marque} - ${couleur} - ${immat})`;
-
-    try {
-      await apiCall('/missions?id=eq.' + missionEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'validee', chauffeur_assigne: chauffeur, vehicule_assigne: vehiculeString, date_validation: new Date().toISOString(), valide_par: getAdminName() }) });
-      fermerModal(); await chargerMissions(); alert('✅ Mission traitée.');
-    } catch (err) { alert('❌ ' + err.message); }
-  }
-
-  function ouvrirModalRefuserMission(id) {
-    missionEnCours = toutesLesMissions.find(m => m.id === id);
-    if (!missionEnCours) return;
-    document.getElementById('modalRefuserMissionInfo').textContent = `${missionEnCours.titre_mission}`;
-    document.getElementById('inputMotifRefusMission').value = '';
-    document.getElementById('modalRefuserMission').classList.add('active');
-  }
-
-  async function confirmerRefusMission() {
-    const motif = document.getElementById('inputMotifRefusMission').value.trim();
-    if (!motif) { alert('⚠️ Motif obligatoire.'); return; }
-    try {
-      await apiCall('/missions?id=eq.' + missionEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'refusee', message_admin: motif, date_validation: new Date().toISOString(), refuse_par: getAdminName() }) });
-      fermerModal(); await chargerMissions(); alert('❌ Mission refusée.');
-    } catch (err) { alert('❌ ' + err.message); }
-  }
-
-  async function supprimerMission(id) { if (confirm('Supprimer ?')) { await apiCall('/missions?id=eq.' + id, { method: 'DELETE' }); chargerMissions(); } }
-
-  function fermerModal() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); }
 
   // ORDRES DE MISSION
   async function chargerOrdres() {

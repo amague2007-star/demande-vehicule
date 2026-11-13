@@ -7,41 +7,91 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   body { font-family: 'Times New Roman', Times, serif; background: #f0f2f5; margin: 0; padding: 20px; }
-  .document { background: #fff; max-width: 800px; margin: 0 auto; padding: 20px 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); color: #000; line-height: 1.4; }
   
-  /* En-tête */
-  .entete-document { width: 100%; height: auto; display: block; margin-bottom: 20px; }
+  /* Conteneur principal (format A4) */
+  .document { 
+    background: #fff; 
+    max-width: 800px; 
+    margin: 0 auto; 
+    padding: 20px 30px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+    color: #000; 
+    line-height: 1.3; 
+  }
+  
+  /* En-tête (limité pour ne pas casser la page) */
+  .entete-document { 
+    width: 100%; 
+    max-height: 150px; 
+    object-fit: contain; 
+    display: block; 
+    margin-bottom: 15px; 
+  }
 
-  .header h1 { font-size: 22px; font-weight: bold; margin: 10px 0 5px 0; text-align: center; text-transform: uppercase; }
-  .header h2 { font-size: 14px; font-weight: normal; margin: 0 0 15px 0; text-align: center; }
-  .titre-om { text-align: center; font-size: 18px; font-weight: bold; margin: 20px 0 20px 0; text-transform: uppercase; text-decoration: underline; }
-  .bureau { font-weight: bold; margin-bottom: 15px; font-size: 16px; }
-  .contenu { font-size: 15px; line-height: 1.6; }
-  .contenu p { margin-bottom: 15px; font-weight: bold; text-transform: uppercase; }
+  .header h1 { font-size: 20px; font-weight: bold; margin: 10px 0 5px 0; text-align: center; text-transform: uppercase; }
+  .header h2 { font-size: 13px; font-weight: normal; margin: 0 0 15px 0; text-align: center; }
+  .titre-om { text-align: center; font-size: 16px; font-weight: bold; margin: 15px 0; text-transform: uppercase; text-decoration: underline; }
+  .bureau { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+  .contenu { font-size: 14px; line-height: 1.5; }
+  .contenu p { margin-bottom: 10px; font-weight: bold; text-transform: uppercase; }
   
-  /* Mise en page des lignes */
-  .ligne { margin-bottom: 10px; display: flex; align-items: flex-end; }
-  .label { font-weight: bold; width: 220px; flex-shrink: 0; text-transform: uppercase; font-size: 14px; }
-  .valeur { flex-grow: 1; border-bottom: 1px dotted #000; padding-left: 10px; font-size: 15px; }
+  /* Lignes de texte */
+  .ligne { margin-bottom: 8px; display: flex; align-items: flex-end; }
+  .label { font-weight: bold; width: 200px; flex-shrink: 0; text-transform: uppercase; font-size: 13px; }
+  .valeur { flex-grow: 1; border-bottom: 1px dotted #000; padding-left: 10px; font-size: 14px; font-weight: 500; }
   
-  /* Signatures */
-  .footer-page1 { margin-top: 30px; display: flex; justify-content: space-between; }
-  .bloc-signature { text-align: center; width: 250px; }
-  .bloc-signature p { margin-bottom: 5px; font-weight: bold; font-size: 14px; }
-  .espace-signature { height: 60px; }
+  /* --- CASE DE SIGNATURE PAGE 1 --- */
+  .zone-signature-page1 {
+    margin-top: 25px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .cadre-signature-unique {
+    border: 1px solid #000;
+    padding: 10px;
+    width: 300px;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 13px;
+  }
 
+  /* --- CONFIGURATION IMPRESSION ET PDF --- */
   @media print {
     body { background: #fff; padding: 0; margin: 0; }
-    .document { box-shadow: none; padding: 0; max-width: 100%; }
+    .document { box-shadow: none; padding: 0; max-width: 100%; margin: 0; }
     .actions-buttons { display: none !important; }
-    @page { size: A4 portrait; margin: 15mm; }
+    @page { size: A4 portrait; margin: 10mm; }
+    
+    /* Force le passage à la page 2 */
     .page-2 { page-break-before: always; }
   }
 
-  /* Page 2 (Cadres de visas) */
+  /* --- PAGE 2 (CADRES DE VISAS) --- */
   .page-2 { margin-top: 30px; }
-  .cadre-signature { border: 1px solid #000; padding: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; font-size: 13px; page-break-inside: avoid; height: 140px; box-sizing: border-box; }
-  .colonne-signature { width: 48%; display: flex; flex-direction: column; justify-content: space-between; }
+  
+  /* Réduction de la hauteur à 105px pour faire tenir 6 cadres */
+  .cadre-signature { 
+    border: 1px solid #000; 
+    padding: 10px; 
+    margin-bottom: 12px; 
+    display: flex; 
+    justify-content: space-between; 
+    font-size: 13px; 
+    page-break-inside: avoid; 
+    height: 105px; 
+    box-sizing: border-box; 
+  }
+  
+  .colonne-signature { 
+    width: 48%; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between; 
+  }
+  
   .ligne-top { display: flex; justify-content: space-between; margin-bottom: 10px; }
   .ligne-milieu { display: flex; gap: 5px; margin-bottom: 10px; }
   .ligne-bas { display: flex; gap: 5px; }
@@ -105,11 +155,10 @@
       if (data && data.length > 0) {
         const d = data[0];
         
-        // LE LIEN POINTE MAINTENANT VERS VOTRE FICHIER entete.png
         const lienEntete = "https://amague2007-star.github.io/demande-vehicule/entete.png"; 
 
         document.getElementById('documentContent').innerHTML = `
-          <!-- L'EN-TÊTE -->
+          <!-- ================= PAGE 1 ================= -->
           <img src="${lienEntete}" alt="En-tête ONG ADKOUL" class="entete-document" crossorigin="anonymous">
           
           <div class="header">
@@ -137,19 +186,25 @@
             <div class="ligne"><span class="label">IMPUTATION BUDGETAIRE :</span> <span class="valeur">${escapeHtml(d.imputation_budgetaire)}</span></div>
           </div>
 
-          <div class="footer-page1">
-            <div class="bloc-signature">
-              <p>Fait à ${escapeHtml(d.bureau)}, le ${formatDate(d.date_depart)}</p>
-            </div>
-            <div class="bloc-signature">
-              <p>LE SECRETAIRE EXECUTIF</p>
-              <div class="espace-signature"></div>
+          <!-- CASE DE SIGNATURE PAGE 1 -->
+          <div class="zone-signature-page1">
+            <div class="cadre-signature-unique">
+              <div style="display: flex; justify-content: space-between;">
+                <span>Lieu : ${escapeHtml(d.bureau)}</span>
+                <span>Date : ${formatDate(d.date_depart)}</span>
+              </div>
+              <div style="text-align: center; font-weight: bold; margin-top: 5px;">
+                LE SECRETAIRE EXECUTIF
+              </div>
+              <div style="text-align: left; margin-top: 5px;">
+                <span>Signature et cachet :</span>
+              </div>
             </div>
           </div>
 
-          <!-- PAGE 2 (Visas) -->
+          <!-- ================= PAGE 2 (6 VISAS) ================= -->
           <div class="page-2">
-            ${Array(4).fill(`
+            ${Array(6).fill(`
             <div class="cadre-signature">
               <div class="colonne-signature">
                 <div>
@@ -172,7 +227,6 @@
         
         actionButtons.style.display = 'flex';
 
-        // Fonction pour télécharger le PDF
         document.getElementById('btnDownloadPdf').addEventListener('click', () => {
           const element = document.getElementById('documentContent');
           
@@ -187,7 +241,6 @@
           html2pdf().set(opt).from(element).save();
         });
 
-        // Téléchargement automatique si on vient du bouton "Télécharger" de l'admin
         if (autoDownload) {
           setTimeout(() => {
             document.getElementById('btnDownloadPdf').click();

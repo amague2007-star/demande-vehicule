@@ -103,7 +103,7 @@
           
           <div class="header">
             <h1>ORDRE DE MISSION</h1>
-            <h2>Référence : ${escapeHtml(d.id)}</h2>
+            <h2>Référence : ${d.message_admin ? escapeHtml(d.message_admin) : 'En attente de validation'}</h2>
           </div>
           
           <div class="titre-om">DEMANDE D'ORDRE DE MISSION</div>

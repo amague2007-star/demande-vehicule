@@ -141,6 +141,13 @@
   const today = new Date().toISOString().split('T')[0];
   dateDemande.value = today;
 
+  // Fonction qui transforme une chaîne vide en null
+  function safeValue(id) {
+    const el = document.getElementById(id);
+    const val = el.value.trim();
+    return val === "" ? null : val;
+  }
+
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
     messageBox.className = 'message-box';
@@ -157,13 +164,9 @@
       return;
     }
 
-    // CORRECTION ICI : Gérer les champs optionnels vides
-    let contactValue = document.getElementById('contact').value.trim();
-    let passagersValue = document.getElementById('passagers').value.trim();
-    
-    // On envoie NULL au lieu de "" pour les champs optionnels vides, au cas où la colonne serait de type integer par erreur
-    let contactFinal = contactValue === "" ? null : contactValue;
-    let passagersFinal = passagersValue === "" ? null : passagersValue;
+    // Préparation des données avec sécurité anti-erreur "integer"
+    let dureeValue = safeValue('duree');
+    let dureeInt = dureeValue ? parseInt(dureeValue, 10) : null; 
 
     const newDemande = {
       date_demande: dateDemande.value,
@@ -172,11 +175,11 @@
       poste: document.getElementById('poste').value,
       service: document.getElementById('service').value,
       email: document.getElementById('email').value.trim(),
-      contact: contactFinal, // Envoie null si vide
-      heure_depart: document.getElementById('heure_depart').value,
-      duree: parseInt(document.getElementById('duree').value),
+      contact: safeValue('contact'), 
+      heure_depart: safeValue('heure_depart'), 
+      duree: dureeInt, 
       destination: document.getElementById('destination').value.trim(),
-      passagers: passagersFinal, // Envoie null si vide
+      passagers: safeValue('passagers'), 
       motif: document.getElementById('motif').value.trim(),
       statut: 'en_attente'
     };

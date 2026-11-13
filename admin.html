@@ -32,6 +32,8 @@
   
   .header-right { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   .user-badge { background:rgba(255,255,255,0.15); padding:5px 12px; border-radius:20px; font-size:11px; font-weight:600; display:flex; align-items:center; gap:6px; }
+  .btn-change-pwd { background:transparent; color:#fff; border:none; cursor:pointer; font-size:14px; margin-left:5px; transition:0.2s; }
+  .btn-change-pwd:hover { color:#f39c12; transform:scale(1.1); }
   
   .nav-btn { position: relative; background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.3); padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600; font-size:11px; transition:all 0.2s; }
   .nav-btn:hover { background:rgba(255,255,255,0.2); border-color:#fff; }
@@ -214,7 +216,13 @@
         📄 Ordres (RH) <span class="notification-badge" id="badgeOrdres">0</span>
       </button>
       <button class="nav-btn" id="navUsers" onclick="afficherSection('users')">👥 Utilisateurs</button>
-      <div class="user-badge" id="userBadge">👤 <span id="userName">Admin</span></div>
+      
+      <!-- BADGE UTILISATEUR AVEC BOUTON MODIFIER MOT DE PASSE -->
+      <div class="user-badge">
+        👤 <span id="userName">Admin</span>
+        <button class="btn-change-pwd" onclick="ouvrirModalMotDePasse()" title="Modifier mon mot de passe">🔑</button>
+      </div>
+      
       <button class="logout-btn" onclick="logout()">Déconnexion</button>
     </div>
   </header>
@@ -489,6 +497,28 @@
   </div>
 </div>
 
+<!-- MODALE MODIFIER MOT DE PASSE -->
+<div class="modal-overlay" id="modalMotDePasse">
+  <div class="modal">
+    <h2>🔑 Modifier mon mot de passe</h2>
+    <p class="subtitle">Sécurisez votre compte en changeant votre mot de passe.</p>
+    
+    <label>Ancien mot de passe *</label>
+    <input type="password" id="oldPassword" placeholder="Saisissez votre ancien mot de passe">
+    
+    <label>Nouveau mot de passe *</label>
+    <input type="password" id="newPassword" placeholder="Saisissez le nouveau mot de passe">
+    
+    <label>Confirmer le nouveau mot de passe *</label>
+    <input type="password" id="confirmNewPassword" placeholder="Confirmez le nouveau mot de passe">
+    
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
+      <button class="btn-valider" onclick="confirmerChangementMotDePasse()">✅ Modifier</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODALE AJOUT UTILISATEUR -->
 <div class="modal-overlay" id="modalAjoutUser">
   <div class="modal">
@@ -519,7 +549,6 @@
 </div>
 
 <script>
-  // CONFIGURATION
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
 
@@ -537,7 +566,6 @@
   let chartStatutsInstance = null;
   let chartProjetsInstance = null;
 
-  // DATES
   function formatNigerDate(dateStr) {
     if (!dateStr) return '-';
     const date = new Date(dateStr);
@@ -551,7 +579,6 @@
     return nigerDate.toLocaleDateString('fr-FR', { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
-  // HASH
   async function hashPassword(password) {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
@@ -559,7 +586,6 @@
     return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
-  // AUTH
   async function login() {
     const email = document.getElementById('adminEmail').value.trim().toLowerCase();
     const password = document.getElementById('adminPassword').value;
@@ -609,8 +635,7 @@
     const role = sessionStorage.getItem('admin_role') || 'logistique';
     
     document.getElementById('userName').textContent = adminName;
-    document.getElementById('userBadge').title = sessionStorage.getItem('admin_email') || '';
-
+    
     if (role === 'rh') {
       document.getElementById('navAccueil').style.display = 'none';
       document.getElementById('navDemandes').style.display = 'none';
@@ -681,6 +706,61 @@
     return text ? JSON.parse(text) : [];
   }
 
+  // --- GESTION MOT DE PASSE ---
+  function ouvrirModalMotDePasse() {
+    document.getElementById('oldPassword').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmNewPassword').value = '';
+    document.getElementById('modalMotDePasse').classList.add('active');
+  }
+
+  async function confirmerChangementMotDePasse() {
+    const oldPwd = document.getElementById('oldPassword').value;
+    const newPwd = document.getElementById('newPassword').value;
+    const confirmPwd = document.getElementById('confirmNewPassword').value;
+
+    if (!oldPwd || !newPwd || !confirmPwd) {
+      alert('⚠️ Veuillez remplir tous les champs.');
+      return;
+    }
+    if (newPwd.length < 6) {
+      alert('⚠️ Le nouveau mot de passe doit contenir au moins 6 caractères.');
+      return;
+    }
+    if (newPwd !== confirmPwd) {
+      alert('⚠️ Les nouveaux mots de passe ne correspondent pas.');
+      return;
+    }
+
+    try {
+      const adminId = getAdminId();
+      const adminEmail = sessionStorage.getItem('admin_email');
+
+      // 1. Vérifier l'ancien mot de passe
+      const hashOld = await hashPassword(oldPwd);
+      const check = await apiCall(`/admins?email=eq.${encodeURIComponent(adminEmail)}&password_hash=eq.${hashOld}&select=id`);
+      
+      if (!check || check.length === 0) {
+        alert('❌ L\'ancien mot de passe est incorrect.');
+        return;
+      }
+
+      // 2. Mettre à jour avec le nouveau mot de passe
+      const hashNew = await hashPassword(newPwd);
+      await apiCall(`/admins?id=eq.${adminId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ password_hash: hashNew })
+      });
+
+      fermerModal();
+      alert('✅ Votre mot de passe a été modifié avec succès !');
+      
+    } catch (err) {
+      alert('❌ Erreur : ' + err.message);
+    }
+  }
+
+  // --- UTILISATEURS ---
   async function chargerUsers() {
     const container = document.getElementById('usersList');
     if(!container) return;
@@ -755,6 +835,7 @@
     try { await apiCall(`/admins?id=eq.${id}`, { method: 'DELETE' }); await chargerUsers(); } catch (err) { alert('❌ ' + err.message); }
   }
 
+  // --- DEMANDES VEHICULES ---
   async function chargerDemandes() {
     const container = document.getElementById('demandesContainer');
     container.innerHTML = '<div class="loading">Chargement...</div>';
@@ -899,6 +980,7 @@
     } 
   }
 
+  // --- ORDRES DE MISSION ---
   function changerTypeOrdre(type, btn) {
     typeOrdreActif = type;
     document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
@@ -1106,11 +1188,10 @@
         }) 
       });
 
-      // Préparation de l'e-mail
       const lienPdf = `https://amague2007-star.github.io/demande-vehicule/imprimer.html?id=${ordreEnCours.id}&download=true`;
       
       try {
-        emailjs.init("SUbWMSdrTf7JugMrS"); // Initialisation d'EmailJS
+        emailjs.init("SUbWMSdrTf7JugMrS");
         await emailjs.send("service_e6k2e76", "template_gd96rfl", {
           to_email: ordreEnCours.email,
           subject: `✅ Ordre de Mission Validé - N° ${numOrdre}`,

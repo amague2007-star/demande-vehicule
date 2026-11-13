@@ -10,159 +10,57 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --primary: #1e40af;
-    --primary-light: #2563eb;
-    --accent-orange: #f59e0b;
-    --success: #27ae60;
-    --danger: #ef4444;
-    --gray-50: #f8fafc;
-    --gray-100: #f1f5f9;
-    --gray-200: #e2e8f0;
-    --gray-300: #cbd5e1;
-    --gray-600: #475569;
-    --gray-700: #334155;
-    --gray-800: #1e293b;
-    --gray-900: #0f172a;
+    --primary: #1e40af; --primary-light: #2563eb; --accent-orange: #f59e0b;
+    --success: #27ae60; --danger: #ef4444;
+    --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1; --gray-600: #475569; --gray-700: #334155;
+    --gray-800: #1e293b; --gray-900: #0f172a;
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
   }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, var(--gray-50) 0%, #eef2f6 100%);
-    min-height: 100vh;
-    padding: 2rem 1rem;
-    color: var(--gray-800);
-    line-height: 1.6;
-  }
-
+  body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, var(--gray-50) 0%, #eef2f6 100%); min-height: 100vh; padding: 2rem 1rem; color: var(--gray-800); line-height: 1.6; }
   .container { max-width: 800px; margin: 0 auto; }
-
-  /* HEADER */
   .header { text-align: center; margin-bottom: 2rem; }
-  .logo-badge {
-    display: inline-flex; align-items: center; gap: 0.75rem;
-    background: linear-gradient(135deg, var(--success) 0%, #2ecc71 100%);
-    color: #fff; padding: 0.65rem 1.6rem; border-radius: 100px;
-    font-weight: 700; font-size: 0.95rem; text-decoration: none;
-    box-shadow: var(--shadow-md); margin-bottom: 1rem; transition: 0.2s;
-  }
+  .logo-badge { display: inline-flex; align-items: center; gap: 0.75rem; background: linear-gradient(135deg, var(--success) 0%, #2ecc71 100%); color: #fff; padding: 0.65rem 1.6rem; border-radius: 100px; font-weight: 700; font-size: 0.95rem; text-decoration: none; box-shadow: var(--shadow-md); margin-bottom: 1rem; transition: 0.2s; }
   .logo-badge:hover { transform: translateY(-2px); }
-  .logo-badge .dot {
-    width: 10px; height: 10px; background: #fff;
-    border-radius: 50%; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
-  }
+  .logo-badge .dot { width: 10px; height: 10px; background: #fff; border-radius: 50%; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3); }
   .header h1 { font-size: 2rem; font-weight: 800; color: var(--gray-900); margin-bottom: 0.4rem; }
   .header p { color: var(--gray-600); font-size: 1rem; }
-
-  /* CARD */
-  .card {
-    background: #fff; border-radius: 20px; box-shadow: var(--shadow-xl);
-    padding: 2.5rem 2.5rem 2rem; border: 1px solid rgba(255, 255, 255, 0.8);
-    position: relative; overflow: hidden;
-  }
-  .card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-    background: linear-gradient(90deg, var(--success), #2ecc71);
-  }
-
-  /* SECTIONS */
+  .card { background: #fff; border-radius: 20px; box-shadow: var(--shadow-xl); padding: 2.5rem 2.5rem 2rem; border: 1px solid rgba(255, 255, 255, 0.8); position: relative; overflow: hidden; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--success), #2ecc71); }
   .form-section { margin-bottom: 2rem; }
-  .section-title {
-    display: flex; align-items: center; gap: 0.6rem;
-    font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
-    color: var(--success); margin-bottom: 1.25rem;
-    padding-bottom: 0.5rem; border-bottom: 2px solid var(--gray-100);
-  }
-  .section-title .icon {
-    display: flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px; background: var(--gray-100);
-    border-radius: 8px; font-size: 0.9rem;
-  }
-
-  /* GRID & FORM */
+  .section-title { display: flex; align-items: center; gap: 0.6rem; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--success); margin-bottom: 1.25rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--gray-100); }
+  .section-title .icon { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: var(--gray-100); border-radius: 8px; }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
-  @media (max-width: 640px) {
-    .grid-2 { grid-template-columns: 1fr; }
-    .card { padding: 1.75rem 1.25rem; }
-    .header h1 { font-size: 1.6rem; }
-  }
-
+  @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } .card { padding: 1.75rem 1.25rem; } .header h1 { font-size: 1.6rem; } }
   .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.1rem; }
   .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--gray-700); }
   .form-group label .required { color: var(--danger); margin-left: 2px; }
-  .form-group input, .form-group select, .form-group textarea {
-    font-family: 'Inter', sans-serif; font-size: 0.9rem;
-    padding: 0.7rem 0.9rem; border: 1.5px solid var(--gray-200);
-    border-radius: 10px; background: var(--gray-50); color: var(--gray-800);
-    transition: all 0.2s ease; width: 100%;
-  }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    outline: none; border-color: var(--success); background: #fff;
-    box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.12);
-  }
+  .form-group input, .form-group select, .form-group textarea { font-family: 'Inter', sans-serif; font-size: 0.9rem; padding: 0.7rem 0.9rem; border: 1.5px solid var(--gray-200); border-radius: 10px; background: var(--gray-50); color: var(--gray-800); transition: all 0.2s ease; width: 100%; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--success); background: #fff; box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.12); }
   .form-group textarea { resize: vertical; min-height: 80px; }
   
-  .form-group select {
-    cursor: pointer; appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 0.9rem center;
-    background-size: 16px; padding-right: 2.5rem;
-  }
-
-  /* DYNAMIC LIST (Accompagnateurs) */
   .dynamic-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.8rem; }
   .dynamic-item { display: flex; gap: 0.5rem; }
   .dynamic-item input { flex: 1; }
-  .btn-remove { 
-    background: #fee2e2; color: var(--danger); border: none; 
-    padding: 0 1rem; border-radius: 10px; cursor: pointer; 
-    font-weight: bold; transition: 0.2s; font-size: 1rem;
-  }
+  .btn-remove { background: #fee2e2; color: var(--danger); border: none; padding: 0 1rem; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 1rem; }
   .btn-remove:hover { background: #fecaca; }
-  .btn-add {
-    display: inline-flex; align-items: center; gap: 0.5rem;
-    background: #e8f8f5; color: var(--success); border: 1.5px dashed var(--success);
-    padding: 0.6rem 1rem; border-radius: 10px; cursor: pointer;
-    font-weight: 600; font-size: 0.85rem; transition: 0.2s;
-    width: max-content;
-  }
+  .btn-add { display: inline-flex; align-items: center; gap: 0.5rem; background: #e8f8f5; color: var(--success); border: 1.5px dashed var(--success); padding: 0.6rem 1rem; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.2s; width: max-content; }
   .btn-add:hover { background: #d1f2e6; }
 
-  .info-box {
-    padding: 0.9rem 1.1rem; border-radius: 10px;
-    background: #eff6ff; border: 1.5px solid #bfdbfe;
-    color: #1e40af; font-size: 0.88rem; line-height: 1.5;
-  }
-
+  .info-box { padding: 0.9rem 1.1rem; border-radius: 10px; background: #eff6ff; border: 1.5px solid #bfdbfe; color: #1e40af; font-size: 0.88rem; line-height: 1.5; }
   .divider { height: 1px; background: var(--gray-100); margin: 0.25rem 0 2rem; }
 
-  /* SUBMIT */
-  .submit-area {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem;
-    padding-top: 1.75rem; border-top: 2px solid var(--gray-100);
-  }
+  .submit-area { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; padding-top: 1.75rem; border-top: 2px solid var(--gray-100); }
   .submit-note { font-size: 0.8rem; color: var(--gray-600); display: flex; align-items: center; gap: 0.4rem; }
-  .btn-submit {
-    display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
-    font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700; color: #fff;
-    background: var(--success); border: none; padding: 0.85rem 2.2rem;
-    border-radius: 12px; cursor: pointer; box-shadow: var(--shadow-md); transition: all 0.25s ease;
-  }
+  .btn-submit { display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700; color: #fff; background: var(--success); border: none; padding: 0.85rem 2.2rem; border-radius: 12px; cursor: pointer; box-shadow: var(--shadow-md); transition: all 0.25s ease; }
   .btn-submit:hover { transform: translateY(-2px); box-shadow: var(--shadow-xl); background: #229954; }
   .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-  .btn-submit .spinner {
-    width: 18px; height: 18px; border: 2.5px solid rgba(255, 255, 255, 0.35);
-    border-top-color: #fff; border-radius: 50%;
-    animation: spin 0.7s linear infinite; display: none;
-  }
+  .btn-submit .spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255, 255, 255, 0.35); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
   .btn-submit.loading .spinner { display: block; }
   .btn-submit.loading .btn-text { display: none; }
 
-  /* MESSAGES */
   .message-box { display: none; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; border-radius: 12px; font-size: 0.9rem; font-weight: 500; margin-top: 1.5rem; }
   .message-box.success { display: flex; background: #ecfdf5; border: 1.5px solid #a7f3d0; color: #065f46; }
   .message-box.error { display: flex; background: #fef2f2; border: 1.5px solid #fecaca; color: #991b1b; }
@@ -170,7 +68,6 @@
 
   .footer { text-align: center; margin-top: 2rem; font-size: 0.8rem; color: var(--gray-600); }
   .footer strong { color: var(--success); font-weight: 600; }
-
   @keyframes spin { to { transform: rotate(360deg); } }
   .highlight-border { border-color: var(--danger) !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important; }
 </style>
@@ -221,18 +118,18 @@
       <div class="form-section">
         <div class="section-title"><span class="icon">📄</span> Détails de l'ordre de mission</div>
         
-        <!-- NOUVEAU : PROJET -->
+        <!-- PROJET EN SAISIE LIBRE AVEC SUGGESTIONS -->
         <div class="form-group">
           <label for="om_projet">Projet concerné <span class="required">*</span></label>
-          <select id="om_projet" required>
-            <option value="" disabled selected>— Sélectionner le projet —</option>
-            <option value="HCR">HCR</option>
-            <option value="PAM">PAM</option>
-            <option value="UNICEF">UNICEF</option>
-            <option value="ECHO">ECHO</option>
-            <option value="Fonds Propres">Fonds Propres</option>
-            <option value="Autre">Autre</option>
-          </select>
+          <input type="text" id="om_projet" list="projets-list" placeholder="Saisissez ou choisissez un projet..." required>
+          <datalist id="projets-list">
+            <option value="HCR">
+            <option value="PAM">
+            <option value="UNICEF">
+            <option value="ECHO">
+            <option value="Fonds Propres">
+            <option value="Autre">
+          </datalist>
         </div>
 
         <!-- ACCOMPAGNATEURS DYNAMIQUES -->
@@ -273,14 +170,16 @@
         <div class="grid-2">
           <div class="form-group">
             <label for="om_moyen">Moyen de déplacement <span class="required">*</span></label>
-            <select id="om_moyen" required>
-              <option value="" disabled selected>— Sélectionner —</option>
-              <option value="Véhicule UNHCR">Véhicule UNHCR</option>
-              <option value="Véhicule Partenaire">Véhicule Partenaire</option>
-              <option value="Véhicule Location">Véhicule de Location</option>
-              <option value="Bus">Bus</option>
-              <option value="Avion">Avion</option>
-            </select>
+            <!-- CHAMP DE SAISIE LIBRE POUR LE MOYEN DE DEPLACEMENT -->
+            <input type="text" id="om_moyen" list="moyens-list" placeholder="Saisissez ou choisissez un moyen..." required>
+            <datalist id="moyens-list">
+              <option value="Véhicule ONG ADKOUL">
+              <option value="Véhicule UNHCR">
+              <option value="Véhicule Partenaire">
+              <option value="Véhicule Location">
+              <option value="Bus">
+              <option value="Avion">
+            </datalist>
           </div>
           <div class="form-group">
             <label for="om_budget">Imputation Budgétaire <span class="required">*</span></label>
@@ -314,7 +213,6 @@
 </div>
 
 <script>
-  // Configuration Supabase & EmailJS
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
   
@@ -324,7 +222,6 @@
 
   emailjs.init(EMAILJS_PUBLIC_KEY);
 
-  // --- LOGIQUE ACCOMPAGNATEURS DYNAMIQUES ---
   function ajouterAccompagnateur() {
     const list = document.getElementById('accompagnateursList');
     const div = document.createElement('div');
@@ -348,7 +245,6 @@
   const msgText = document.getElementById('msgOrdreMissionText');
   const btn = document.getElementById('btnOrdreMission');
 
-  // Dates
   const dateDepart = document.getElementById('om_date_depart');
   const dateRetour = document.getElementById('om_date_retour');
   const today = new Date().toISOString().split('T')[0];
@@ -376,7 +272,6 @@
       return;
     }
 
-    // Récupérer et formater les accompagnateurs
     const accompagnateursInputs = document.querySelectorAll('.acc-input');
     let accompagnateursArray = [];
     accompagnateursInputs.forEach(input => {
@@ -389,9 +284,8 @@
     const emailDemandeur = document.getElementById('om_email').value.trim();
     const nomDemandeur = document.getElementById('om_nom').value.trim();
 
-    // Préparation des données
     const newOrdreMission = {
-      projet: document.getElementById('om_projet').value, // <-- NOUVEAU CHAMP
+      projet: document.getElementById('om_projet').value.trim(), 
       nom: nomDemandeur,
       poste: document.getElementById('om_poste').value.trim(),
       bureau: document.getElementById('om_bureau').value.trim(),
@@ -401,7 +295,7 @@
       objectif: document.getElementById('om_objectif').value.trim(),
       date_depart: dateDepart.value,
       date_retour: dateRetour.value,
-      moyen_deplacement: document.getElementById('om_moyen').value,
+      moyen_deplacement: document.getElementById('om_moyen').value.trim(),
       imputation_budgetaire: document.getElementById('om_budget').value.trim(),
       statut: 'en_attente'
     };
@@ -410,7 +304,6 @@
     btn.classList.add('loading');
 
     try {
-      // 1) Insertion dans Supabase
       const response = await fetch(SUPABASE_URL + '/rest/v1/missions_2', {
         method: 'POST',
         headers: {
@@ -424,7 +317,6 @@
 
       if (!response.ok) throw new Error("Enregistrement impossible.");
 
-      // 2) Envoi de l'e-mail de confirmation (Demandeur + RH en copie)
       let emailEnvoye = false;
       try {
       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
@@ -432,7 +324,6 @@
         subject: `⏳ Demande d'Ordre de Mission enregistrée - ${nomDemandeur}`,
         message: `Bonjour ${nomDemandeur},\n\nVotre demande d'ordre de mission pour le projet ${newOrdreMission.projet} à ${newOrdreMission.destination} a bien été transmise au service logistique.\n\nElle est actuellement en attente d'affectation d'un chauffeur et d'un véhicule. Vous recevrez un nouvel e-mail avec votre numéro d'ordre de mission dès que les RH l'auront validé.\n\n📋 Détails :\n📅 Départ : ${newOrdreMission.date_depart}\n📅 Retour : ${newOrdreMission.date_retour}\n📍 Destination : ${newOrdreMission.destination}\n🚌 Moyen : ${newOrdreMission.moyen_deplacement}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`
       });
-
       emailEnvoye = true;
       } catch (erreurCourriel) {
         console.warn("Demande enregistrée, confirmation e-mail non vérifiée :", erreurCourriel);
@@ -444,7 +335,6 @@
         : "Demande enregistrée. Confirmation e-mail non vérifiée.";
       form.reset();
       
-      // Réinitialiser la liste des accompagnateurs
       document.getElementById('accompagnateursList').innerHTML = `
         <div class="dynamic-item">
           <input type="text" class="acc-input" placeholder="Nom de l'accompagnateur">

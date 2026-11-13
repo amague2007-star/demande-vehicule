@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin - ONG ADKOUL - Gestion Logistique</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
   body { background:#f0f2f5; min-height:100vh; }
@@ -23,7 +24,6 @@
   .login-error { color:#e74c3c; text-align:center; margin-top:10px; font-size:14px; }
 
   #dashboard { display:none; }
-
   header { background:#1e3c72; color:#fff; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
   header .header-brand { display:flex; align-items:center; gap:12px; }
   header img { height:40px; width:40px; object-fit:contain; background:#fff; border-radius:50%; padding:3px; }
@@ -43,7 +43,6 @@
   .logout-btn:hover { background:#c0392b; }
 
   #accueilSection { padding: 15px 20px; display: block; }
-  
   .dash-filters { display: flex; justify-content: flex-end; margin-bottom: 15px; }
   .dash-filters select { padding: 6px 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 12px; font-weight: 600; color: #1e3c72; outline: none; cursor: pointer; background:#fff; }
 
@@ -648,7 +647,6 @@
   function getAdminId() { return parseInt(sessionStorage.getItem('admin_id')) || null; }
   function getAdminRole() { return sessionStorage.getItem('admin_role') || 'logistique'; }
 
-  // NAVIGATION
   function afficherSection(section) {
     ['accueil', 'demandes', 'ordres', 'users'].forEach(sec => {
       document.getElementById(sec + 'Section').style.display = 'none';
@@ -674,7 +672,6 @@
     }
   }
 
-  // API SUPABASE
   async function apiCall(path, options = {}) {
     const url = SUPABASE_URL + '/rest/v1' + path;
     const headers = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation', ...options.headers };
@@ -684,7 +681,6 @@
     return text ? JSON.parse(text) : [];
   }
 
-  // UTILISATEURS
   async function chargerUsers() {
     const container = document.getElementById('usersList');
     if(!container) return;
@@ -759,7 +755,6 @@
     try { await apiCall(`/admins?id=eq.${id}`, { method: 'DELETE' }); await chargerUsers(); } catch (err) { alert('❌ ' + err.message); }
   }
 
-  // DEMANDES VEHICULES
   async function chargerDemandes() {
     const container = document.getElementById('demandesContainer');
     container.innerHTML = '<div class="loading">Chargement...</div>';
@@ -904,7 +899,6 @@
     } 
   }
 
-  // ORDRES DE MISSION
   function changerTypeOrdre(type, btn) {
     typeOrdreActif = type;
     document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
@@ -1089,7 +1083,7 @@
   }
 
   async function confirmerNumeroRH() {
-    if (!confirm("Voulez-vous générer automatiquement le numéro d'ordre de mission et valider ?")) {
+    if (!confirm("Voulez-vous générer automatiquement le numéro d'ordre de mission et valider ? Le demandeur recevra un e-mail.")) {
         return;
     }
 
@@ -1112,9 +1106,24 @@
         }) 
       });
 
+      // Préparation de l'e-mail
+      const lienPdf = `https://amague2007-star.github.io/demande-vehicule/imprimer.html?id=${ordreEnCours.id}&download=true`;
+      
+      try {
+        emailjs.init("SUbWMSdrTf7JugMrS"); // Initialisation d'EmailJS
+        await emailjs.send("service_e6k2e76", "template_gd96rfl", {
+          to_email: ordreEnCours.email,
+          subject: `✅ Ordre de Mission Validé - N° ${numOrdre}`,
+          message: `Bonjour ${ordreEnCours.nom},\n\nVotre demande d'ordre de mission a été validée par le service RH.\n\n📄 Numéro d'ordre attribué : ${numOrdre}\n📍 Destination : ${ordreEnCours.destination}\n📅 Date de départ : ${formatNigerDateShort(ordreEnCours.date_depart)}\n🚙 Véhicule : ${ordreEnCours.vehicule_assigne}\n\nPour télécharger et imprimer votre ordre de mission au format PDF, cliquez sur le lien ci-dessous :\n${lienPdf}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`
+        });
+        alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\nUn e-mail a été envoyé au demandeur.`);
+      } catch (emailErr) {
+        console.warn("Erreur d'envoi d'email :", emailErr);
+        alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\n⚠️ L'e-mail n'a pas pu être envoyé.`);
+      }
+
       fermerModal(); 
       await chargerOrdres(); 
-      alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}`);
       
     } catch (err) { 
         alert('❌ Erreur : ' + err.message); 

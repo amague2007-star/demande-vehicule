@@ -157,6 +157,10 @@
       return;
     }
 
+    // CORRECTION ICI : On s'assure que la durée est un nombre entier (ou null si vide)
+    let dureeValue = document.getElementById('duree').value;
+    let dureeInt = dureeValue ? parseInt(dureeValue, 10) : null; 
+
     const newDemande = {
       date_demande: dateDemande.value,
       nom: document.getElementById('nom').value.trim(),
@@ -166,7 +170,7 @@
       email: document.getElementById('email').value.trim(),
       contact: document.getElementById('contact').value.trim(),
       heure_depart: document.getElementById('heure_depart').value,
-      duree: parseInt(document.getElementById('duree').value),
+      duree: dureeInt, // Utilisation de la valeur sécurisée
       destination: document.getElementById('destination').value.trim(),
       passagers: document.getElementById('passagers').value.trim(),
       motif: document.getElementById('motif').value.trim(),

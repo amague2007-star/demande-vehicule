@@ -23,76 +23,123 @@
   .login-error { color:#e74c3c; text-align:center; margin-top:10px; font-size:14px; }
 
   #dashboard { display:none; }
-  header { background:#1e3c72; color:#fff; padding:12px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
-  header .header-brand { display:flex; align-items:center; gap:15px; }
-  header img { height:40px; width:40px; object-fit:contain; background:#fff; border-radius:50%; padding:3px; }
-  header .brand-text h1 { font-size:16px; margin-bottom:2px; }
-  header .brand-text p { font-size:11px; opacity:0.85; }
-  .header-right { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-  .user-badge { background:rgba(255,255,255,0.15); padding:5px 12px; border-radius:20px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; }
+
+  /* --- HEADER PLUS PROPRE --- */
+  header { 
+    background:#1e3c72; 
+    color:#fff; 
+    padding:12px 25px; 
+    display:flex; 
+    justify-content:space-between; 
+    align-items:center; 
+    flex-wrap:wrap; 
+    gap:15px; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  header .header-brand { display:flex; align-items:center; gap:12px; }
+  header img { height:45px; width:45px; object-fit:contain; background:#fff; border-radius:50%; padding:3px; }
+  header .brand-text h1 { font-size:16px; margin-bottom:2px; letter-spacing: 0.5px; }
+  header .brand-text p { font-size:11px; opacity:0.8; }
   
-  .nav-btn { position: relative; background:rgba(255,255,255,0.2); color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600; font-size:12px; transition:0.2s; }
-  .nav-btn:hover { background:rgba(255,255,255,0.35); }
-  .nav-btn.active { background:#fff; color:#1e3c72; }
+  .header-right { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .user-badge { background:rgba(255,255,255,0.15); padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; }
+  
+  .nav-btn { 
+    position: relative; 
+    background:transparent; 
+    color:#fff; 
+    border:1px solid rgba(255,255,255,0.3); 
+    padding:7px 14px; 
+    border-radius:6px; 
+    cursor:pointer; 
+    font-weight:600; 
+    font-size:12px; 
+    transition:all 0.2s; 
+  }
+  .nav-btn:hover { background:rgba(255,255,255,0.2); border-color:#fff; }
+  .nav-btn.active { background:#fff; color:#1e3c72; border-color:#fff; }
   
   .notification-badge {
-    position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white;
-    font-size: 9px; font-weight: bold; padding: 2px 5px; border-radius: 50%;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3); display: none; animation: pulse 2s infinite;
+    position: absolute; top: -6px; right: -6px; background: #e74c3c; color: white;
+    font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3); display: none;
   }
-  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
 
-  .logout-btn { background:#e74c3c; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600; font-size:12px;}
+  .logout-btn { background:#e74c3c; color:#fff; border:none; padding:7px 14px; border-radius:6px; cursor:pointer; font-weight:600; font-size:12px; transition: 0.2s; }
+  .logout-btn:hover { background:#c0392b; }
 
   /* --- SECTION ACCUEIL / GRAPHIQUES --- */
   #accueilSection { padding: 20px; display: block; }
   
   .dash-filters { display: flex; justify-content: flex-end; margin-bottom: 15px; }
-  .dash-filters select { padding: 8px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 13px; font-weight: 600; color: #1e3c72; outline: none; cursor: pointer; }
+  .dash-filters select { padding: 8px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 13px; font-weight: 600; color: #1e3c72; outline: none; cursor: pointer; background:#fff; }
 
+  /* 4 cartes de stats */
   .dashboard-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
-  .dash-card { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border-bottom: 4px solid #1e3c72; }
-  .dash-card h3 { color: #666; font-size: 12px; margin-bottom: 8px; text-transform: uppercase; }
-  .dash-card .number { color: #1e3c72; font-size: 28px; font-weight: bold; }
+  .dash-card { background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border-bottom: 4px solid #1e3c72; }
+  .dash-card h3 { color: #666; font-size: 12px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
+  .dash-card .number { color: #1e3c72; font-size: 32px; font-weight: bold; }
   
-  /* Organisation en 2 colonnes */
-  .dashboard-grid { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 20px; 
-    margin-bottom: 20px;
+  /* Grille des graphiques (2 en haut, 1 en bas + top 5) */
+  .dashboard-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
   }
 
-  /* Graphiques plus bas */
-  .charts-col { display: flex; flex-direction: column; gap: 20px; }
-  .chart-box { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); height: 260px; display: flex; flex-direction: column; }
-  .chart-box h3 { color: #1e3c72; font-size: 14px; margin-bottom: 10px; text-align: center; }
+  .chart-box { 
+    background: #fff; 
+    padding: 15px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+    height: 280px; 
+    display: flex; 
+    flex-direction: column; 
+  }
+  .chart-box h3 { color: #1e3c72; font-size: 14px; margin-bottom: 10px; text-align: center; font-weight: 600; }
   .chart-container { position: relative; flex: 1; width: 100%; }
 
+  /* Colonne de droite pour le bas */
+  .bottom-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+  }
+
   /* Top 5 compact */
-  .top5-col { display: flex; flex-direction: column; gap: 15px; }
-  .top5-box { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); flex: 1; }
-  .top5-box h4 { color: #1e3c72; font-size: 13px; margin-bottom: 10px; border-bottom: 2px solid #f0f2f5; padding-bottom: 8px; text-align: center; }
+  .top5-wrapper { 
+    background: #fff; 
+    padding: 15px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+    display: flex;
+    flex-direction: column;
+  }
+  .top5-wrapper h3 { color: #1e3c72; font-size: 14px; margin-bottom: 10px; text-align: center; font-weight: 600;}
+  .top5-grid-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; flex: 1;}
+  .top5-box h4 { color: #1e3c72; font-size: 12px; margin-bottom: 8px; border-bottom: 2px solid #f0f2f5; padding-bottom: 5px; text-align: center; }
   .top5-box ul { list-style: none; padding: 0; margin: 0; }
-  .top5-box li { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f0f2f5; font-size: 12px; color: #333; }
+  .top5-box li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f2f5; font-size: 12px; color: #333; }
   .top5-box li:last-child { border-bottom: none; }
   .top5-box li span.rank { color: #f39c12; font-weight: bold; margin-right: 6px; }
   .top5-box li span.count { font-weight: bold; color: #1e3c72; }
 
-  @media (max-width: 1000px) {
-    .dashboard-grid { grid-template-columns: 1fr; }
+  @media (max-width: 900px) {
     .dashboard-cards { grid-template-columns: 1fr 1fr; }
+    .dashboard-layout { grid-template-columns: 1fr; }
+    .bottom-section { grid-template-columns: 1fr; }
   }
 
   /* Le reste du CSS pour les autres sections (Demandes, etc.) reste identique */
   .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:15px; padding:20px; }
-  .stat-card { background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.05); border-left:5px solid #f39c12; }
+  .stat-card { background:#fff; padding:15px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.05); border-left:5px solid #f39c12; }
   .stat-card.validees { border-left-color:#27ae60; }
   .stat-card.refusees { border-left-color:#e74c3c; }
   .stat-card.total { border-left-color:#1e3c72; }
   .stat-card.retard { border-left-color:#e74c3c; background: #fff8f8; }
-  .stat-card .label { color:#666; font-size:13px; margin-bottom:8px; }
-  .stat-card .value { color:#1e3c72; font-size:32px; font-weight:bold; }
+  .stat-card .label { color:#666; font-size:12px; margin-bottom:5px; }
+  .stat-card .value { color:#1e3c72; font-size:28px; font-weight:bold; }
 
   .filters { padding:0 20px 15px; display:flex; gap:10px; flex-wrap:wrap; align-items: center; }
   .filters select, .filters button, .filters input { padding:8px 15px; border:2px solid #e0e0e0; border-radius:8px; font-size:13px; background:#fff; cursor:pointer; font-weight:600; outline: none; }
@@ -262,40 +309,40 @@
       </div>
     </div>
 
-    <!-- Grille compacte pour les graphiques et le top 5 -->
-    <div class="dashboard-grid">
-      <!-- Colonne de gauche : Les Graphiques -->
-      <div class="charts-col">
-        <div class="chart-box">
-          <h3>Moyens de Déplacement</h3>
-          <div class="chart-container"><canvas id="chartMoyens"></canvas></div>
-        </div>
-        <div class="chart-box">
-          <h3>Répartition par Projet</h3>
-          <div class="chart-container"><canvas id="chartProjets"></canvas></div>
-        </div>
+    <!-- Ligne 1 : 2 graphiques -->
+    <div class="dashboard-layout">
+      <div class="chart-box">
+        <h3>Moyens de Déplacement</h3>
+        <div class="chart-container"><canvas id="chartMoyens"></canvas></div>
       </div>
+      <div class="chart-box">
+        <h3>Statut des Ordres de Mission</h3>
+        <div class="chart-container"><canvas id="chartStatuts"></canvas></div>
+      </div>
+    </div>
 
-      <!-- Colonne de droite : Statuts + Top 5 -->
-      <div class="charts-col">
-        <div class="chart-box">
-          <h3>Statut des Ordres de Mission</h3>
-          <div class="chart-container"><canvas id="chartStatuts"></canvas></div>
-        </div>
-        
-        <!-- Top 5 -->
-        <div class="top5-grid" id="top5Grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; height: 100%;">
+    <!-- Ligne 2 : Projet + Top 5 -->
+    <div class="bottom-section">
+      <div class="chart-box">
+        <h3>Répartition par Projet</h3>
+        <div class="chart-container"><canvas id="chartProjets"></canvas></div>
+      </div>
+      
+      <div class="top5-wrapper" id="top5Grid">
+        <h3>🏆 Classements (Top 5)</h3>
+        <div class="top5-grid-inner">
           <div class="top5-box">
-            <h4>🏆 Top Agents</h4>
+            <h4>Agents</h4>
             <ul id="topAgents"><li>Chargement...</li></ul>
           </div>
           <div class="top5-box">
-            <h4>🚙 Top Chauffeurs</h4>
+            <h4>Chauffeurs</h4>
             <ul id="topChauffeurs"><li>Chargement...</li></ul>
           </div>
         </div>
       </div>
     </div>
+
   </div>
 
   <!-- SECTION DEMANDES VEHICULES -->
@@ -641,14 +688,14 @@
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navOrdres').style.display = 'block';
       document.getElementById('navUsers').style.display = 'none';
-      document.getElementById('top5Grid').style.display = 'grid'; 
+      document.getElementById('top5Grid').style.display = 'flex'; 
       afficherSection('accueil');
     } else {
       document.getElementById('navAccueil').style.display = 'block';
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navOrdres').style.display = 'block';
       document.getElementById('navUsers').style.display = 'block';
-      document.getElementById('top5Grid').style.display = 'grid';
+      document.getElementById('top5Grid').style.display = 'flex';
       afficherSection('accueil');
     }
 

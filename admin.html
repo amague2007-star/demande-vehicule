@@ -377,10 +377,10 @@
     <label>👤 Chauffeur *</label>
     <select id="selectChauffeur" onchange="toggleAutre('chauffeur')">
       <option value="">-- Sélectionnez --</option>
-      <option value="ABAKTOUM">ABAKTOUM</option>
-      <option value="GALILE">GALILE</option>
+      <option value="ABDOULAHI MOHAMED">ABDOULAHI MOHAMED</option>
+      <option value="ALI RHOUBEID">ALI RHOUBEID</option>
       <option value="HAMAD SALLAH">HAMAD SALLAH</option>
-      <option value="BACHIR">BACHIR</option>
+      <option value="BACHIR HAMIDOU">BACHIR HAMIDOU</option>
       <option value="AUTRE">➕ Autre</option>
     </select>
     <input type="text" id="inputChauffeurAutre" placeholder="Nom" style="display:none; margin-top:8px;">
@@ -552,11 +552,12 @@
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
 
-  const CHAUFFEURS = {
-    "ABAKTOUM": "22789915798", "BACHIR": "22797747561",
-    "GALILE": "22798524300", "HAMAD SALLAH": "22797301132"
+   const CHAUFFEURS = {
+    "ABDOULAHI MOHAMED": "22789915798", 
+    "ALI RHOUBEID": "22798524300", 
+    "HAMAD SALLAH": "22797301132",
+    "BACHIR HAMIDOU": "22797747561"
   };
-
   let demandeEnCours = null, toutesLesDemandes = [];
   let ordreEnCours = null, tousLesOrdres = [];
   let tousLesUsers = [];

@@ -126,18 +126,15 @@
             <div class="ligne"><span class="label">IMPUTATION BUDGETAIRE :</span> <span class="valeur">${escapeHtml(d.imputation_budgetaire)}</span></div>
           </div>
 
-          <!-- ZONE DE SIGNATURE CENTRÉE SANS CADRE -->
+          <!-- ZONE DE SIGNATURE CENTRÉE (SANS LE TEXTE "SIGNATURE ET CACHET") -->
           <div style="margin-top: 40px; display: flex; justify-content: center;">
             <div style="width: 350px; font-size: 14px;">
               <div style="display: flex; justify-content: space-between; margin-bottom: 25px;">
                 <span>Lieu : ${escapeHtml(d.bureau)}</span>
                 <span>Date : ${formatDate(d.date_depart)}</span>
               </div>
-              <div style="text-align: center; font-weight: bold; margin-bottom: 40px;">
+              <div style="text-align: center; font-weight: bold;">
                 LE SECRETAIRE EXECUTIF
-              </div>
-              <div style="text-align: left;">
-                <span>Signature et cachet :</span>
               </div>
             </div>
           </div>

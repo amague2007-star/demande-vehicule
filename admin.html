@@ -23,55 +23,69 @@
   .login-error { color:#e74c3c; text-align:center; margin-top:10px; font-size:14px; }
 
   #dashboard { display:none; }
-  header { background:#1e3c72; color:#fff; padding:15px 30px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+  header { background:#1e3c72; color:#fff; padding:12px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
   header .header-brand { display:flex; align-items:center; gap:15px; }
-  header img { height:50px; width:50px; object-fit:contain; background:#fff; border-radius:50%; padding:3px; }
-  header .brand-text h1 { font-size:17px; margin-bottom:2px; }
-  header .brand-text p { font-size:12px; opacity:0.85; }
-  .header-right { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-  .user-badge { background:rgba(255,255,255,0.15); padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; }
+  header img { height:40px; width:40px; object-fit:contain; background:#fff; border-radius:50%; padding:3px; }
+  header .brand-text h1 { font-size:16px; margin-bottom:2px; }
+  header .brand-text p { font-size:11px; opacity:0.85; }
+  .header-right { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .user-badge { background:rgba(255,255,255,0.15); padding:5px 12px; border-radius:20px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; }
   
-  .nav-btn { position: relative; background:rgba(255,255,255,0.2); color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; transition:0.2s; }
+  .nav-btn { position: relative; background:rgba(255,255,255,0.2); color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600; font-size:12px; transition:0.2s; }
   .nav-btn:hover { background:rgba(255,255,255,0.35); }
   .nav-btn.active { background:#fff; color:#1e3c72; }
   
   .notification-badge {
-    position: absolute; top: -6px; right: -6px; background: #e74c3c; color: white;
-    font-size: 10px; font-weight: bold; padding: 3px 6px; border-radius: 50%;
+    position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white;
+    font-size: 9px; font-weight: bold; padding: 2px 5px; border-radius: 50%;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3); display: none; animation: pulse 2s infinite;
   }
   @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
 
-  .logout-btn { background:#e74c3c; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; }
+  .logout-btn { background:#e74c3c; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600; font-size:12px;}
 
   /* --- SECTION ACCUEIL / GRAPHIQUES --- */
-  #accueilSection { padding: 30px; display: block; }
+  #accueilSection { padding: 20px; display: block; }
   
-  .dash-filters { display: flex; justify-content: flex-end; margin-bottom: 20px; }
-  .dash-filters select { padding: 10px 18px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-weight: 600; color: #1e3c72; outline: none; cursor: pointer; }
+  .dash-filters { display: flex; justify-content: flex-end; margin-bottom: 15px; }
+  .dash-filters select { padding: 8px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 13px; font-weight: 600; color: #1e3c72; outline: none; cursor: pointer; }
 
-  .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-  .dash-card { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border-bottom: 4px solid #1e3c72; }
-  .dash-card h3 { color: #666; font-size: 14px; margin-bottom: 10px; text-transform: uppercase; }
-  .dash-card .number { color: #1e3c72; font-size: 36px; font-weight: bold; }
+  .dashboard-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+  .dash-card { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border-bottom: 4px solid #1e3c72; }
+  .dash-card h3 { color: #666; font-size: 12px; margin-bottom: 8px; text-transform: uppercase; }
+  .dash-card .number { color: #1e3c72; font-size: 28px; font-weight: bold; }
   
-  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-  .chart-box { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); height: 350px; display: flex; flex-direction: column; }
-  .chart-box h3 { color: #1e3c72; font-size: 16px; margin-bottom: 15px; text-align: center; }
+  /* Organisation en 2 colonnes */
+  .dashboard-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 20px; 
+    margin-bottom: 20px;
+  }
+
+  /* Graphiques plus bas */
+  .charts-col { display: flex; flex-direction: column; gap: 20px; }
+  .chart-box { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); height: 260px; display: flex; flex-direction: column; }
+  .chart-box h3 { color: #1e3c72; font-size: 14px; margin-bottom: 10px; text-align: center; }
   .chart-container { position: relative; flex: 1; width: 100%; }
-  @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } }
 
-  .top5-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-  .top5-box { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-  .top5-box h4 { color: #1e3c72; font-size: 15px; margin-bottom: 15px; border-bottom: 2px solid #f0f2f5; padding-bottom: 10px; }
+  /* Top 5 compact */
+  .top5-col { display: flex; flex-direction: column; gap: 15px; }
+  .top5-box { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); flex: 1; }
+  .top5-box h4 { color: #1e3c72; font-size: 13px; margin-bottom: 10px; border-bottom: 2px solid #f0f2f5; padding-bottom: 8px; text-align: center; }
   .top5-box ul { list-style: none; padding: 0; margin: 0; }
-  .top5-box li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f2f5; font-size: 14px; color: #333; }
+  .top5-box li { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f0f2f5; font-size: 12px; color: #333; }
   .top5-box li:last-child { border-bottom: none; }
-  .top5-box li span.rank { color: #f39c12; font-weight: bold; margin-right: 8px; }
+  .top5-box li span.rank { color: #f39c12; font-weight: bold; margin-right: 6px; }
   .top5-box li span.count { font-weight: bold; color: #1e3c72; }
-  @media (max-width: 900px) { .top5-grid { grid-template-columns: 1fr; } }
 
-  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:15px; padding:25px 30px; }
+  @media (max-width: 1000px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .dashboard-cards { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* Le reste du CSS pour les autres sections (Demandes, etc.) reste identique */
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:15px; padding:20px; }
   .stat-card { background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.05); border-left:5px solid #f39c12; }
   .stat-card.validees { border-left-color:#27ae60; }
   .stat-card.refusees { border-left-color:#e74c3c; }
@@ -80,115 +94,100 @@
   .stat-card .label { color:#666; font-size:13px; margin-bottom:8px; }
   .stat-card .value { color:#1e3c72; font-size:32px; font-weight:bold; }
 
-  .filters { padding:0 30px 20px; display:flex; gap:10px; flex-wrap:wrap; align-items: center; }
-  .filters select, .filters button, .filters input { padding:10px 18px; border:2px solid #e0e0e0; border-radius:8px; font-size:14px; background:#fff; cursor:pointer; font-weight:600; outline: none; }
+  .filters { padding:0 20px 15px; display:flex; gap:10px; flex-wrap:wrap; align-items: center; }
+  .filters select, .filters button, .filters input { padding:8px 15px; border:2px solid #e0e0e0; border-radius:8px; font-size:13px; background:#fff; cursor:pointer; font-weight:600; outline: none; }
   .filters button { background:#1e3c72; color:#fff; border-color:#1e3c72; }
   .filters input { cursor: text; font-weight: 400; min-width: 250px; }
   .filters input:focus { border-color: #1e3c72; }
   .btn-export { background:#27ae60 !important; border-color:#27ae60 !important; margin-left: auto; }
 
-  .type-tabs { display:flex; gap:10px; padding:0 30px 20px; flex-wrap:wrap; }
-  .type-tab { padding:10px 18px; border:2px solid #e0e0e0; border-radius:8px; font-size:14px; background:#fff; cursor:pointer; font-weight:600; color:#555; transition:0.2s; }
+  .type-tabs { display:flex; gap:10px; padding:0 20px 15px; flex-wrap:wrap; }
+  .type-tab { padding:8px 15px; border:2px solid #e0e0e0; border-radius:8px; font-size:13px; background:#fff; cursor:pointer; font-weight:600; color:#555; transition:0.2s; }
   .type-tab:hover { background:#f8f9fa; }
   .type-tab.active { background:#1e3c72; color:#fff; border-color:#1e3c72; }
 
-  .demandes-container { padding:0 30px 40px; }
-  .demande-item { background:#fff; border-radius:12px; padding:22px; box-shadow:0 3px 15px rgba(0,0,0,0.08); margin-bottom:18px; border-left:6px solid #f39c12; }
+  .demandes-container { padding:0 20px 30px; }
+  .demande-item { background:#fff; border-radius:10px; padding:18px; box-shadow:0 3px 15px rgba(0,0,0,0.08); margin-bottom:15px; border-left:6px solid #f39c12; }
   .demande-item.validee { border-left-color:#27ae60; background:#f8fff9; }
   .demande-item.refusee { border-left-color:#e74c3c; background:#fff8f8; }
   .demande-item.retard { border-left-color: #e74c3c; border-left-width: 8px; }
 
-  .demande-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:18px; }
-  .demande-header h3 { color:#1e3c72; font-size:18px; }
+  .demande-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px; }
+  .demande-header h3 { color:#1e3c72; font-size:16px; }
   .demande-header h3 span { font-weight:400; color:#666; }
-  .statut { padding:6px 14px; border-radius:20px; font-size:12px; font-weight:700; text-transform:uppercase; }
+  .statut { padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; text-transform:uppercase; }
   .statut.en_attente { background:#fef5e7; color:#d68910; border:2px solid #f39c12; }
   .statut.affecte_logistique { background:#fff3cd; color:#856404; border:2px solid #ffeeba; }
   .statut.validee { background:#d5f4e6; color:#1e8449; border:2px solid #27ae60; }
   .statut.refusee { background:#fadbd8; color:#922b21; border:2px solid #e74c3c; }
 
-  .demande-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-bottom:18px; }
-  .info-item { font-size:14px; color:#555; }
-  .info-item strong { color:#333; display:block; margin-bottom:3px; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; }
-  .demande-motif { background:#f8f9fb; padding:14px; border-radius:8px; font-size:14px; color:#555; margin-bottom:18px; border-left:3px solid #1e3c72; }
+  .demande-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:12px; }
+  .info-item { font-size:13px; color:#555; }
+  .info-item strong { color:#333; display:block; margin-bottom:2px; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; }
+  .demande-motif { background:#f8f9fb; padding:10px; border-radius:6px; font-size:13px; color:#555; margin-bottom:12px; border-left:3px solid #1e3c72; }
 
-  .actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:10px; padding-top:18px; border-top:1px solid #eee; }
-  .btn { padding:14px 28px; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px; text-transform:uppercase; letter-spacing:0.5px; transition:0.2s; }
+  .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; padding-top:12px; border-top:1px solid #eee; }
+  .btn { padding:10px 20px; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; text-transform:uppercase; letter-spacing:0.5px; transition:0.2s; }
   .btn-valider { background:#27ae60; color:#fff; box-shadow:0 4px 12px rgba(39,174,96,0.3); }
   .btn-valider:hover { background:#229954; transform:translateY(-2px); }
   .btn-orange { background:#f39c12; color:#fff; box-shadow:0 4px 12px rgba(243,156,18,0.3); }
   .btn-orange:hover { background:#d68910; transform:translateY(-2px); }
   .btn-refuser { background:#e74c3c; color:#fff; box-shadow:0 4px 12px rgba(231,76,60,0.3); }
   .btn-refuser:hover { background:#c0392b; transform:translateY(-2px); }
-  .btn-suppr { background:#95a5a6; color:#fff; padding:8px 14px; font-size:12px; margin-left:auto; }
+  .btn-suppr { background:#95a5a6; color:#fff; padding:6px 12px; font-size:11px; margin-left:auto; }
   .btn-suppr:hover { background:#7f8c8d; }
-  .btn-print-admin { background:#2c3e50; color:#fff; padding:12px 22px; font-size:13px; box-shadow:0 4px 12px rgba(44,62,80,0.3); }
+  .btn-print-admin { background:#2c3e50; color:#fff; padding:10px 15px; font-size:12px; box-shadow:0 4px 12px rgba(44,62,80,0.3); }
   .btn-print-admin:hover { background:#1a252f; transform:translateY(-2px); }
-  .btn-whatsapp { background:#25D366; color:#fff; padding:12px 22px; font-size:13px; box-shadow:0 4px 12px rgba(37,211,102,0.4); }
+  .btn-whatsapp { background:#25D366; color:#fff; padding:10px 15px; font-size:12px; box-shadow:0 4px 12px rgba(37,211,102,0.4); }
   .btn-whatsapp:hover { background:#1da851; transform:translateY(-2px); }
 
-  .resultat { padding:14px; border-radius:8px; font-size:14px; margin-bottom:10px; }
+  .resultat { padding:10px; border-radius:6px; font-size:13px; margin-bottom:8px; }
   .resultat.validee { background:#d5f4e6; color:#1e8449; border-left:4px solid #27ae60; }
   .resultat.refusee { background:#fadbd8; color:#922b21; border-left:4px solid #e74c3c; }
-  .resultat .par-admin { display:block; margin-top:6px; font-size:12px; opacity:0.8; font-style:italic; }
+  .resultat .par-admin { display:block; margin-top:4px; font-size:11px; opacity:0.8; font-style:italic; }
   
-  .notes-internes-box { background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 8px; font-size: 13px; color: #856404; margin-top: 10px; font-style: italic; }
+  .notes-internes-box { background: #fff3cd; border: 1px solid #ffeeba; padding: 8px; border-radius: 6px; font-size: 12px; color: #856404; margin-top: 8px; font-style: italic; }
 
   .modal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center; padding:20px; }
   .modal-overlay.active { display:flex; }
-  .modal { background:#fff; padding:30px; border-radius:15px; max-width:520px; width:100%; max-height:90vh; overflow-y:auto; }
-  .modal h2 { color:#1e3c72; margin-bottom:8px; }
-  .modal p.subtitle { color:#666; font-size:14px; margin-bottom:20px; }
-  .modal label { display:block; font-weight:600; margin-bottom:6px; color:#333; font-size:14px; margin-top:14px; }
-  .modal input, .modal textarea, .modal select { width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px; font-size:14px; font-family:inherit; background:#fff; }
+  .modal { background:#fff; padding:25px; border-radius:15px; max-width:500px; width:100%; max-height:90vh; overflow-y:auto; }
+  .modal h2 { color:#1e3c72; margin-bottom:8px; font-size:18px; }
+  .modal p.subtitle { color:#666; font-size:13px; margin-bottom:15px; }
+  .modal label { display:block; font-weight:600; margin-bottom:4px; color:#333; font-size:13px; margin-top:12px; }
+  .modal input, .modal textarea, .modal select { width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:8px; font-size:13px; font-family:inherit; background:#fff; }
   .modal input:focus, .modal textarea:focus, .modal select:focus { outline:none; border-color:#1e3c72; }
-  .modal-actions { display:flex; gap:10px; margin-top:22px; }
-  .modal-actions button { flex:1; padding:14px; border:none; border-radius:8px; font-size:15px; font-weight:700; cursor:pointer; }
+  .modal-actions { display:flex; gap:10px; margin-top:20px; }
+  .modal-actions button { flex:1; padding:12px; border:none; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; }
   .modal-actions .btn-cancel { background:#ecf0f1; color:#555; }
 
-  .empty { text-align:center; color:#999; padding:60px 20px; font-style:italic; font-size:15px; background:#fff; border-radius:12px; }
-  .loading { text-align:center; padding:40px; color:#666; }
+  .empty { text-align:center; color:#999; padding:40px 15px; font-style:italic; font-size:14px; background:#fff; border-radius:10px; }
+  .loading { text-align:center; padding:30px; color:#666; font-size:14px; }
 
-  #usersSection { display:none; padding:25px 30px 40px; }
-  .users-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
-  .users-header h2 { color:#1e3c72; font-size:22px; }
-  .btn-add-user { background:#27ae60; color:#fff; padding:12px 22px; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px; box-shadow:0 4px 12px rgba(39,174,96,0.3); transition:0.2s; }
+  #usersSection { display:none; padding:20px; }
+  .users-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px; }
+  .users-header h2 { color:#1e3c72; font-size:20px; }
+  .btn-add-user { background:#27ae60; color:#fff; padding:10px 18px; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 4px 12px rgba(39,174,96,0.3); transition:0.2s; }
   .btn-add-user:hover { background:#229954; transform:translateY(-2px); }
 
-  .users-list { display:flex; flex-direction:column; gap:12px; }
-  .user-row { background:#fff; padding:18px 22px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.06); border-left:5px solid #1e3c72; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; transition:0.2s; }
+  .users-list { display:flex; flex-direction:column; gap:10px; }
+  .user-row { background:#fff; padding:15px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.06); border-left:5px solid #1e3c72; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; transition:0.2s; }
   .user-row:hover { box-shadow:0 4px 20px rgba(0,0,0,0.1); }
   .user-row.current { border-left-color:#f39c12; background:#fffbf0; }
-  .user-info { display:flex; flex-direction:column; gap:4px; flex:1; min-width:200px; }
-  .user-info .user-name { font-size:16px; font-weight:700; color:#1e3c72; display:flex; align-items:center; gap:8px; }
-  .user-info .user-name .badge-me { font-size:10px; background:#f39c12; color:#fff; padding:2px 8px; border-radius:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
-  .user-info .user-email { font-size:13px; color:#666; }
-  .user-info .user-date { font-size:11px; color:#999; font-style:italic; }
-  .user-actions { display:flex; gap:10px; }
-  .btn-del-user { background:#e74c3c; color:#fff; padding:10px 18px; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; transition:0.2s; }
+  .user-info { display:flex; flex-direction:column; gap:3px; flex:1; min-width:200px; }
+  .user-info .user-name { font-size:14px; font-weight:700; color:#1e3c72; display:flex; align-items:center; gap:8px; }
+  .user-info .user-name .badge-me { font-size:9px; background:#f39c12; color:#fff; padding:2px 6px; border-radius:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+  .user-info .user-email { font-size:12px; color:#666; }
+  .user-info .user-date { font-size:10px; color:#999; font-style:italic; }
+  .user-actions { display:flex; gap:8px; }
+  .btn-del-user { background:#e74c3c; color:#fff; padding:8px 14px; border:none; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px; transition:0.2s; }
   .btn-del-user:hover { background:#c0392b; transform:translateY(-2px); }
   .btn-del-user:disabled { background:#bdc3c7; cursor:not-allowed; transform:none; }
 
-  .users-info-box { background:#e8f0fb; border-left:4px solid #1e3c72; padding:14px 18px; border-radius:8px; font-size:13px; color:#1e3c72; margin-bottom:20px; line-height:1.5; }
+  .users-info-box { background:#e8f0fb; border-left:4px solid #1e3c72; padding:12px 15px; border-radius:8px; font-size:12px; color:#1e3c72; margin-bottom:15px; line-height:1.5; }
 
-  .password-reveal { display:flex; gap:10px; }
+  .password-reveal { display:flex; gap:8px; }
   .password-reveal input { flex:1; }
-  .btn-reveal { background:#ecf0f1; color:#555; border:none; padding:0 14px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; }
-
-  @media (max-width:600px) {
-    .btn { padding:12px 20px; font-size:14px; }
-    header { padding:12px 15px; }
-    header .brand-text h1 { font-size:14px; }
-    header .brand-text p { font-size:11px; }
-    header img { height:40px; width:40px; }
-    .user-badge { font-size:11px; padding:5px 10px; }
-    .nav-btn { font-size:11px; padding:6px 10px; }
-    .user-row { flex-direction:column; align-items:flex-start; }
-    .user-actions { width:100%; }
-    .btn-del-user { flex:1; justify-content:center; }
-    .type-tab { flex: 1 1 30%; text-align: center; }
-    .btn-export { margin-left: 0; width: 100%; justify-content: center; }
-  }
+  .btn-reveal { background:#ecf0f1; color:#555; border:none; padding:0 12px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600; }
 </style>
 </head>
 <body>
@@ -222,10 +221,10 @@
     <div class="header-right">
       <button class="nav-btn" id="navAccueil" onclick="afficherSection('accueil')">📊 Accueil</button>
       <button class="nav-btn" id="navDemandes" onclick="afficherSection('demandes')">
-        📋 Demandes Véhicules <span class="notification-badge" id="badgeDemandes">0</span>
+        📋 Demandes <span class="notification-badge" id="badgeDemandes">0</span>
       </button>
       <button class="nav-btn" id="navOrdres" onclick="afficherSection('ordres')">
-        📄 Ordres de Mission (RH) <span class="notification-badge" id="badgeOrdres">0</span>
+        📄 Ordres (RH) <span class="notification-badge" id="badgeOrdres">0</span>
       </button>
       <button class="nav-btn" id="navUsers" onclick="afficherSection('users')">👥 Utilisateurs</button>
       <div class="user-badge" id="userBadge">👤 <span id="userName">Admin</span></div>
@@ -246,57 +245,57 @@
 
     <div class="dashboard-cards">
       <div class="dash-card">
-        <h3>Total Demandes Véhicules</h3>
+        <h3>Total Demandes</h3>
         <div class="number" id="dashTotalVehicules">0</div>
       </div>
       <div class="dash-card" style="border-bottom-color: #f39c12;">
-        <h3>Total Missions Terrain</h3>
+        <h3>Total Missions</h3>
         <div class="number" id="dashTotalMissions">0</div>
       </div>
       <div class="dash-card" style="border-bottom-color: #27ae60;">
-        <h3>Missions Validées (RH)</h3>
+        <h3>Missions Validées</h3>
         <div class="number" id="dashMissionsValidees">0</div>
       </div>
       <div class="dash-card" style="border-bottom-color: #e74c3c;">
-        <h3>Demandes en Attente</h3>
+        <h3>En Attente</h3>
         <div class="number" id="dashEnAttente">0</div>
       </div>
     </div>
 
-    <div class="charts-grid">
-      <div class="chart-box">
-        <h3>Répartition par Moyen de Déplacement</h3>
-        <div class="chart-container"><canvas id="chartMoyens"></canvas></div>
+    <!-- Grille compacte pour les graphiques et le top 5 -->
+    <div class="dashboard-grid">
+      <!-- Colonne de gauche : Les Graphiques -->
+      <div class="charts-col">
+        <div class="chart-box">
+          <h3>Moyens de Déplacement</h3>
+          <div class="chart-container"><canvas id="chartMoyens"></canvas></div>
+        </div>
+        <div class="chart-box">
+          <h3>Répartition par Projet</h3>
+          <div class="chart-container"><canvas id="chartProjets"></canvas></div>
+        </div>
       </div>
-      <div class="chart-box">
-        <h3>Répartition par Projet</h3>
-        <div class="chart-container"><canvas id="chartProjets"></canvas></div>
-      </div>
-    </div>
-    
-    <div class="charts-grid" style="grid-template-columns: 1fr;">
-      <div class="chart-box">
-        <h3>Statut des Ordres de Mission</h3>
-        <div class="chart-container"><canvas id="chartStatuts"></canvas></div>
-      </div>
-    </div>
 
-    <!-- Le Top 5 est masqué pour le Directeur, gardé pour les autres -->
-    <div class="top5-grid" id="top5Grid">
-      <div class="top5-box">
-        <h4>🏆 Top 5 Agents (Missions)</h4>
-        <ul id="topAgents"><li>Chargement...</li></ul>
-      </div>
-      <div class="top5-box">
-        <h4>🚙 Top 5 Chauffeurs</h4>
-        <ul id="topChauffeurs"><li>Chargement...</li></ul>
-      </div>
-      <div class="top5-box">
-        <h4>🚗 Top 5 Véhicules utilisés</h4>
-        <ul id="topVehicules"><li>Chargement...</li></ul>
+      <!-- Colonne de droite : Statuts + Top 5 -->
+      <div class="charts-col">
+        <div class="chart-box">
+          <h3>Statut des Ordres de Mission</h3>
+          <div class="chart-container"><canvas id="chartStatuts"></canvas></div>
+        </div>
+        
+        <!-- Top 5 -->
+        <div class="top5-grid" id="top5Grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; height: 100%;">
+          <div class="top5-box">
+            <h4>🏆 Top Agents</h4>
+            <ul id="topAgents"><li>Chargement...</li></ul>
+          </div>
+          <div class="top5-box">
+            <h4>🚙 Top Chauffeurs</h4>
+            <ul id="topChauffeurs"><li>Chargement...</li></ul>
+          </div>
+        </div>
       </div>
     </div>
-
   </div>
 
   <!-- SECTION DEMANDES VEHICULES -->
@@ -336,8 +335,8 @@
     </div>
 
     <div class="stats">
-      <div class="stat-card" style="border-left-color:#f39c12;"><div class="label">⏳ À traiter (Logistique)</div><div class="value" id="statOrdresAttente">0</div></div>
-      <div class="stat-card" style="border-left-color:#f39c12;"><div class="label">⏳ À traiter (RH)</div><div class="value" id="statOrdresAffectes">0</div></div>
+      <div class="stat-card" style="border-left-color:#f39c12;"><div class="label">⏳ Attente Logistique</div><div class="value" id="statOrdresAttente">0</div></div>
+      <div class="stat-card" style="border-left-color:#f39c12;"><div class="label">⏳ Attente RH</div><div class="value" id="statOrdresAffectes">0</div></div>
       <div class="stat-card validees"><div class="label">✅ Validés</div><div class="value" id="statOrdresValides">0</div></div>
       <div class="stat-card retard"><div class="label">⚠️ En retard</div><div class="value" id="statOrdresRetard">0</div></div>
       <div class="stat-card total"><div class="label">📊 Total</div><div class="value" id="statOrdresTotal">0</div></div>
@@ -431,7 +430,7 @@
     <h2>❌ Refuser cette demande</h2>
     <p class="subtitle" id="modalRefuserInfo"></p>
     <label>Motif *</label>
-    <textarea id="inputMotifRefus" rows="4"></textarea>
+    <textarea id="inputMotifRefus" rows="3"></textarea>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
       <button class="btn-refuser" onclick="confirmerRefus()">❌ Refuser</button>
@@ -496,7 +495,7 @@
   <div class="modal">
     <h2>📄 Validation RH</h2>
     <p class="subtitle" id="modalNumeroRHInfo"></p>
-    <p style="font-size: 14px; color: #555; margin-bottom: 20px;">Générer le numéro d'ordre.</p>
+    <p style="font-size: 13px; color: #555; margin-bottom: 15px;">Générer le numéro d'ordre.</p>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
       <button class="btn-orange" onclick="confirmerNumeroRH()">✅ Valider</button>
@@ -638,12 +637,11 @@
       document.getElementById('navUsers').style.display = 'none';
       afficherSection('demandes');
     } else if (role === 'directeur_logistique') {
-      // Le Directeur voit l'accueil, les demandes (lecture), et les ordres (lecture)
       document.getElementById('navAccueil').style.display = 'block';
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navOrdres').style.display = 'block';
-      document.getElementById('navUsers').style.display = 'none'; // Pas de gestion users
-      document.getElementById('top5Grid').style.display = 'grid'; // On garde le top 5 pour lui
+      document.getElementById('navUsers').style.display = 'none';
+      document.getElementById('top5Grid').style.display = 'grid'; 
       afficherSection('accueil');
     } else {
       document.getElementById('navAccueil').style.display = 'block';
@@ -1153,78 +1151,68 @@
     alert(`📥 L'export Excel des ${type === 'demandes' ? 'demandes' : 'ordres de mission'} sera disponible prochainement.`);
   }
 
-  // --- NOUVELLE FONCTION POUR LES GRAPHIQUES ---
+  // --- FONCTION POUR LES GRAPHIQUES ---
   function mettreAJourGraphiques() {
-    // 1. Mise à jour des compteurs (Cartes du haut)
     document.getElementById('dashTotalVehicules').textContent = toutesLesDemandes.length;
     document.getElementById('dashTotalMissions').textContent = tousLesOrdres.length;
     document.getElementById('dashMissionsValidees').textContent = tousLesOrdres.filter(o => o.statut === 'validee').length;
     document.getElementById('dashEnAttente').textContent = toutesLesDemandes.filter(d => d.statut === 'en_attente').length;
 
-    // 2. Détruire les anciens graphiques s'ils existent
     if (chartMoyensInstance) chartMoyensInstance.destroy();
     if (chartStatutsInstance) chartStatutsInstance.destroy();
     if (chartProjetsInstance) chartProjetsInstance.destroy();
 
-    // 3. Graphique des Moyens de Déplacement
+    // Moyens de déplacement
     const moyensCount = {};
     tousLesOrdres.forEach(o => {
       const m = o.moyen_deplacement || 'Non spécifié';
       moyensCount[m] = (moyensCount[m] || 0) + 1;
     });
-    const ctxMoyens = document.getElementById('chartMoyens').getContext('2d');
-    chartMoyensInstance = new Chart(ctxMoyens, {
+    chartMoyensInstance = new Chart(document.getElementById('chartMoyens').getContext('2d'), {
       type: 'doughnut',
       data: {
         labels: Object.keys(moyensCount),
-        datasets: [{
-          data: Object.values(moyensCount),
-          backgroundColor: ['#1e3c72', '#f39c12', '#27ae60', '#e74c3c', '#8e44ad', '#3498db'],
-          borderWidth: 0
-        }]
+        datasets: [{ data: Object.values(moyensCount), backgroundColor: ['#1e3c72', '#f39c12', '#27ae60', '#e74c3c', '#8e44ad', '#3498db'], borderWidth: 0 }]
       },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 10} } } } }
     });
 
-    // 4. Graphique des Projets
+    // Projets
     const projetsCount = {};
     tousLesOrdres.forEach(o => {
       const p = o.projet || 'Non spécifié';
       projetsCount[p] = (projetsCount[p] || 0) + 1;
     });
-    const ctxProjets = document.getElementById('chartProjets').getContext('2d');
-    chartProjetsInstance = new Chart(ctxProjets, {
+    chartProjetsInstance = new Chart(document.getElementById('chartProjets').getContext('2d'), {
       type: 'bar',
       data: {
         labels: Object.keys(projetsCount),
-        datasets: [{
-          label: 'Nombre de missions',
-          data: Object.values(projetsCount),
-          backgroundColor: '#1e3c72',
-          borderRadius: 6
-        }]
+        datasets: [{ label: 'Missions', data: Object.values(projetsCount), backgroundColor: '#1e3c72', borderRadius: 6 }]
       },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: {size: 10} } }, x: { ticks: { font: {size: 10} } } } }
     });
 
-    // 5. Graphique des Statuts
+    // Statuts
     const statutsCount = { 'en_attente': 0, 'affecte_logistique': 0, 'validee': 0 };
-    tousLesOrdres.forEach(o => {
-      if (statutsCount[o.statut] !== undefined) statutsCount[o.statut]++;
-    });
-    const ctxStatuts = document.getElementById('chartStatuts').getContext('2d');
-    chartStatutsInstance = new Chart(ctxStatuts, {
+    tousLesOrdres.forEach(o => { if (statutsCount[o.statut] !== undefined) statutsCount[o.statut]++; });
+    chartStatutsInstance = new Chart(document.getElementById('chartStatuts').getContext('2d'), {
       type: 'pie',
       data: {
         labels: ['En attente', 'Attente RH', 'Validées'],
-        datasets: [{
-          data: [statutsCount['en_attente'], statutsCount['affecte_logistique'], statutsCount['validee']],
-          backgroundColor: ['#f39c12', '#f1c40f', '#27ae60'],
-          borderWidth: 0
-        }]
+        datasets: [{ data: [statutsCount['en_attente'], statutsCount['affecte_logistique'], statutsCount['validee']], backgroundColor: ['#f39c12', '#f1c40f', '#27ae60'], borderWidth: 0 }]
       },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 10} } } } }
     });
+
+    // Top 5
+    const agentsCount = {}, chauffeursCount = {};
+    tousLesOrdres.forEach(o => { if(o.nom) agentsCount[o.nom] = (agentsCount[o.nom]||0)+1; if(o.chauffeur_assigne) chauffeursCount[o.chauffeur_assigne] = (chauffeursCount[o.chauffeur_assigne]||0)+1; });
+    
+    const topA = Object.entries(agentsCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    document.getElementById('topAgents').innerHTML = topA.length ? topA.map((a,i)=>`<li><span><span class="rank">#${i+1}</span> ${a[0]}</span> <span class="count">${a[1]}</span></li>`).join('') : '<li>Aucune donnée</li>';
+
+    const topC = Object.entries(chauffeursCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    document.getElementById('topChauffeurs').innerHTML = topC.length ? topC.map((c,i)=>`<li><span><span class="rank">#${i+1}</span> ${c[0]}</span> <span class="count">${c[1]}</span></li>`).join('') : '<li>Aucune donnée</li>';
   }
 </script>
 

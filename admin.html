@@ -281,7 +281,8 @@
       </div>
     </div>
 
-    <div class="top5-grid">
+    <!-- Le Top 5 est masqué pour le Directeur, gardé pour les autres -->
+    <div class="top5-grid" id="top5Grid">
       <div class="top5-box">
         <h4>🏆 Top 5 Agents (Missions)</h4>
         <ul id="topAgents"><li>Chargement...</li></ul>
@@ -637,15 +638,19 @@
       document.getElementById('navUsers').style.display = 'none';
       afficherSection('demandes');
     } else if (role === 'directeur_logistique') {
+      // Le Directeur voit l'accueil, les demandes (lecture), et les ordres (lecture)
       document.getElementById('navAccueil').style.display = 'block';
-      document.getElementById('navDemandes').style.display = 'none';
-      document.getElementById('navUsers').style.display = 'none';
+      document.getElementById('navDemandes').style.display = 'block';
+      document.getElementById('navOrdres').style.display = 'block';
+      document.getElementById('navUsers').style.display = 'none'; // Pas de gestion users
+      document.getElementById('top5Grid').style.display = 'grid'; // On garde le top 5 pour lui
       afficherSection('accueil');
     } else {
       document.getElementById('navAccueil').style.display = 'block';
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navOrdres').style.display = 'block';
       document.getElementById('navUsers').style.display = 'block';
+      document.getElementById('top5Grid').style.display = 'grid';
       afficherSection('accueil');
     }
 
@@ -697,6 +702,7 @@
   // UTILISATEURS
   async function chargerUsers() {
     const container = document.getElementById('usersList');
+    if(!container) return;
     container.innerHTML = '<div class="loading">Chargement...</div>';
     try {
       tousLesUsers = await apiCall('/admins?order=created_at.asc&select=id,email,nom,role,created_at');
@@ -706,6 +712,7 @@
 
   function afficherUsers() {
     const container = document.getElementById('usersList');
+    if(!container) return;
     const myId = getAdminId();
     if (!tousLesUsers.length) { container.innerHTML = '<div class="empty">📭 Aucun utilisateur.</div>'; return; }
     container.innerHTML = tousLesUsers.map(u => {
@@ -1125,8 +1132,7 @@
   }
 
   function telechargerOrdreMission(id) {
-    alert("La fonction de téléchargement PDF sera disponible prochainement. Veuillez utiliser l'impression (Ctrl+P) et choisir 'Enregistrer au format PDF'.");
-    window.open(`imprimer.html?id=${id}`, '_blank');
+    window.open(`imprimer.html?id=${id}&download=true`, '_blank');
   }
 
   function notifierWhatsAppMission(id) {
@@ -1147,9 +1153,78 @@
     alert(`📥 L'export Excel des ${type === 'demandes' ? 'demandes' : 'ordres de mission'} sera disponible prochainement.`);
   }
 
+  // --- NOUVELLE FONCTION POUR LES GRAPHIQUES ---
   function mettreAJourGraphiques() {
-    // Placeholder pour la mise à jour des graphiques
-    console.log("Mise à jour des graphiques...");
+    // 1. Mise à jour des compteurs (Cartes du haut)
+    document.getElementById('dashTotalVehicules').textContent = toutesLesDemandes.length;
+    document.getElementById('dashTotalMissions').textContent = tousLesOrdres.length;
+    document.getElementById('dashMissionsValidees').textContent = tousLesOrdres.filter(o => o.statut === 'validee').length;
+    document.getElementById('dashEnAttente').textContent = toutesLesDemandes.filter(d => d.statut === 'en_attente').length;
+
+    // 2. Détruire les anciens graphiques s'ils existent
+    if (chartMoyensInstance) chartMoyensInstance.destroy();
+    if (chartStatutsInstance) chartStatutsInstance.destroy();
+    if (chartProjetsInstance) chartProjetsInstance.destroy();
+
+    // 3. Graphique des Moyens de Déplacement
+    const moyensCount = {};
+    tousLesOrdres.forEach(o => {
+      const m = o.moyen_deplacement || 'Non spécifié';
+      moyensCount[m] = (moyensCount[m] || 0) + 1;
+    });
+    const ctxMoyens = document.getElementById('chartMoyens').getContext('2d');
+    chartMoyensInstance = new Chart(ctxMoyens, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(moyensCount),
+        datasets: [{
+          data: Object.values(moyensCount),
+          backgroundColor: ['#1e3c72', '#f39c12', '#27ae60', '#e74c3c', '#8e44ad', '#3498db'],
+          borderWidth: 0
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    });
+
+    // 4. Graphique des Projets
+    const projetsCount = {};
+    tousLesOrdres.forEach(o => {
+      const p = o.projet || 'Non spécifié';
+      projetsCount[p] = (projetsCount[p] || 0) + 1;
+    });
+    const ctxProjets = document.getElementById('chartProjets').getContext('2d');
+    chartProjetsInstance = new Chart(ctxProjets, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(projetsCount),
+        datasets: [{
+          label: 'Nombre de missions',
+          data: Object.values(projetsCount),
+          backgroundColor: '#1e3c72',
+          borderRadius: 6
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+
+    // 5. Graphique des Statuts
+    const statutsCount = { 'en_attente': 0, 'affecte_logistique': 0, 'validee': 0 };
+    tousLesOrdres.forEach(o => {
+      if (statutsCount[o.statut] !== undefined) statutsCount[o.statut]++;
+    });
+    const ctxStatuts = document.getElementById('chartStatuts').getContext('2d');
+    chartStatutsInstance = new Chart(ctxStatuts, {
+      type: 'pie',
+      data: {
+        labels: ['En attente', 'Attente RH', 'Validées'],
+        datasets: [{
+          data: [statutsCount['en_attente'], statutsCount['affecte_logistique'], statutsCount['validee']],
+          backgroundColor: ['#f39c12', '#f1c40f', '#27ae60'],
+          borderWidth: 0
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    });
   }
 </script>
 

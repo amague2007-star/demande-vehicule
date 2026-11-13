@@ -266,25 +266,15 @@
           <span class="icon">🚗</span> Détails de la sortie
         </div>
 
-        <!-- Nouvelle ligne pour la date de la demande -->
         <div class="grid-2">
             <div class="form-group">
               <label for="date_demande">Date de la demande <span class="required">*</span></label>
               <input type="date" id="date_demande" name="date_demande" required>
             </div>
-            <!-- On laisse la case vide à droite pour l'équilibre visuel, ou on peut y mettre autre chose si besoin -->
-            <div></div> 
-        </div>
-
-        <div class="grid-2">
-          <div class="form-group">
-            <label for="date_sortie">Date de sortie <span class="required">*</span></label>
-            <input type="date" id="date_sortie" name="date_sortie" required>
-          </div>
-          <div class="form-group">
-            <label for="heure_depart">Heure de départ <span class="required">*</span></label>
-            <input type="time" id="heure_depart" name="heure_depart" required>
-          </div>
+            <div class="form-group">
+                <label for="heure_depart">Heure de départ <span class="required">*</span></label>
+                <input type="time" id="heure_depart" name="heure_depart" required>
+            </div>
         </div>
 
         <div class="grid-2">
@@ -366,16 +356,12 @@
     });
   });
 
-  const dateSortie = document.getElementById('date_sortie');
   const dateDemande = document.getElementById('date_demande');
-  
   const today = new Date().toISOString().split('T')[0];
   
   // Remplissage automatique de la date de la demande avec la date du jour
   dateDemande.value = today; 
-  
-  // La date de sortie ne peut pas être dans le passé
-  dateSortie.min = today;
+  dateDemande.min = today; // Optionnel : bloque les dates passées
 
   function showMessage(type, text) {
     messageBox.className = 'message-box ' + type;
@@ -407,14 +393,13 @@
     }
 
     const newDemande = {
-      date_demande: dateDemande.value, // Nouveau champ ajouté
+      date_demande: dateDemande.value, 
       nom: document.getElementById('nom').value.trim(),
       prenom: document.getElementById('prenom').value.trim(),
       poste: document.getElementById('poste').value,
       service: document.getElementById('service').value,
       email: document.getElementById('email').value.trim(),
       contact: document.getElementById('contact').value.trim(),
-      date_sortie: dateSortie.value,
       heure_depart: document.getElementById('heure_depart').value,
       duree: parseInt(document.getElementById('duree').value),
       destination: document.getElementById('destination').value.trim(),
@@ -456,7 +441,6 @@
       showMessage('success', 'Votre demande de sortie a bien été envoyée. Vous recevrez une confirmation après validation.');
       form.reset();
       dateDemande.value = today; // Réinitialiser avec la date du jour
-      dateSortie.min = today;
 
     } catch (error) {
       console.error('Erreur :', error);

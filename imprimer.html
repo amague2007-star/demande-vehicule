@@ -6,115 +6,26 @@
 <title>Impression Ordre de Mission - ONG ADKOUL</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
-  body { 
-    font-family: 'Times New Roman', Times, serif; 
-    background: #f0f2f5; 
-    margin: 0; 
-    padding: 20px; 
-  }
+  body { font-family: 'Times New Roman', Times, serif; background: #f0f2f5; margin: 0; padding: 20px; }
+  .document { background: #fff; max-width: 800px; margin: 0 auto; padding: 20px 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); color: #000; line-height: 1.4; }
   
-  .document { 
-    background: #fff; 
-    max-width: 800px; 
-    margin: 0 auto; 
-    padding: 20px 30px; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-    color: #000;
-    line-height: 1.4;
-  }
-  
-  /* En-tête avec la bannière */
-  .entete-document {
-    width: 100%;
-    margin-bottom: 10px;
-    display: block;
-  }
+  .entete-document { width: 100%; margin-bottom: 20px; display: block; }
 
-  .header h1 { 
-    font-size: 22px; 
-    font-weight: bold; 
-    margin: 10px 0 5px 0; 
-    text-align: center; 
-    text-transform: uppercase; 
-  }
-  .header h2 { 
-    font-size: 14px; 
-    font-weight: normal; 
-    margin: 0 0 15px 0; 
-    text-align: center; 
-  }
+  .header h1 { font-size: 22px; font-weight: bold; margin: 10px 0 5px 0; text-align: center; text-transform: uppercase; }
+  .header h2 { font-size: 14px; font-weight: normal; margin: 0 0 15px 0; text-align: center; }
+  .titre-om { text-align: center; font-size: 18px; font-weight: bold; margin: 20px 0 20px 0; text-transform: uppercase; text-decoration: underline; }
+  .bureau { font-weight: bold; margin-bottom: 15px; font-size: 16px; }
+  .contenu { font-size: 15px; line-height: 1.6; }
+  .contenu p { margin-bottom: 15px; font-weight: bold; text-transform: uppercase; }
+  .ligne { margin-bottom: 10px; display: flex; align-items: flex-end; }
+  .label { font-weight: bold; width: 220px; flex-shrink: 0; text-transform: uppercase; font-size: 14px; }
+  .valeur { flex-grow: 1; border-bottom: 1px dotted #000; padding-left: 10px; font-size: 15px; }
   
-  .titre-om { 
-    text-align: center; 
-    font-size: 18px; 
-    font-weight: bold; 
-    margin: 20px 0 20px 0; 
-    text-transform: uppercase; 
-    text-decoration: underline;
-  }
-  
-  .bureau { 
-    font-weight: bold; 
-    margin-bottom: 15px; 
-    font-size: 16px; 
-  }
-  
-  .contenu { 
-    font-size: 15px; 
-    line-height: 1.6; 
-  }
-  
-  .contenu p { 
-    margin-bottom: 15px; 
-    font-weight: bold; 
-    text-transform: uppercase; 
-  }
-  
-  /* Lignes de texte avec pointillés */
-  .ligne { 
-    margin-bottom: 10px; 
-    display: flex; 
-    align-items: flex-end; 
-  }
-  
-  .label { 
-    font-weight: bold; 
-    width: 220px; 
-    flex-shrink: 0; 
-    text-transform: uppercase; 
-    font-size: 14px;
-  }
-  
-  .valeur { 
-    flex-grow: 1; 
-    border-bottom: 1px dotted #000; 
-    padding-left: 10px; 
-    font-size: 15px;
-  }
-  
-  /* Signatures */
-  .footer-page1 { 
-    margin-top: 30px; 
-    display: flex; 
-    justify-content: space-between; 
-  }
-  
-  .bloc-signature { 
-    text-align: center; 
-    width: 250px; 
-  }
-  
-  .bloc-signature p { 
-    margin-bottom: 5px; 
-    font-weight: bold; 
-    font-size: 14px;
-  }
-  
-  .espace-signature { 
-    height: 60px; 
-  }
+  .footer-page1 { margin-top: 30px; display: flex; justify-content: space-between; }
+  .bloc-signature { text-align: center; width: 250px; }
+  .bloc-signature p { margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+  .espace-signature { height: 60px; }
 
-  /* --- CONFIGURATION POUR L'IMPRESSION ET LE PDF --- */
   @media print {
     body { background: #fff; padding: 0; margin: 0; }
     .document { box-shadow: none; padding: 0; max-width: 100%; }
@@ -123,54 +34,15 @@
     .page-2 { page-break-before: always; }
   }
 
-  /* Page 2 (Cadres de visas) */
   .page-2 { margin-top: 30px; }
-  
-  .cadre-signature { 
-    border: 1px solid #000; 
-    padding: 10px; 
-    margin-bottom: 15px; 
-    display: flex; 
-    justify-content: space-between; 
-    font-size: 13px; 
-    page-break-inside: avoid; 
-    height: 140px; 
-    box-sizing: border-box; 
-  }
-  
-  .colonne-signature { 
-    width: 48%; 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: space-between; 
-  }
-  
+  .cadre-signature { border: 1px solid #000; padding: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; font-size: 13px; page-break-inside: avoid; height: 140px; box-sizing: border-box; }
+  .colonne-signature { width: 48%; display: flex; flex-direction: column; justify-content: space-between; }
   .ligne-top { display: flex; justify-content: space-between; margin-bottom: 10px; }
   .ligne-milieu { display: flex; gap: 5px; margin-bottom: 10px; }
   .ligne-bas { display: flex; gap: 5px; }
   
-  /* Boutons */
-  .actions-buttons { 
-    display: flex; 
-    justify-content: center; 
-    gap: 15px; 
-    margin-top: 30px; 
-  }
-  
-  .btn { 
-    padding: 12px 25px; 
-    border-radius: 8px; 
-    border: none; 
-    cursor: pointer; 
-    font-size: 16px; 
-    font-weight: bold; 
-    color: #fff; 
-    display: flex; 
-    align-items: center; 
-    gap: 8px; 
-    font-family: sans-serif; 
-  }
-  
+  .actions-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
+  .btn { padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-size: 16px; font-weight: bold; color: #fff; display: flex; align-items: center; gap: 8px; font-family: sans-serif; }
   .btn-print { background: #27ae60; }
   .btn-print:hover { background: #229954; }
   .btn-download { background: #1e3c72; }
@@ -227,12 +99,15 @@
       if (data && data.length > 0) {
         const d = data[0];
         
-        // ⚠️ LIENS ABSOLUS POUR QUE LE PDF TROUVE LES IMAGES ⚠️
-        const lienEntete = "https://amague2007-star.github.io/demande-vehicule/entete.jpg"; 
-        const lienLogo = "https://amague2007-star.github.io/demande-vehicule/logo.png"; 
+        // L'IMAGE EST INTÉGRÉE DIRECTEMENT ICI (Base64). 
+        // Plus besoin de chercher un fichier sur GitHub, elle s'affichera toujours.
+        const imageEnteteBase64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA="; 
+        
+        // NOTE : J'ai mis une image factice pour l'exemple car le code Base64 de votre image est trop long pour ce message.
+        // Pour avoir la vraie image, faites la manipulation décrite juste en bas (c'est très simple).
 
         document.getElementById('documentContent').innerHTML = `
-          <img src="${lienEntete}" alt="En-tête ONG ADKOUL" class="entete-document" crossorigin="anonymous">
+          <img src="${imageEnteteBase64}" alt="En-tête ONG ADKOUL" class="entete-document">
           
           <div class="header">
             <h1>ORDRE DE MISSION</h1>
@@ -296,7 +171,6 @@
         document.getElementById('btnDownloadPdf').addEventListener('click', () => {
           const element = document.getElementById('documentContent');
           
-          // Options de génération du PDF
           const opt = {
             margin:       [10, 10, 10, 10], 
             filename:     `Ordre_Mission_${d.nom.replace(/\s+/g, '_')}.pdf`,
@@ -311,7 +185,7 @@
         if (autoDownload) {
           setTimeout(() => {
             document.getElementById('btnDownloadPdf').click();
-          }, 1500); // Attendre que les images soient chargées
+          }, 1000);
         }
 
       } else {

@@ -43,63 +43,33 @@
   .container { max-width: 880px; margin: 0 auto; }
 
   /* HEADER */
-  .header {
-    text-align: center;
-    margin-bottom: 2.5rem;
-    animation: fadeInDown 0.6s ease-out;
-  }
+  .header { text-align: center; margin-bottom: 2.5rem; animation: fadeInDown 0.6s ease-out; }
 
   .logo-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.75rem;
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-    color: #fff;
-    padding: 0.65rem 1.6rem;
-    border-radius: 100px;
-    font-weight: 700;
-    font-size: 0.95rem;
-    letter-spacing: 0.03em;
-    box-shadow: var(--shadow-md);
-    margin-bottom: 1rem;
-    text-decoration: none;
+    color: #fff; padding: 0.65rem 1.6rem; border-radius: 100px;
+    font-weight: 700; font-size: 0.95rem; letter-spacing: 0.03em;
+    box-shadow: var(--shadow-md); margin-bottom: 1rem; text-decoration: none;
   }
 
   .logo-badge .dot {
-    width: 10px; height: 10px;
-    background: var(--accent-orange);
-    border-radius: 50%;
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
+    width: 10px; height: 10px; background: var(--accent-orange);
+    border-radius: 50%; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
   }
 
-  .header h1 {
-    font-size: 2rem;
-    font-weight: 800;
-    color: var(--gray-900);
-    letter-spacing: -0.03em;
-    margin-bottom: 0.4rem;
-  }
-
+  .header h1 { font-size: 2rem; font-weight: 800; color: var(--gray-900); letter-spacing: -0.03em; margin-bottom: 0.4rem; }
   .header p { color: var(--gray-600); font-size: 1rem; }
 
   /* CARD */
   .card {
-    background: #fff;
-    border-radius: 20px;
-    box-shadow: var(--shadow-xl);
-    padding: 2.5rem 2.5rem 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    animation: fadeInUp 0.6s ease-out 0.1s both;
-    position: relative;
-    overflow: hidden;
+    background: #fff; border-radius: 20px; box-shadow: var(--shadow-xl);
+    padding: 2.5rem 2.5rem 2rem; border: 1px solid rgba(255, 255, 255, 0.8);
+    animation: fadeInUp 0.6s ease-out 0.1s both; position: relative; overflow: hidden;
   }
 
   .card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 4px;
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
     background: linear-gradient(90deg, var(--primary), var(--primary-light), var(--accent-orange));
   }
 
@@ -108,85 +78,47 @@
   .form-section:last-of-type { margin-bottom: 0.5rem; }
 
   .section-title {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--primary);
-    margin-bottom: 1.25rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--gray-100);
+    display: flex; align-items: center; gap: 0.6rem;
+    font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--primary);
+    margin-bottom: 1.25rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--gray-100);
   }
 
   .section-title .icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px; height: 28px;
-    background: var(--gray-100);
-    border-radius: 8px;
-    font-size: 0.9rem;
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; background: var(--gray-100);
+    border-radius: 8px; font-size: 0.9rem;
   }
 
   /* GRID */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
-
-  @media (max-width: 640px) {
-    .grid-2 { grid-template-columns: 1fr; }
-    .card { padding: 1.75rem 1.25rem; }
-    .header h1 { font-size: 1.6rem; }
-  }
+  @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } .card { padding: 1.75rem 1.25rem; } .header h1 { font-size: 1.6rem; } }
 
   /* FORM GROUPS */
   .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.1rem; }
-
-  .form-group label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--gray-700);
-  }
-
+  .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--gray-700); }
   .form-group label .required { color: var(--danger); margin-left: 2px; }
 
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.9rem;
-    padding: 0.7rem 0.9rem;
-    border: 1.5px solid var(--gray-200);
-    border-radius: 10px;
-    background: var(--gray-50);
-    color: var(--gray-800);
-    transition: all 0.2s ease;
-    width: 100%;
+  .form-group input, .form-group select, .form-group textarea {
+    font-family: 'Inter', sans-serif; font-size: 0.9rem;
+    padding: 0.7rem 0.9rem; border: 1.5px solid var(--gray-200);
+    border-radius: 10px; background: var(--gray-50); color: var(--gray-800);
+    transition: all 0.2s ease; width: 100%;
   }
 
-  .form-group input::placeholder,
-  .form-group textarea::placeholder { color: var(--gray-300); font-weight: 400; }
+  .form-group input::placeholder, .form-group textarea::placeholder { color: var(--gray-300); font-weight: 400; }
 
-  .form-group input:focus,
-  .form-group select:focus,
-  .form-group textarea:focus {
-    outline: none;
-    border-color: var(--primary-light);
-    background: #fff;
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--primary-light); background: #fff;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
   }
 
   .form-group textarea { resize: vertical; min-height: 90px; }
 
   .form-group select {
-    cursor: pointer;
-    appearance: none;
+    cursor: pointer; appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.9rem center;
-    background-size: 16px;
-    padding-right: 2.5rem;
+    background-repeat: no-repeat; background-position: right 0.9rem center; background-size: 16px; padding-right: 2.5rem;
   }
 
   /* DIVIDER */
@@ -194,99 +126,45 @@
 
   /* SUBMIT BUTTON */
   .submit-area {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-top: 1.5rem;
-    padding-top: 1.75rem;
-    border-top: 2px solid var(--gray-100);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem;
+    padding-top: 1.75rem; border-top: 2px solid var(--gray-100);
   }
 
-  .submit-note {
-    font-size: 0.8rem;
-    color: var(--gray-600);
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-  }
+  .submit-note { font-size: 0.8rem; color: var(--gray-600); display: flex; align-items: center; gap: 0.4rem; }
 
   .btn-submit {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #fff;
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
+    font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700; color: #fff;
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-    border: none;
-    padding: 0.85rem 2.2rem;
-    border-radius: 12px;
-    cursor: pointer;
-    box-shadow: var(--shadow-md);
-    transition: all 0.25s ease;
+    border: none; padding: 0.85rem 2.2rem; border-radius: 12px; cursor: pointer;
+    box-shadow: var(--shadow-md); transition: all 0.25s ease;
   }
 
-  .btn-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg), 0 0 0 4px rgba(37, 99, 235, 0.15);
-  }
-
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg), 0 0 0 4px rgba(37, 99, 235, 0.15); }
   .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
   .btn-submit .spinner {
-    width: 18px; height: 18px;
-    border: 2.5px solid rgba(255, 255, 255, 0.35);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    display: none;
+    width: 18px; height: 18px; border: 2.5px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none;
   }
 
   .btn-submit.loading .spinner { display: block; }
   .btn-submit.loading .btn-text { display: none; }
 
   /* FOOTER */
-  .footer {
-    text-align: center;
-    margin-top: 2rem;
-    font-size: 0.8rem;
-    color: var(--gray-600);
-    animation: fadeIn 0.8s ease-out 0.3s both;
-  }
-
+  .footer { text-align: center; margin-top: 2rem; font-size: 0.8rem; color: var(--gray-600); animation: fadeIn 0.8s ease-out 0.3s both; }
   .footer strong { color: var(--primary); font-weight: 600; }
 
   /* MESSAGES */
   .message-box {
-    display: none;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem 1.25rem;
-    border-radius: 12px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    margin-top: 1.5rem;
-    animation: slideDown 0.35s ease-out;
+    display: none; align-items: center; gap: 0.75rem;
+    padding: 1rem 1.25rem; border-radius: 12px; font-size: 0.9rem; font-weight: 500;
+    margin-top: 1.5rem; animation: slideDown 0.35s ease-out;
   }
 
-  .message-box.success {
-    display: flex;
-    background: #ecfdf5;
-    border: 1.5px solid #a7f3d0;
-    color: #065f46;
-  }
-
-  .message-box.error {
-    display: flex;
-    background: #fef2f2;
-    border: 1.5px solid #fecaca;
-    color: #991b1b;
-  }
-
+  .message-box.success { display: flex; background: #ecfdf5; border: 1.5px solid #a7f3d0; color: #065f46; }
+  .message-box.error { display: flex; background: #fef2f2; border: 1.5px solid #fecaca; color: #991b1b; }
   .message-box .msg-icon { font-size: 1.2rem; flex-shrink: 0; }
 
   /* ANIMATIONS */
@@ -296,17 +174,8 @@
   @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .highlight-border {
-    border-color: var(--danger) !important;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
-    animation: shake 0.3s ease;
-  }
-
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
-  }
+  .highlight-border { border-color: var(--danger) !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important; animation: shake 0.3s ease; }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 </style>
 </head>
 <body>
@@ -347,11 +216,33 @@
         <div class="grid-2">
           <div class="form-group">
             <label for="poste">Poste occupé <span class="required">*</span></label>
-            <input type="text" id="poste" name="poste" placeholder="Ex : Coordinateur terrain" required>
+            <select id="poste" name="poste" required>
+              <option value="" disabled selected>— Sélectionnez votre poste —</option>
+              <option value="ASSISTANT LOGISTIQUE">ASSISTANT LOGISTIQUE</option>
+              <option value="ASSISTANT RH">ASSISTANT RH</option>
+              <option value="DLM">DLM</option>
+              <option value="DAF">DAF</option>
+              <option value="ASSISTANT COMPTABLE">ASSISTANT COMPTABLE</option>
+              <option value="COMPTABLE">COMPTABLE</option>
+              <option value="DRH">DRH</option>
+              <option value="SECURITE">SECURITE</option>
+              <option value="CHEF DE PROJET">CHEF DE PROJET</option>
+              <option value="ASSISTANT TECHNIQUE">ASSISTANT TECHNIQUE</option>
+              <option value="DIRECTEUR DE PROGRAMME">DIRECTEUR DE PROGRAMME</option>
+              <option value="SECRETAIRE EXECUTIF">SECRETAIRE EXECUTIF</option>
+            </select>
           </div>
           <div class="form-group">
             <label for="service">Service <span class="required">*</span></label>
-            <input type="text" id="service" name="service" placeholder="Ex : Logistique" required>
+            <select id="service" name="service" required>
+              <option value="" disabled selected>— Sélectionnez votre service —</option>
+              <option value="LOGISTIQUE">LOGISTIQUE</option>
+              <option value="FINANCE">FINANCE</option>
+              <option value="PROGRAMME">PROGRAMME</option>
+              <option value="EXECUTIF">EXECUTIF</option>
+              <option value="DRH">DRH</option>
+              <option value="SECURITE">SECURITE</option>
+            </select>
           </div>
         </div>
 
@@ -373,6 +264,16 @@
       <div class="form-section">
         <div class="section-title">
           <span class="icon">🚗</span> Détails de la sortie
+        </div>
+
+        <!-- Nouvelle ligne pour la date de la demande -->
+        <div class="grid-2">
+            <div class="form-group">
+              <label for="date_demande">Date de la demande <span class="required">*</span></label>
+              <input type="date" id="date_demande" name="date_demande" required>
+            </div>
+            <!-- On laisse la case vide à droite pour l'équilibre visuel, ou on peut y mettre autre chose si besoin -->
+            <div></div> 
         </div>
 
         <div class="grid-2">
@@ -397,15 +298,9 @@
           </div>
         </div>
 
-        <div class="grid-2">
-          <div class="form-group">
-            <label for="passagers">Passagers (nombre ou noms)</label>
-            <input type="text" id="passagers" name="passagers" placeholder="Ex : 3 personnes (Jean, Marc, Luc)">
-          </div>
-          <div class="form-group">
-            <label for="responsable">Responsable de la sortie</label>
-            <input type="text" id="responsable" name="responsable" placeholder="Ex : M. le Directeur">
-          </div>
+        <div class="form-group">
+          <label for="passagers">Passagers (nombre ou noms)</label>
+          <input type="text" id="passagers" name="passagers" placeholder="Ex : 3 personnes (Jean, Marc, Luc)">
         </div>
 
         <div class="form-group">
@@ -442,9 +337,6 @@
 </div>
 
 <script>
-  // =============================================
-  //  CONFIGURATION SUPABASE & EMAILJS
-  // =============================================
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
 
@@ -454,18 +346,12 @@
 
   emailjs.init(EMAILJS_PUBLIC_KEY);
 
-  // =============================================
-  //  RÉFÉRENCES DOM
-  // =============================================
   const form = document.getElementById('vehicleForm');
   const btnSubmit = document.getElementById('btnSubmit');
   const messageBox = document.getElementById('messageBox');
   const msgIcon = document.getElementById('msgIcon');
   const msgText = document.getElementById('msgText');
 
-  // =============================================
-  //  VALIDATION VISUELLE
-  // =============================================
   function markInvalid(el) {
     el.classList.add('highlight-border');
     setTimeout(() => el.classList.remove('highlight-border'), 2000);
@@ -480,14 +366,17 @@
     });
   });
 
-  // Date minimum (aujourd'hui)
   const dateSortie = document.getElementById('date_sortie');
+  const dateDemande = document.getElementById('date_demande');
+  
   const today = new Date().toISOString().split('T')[0];
+  
+  // Remplissage automatique de la date de la demande avec la date du jour
+  dateDemande.value = today; 
+  
+  // La date de sortie ne peut pas être dans le passé
   dateSortie.min = today;
 
-  // =============================================
-  //  MESSAGES
-  // =============================================
   function showMessage(type, text) {
     messageBox.className = 'message-box ' + type;
     msgIcon.textContent = type === 'success' ? '✅' : '❌';
@@ -500,14 +389,10 @@
     messageBox.style.display = 'none';
   }
 
-  // =============================================
-  //  SOUMISSION
-  // =============================================
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
     hideMessage();
 
-    // --- VALIDATION MANUELLE ---
     let isValid = true;
     form.querySelectorAll('[required]').forEach(field => {
       if (!field.value.trim()) {
@@ -521,12 +406,12 @@
       return;
     }
 
-    // --- PRÉPARATION DES DONNÉES ---
     const newDemande = {
+      date_demande: dateDemande.value, // Nouveau champ ajouté
       nom: document.getElementById('nom').value.trim(),
       prenom: document.getElementById('prenom').value.trim(),
-      poste: document.getElementById('poste').value.trim(),
-      service: document.getElementById('service').value.trim(),
+      poste: document.getElementById('poste').value,
+      service: document.getElementById('service').value,
       email: document.getElementById('email').value.trim(),
       contact: document.getElementById('contact').value.trim(),
       date_sortie: dateSortie.value,
@@ -534,17 +419,14 @@
       duree: parseInt(document.getElementById('duree').value),
       destination: document.getElementById('destination').value.trim(),
       passagers: document.getElementById('passagers').value.trim(),
-      responsable: document.getElementById('responsable').value.trim(),
       motif: document.getElementById('motif').value.trim(),
       statut: 'en_attente'
     };
 
-    // --- ENVOI ---
     btnSubmit.disabled = true;
     btnSubmit.classList.add('loading');
 
     try {
-      // 1) Insertion dans Supabase
       const response = await fetch(SUPABASE_URL + '/rest/v1/demandes', {
         method: 'POST',
         headers: {
@@ -557,12 +439,9 @@
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
         throw new Error("Enregistrement impossible.");
       }
 
-      // 2) Notification optionnelle (si EmailJS est configuré pour recevoir un accusé)
-      // On l'enveloppe dans un try/catch pour ne pas bloquer si l'email échoue.
       try {
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
           to_email: newDemande.email,
@@ -574,9 +453,9 @@
         console.warn("Email d'accusé non envoyé :", emailErr);
       }
 
-      // Succès
       showMessage('success', 'Votre demande de sortie a bien été envoyée. Vous recevrez une confirmation après validation.');
       form.reset();
+      dateDemande.value = today; // Réinitialiser avec la date du jour
       dateSortie.min = today;
 
     } catch (error) {

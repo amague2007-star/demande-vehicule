@@ -141,7 +141,6 @@
   const today = new Date().toISOString().split('T')[0];
   dateDemande.value = today;
 
-  // Fonction qui transforme une chaîne vide en null
   function safeValue(id) {
     const el = document.getElementById(id);
     const val = el.value.trim();
@@ -164,10 +163,6 @@
       return;
     }
 
-    // Préparation des données avec sécurité anti-erreur "integer"
-    let dureeValue = safeValue('duree');
-    let dureeInt = dureeValue ? parseInt(dureeValue, 10) : null; 
-
     const newDemande = {
       date_demande: dateDemande.value,
       nom: document.getElementById('nom').value.trim(),
@@ -177,7 +172,7 @@
       email: document.getElementById('email').value.trim(),
       contact: safeValue('contact'), 
       heure_depart: safeValue('heure_depart'), 
-      duree: dureeInt, 
+      duree: parseInt(safeValue('duree')), 
       destination: document.getElementById('destination').value.trim(),
       passagers: safeValue('passagers'), 
       motif: document.getElementById('motif').value.trim(),

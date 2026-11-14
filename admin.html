@@ -1435,14 +1435,33 @@
     }
 
     try {
-      const tousLesOrdresActuels = await apiCall('/missions_2?select=id');
-      const nombreMissions = tousLesOrdresActuels.length + 1;
+      // --- MODIFICATION ICI : RECHERCHE DU NUMÉRO MAXIMUM ---
+      const tousLesOrdresActuels = await apiCall('/missions_2?select=id,message_admin');
+      
+      let maxNum = 0;
+      
+      // On parcourt toutes les missions qui ont déjà un numéro
+      tousLesOrdresActuels.forEach(m => {
+        if (m.message_admin) {
+          // On extrait la partie "001" de "001/11/2026/ADKOUL"
+          const parts = m.message_admin.split('/');
+          if (parts.length > 0) {
+            const num = parseInt(parts[0], 10);
+            if (!isNaN(num) && num > maxNum) {
+              maxNum = num;
+            }
+          }
+        }
+      });
+
+      // Le nouveau numéro est le maximum trouvé + 1
+      const prochainNum = maxNum + 1;
       
       const maintenant = new Date();
       const mois = String(maintenant.getMonth() + 1).padStart(2, '0');
       const annee = maintenant.getFullYear();
       
-      const numOrdre = String(nombreMissions).padStart(3, '0') + '/' + mois + '/' + annee + '/ADKOUL';
+      const numOrdre = String(prochainNum).padStart(3, '0') + '/' + mois + '/' + annee + '/ADKOUL';
 
       await apiCall('/missions_2?id=eq.' + ordreEnCours.id, { 
         method: 'PATCH', 

@@ -170,16 +170,16 @@
         <div class="grid-2">
           <div class="form-group">
             <label for="om_moyen">Moyen de déplacement <span class="required">*</span></label>
-            <!-- CHAMP DE SAISIE LIBRE POUR LE MOYEN DE DEPLACEMENT -->
-            <input type="text" id="om_moyen" list="moyens-list" placeholder="Saisissez ou choisissez un moyen..." required>
-            <datalist id="moyens-list">
-              <option value="Véhicule ONG ADKOUL">
-              <option value="Véhicule UNHCR">
-              <option value="Véhicule Partenaire">
-              <option value="Véhicule Location">
-              <option value="Bus">
-              <option value="Avion">
-            </datalist>
+            <!-- PASSÉ EN SELECT POUR ÉVITER LES ERREURS DE SAISIE -->
+            <select id="om_moyen" required>
+              <option value="" disabled selected>— Sélectionnez un moyen —</option>
+              <option value="Véhicule ONG ADKOUL">Véhicule ONG ADKOUL</option>
+              <option value="Véhicule UNHCR">Véhicule UNHCR</option>
+              <option value="Véhicule Partenaire">Véhicule Partenaire</option>
+              <option value="Véhicule Location">Véhicule Location</option>
+              <option value="Bus">Bus</option>
+              <option value="Avion">Avion</option>
+            </select>
           </div>
           <div class="form-group">
             <label for="om_budget">Imputation Budgétaire <span class="required">*</span></label>
@@ -295,7 +295,7 @@
       objectif: document.getElementById('om_objectif').value.trim(),
       date_depart: dateDepart.value,
       date_retour: dateRetour.value,
-      moyen_deplacement: document.getElementById('om_moyen').value.trim(),
+      moyen_deplacement: document.getElementById('om_moyen').value,
       imputation_budgetaire: document.getElementById('om_budget').value.trim(),
       statut: 'en_attente'
     };

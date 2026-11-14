@@ -646,14 +646,23 @@
 
   // MISE À JOUR DES BADGES ET NOTIFICATIONS
   function mettreAJourNotifications() {
-    // Badge Menu Principal
+    const role = getAdminRole();
+    
+    // Badge Menu Demandes (Véhicules)
     const attenteVehicules = toutesLesDemandes.filter(d => d.statut === 'en_attente').length;
     const badgeD = document.getElementById('badgeDemandes');
     if (attenteVehicules > 0) { badgeD.textContent = attenteVehicules; badgeD.style.display = 'inline-block'; } else { badgeD.style.display = 'none'; }
 
+    // Badge Menu Ordres (RH)
     const attenteMissions = tousLesOrdres.filter(o => o.statut === 'en_attente' || o.statut === 'affecte_logistique').length;
     const badgeO = document.getElementById('badgeOrdres');
-    if (attenteMissions > 0) { badgeO.textContent = attenteMissions; badgeO.style.display = 'inline-block'; } else { badgeO.style.display = 'none'; }
+    
+    // On n'affiche PAS le badge global si on est RH (car il est déjà sur la page)
+    if (role === 'rh') {
+      badgeO.style.display = 'none';
+    } else {
+      if (attenteMissions > 0) { badgeO.textContent = attenteMissions; badgeO.style.display = 'inline-block'; } else { badgeO.style.display = 'none'; }
+    }
 
     // Badges par Type de Transport (Onglets)
     const types = {
@@ -666,7 +675,14 @@
     };
 
     tousLesOrdres.forEach(o => {
-      if (o.statut === 'en_attente' || o.statut === 'affecte_logistique') {
+      let isRelevantForRh = false;
+      if (role === 'rh') {
+        if (o.statut === 'affecte_logistique') isRelevantForRh = true; // Le RH ne compte que ce qu'il doit valider
+      } else {
+        if (o.statut === 'en_attente' || o.statut === 'affecte_logistique') isRelevantForRh = true;
+      }
+
+      if (isRelevantForRh) {
         types['Tous']++;
         const moyen = o.moyen_deplacement || '';
         if (moyen.includes('UNHCR')) types['UNHCR']++;

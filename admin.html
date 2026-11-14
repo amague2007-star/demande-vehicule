@@ -129,7 +129,7 @@
   .btn-orange { background:#f39c12; color:#fff; box-shadow:0 4px 12px rgba(243,156,18,0.3); }
   .btn-orange:hover { background:#d68910; transform:translateY(-2px); }
   
-  /* NOUVEAU : Bouton RH clignotant */
+  /* Bouton RH clignotant */
   .btn-rh-urgent { 
     background:#e67e22; color:#fff; 
     box-shadow:0 0 0 0 rgba(230, 126, 34, 0.7);
@@ -353,7 +353,7 @@
     </div>
 
     <div class="stats">
-      <div class="stat-card" style="border-left-color:#f39c12;"><div class="label">⏳ Attente Logistique</div><div class="value" id="statOrdresAttente">0</div></div>
+      <div class="stat-card" style="border-left-color:#f39c12;" id="statCardAttenteLogistique"><div class="label">⏳ Attente Logistique</div><div class="value" id="statOrdresAttente">0</div></div>
       <div class="stat-card" style="border-left-color:#f39c12;"><div class="label">⏳ Attente RH</div><div class="value" id="statOrdresAffectes">0</div></div>
       <div class="stat-card validees"><div class="label">✅ Validés</div><div class="value" id="statOrdresValides">0</div></div>
       <div class="stat-card retard"><div class="label">⚠️ En retard</div><div class="value" id="statOrdresRetard">0</div></div>
@@ -362,7 +362,7 @@
     
     <div class="filters">
       <select id="filtreStatutOrdre" onchange="afficherOrdres()">
-        <option value="en_attente" selected>⏳ En attente (Logistique)</option>
+        <option value="en_attente">⏳ En attente (Logistique)</option>
         <option value="affecte_logistique">⏳ En attente (RH)</option>
         <option value="validee">✅ Validés</option>
         <option value="retard">⚠️ Missions en retard</option>
@@ -706,6 +706,20 @@
       document.getElementById('navAccueil').style.display = 'none';
       document.getElementById('navDemandes').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
+      
+      // Masquer la carte "Attente Logistique" pour le RH
+      const statCardAttenteLogistique = document.getElementById('statCardAttenteLogistique');
+      if(statCardAttenteLogistique) statCardAttenteLogistique.style.display = 'none';
+      
+      // Masquer l'option "En attente Logistique" dans le filtre
+      const filtreSelect = document.getElementById('filtreStatutOrdre');
+      Array.from(filtreSelect.options).forEach(opt => {
+        if(opt.value === 'en_attente') opt.style.display = 'none';
+      });
+      
+      // Sélectionner par défaut "En attente (RH)"
+      filtreSelect.value = 'affecte_logistique';
+
       afficherSection('ordres');
     } else if (role === 'assistant_logistique') {
       document.getElementById('navAccueil').style.display = 'none';
@@ -1110,12 +1124,17 @@
     const container = document.getElementById('ordresContainer');
     const role = getAdminRole();
     
+    // Sécurité pour le RH : ne jamais inclure les dossiers en attente de logistique
     let listeBase = tousLesOrdres;
+    if (role === 'rh') {
+      listeBase = tousLesOrdres.filter(o => o.statut !== 'en_attente');
+    }
+
     if (typeOrdreActif !== 'tous') {
       listeBase = listeBase.filter(o => o.moyen_deplacement === typeOrdreActif);
     }
 
-    document.getElementById('statOrdresAttente').textContent = listeBase.filter(o => o.statut === 'en_attente').length;
+    document.getElementById('statOrdresAttente').textContent = tousLesOrdres.filter(o => o.statut === 'en_attente').length;
     document.getElementById('statOrdresAffectes').textContent = listeBase.filter(o => o.statut === 'affecte_logistique').length;
     document.getElementById('statOrdresValides').textContent = listeBase.filter(o => o.statut === 'validee').length;
     document.getElementById('statOrdresRetard').textContent = listeBase.filter(o => estEnRetard(o)).length;
@@ -1149,13 +1168,6 @@
       if (o.statut === 'en_attente') {
         if (role === 'logistique') {
           actionsHtml = `<button class="btn btn-valider" onclick="ouvrirModalValiderOrdre(${o.id})">✅ Affecter</button>`;
-        } else if (role === 'rh') {
-          // Le RH voit les boutons même en attente logistique (lecture seule)
-          actionsHtml = `
-            <button class="btn btn-print-admin" onclick="voirOrdreMission(${o.id})" style="background:#3498db;">👁️ Voir</button>
-            <button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>
-            <button class="btn btn-print-admin" onclick="telechargerOrdreMission(${o.id})" style="background:#e67e22;">📥 Télécharger</button>
-          `;
         } else {
           actionsHtml = `<span style="color:#d68910; font-weight:bold;">⏳ En attente.</span>`;
         }

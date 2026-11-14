@@ -257,18 +257,6 @@
 
   <!-- SECTION ACCUEIL / GRAPHIQUES -->
   <div id="accueilSection">
-    
-    <!-- NOUVEAU : LES ONGLETS DE FILTRAGE SUR L'ACCUEIL AVEC BADGES -->
-    <div class="type-tabs" id="accueilTypeTabs" style="padding: 15px 0 10px 0;">
-      <button class="type-tab active" onclick="changerTypeAccueil('tous', this)">📁 Tous <span class="notification-badge" id="badgeAccueilTous">0</span></button>
-      <button class="type-tab" onclick="changerTypeAccueil('Véhicule UNHCR', this)">🚙 UNHCR <span class="notification-badge" id="badgeAccueilUNHCR">0</span></button>
-      <button class="type-tab" onclick="changerTypeAccueil('Véhicule Partenaire', this)">🤝 Partenaire <span class="notification-badge" id="badgeAccueilPartenaire">0</span></button>
-      <button class="type-tab" onclick="changerTypeAccueil('Véhicule Location', this)">🏢 Location <span class="notification-badge" id="badgeAccueilLocation">0</span></button>
-      <button class="type-tab" onclick="changerTypeAccueil('Véhicule ONG ADKOUL', this)">🚐 ONG ADKOUL <span class="notification-badge" id="badgeAccueilADKOUL">0</span></button>
-      <button class="type-tab" onclick="changerTypeAccueil('Bus', this)">🚌 Bus <span class="notification-badge" id="badgeAccueilBus">0</span></button>
-      <button class="type-tab" onclick="changerTypeAccueil('Avion', this)">✈️ Vol <span class="notification-badge" id="badgeAccueilAvion">0</span></button>
-    </div>
-
     <div class="dash-filters">
       <select id="filtreDateAccueil" onchange="mettreAJourGraphiques()">
         <option value="tout">📅 Toutes les périodes</option>
@@ -284,7 +272,7 @@
         <div class="number" id="dashTotalVehicules">0</div>
       </div>
       <div class="dash-card" style="border-bottom-color: #f39c12;">
-        <h3>Missions (Filtrées)</h3>
+        <h3>Total Missions</h3>
         <div class="number" id="dashTotalMissions">0</div>
       </div>
       <div class="dash-card" style="border-bottom-color: #27ae60;">
@@ -606,7 +594,6 @@
   let tousLesUsers = [];
   
   let typeOrdreActif = 'tous';
-  let typeAccueilActif = 'tous';
 
   let chartMoyensInstance = null;
   let chartStatutsInstance = null;
@@ -718,22 +705,6 @@
         else if (moyen.includes('Avion')) types['Avion']++;
       }
     });
-
-    // Mettre à jour les badges pour l'ACCUEIL
-    const updateBadgeAccueil = (id, count) => {
-      const el = document.getElementById(id);
-      if (el) {
-        if (count > 0) { el.textContent = count; el.style.display = 'inline-block'; } 
-        else { el.style.display = 'none'; }
-      }
-    };
-    updateBadgeAccueil('badgeAccueilTous', types['Tous']);
-    updateBadgeAccueil('badgeAccueilUNHCR', types['UNHCR']);
-    updateBadgeAccueil('badgeAccueilPartenaire', types['Partenaire']);
-    updateBadgeAccueil('badgeAccueilLocation', types['Location']);
-    updateBadgeAccueil('badgeAccueilADKOUL', types['ADKOUL']);
-    updateBadgeAccueil('badgeAccueilBus', types['Bus']);
-    updateBadgeAccueil('badgeAccueilAvion', types['Avion']);
 
     // Mettre à jour les badges pour la PAGE ORDRES
     const updateBadgeOrdre = (id, count) => {
@@ -1165,14 +1136,6 @@
     afficherOrdres();
   }
 
-  // NOUVEAU : Gérer les clics sur les onglets de l'accueil
-  function changerTypeAccueil(type, btn) {
-    typeAccueilActif = type;
-    document.querySelectorAll('#accueilTypeTabs .type-tab').forEach(t => t.classList.remove('active'));
-    if(btn) btn.classList.add('active');
-    mettreAJourGraphiques();
-  }
-
   async function chargerOrdres() {
     const container = document.getElementById('ordresContainer');
     container.innerHTML = '<div class="loading">Chargement...</div>';
@@ -1555,26 +1518,15 @@
   }
 
   function mettreAJourGraphiques() {
-    // Filtrer les ordres en fonction de l'onglet actif sur l'accueil
-    let ordresFiltres = tousLesOrdres;
-    if (typeAccueilActif !== 'tous') {
-      if (typeAccueilActif === 'Véhicule ONG ADKOUL') {
-        ordresFiltres = tousLesOrdres.filter(o => o.moyen_deplacement === 'Véhicule ONG ADKOUL' || o.moyen_deplacement === 'Véhicule ONG');
-      } else {
-        ordresFiltres = tousLesOrdres.filter(o => o.moyen_deplacement === typeAccueilActif);
-      }
-    }
-
     document.getElementById('dashTotalVehicules').textContent = toutesLesDemandes.length;
-    document.getElementById('dashTotalMissions').textContent = ordresFiltres.length;
-    document.getElementById('dashMissionsValidees').textContent = ordresFiltres.filter(o => o.statut === 'validee').length;
+    document.getElementById('dashTotalMissions').textContent = tousLesOrdres.length;
+    document.getElementById('dashMissionsValidees').textContent = tousLesOrdres.filter(o => o.statut === 'validee').length;
     document.getElementById('dashEnAttente').textContent = toutesLesDemandes.filter(d => d.statut === 'en_attente').length;
 
     if (chartMoyensInstance) chartMoyensInstance.destroy();
     if (chartStatutsInstance) chartStatutsInstance.destroy();
     if (chartProjetsInstance) chartProjetsInstance.destroy();
 
-    // Graphique Moyens
     const moyensCount = {};
     tousLesOrdres.forEach(o => {
       let m = o.moyen_deplacement || 'Non spécifié';
@@ -1591,9 +1543,8 @@
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 9} } } } }
     });
 
-    // Graphique Projets (Filtré)
     const projetsCount = {};
-    ordresFiltres.forEach(o => {
+    tousLesOrdres.forEach(o => {
       const p = o.projet || 'Non spécifié';
       projetsCount[p] = (projetsCount[p] || 0) + 1;
     });
@@ -1606,9 +1557,8 @@
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: {size: 9} } }, x: { ticks: { font: {size: 9} } } } }
     });
 
-    // Graphique Statuts (Filtré)
     const statutsCount = { 'en_attente': 0, 'affecte_logistique': 0, 'validee': 0 };
-    ordresFiltres.forEach(o => { if (statutsCount[o.statut] !== undefined) statutsCount[o.statut]++; });
+    tousLesOrdres.forEach(o => { if (statutsCount[o.statut] !== undefined) statutsCount[o.statut]++; });
     chartStatutsInstance = new Chart(document.getElementById('chartStatuts').getContext('2d'), {
       type: 'pie',
       data: {
@@ -1618,7 +1568,6 @@
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 9} } } } }
     });
 
-    // Classements (Globaux, non filtrés)
     const agentsCount = {}, chauffeursCount = {};
     tousLesOrdres.forEach(o => { if(o.nom) agentsCount[o.nom] = (agentsCount[o.nom]||0)+1; if(o.chauffeur_assigne) chauffeursCount[o.chauffeur_assigne] = (chauffeursCount[o.chauffeur_assigne]||0)+1; });
     

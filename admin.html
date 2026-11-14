@@ -658,9 +658,7 @@
       afficherSection('accueil');
     }
 
-    // REMPLISSAGE DES LISTES DE CHAUFFEURS
     remplirListesChauffeurs();
-
     chargerDemandes(); chargerOrdres(); chargerUsers();
   }
 
@@ -700,7 +698,6 @@
     const selVehicule = document.getElementById('selectChauffeur');
     const selOrdre = document.getElementById('selectChauffeurOrdre');
     
-    // On garde la première option et "Autre"
     selVehicule.innerHTML = '<option value="">-- Sélectionnez --</option>';
     selOrdre.innerHTML = '<option value="">-- Sélectionnez un chauffeur --</option>';
 
@@ -716,7 +713,6 @@
       selOrdre.appendChild(opt2);
     }
 
-    // Ajout de l'option "Autre" à la fin
     let optAutre1 = document.createElement('option');
     optAutre1.value = 'AUTRE';
     optAutre1.textContent = '➕ Autre';
@@ -1082,6 +1078,13 @@
       if (o.statut === 'en_attente') {
         if (role === 'logistique') {
           actionsHtml = `<button class="btn btn-valider" onclick="ouvrirModalValiderOrdre(${o.id})">✅ Affecter</button>`;
+        } else if (role === 'rh') {
+          // Le RH voit les boutons même en attente logistique (lecture seule)
+          actionsHtml = `
+            <button class="btn btn-print-admin" onclick="voirOrdreMission(${o.id})" style="background:#3498db;">👁️ Voir</button>
+            <button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>
+            <button class="btn btn-print-admin" onclick="telechargerOrdreMission(${o.id})" style="background:#e67e22;">📥 Télécharger</button>
+          `;
         } else {
           actionsHtml = `<span style="color:#d68910; font-weight:bold;">⏳ En attente.</span>`;
         }

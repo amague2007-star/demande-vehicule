@@ -377,10 +377,6 @@
     <label>👤 Chauffeur *</label>
     <select id="selectChauffeur" onchange="toggleAutre('chauffeur')">
       <option value="">-- Sélectionnez --</option>
-      <option value="ABDOULAHI MOHAMED">ABDOULAHI MOHAMED</option>
-      <option value="ALI RHOUBEID">ALI RHOUBEID</option>
-      <option value="HAMAD SALLAH">HAMAD SALLAH</option>
-      <option value="BACHIR HAMIDOU">BACHIR HAMIDOU</option>
       <option value="AUTRE">➕ Autre</option>
     </select>
     <input type="text" id="inputChauffeurAutre" placeholder="Nom" style="display:none; margin-top:8px;">
@@ -389,6 +385,7 @@
       <div>
         <label>Type de véhicule *</label>
         <select id="selectVehiculeType">
+          <option value="Véhicule ONG ADKOUL">Véhicule ONG ADKOUL</option>
           <option value="Véhicule UNHCR">Véhicule UNHCR</option>
           <option value="Véhicule Partenaire">Véhicule Partenaire</option>
           <option value="Véhicule Location">Véhicule Location</option>
@@ -440,10 +437,6 @@
     <label>👤 Chauffeur à assigner *</label>
     <select id="selectChauffeurOrdre" onchange="toggleAutreOrdre('chauffeur')">
       <option value="">-- Sélectionnez un chauffeur --</option>
-      <option value="ABAKTOUM">ABAKTOUM</option>
-      <option value="GALILE">GALILE</option>
-      <option value="HAMAD SALLAH">HAMAD SALLAH</option>
-      <option value="BACHIR">BACHIR</option>
       <option value="AUTRE">➕ Autre</option>
     </select>
     <input type="text" id="inputChauffeurOrdreAutre" placeholder="Nom du chauffeur" style="display:none; margin-top:8px;">
@@ -452,6 +445,7 @@
       <div>
         <label>Type de véhicule *</label>
         <select id="selectVehiculeOrdreType">
+          <option value="Véhicule ONG ADKOUL">Véhicule ONG ADKOUL</option>
           <option value="Véhicule UNHCR">Véhicule UNHCR</option>
           <option value="Véhicule Partenaire">Véhicule Partenaire</option>
           <option value="Véhicule Location">Véhicule Location</option>
@@ -664,6 +658,9 @@
       afficherSection('accueil');
     }
 
+    // REMPLISSAGE DES LISTES DE CHAUFFEURS
+    remplirListesChauffeurs();
+
     chargerDemandes(); chargerOrdres(); chargerUsers();
   }
 
@@ -696,6 +693,39 @@
       document.getElementById('navDemandes').classList.add('active');
       chargerDemandes();
     }
+  }
+
+  // --- REMPLISSAGE DYNAMIQUE DES CHAUFFEURS ---
+  function remplirListesChauffeurs() {
+    const selVehicule = document.getElementById('selectChauffeur');
+    const selOrdre = document.getElementById('selectChauffeurOrdre');
+    
+    // On garde la première option et "Autre"
+    selVehicule.innerHTML = '<option value="">-- Sélectionnez --</option>';
+    selOrdre.innerHTML = '<option value="">-- Sélectionnez un chauffeur --</option>';
+
+    for (const nom in CHAUFFEURS) {
+      let opt1 = document.createElement('option');
+      opt1.value = nom;
+      opt1.textContent = nom;
+      selVehicule.appendChild(opt1);
+
+      let opt2 = document.createElement('option');
+      opt2.value = nom;
+      opt2.textContent = nom;
+      selOrdre.appendChild(opt2);
+    }
+
+    // Ajout de l'option "Autre" à la fin
+    let optAutre1 = document.createElement('option');
+    optAutre1.value = 'AUTRE';
+    optAutre1.textContent = '➕ Autre';
+    selVehicule.appendChild(optAutre1);
+
+    let optAutre2 = document.createElement('option');
+    optAutre2.value = 'AUTRE';
+    optAutre2.textContent = '➕ Autre';
+    selOrdre.appendChild(optAutre2);
   }
 
   async function apiCall(path, options = {}) {
@@ -737,7 +767,6 @@
       const adminId = getAdminId();
       const adminEmail = sessionStorage.getItem('admin_email');
 
-      // 1. Vérifier l'ancien mot de passe
       const hashOld = await hashPassword(oldPwd);
       const check = await apiCall(`/admins?email=eq.${encodeURIComponent(adminEmail)}&password_hash=eq.${hashOld}&select=id`);
       
@@ -746,7 +775,6 @@
         return;
       }
 
-      // 2. Mettre à jour avec le nouveau mot de passe
       const hashNew = await hashPassword(newPwd);
       await apiCall(`/admins?id=eq.${adminId}`, {
         method: 'PATCH',

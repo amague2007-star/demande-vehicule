@@ -50,34 +50,38 @@
   .logout-btn { background:#e74c3c; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600; font-size:11px; transition: 0.2s; }
   .logout-btn:hover { background:#c0392b; }
 
-  #accueilSection { padding: 15px 20px; display: block; }
-  .dash-filters { display: flex; justify-content: flex-end; margin-bottom: 15px; }
-  .dash-filters select { padding: 6px 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 12px; font-weight: 600; color: #1e3c72; outline: none; cursor: pointer; background:#fff; }
+  /* OPTIMISATION : Marges réduites */
+  #accueilSection { padding: 10px 15px; display: block; }
+  .dash-filters { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+  .dash-filters select { padding: 5px 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 11px; font-weight: 600; color: #1e3c72; outline: none; cursor: pointer; background:#fff; }
 
-  .dashboard-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 15px; }
-  .dash-card { background: #fff; padding: 12px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; border-bottom: 4px solid #1e3c72; }
-  .dash-card h3 { color: #666; font-size: 11px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;}
-  .dash-card .number { color: #1e3c72; font-size: 28px; font-weight: bold; }
+  .dashboard-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px; }
+  .dash-card { background: #fff; padding: 8px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; border-bottom: 3px solid #1e3c72; }
+  .dash-card h3 { color: #666; font-size: 10px; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px;}
+  .dash-card .number { color: #1e3c72; font-size: 22px; font-weight: bold; }
   
-  .dashboard-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-  .chart-box { background: #fff; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); height: 220px; display: flex; flex-direction: column; }
-  .chart-box h3 { color: #1e3c72; font-size: 13px; margin-bottom: 5px; text-align: center; font-weight: 600; }
+  /* OPTIMISATION : Grille en 2 colonnes pour tout faire tenir */
+  .dashboard-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  
+  /* OPTIMISATION : Réduction de la hauteur de 220px à 180px */
+  .chart-box { background: #fff; padding: 8px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); height: 180px; display: flex; flex-direction: column; }
+  .chart-box h3 { color: #1e3c72; font-size: 12px; margin-bottom: 2px; text-align: center; font-weight: 600; }
   .chart-container { position: relative; flex: 1; width: 100%; min-height: 0; }
 
-  .top5-wrapper { background: #fff; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; height: 220px; }
-  .top5-wrapper h3 { color: #1e3c72; font-size: 13px; margin-bottom: 8px; text-align: center; font-weight: 600;}
-  .top5-grid-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: 1; overflow-y: hidden; }
-  .top5-box h4 { color: #1e3c72; font-size: 11px; margin-bottom: 5px; border-bottom: 1px solid #f0f2f5; padding-bottom: 3px; text-align: center; }
+  .top5-wrapper { background: #fff; padding: 8px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; height: 180px; }
+  .top5-wrapper h3 { color: #1e3c72; font-size: 12px; margin-bottom: 4px; text-align: center; font-weight: 600;}
+  .top5-grid-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; overflow-y: hidden; }
+  .top5-box h4 { color: #1e3c72; font-size: 10px; margin-bottom: 3px; border-bottom: 1px solid #f0f2f5; padding-bottom: 2px; text-align: center; }
   .top5-box ul { list-style: none; padding: 0; margin: 0; }
-  .top5-box li { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #f0f2f5; font-size: 11px; color: #333; }
+  .top5-box li { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px solid #f0f2f5; font-size: 10px; color: #333; }
   .top5-box li:last-child { border-bottom: none; }
-  .top5-box li span.rank { color: #f39c12; font-weight: bold; margin-right: 4px; }
+  .top5-box li span.rank { color: #f39c12; font-weight: bold; margin-right: 3px; }
   .top5-box li span.count { font-weight: bold; color: #1e3c72; }
 
   @media (max-width: 900px) {
     .dashboard-cards { grid-template-columns: 1fr 1fr; }
     .dashboard-layout { grid-template-columns: 1fr; }
-    .chart-box, .top5-wrapper { height: auto; min-height: 220px; }
+    .chart-box, .top5-wrapper { height: auto; min-height: 180px; }
   }
 
   .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:15px; padding:20px; }
@@ -96,8 +100,8 @@
   .filters input:focus { border-color: #1e3c72; }
   .btn-export { background:#27ae60 !important; border-color:#27ae60 !important; margin-left: auto; }
 
-  .type-tabs { display:flex; gap:10px; padding:0 20px 15px; flex-wrap:wrap; }
-  .type-tab { position: relative; padding:8px 15px; border:2px solid #e0e0e0; border-radius:8px; font-size:13px; background:#fff; cursor:pointer; font-weight:600; color:#555; transition:0.2s; }
+  .type-tabs { display:flex; gap:8px; padding:0 0 10px 0; flex-wrap:wrap; }
+  .type-tab { position: relative; padding:6px 12px; border:2px solid #e0e0e0; border-radius:6px; font-size:12px; background:#fff; cursor:pointer; font-weight:600; color:#555; transition:0.2s; }
   .type-tab:hover { background:#f8f9fa; }
   .type-tab.active { background:#1e3c72; color:#fff; border-color:#1e3c72; }
 
@@ -294,7 +298,7 @@
     </div>
 
     <div class="dashboard-layout">
-      <div style="display: flex; flex-direction: column; gap: 15px;">
+      <div style="display: flex; flex-direction: column; gap: 10px;">
         <div class="chart-box">
           <h3>Moyens de Déplacement</h3>
           <div class="chart-container"><canvas id="chartMoyens"></canvas></div>
@@ -305,7 +309,7 @@
         </div>
       </div>
       
-      <div style="display: flex; flex-direction: column; gap: 15px;">
+      <div style="display: flex; flex-direction: column; gap: 10px;">
         <div class="chart-box">
           <h3>Statut des Ordres de Mission</h3>
           <div class="chart-container"><canvas id="chartStatuts"></canvas></div>
@@ -602,7 +606,7 @@
   let tousLesUsers = [];
   
   let typeOrdreActif = 'tous';
-  let typeAccueilActif = 'tous'; // NOUVEAU : Filtre pour l'accueil
+  let typeAccueilActif = 'tous';
 
   let chartMoyensInstance = null;
   let chartStatutsInstance = null;
@@ -1294,11 +1298,11 @@
       const ordresContainer = document.getElementById('ordresContainer');
       const graphiquesHTML = `
         <div class="dashboard-layout" style="padding: 0 20px 20px 20px;" id="rhChartsContainer">
-          <div class="chart-box" style="height: 200px;">
+          <div class="chart-box" style="height: 180px;">
             <h3>Mes Validations à Traiter</h3>
             <div class="chart-container"><canvas id="rhChartStatuts"></canvas></div>
           </div>
-          <div class="chart-box" style="height: 200px;">
+          <div class="chart-box" style="height: 180px;">
             <h3>Répartition des Projets</h3>
             <div class="chart-container"><canvas id="rhChartProjets"></canvas></div>
           </div>
@@ -1323,10 +1327,10 @@
       chartStatutsInstance = new Chart(ctxStatuts.getContext('2d'), {
         type: 'doughnut',
         data: {
-          labels: ['À Valider (Attente)', 'Déjà Validés'],
+          labels: ['À Valider', 'Déjà Validés'],
           datasets: [{ data: [statutsCount['affecte_logistique'], statutsCount['validee']], backgroundColor: ['#f39c12', '#27ae60'], borderWidth: 0 }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 10} } } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 9} } } } }
       });
     }
 
@@ -1349,7 +1353,7 @@
             borderWidth: 0 
           }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 10} } } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 9} } } } }
       });
     }
   }
@@ -1568,7 +1572,7 @@
         labels: Object.keys(moyensCount),
         datasets: [{ data: Object.values(moyensCount), backgroundColor: ['#1e3c72', '#f39c12', '#27ae60', '#e74c3c', '#8e44ad', '#3498db', '#f1c40f'], borderWidth: 0 }]
       },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 10} } } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 9} } } } }
     });
 
     // Graphique Projets (Filtré)
@@ -1583,7 +1587,7 @@
         labels: Object.keys(projetsCount),
         datasets: [{ label: 'Missions', data: Object.values(projetsCount), backgroundColor: '#1e3c72', borderRadius: 6 }]
       },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: {size: 10} } }, x: { ticks: { font: {size: 10} } } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: {size: 9} } }, x: { ticks: { font: {size: 9} } } } }
     });
 
     // Graphique Statuts (Filtré)
@@ -1595,7 +1599,7 @@
         labels: ['En attente', 'Attente RH', 'Validées'],
         datasets: [{ data: [statutsCount['en_attente'], statutsCount['affecte_logistique'], statutsCount['validee']], backgroundColor: ['#f39c12', '#f1c40f', '#27ae60'], borderWidth: 0 }]
       },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 10} } } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 9} } } } }
     });
 
     // Classements (Globaux, non filtrés)

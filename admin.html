@@ -727,6 +727,7 @@
       document.getElementById('navAccueil').style.display = 'none';
       document.getElementById('navDemandes').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
+      document.getElementById('navOrdres').style.display = 'none'; // ON MASQUE LE BOUTON "ORDRES (RH)"
       
       // Masquer la carte "Attente Logistique" pour le RH
       const statCardAttenteLogistique = document.getElementById('statCardAttenteLogistique');
@@ -777,24 +778,30 @@
   function afficherSection(section) {
     ['accueil', 'demandes', 'ordres', 'users'].forEach(sec => {
       document.getElementById(sec + 'Section').style.display = 'none';
-      document.getElementById('nav' + sec.charAt(0).toUpperCase() + sec.slice(1)).classList.remove('active');
+      // On vérifie si le bouton existe pour éviter les erreurs (s'il a été masqué)
+      const navBtn = document.getElementById('nav' + sec.charAt(0).toUpperCase() + sec.slice(1));
+      if(navBtn) navBtn.classList.remove('active');
     });
 
     if (section === 'accueil') {
       document.getElementById('accueilSection').style.display = 'block';
-      document.getElementById('navAccueil').classList.add('active');
+      const btn = document.getElementById('navAccueil');
+      if(btn) btn.classList.add('active');
       mettreAJourGraphiques();
     } else if (section === 'ordres') {
       document.getElementById('ordresSection').style.display = 'block';
-      document.getElementById('navOrdres').classList.add('active');
+      const btn = document.getElementById('navOrdres');
+      if(btn) btn.classList.add('active');
       chargerOrdres();
     } else if (section === 'users') {
       document.getElementById('usersSection').style.display = 'block';
-      document.getElementById('navUsers').classList.add('active');
+      const btn = document.getElementById('navUsers');
+      if(btn) btn.classList.add('active');
       chargerUsers();
     } else {
       document.getElementById('demandesSection').style.display = 'block';
-      document.getElementById('navDemandes').classList.add('active');
+      const btn = document.getElementById('navDemandes');
+      if(btn) btn.classList.add('active');
       chargerDemandes();
     }
   }

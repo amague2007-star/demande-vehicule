@@ -253,6 +253,18 @@
 
   <!-- SECTION ACCUEIL / GRAPHIQUES -->
   <div id="accueilSection">
+    
+    <!-- NOUVEAU : LES ONGLETS DE FILTRAGE SUR L'ACCUEIL -->
+    <div class="type-tabs" style="padding: 15px 0 10px 0;">
+      <button class="type-tab active" id="btn-accueil-tous" onclick="changerTypeAccueil('tous', this)">📁 Tous</button>
+      <button class="type-tab" id="btn-accueil-UNHCR" onclick="changerTypeAccueil('Véhicule UNHCR', this)">🚙 UNHCR</button>
+      <button class="type-tab" id="btn-accueil-Partenaire" onclick="changerTypeAccueil('Véhicule Partenaire', this)">🤝 Partenaire</button>
+      <button class="type-tab" id="btn-accueil-Location" onclick="changerTypeAccueil('Véhicule Location', this)">🏢 Location</button>
+      <button class="type-tab" id="btn-accueil-ADKOUL" onclick="changerTypeAccueil('Véhicule ONG ADKOUL', this)">🚐 ONG ADKOUL</button>
+      <button class="type-tab" id="btn-accueil-Bus" onclick="changerTypeAccueil('Bus', this)">🚌 Bus</button>
+      <button class="type-tab" id="btn-accueil-Avion" onclick="changerTypeAccueil('Avion', this)">✈️ Vol</button>
+    </div>
+
     <div class="dash-filters">
       <select id="filtreDateAccueil" onchange="mettreAJourGraphiques()">
         <option value="tout">📅 Toutes les périodes</option>
@@ -264,11 +276,11 @@
 
     <div class="dashboard-cards">
       <div class="dash-card">
-        <h3>Total Demandes</h3>
+        <h3>Total Demandes (Véhicules)</h3>
         <div class="number" id="dashTotalVehicules">0</div>
       </div>
       <div class="dash-card" style="border-bottom-color: #f39c12;">
-        <h3>Total Missions</h3>
+        <h3>Missions (Filtrées)</h3>
         <div class="number" id="dashTotalMissions">0</div>
       </div>
       <div class="dash-card" style="border-bottom-color: #27ae60;">
@@ -276,7 +288,7 @@
         <div class="number" id="dashMissionsValidees">0</div>
       </div>
       <div class="dash-card" style="border-bottom-color: #e74c3c;">
-        <h3>En Attente</h3>
+        <h3>En Attente (Véhicules)</h3>
         <div class="number" id="dashEnAttente">0</div>
       </div>
     </div>
@@ -348,6 +360,7 @@
       <button class="type-tab" onclick="changerTypeOrdre('Véhicule UNHCR', this)">🚙 UNHCR <span class="notification-badge" id="badgeTypeUNHCR">0</span></button>
       <button class="type-tab" onclick="changerTypeOrdre('Véhicule Partenaire', this)">🤝 Partenaire <span class="notification-badge" id="badgeTypePartenaire">0</span></button>
       <button class="type-tab" onclick="changerTypeOrdre('Véhicule Location', this)">🏢 Location <span class="notification-badge" id="badgeTypeLocation">0</span></button>
+      <button class="type-tab" onclick="changerTypeOrdre('Véhicule ONG ADKOUL', this)">🚐 ONG ADKOUL <span class="notification-badge" id="badgeTypeADKOUL">0</span></button>
       <button class="type-tab" onclick="changerTypeOrdre('Bus', this)">🚌 Bus <span class="notification-badge" id="badgeTypeBus">0</span></button>
       <button class="type-tab" onclick="changerTypeOrdre('Avion', this)">✈️ Vol <span class="notification-badge" id="badgeTypeAvion">0</span></button>
     </div>
@@ -587,7 +600,9 @@
   let demandeEnCours = null, toutesLesDemandes = [];
   let ordreEnCours = null, tousLesOrdres = [];
   let tousLesUsers = [];
+  
   let typeOrdreActif = 'tous';
+  let typeAccueilActif = 'tous'; // NOUVEAU : Filtre pour l'accueil
 
   let chartMoyensInstance = null;
   let chartStatutsInstance = null;
@@ -672,6 +687,7 @@
       'UNHCR': 0,
       'Partenaire': 0,
       'Location': 0,
+      'ADKOUL': 0,
       'Bus': 0,
       'Avion': 0
     };
@@ -689,9 +705,11 @@
       if (isRelevant) {
         types['Tous']++;
         const moyen = o.moyen_deplacement || '';
+        // On fusionne "Véhicule ONG" et "Véhicule ONG ADKOUL"
         if (moyen.includes('UNHCR')) types['UNHCR']++;
         else if (moyen.includes('Partenaire')) types['Partenaire']++;
         else if (moyen.includes('Location')) types['Location']++;
+        else if (moyen.includes('ADKOUL') || moyen === 'Véhicule ONG') types['ADKOUL']++;
         else if (moyen.includes('Bus')) types['Bus']++;
         else if (moyen.includes('Avion')) types['Avion']++;
       }
@@ -709,6 +727,7 @@
     updateBadge('badgeTypeUNHCR', types['UNHCR']);
     updateBadge('badgeTypePartenaire', types['Partenaire']);
     updateBadge('badgeTypeLocation', types['Location']);
+    updateBadge('badgeTypeADKOUL', types['ADKOUL']);
     updateBadge('badgeTypeBus', types['Bus']);
     updateBadge('badgeTypeAvion', types['Avion']);
   }
@@ -1121,9 +1140,17 @@
   // --- ORDRES DE MISSION ---
   function changerTypeOrdre(type, btn) {
     typeOrdreActif = type;
-    document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('#typeTabs .type-tab').forEach(t => t.classList.remove('active'));
     if(btn) btn.classList.add('active');
     afficherOrdres();
+  }
+
+  // NOUVEAU : Gérer les clics sur les onglets de l'accueil
+  function changerTypeAccueil(type, btn) {
+    typeAccueilActif = type;
+    document.querySelectorAll('#accueilSection .type-tab').forEach(t => t.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    mettreAJourGraphiques();
   }
 
   async function chargerOrdres() {
@@ -1159,7 +1186,12 @@
     }
 
     if (typeOrdreActif !== 'tous') {
-      listeBase = listeBase.filter(o => o.moyen_deplacement === typeOrdreActif);
+      // Gestion de la fusion "Véhicule ONG" et "Véhicule ONG ADKOUL"
+      if (typeOrdreActif === 'Véhicule ONG ADKOUL') {
+        listeBase = listeBase.filter(o => o.moyen_deplacement === 'Véhicule ONG ADKOUL' || o.moyen_deplacement === 'Véhicule ONG');
+      } else {
+        listeBase = listeBase.filter(o => o.moyen_deplacement === typeOrdreActif);
+      }
     }
 
     document.getElementById('statOrdresAttente').textContent = tousLesOrdres.filter(o => o.statut === 'en_attente').length;
@@ -1503,31 +1535,45 @@
   }
 
   function mettreAJourGraphiques() {
+    // Filtrer les ordres en fonction de l'onglet actif sur l'accueil
+    let ordresFiltres = tousLesOrdres;
+    if (typeAccueilActif !== 'tous') {
+      if (typeAccueilActif === 'Véhicule ONG ADKOUL') {
+        ordresFiltres = tousLesOrdres.filter(o => o.moyen_deplacement === 'Véhicule ONG ADKOUL' || o.moyen_deplacement === 'Véhicule ONG');
+      } else {
+        ordresFiltres = tousLesOrdres.filter(o => o.moyen_deplacement === typeAccueilActif);
+      }
+    }
+
     document.getElementById('dashTotalVehicules').textContent = toutesLesDemandes.length;
-    document.getElementById('dashTotalMissions').textContent = tousLesOrdres.length;
-    document.getElementById('dashMissionsValidees').textContent = tousLesOrdres.filter(o => o.statut === 'validee').length;
+    document.getElementById('dashTotalMissions').textContent = ordresFiltres.length;
+    document.getElementById('dashMissionsValidees').textContent = ordresFiltres.filter(o => o.statut === 'validee').length;
     document.getElementById('dashEnAttente').textContent = toutesLesDemandes.filter(d => d.statut === 'en_attente').length;
 
     if (chartMoyensInstance) chartMoyensInstance.destroy();
     if (chartStatutsInstance) chartStatutsInstance.destroy();
     if (chartProjetsInstance) chartProjetsInstance.destroy();
 
+    // Graphique Moyens
     const moyensCount = {};
     tousLesOrdres.forEach(o => {
-      const m = o.moyen_deplacement || 'Non spécifié';
+      let m = o.moyen_deplacement || 'Non spécifié';
+      // Fusionner ONG et ONG ADKOUL
+      if (m === 'Véhicule ONG') m = 'Véhicule ONG ADKOUL';
       moyensCount[m] = (moyensCount[m] || 0) + 1;
     });
     chartMoyensInstance = new Chart(document.getElementById('chartMoyens').getContext('2d'), {
       type: 'doughnut',
       data: {
         labels: Object.keys(moyensCount),
-        datasets: [{ data: Object.values(moyensCount), backgroundColor: ['#1e3c72', '#f39c12', '#27ae60', '#e74c3c', '#8e44ad', '#3498db'], borderWidth: 0 }]
+        datasets: [{ data: Object.values(moyensCount), backgroundColor: ['#1e3c72', '#f39c12', '#27ae60', '#e74c3c', '#8e44ad', '#3498db', '#f1c40f'], borderWidth: 0 }]
       },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 10} } } } }
     });
 
+    // Graphique Projets (Filtré)
     const projetsCount = {};
-    tousLesOrdres.forEach(o => {
+    ordresFiltres.forEach(o => {
       const p = o.projet || 'Non spécifié';
       projetsCount[p] = (projetsCount[p] || 0) + 1;
     });
@@ -1540,8 +1586,9 @@
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: {size: 10} } }, x: { ticks: { font: {size: 10} } } } }
     });
 
+    // Graphique Statuts (Filtré)
     const statutsCount = { 'en_attente': 0, 'affecte_logistique': 0, 'validee': 0 };
-    tousLesOrdres.forEach(o => { if (statutsCount[o.statut] !== undefined) statutsCount[o.statut]++; });
+    ordresFiltres.forEach(o => { if (statutsCount[o.statut] !== undefined) statutsCount[o.statut]++; });
     chartStatutsInstance = new Chart(document.getElementById('chartStatuts').getContext('2d'), {
       type: 'pie',
       data: {
@@ -1551,6 +1598,7 @@
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 10} } } } }
     });
 
+    // Classements (Globaux, non filtrés)
     const agentsCount = {}, chauffeursCount = {};
     tousLesOrdres.forEach(o => { if(o.nom) agentsCount[o.nom] = (agentsCount[o.nom]||0)+1; if(o.chauffeur_assigne) chauffeursCount[o.chauffeur_assigne] = (chauffeursCount[o.chauffeur_assigne]||0)+1; });
     

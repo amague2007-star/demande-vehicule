@@ -660,8 +660,10 @@
     // Le RH ne voit PAS le badge global car il est déjà sur la page, et il ne traite que "affecte_logistique"
     if (role === 'rh') {
       badgeO.style.display = 'none';
+      badgeO.hidden = true; // Sécurité supplémentaire
     } else {
-      if (attenteMissions > 0) { badgeO.textContent = attenteMissions; badgeO.style.display = 'inline-block'; } else { badgeO.style.display = 'none'; }
+      if (attenteMissions > 0) { badgeO.textContent = attenteMissions; badgeO.style.display = 'inline-block'; badgeO.hidden = false; } 
+      else { badgeO.style.display = 'none'; }
     }
 
     // Badges par Type de Transport (Onglets)
@@ -738,31 +740,6 @@
       
       // Sélectionner par défaut "En attente (RH)"
       filtreSelect.value = 'affecte_logistique';
-
-      // AJOUT DES GRAPHIQUES POUR LE RH
-      const ordresContainer = document.getElementById('ordresContainer');
-      
-      // On crée le bloc HTML des graphiques juste avant le conteneur des cartes
-      const graphiquesHTML = `
-        <div class="dashboard-layout" style="padding: 0 20px 20px 20px;">
-          <div class="chart-box" style="height: 200px;">
-            <h3>Mes Validations à Traiter</h3>
-            <div class="chart-container"><canvas id="chartStatuts"></canvas></div>
-          </div>
-          <div class="chart-box" style="height: 200px;">
-            <h3>Validations par Projet</h3>
-            <div class="chart-container"><canvas id="chartProjets"></canvas></div>
-          </div>
-        </div>
-      `;
-      
-      // Injection des graphiques
-      if (!document.getElementById('rhChartsContainer')) {
-        const div = document.createElement('div');
-        div.id = 'rhChartsContainer';
-        div.innerHTML = graphiquesHTML;
-        ordresContainer.parentNode.insertBefore(div, ordresContainer);
-      }
 
       afficherSection('ordres');
     } else if (role === 'assistant_logistique') {
@@ -1201,8 +1178,8 @@
     if (listeFinale.length === 0) { 
       container.innerHTML = '<div class="empty">📭 Aucun ordre de mission.</div>'; 
       
-      // Si RH et pas de données, on met à jour les graphiques quand même
-      if (role === 'rh') genererGraphiquesRH(); 
+      // Si RH et pas de données, on génère quand même les graphiques (vides)
+      if (role === 'rh') setTimeout(genererGraphiquesRH, 100); 
       return; 
     }
 
@@ -1265,43 +1242,73 @@
         </div>`;
     }).join('');
 
-    if (role === 'rh') genererGraphiquesRH();
+    // Lancer les graphiques pour le RH APRES le rendu du HTML
+    if (role === 'rh') {
+      setTimeout(genererGraphiquesRH, 100);
+    }
   }
 
-  // FONCTION POUR GÉNÉRER LES GRAPHIQUES SPÉCIFIQUES AU RH
+  // FONCTION POUR GÉNÉRER LES GRAPHIQUES SPÉCIFIQUES AU RH (Injectés dynamiquement)
   function genererGraphiquesRH() {
+    // 1. Créer la zone HTML si elle n'existe pas
+    if (!document.getElementById('rhChartsContainer')) {
+      const ordresContainer = document.getElementById('ordresContainer');
+      const graphiquesHTML = `
+        <div class="dashboard-layout" style="padding: 0 20px 20px 20px;" id="rhChartsContainer">
+          <div class="chart-box" style="height: 200px;">
+            <h3>Mes Validations à Traiter</h3>
+            <div class="chart-container"><canvas id="rhChartStatuts"></canvas></div>
+          </div>
+          <div class="chart-box" style="height: 200px;">
+            <h3>Validations par Projet</h3>
+            <div class="chart-container"><canvas id="rhChartProjets"></canvas></div>
+          </div>
+        </div>
+      `;
+      ordresContainer.insertAdjacentHTML('beforebegin', graphiquesHTML);
+    }
+
+    // 2. On nettoie les anciens graphiques s'ils existent pour éviter les superpositions
     if(chartStatutsInstance) chartStatutsInstance.destroy();
     if(chartProjetsInstance) chartProjetsInstance.destroy();
 
-    // On ne prend en compte que les dossiers que le RH voit (affectés et validés)
+    // 3. Filtrer les données pour le RH (uniquement affecté_logistique et validée)
     const ordresVisibles = tousLesOrdres.filter(o => o.statut === 'affecte_logistique' || o.statut === 'validee');
 
+    // 4. Dessiner le graphique des statuts (Doughnut)
     const statutsCount = { 'affecte_logistique': 0, 'validee': 0 };
     ordresVisibles.forEach(o => { if (statutsCount[o.statut] !== undefined) statutsCount[o.statut]++; });
     
-    chartStatutsInstance = new Chart(document.getElementById('chartStatuts').getContext('2d'), {
-      type: 'doughnut',
-      data: {
-        labels: ['À Valider (Attente)', 'Déjà Validés'],
-        datasets: [{ data: [statutsCount['affecte_logistique'], statutsCount['validee']], backgroundColor: ['#f39c12', '#27ae60'], borderWidth: 0 }]
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 10} } } } }
-    });
+    const ctxStatuts = document.getElementById('rhChartStatuts');
+    if(ctxStatuts) {
+      chartStatutsInstance = new Chart(ctxStatuts.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: ['À Valider (Attente)', 'Déjà Validés'],
+          datasets: [{ data: [statutsCount['affecte_logistique'], statutsCount['validee']], backgroundColor: ['#f39c12', '#27ae60'], borderWidth: 0 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 10} } } } }
+      });
+    }
 
+    // 5. Dessiner le graphique par projet (Barres)
     const projetsCount = {};
     ordresVisibles.forEach(o => {
       const p = o.projet || 'Non spécifié';
       projetsCount[p] = (projetsCount[p] || 0) + 1;
     });
     
-    chartProjetsInstance = new Chart(document.getElementById('chartProjets').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: Object.keys(projetsCount),
-        datasets: [{ label: 'Dossiers', data: Object.values(projetsCount), backgroundColor: '#1e3c72', borderRadius: 6 }]
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: {size: 10} } }, x: { ticks: { font: {size: 10} } } } }
-    });
+    const ctxProjets = document.getElementById('rhChartProjets');
+    if(ctxProjets) {
+      chartProjetsInstance = new Chart(ctxProjets.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: Object.keys(projetsCount),
+          datasets: [{ label: 'Dossiers', data: Object.values(projetsCount), backgroundColor: '#1e3c72', borderRadius: 6 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: {size: 10} } }, x: { ticks: { font: {size: 10} } } } }
+      });
+    }
   }
 
   function toggleAutreOrdre(type) {

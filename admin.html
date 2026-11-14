@@ -39,7 +39,13 @@
   .nav-btn:hover { background:rgba(255,255,255,0.2); border-color:#fff; }
   .nav-btn.active { background:#fff; color:#1e3c72; border-color:#fff; }
   
-  .notification-badge { position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; font-size: 9px; font-weight: bold; padding: 2px 5px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.3); display: none; }
+  .notification-badge { position: absolute; top: -6px; right: -6px; background: #e74c3c; color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.3); display: none; animation: pulse 2s infinite; }
+
+  @keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(231, 76, 60, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+  }
 
   .logout-btn { background:#e74c3c; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600; font-size:11px; transition: 0.2s; }
   .logout-btn:hover { background:#c0392b; }
@@ -91,7 +97,7 @@
   .btn-export { background:#27ae60 !important; border-color:#27ae60 !important; margin-left: auto; }
 
   .type-tabs { display:flex; gap:10px; padding:0 20px 15px; flex-wrap:wrap; }
-  .type-tab { padding:8px 15px; border:2px solid #e0e0e0; border-radius:8px; font-size:13px; background:#fff; cursor:pointer; font-weight:600; color:#555; transition:0.2s; }
+  .type-tab { position: relative; padding:8px 15px; border:2px solid #e0e0e0; border-radius:8px; font-size:13px; background:#fff; cursor:pointer; font-weight:600; color:#555; transition:0.2s; }
   .type-tab:hover { background:#f8f9fa; }
   .type-tab.active { background:#1e3c72; color:#fff; border-color:#1e3c72; }
 
@@ -119,8 +125,24 @@
   .btn { padding:10px 20px; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; text-transform:uppercase; letter-spacing:0.5px; transition:0.2s; }
   .btn-valider { background:#27ae60; color:#fff; box-shadow:0 4px 12px rgba(39,174,96,0.3); }
   .btn-valider:hover { background:#229954; transform:translateY(-2px); }
+  
   .btn-orange { background:#f39c12; color:#fff; box-shadow:0 4px 12px rgba(243,156,18,0.3); }
   .btn-orange:hover { background:#d68910; transform:translateY(-2px); }
+  
+  /* NOUVEAU : Bouton RH clignotant */
+  .btn-rh-urgent { 
+    background:#e67e22; color:#fff; 
+    box-shadow:0 0 0 0 rgba(230, 126, 34, 0.7);
+    animation: pulse-btn 1.5s infinite;
+  }
+  .btn-rh-urgent:hover { background:#d35400; transform:translateY(-2px); animation: none; }
+  
+  @keyframes pulse-btn {
+    0% { box-shadow: 0 0 0 0 rgba(230, 126, 34, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(230, 126, 34, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(230, 126, 34, 0); }
+  }
+
   .btn-refuser { background:#e74c3c; color:#fff; box-shadow:0 4px 12px rgba(231,76,60,0.3); }
   .btn-refuser:hover { background:#c0392b; transform:translateY(-2px); }
   .btn-suppr { background:#95a5a6; color:#fff; padding:6px 12px; font-size:11px; margin-left:auto; }
@@ -177,6 +199,8 @@
   .password-reveal { display:flex; gap:8px; }
   .password-reveal input { flex:1; }
   .btn-reveal { background:#ecf0f1; color:#555; border:none; padding:0 12px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600; }
+  
+  .hidden-fields { display: none !important; }
 </style>
 </head>
 <body>
@@ -320,12 +344,12 @@
   <div id="ordresSection" style="display:none;">
     
     <div class="type-tabs" id="typeTabs">
-      <button class="type-tab active" onclick="changerTypeOrdre('tous', this)">📁 Tous</button>
-      <button class="type-tab" onclick="changerTypeOrdre('Véhicule UNHCR', this)">🚙 UNHCR</button>
-      <button class="type-tab" onclick="changerTypeOrdre('Véhicule Partenaire', this)">🤝 Partenaire</button>
-      <button class="type-tab" onclick="changerTypeOrdre('Véhicule Location', this)">🏢 Location</button>
-      <button class="type-tab" onclick="changerTypeOrdre('Bus', this)">🚌 Bus</button>
-      <button class="type-tab" onclick="changerTypeOrdre('Avion', this)">✈️ Vol</button>
+      <button class="type-tab active" onclick="changerTypeOrdre('tous', this)">📁 Tous <span class="notification-badge" id="badgeTypeTous">0</span></button>
+      <button class="type-tab" onclick="changerTypeOrdre('Véhicule UNHCR', this)">🚙 UNHCR <span class="notification-badge" id="badgeTypeUNHCR">0</span></button>
+      <button class="type-tab" onclick="changerTypeOrdre('Véhicule Partenaire', this)">🤝 Partenaire <span class="notification-badge" id="badgeTypePartenaire">0</span></button>
+      <button class="type-tab" onclick="changerTypeOrdre('Véhicule Location', this)">🏢 Location <span class="notification-badge" id="badgeTypeLocation">0</span></button>
+      <button class="type-tab" onclick="changerTypeOrdre('Bus', this)">🚌 Bus <span class="notification-badge" id="badgeTypeBus">0</span></button>
+      <button class="type-tab" onclick="changerTypeOrdre('Avion', this)">✈️ Vol <span class="notification-badge" id="badgeTypeAvion">0</span></button>
     </div>
 
     <div class="stats">
@@ -432,41 +456,49 @@
 <!-- MODALES ORDRES DE MISSION -->
 <div class="modal-overlay" id="modalValiderOrdre">
   <div class="modal">
-    <h2>📄 Affectation Logistique</h2>
+    <h2 id="modalValiderOrdreTitle">📄 Affectation Logistique</h2>
     <p class="subtitle" id="modalValiderOrdreInfo"></p>
-    <label>👤 Chauffeur à assigner *</label>
-    <select id="selectChauffeurOrdre" onchange="toggleAutreOrdre('chauffeur')">
-      <option value="">-- Sélectionnez un chauffeur --</option>
-      <option value="AUTRE">➕ Autre</option>
-    </select>
-    <input type="text" id="inputChauffeurOrdreAutre" placeholder="Nom du chauffeur" style="display:none; margin-top:8px;">
+    
+    <!-- Champs masqués si c'est un Bus ou Avion -->
+    <div id="fieldsChauffeurVehicule">
+      <label>👤 Chauffeur à assigner *</label>
+      <select id="selectChauffeurOrdre" onchange="toggleAutreOrdre('chauffeur')">
+        <option value="">-- Sélectionnez un chauffeur --</option>
+        <option value="AUTRE">➕ Autre</option>
+      </select>
+      <input type="text" id="inputChauffeurOrdreAutre" placeholder="Nom du chauffeur" style="display:none; margin-top:8px;">
 
-    <div class="grid-2" style="margin-top:10px;">
-      <div>
-        <label>Type de véhicule *</label>
-        <select id="selectVehiculeOrdreType">
-          <option value="Véhicule ONG ADKOUL">Véhicule ONG ADKOUL</option>
-          <option value="Véhicule UNHCR">Véhicule UNHCR</option>
-          <option value="Véhicule Partenaire">Véhicule Partenaire</option>
-          <option value="Véhicule Location">Véhicule Location</option>
-          <option value="Bus">Bus</option>
-          <option value="Avion">Avion</option>
-        </select>
+      <div class="grid-2" style="margin-top:10px;">
+        <div>
+          <label>Type de véhicule *</label>
+          <select id="selectVehiculeOrdreType">
+            <option value="Véhicule ONG ADKOUL">Véhicule ONG ADKOUL</option>
+            <option value="Véhicule UNHCR">Véhicule UNHCR</option>
+            <option value="Véhicule Partenaire">Véhicule Partenaire</option>
+            <option value="Véhicule Location">Véhicule Location</option>
+            <option value="Bus">Bus</option>
+            <option value="Avion">Avion</option>
+          </select>
+        </div>
+        <div>
+          <label>Marque *</label>
+          <input type="text" id="inputVehiculeOrdreMarque" placeholder="Ex: Toyota" required>
+        </div>
       </div>
-      <div>
-        <label>Marque *</label>
-        <input type="text" id="inputVehiculeOrdreMarque" placeholder="Ex: Toyota" required>
+      <div class="grid-2" style="margin-top:10px;">
+        <div>
+          <label>Couleur *</label>
+          <input type="text" id="inputVehiculeOrdreCouleur" placeholder="Ex: Blanche" required>
+        </div>
+        <div>
+          <label>N° Immatriculation *</label>
+          <input type="text" id="inputVehiculeOrdreImmat" placeholder="Ex: AB-123-CD" required>
+        </div>
       </div>
     </div>
-    <div class="grid-2" style="margin-top:10px;">
-      <div>
-        <label>Couleur *</label>
-        <input type="text" id="inputVehiculeOrdreCouleur" placeholder="Ex: Blanche" required>
-      </div>
-      <div>
-        <label>N° Immatriculation *</label>
-        <input type="text" id="inputVehiculeOrdreImmat" placeholder="Ex: AB-123-CD" required>
-      </div>
+
+    <div id="messageBusAvion" style="display: none; background: #e8f4f8; padding: 12px; border-radius: 8px; border-left: 4px solid #2980b9; margin-top: 15px; font-size: 13px; color: #2980b9; font-weight: 600;">
+      ℹ️ Aucun chauffeur ni véhicule spécifique n'est requis pour ce type de transport.
     </div>
 
     <label>📝 Notes internes (optionnel)</label>
@@ -474,7 +506,7 @@
 
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
-      <button class="btn-valider" onclick="confirmerValidationOrdre()">✅ Affecter</button>
+      <button class="btn-valider" id="btnActionOrdre" onclick="confirmerValidationOrdre()">✅ Affecter</button>
     </div>
   </div>
 </div>
@@ -612,14 +644,53 @@
 
   function logout() { sessionStorage.clear(); location.reload(); }
 
+  // MISE À JOUR DES BADGES ET NOTIFICATIONS
   function mettreAJourNotifications() {
+    // Badge Menu Principal
     const attenteVehicules = toutesLesDemandes.filter(d => d.statut === 'en_attente').length;
     const badgeD = document.getElementById('badgeDemandes');
     if (attenteVehicules > 0) { badgeD.textContent = attenteVehicules; badgeD.style.display = 'inline-block'; } else { badgeD.style.display = 'none'; }
 
-    const attenteMissions = tousLesOrdres.filter(o => o.statut === 'en_attente').length;
+    const attenteMissions = tousLesOrdres.filter(o => o.statut === 'en_attente' || o.statut === 'affecte_logistique').length;
     const badgeO = document.getElementById('badgeOrdres');
     if (attenteMissions > 0) { badgeO.textContent = attenteMissions; badgeO.style.display = 'inline-block'; } else { badgeO.style.display = 'none'; }
+
+    // Badges par Type de Transport (Onglets)
+    const types = {
+      'Tous': 0,
+      'UNHCR': 0,
+      'Partenaire': 0,
+      'Location': 0,
+      'Bus': 0,
+      'Avion': 0
+    };
+
+    tousLesOrdres.forEach(o => {
+      if (o.statut === 'en_attente' || o.statut === 'affecte_logistique') {
+        types['Tous']++;
+        const moyen = o.moyen_deplacement || '';
+        if (moyen.includes('UNHCR')) types['UNHCR']++;
+        else if (moyen.includes('Partenaire')) types['Partenaire']++;
+        else if (moyen.includes('Location')) types['Location']++;
+        else if (moyen.includes('Bus')) types['Bus']++;
+        else if (moyen.includes('Avion')) types['Avion']++;
+      }
+    });
+
+    const updateBadge = (id, count) => {
+      const el = document.getElementById(id);
+      if (el) {
+        if (count > 0) { el.textContent = count; el.style.display = 'inline-block'; } 
+        else { el.style.display = 'none'; }
+      }
+    };
+
+    updateBadge('badgeTypeTous', types['Tous']);
+    updateBadge('badgeTypeUNHCR', types['UNHCR']);
+    updateBadge('badgeTypePartenaire', types['Partenaire']);
+    updateBadge('badgeTypeLocation', types['Location']);
+    updateBadge('badgeTypeBus', types['Bus']);
+    updateBadge('badgeTypeAvion', types['Avion']);
   }
 
   function afficherDashboard() {
@@ -1089,7 +1160,7 @@
           actionsHtml = `<span style="color:#d68910; font-weight:bold;">⏳ En attente.</span>`;
         }
       } else if (o.statut === 'affecte_logistique') {
-        resultatHtml = `<div class="resultat validee" style="background:#fff3cd; color:#856404; border-color:#ffeeba;"><strong>⏳ Attente N° Ordre (RH)</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne}</strong>${o.affecte_par ? `<span class="par-admin">✔ Affecté par : ${o.affecte_par}</span>` : ''}</div>`;
+        resultatHtml = `<div class="resultat validee" style="background:#fff3cd; color:#856404; border-color:#ffeeba;"><strong>⏳ Attente N° Ordre (RH)</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne || 'Aucun (Bus/Avion)'}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne || 'Aucun'}</strong>${o.affecte_par ? `<span class="par-admin">✔ Affecté par : ${o.affecte_par}</span>` : ''}</div>`;
         
         actionsHtml = `
           <button class="btn btn-print-admin" onclick="voirOrdreMission(${o.id})" style="background:#3498db;">👁️ Voir</button>
@@ -1099,10 +1170,10 @@
         `;
 
         if (role === 'rh' || role === 'logistique') {
-           actionsHtml += `<button class="btn btn-orange" onclick="ouvrirModalNumeroRH(${o.id})">🔢 Valider RH</button>`;
+           actionsHtml += `<button class="btn btn-rh-urgent" onclick="ouvrirModalNumeroRH(${o.id})">🔢 Valider RH</button>`;
         }
       } else if (o.statut === 'validee') {
-        resultatHtml = `<div class="resultat validee"><strong>✅ Validé (N° ${o.message_admin})</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne}</strong></div>`;
+        resultatHtml = `<div class="resultat validee"><strong>✅ Validé (N° ${o.message_admin})</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne || 'Aucun'}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne || 'Aucun'}</strong></div>`;
         
         actionsHtml = `
           <button class="btn btn-print-admin" onclick="voirOrdreMission(${o.id})" style="background:#3498db;">👁️ Voir</button>
@@ -1148,31 +1219,67 @@
   function ouvrirModalValiderOrdre(id) {
     ordreEnCours = tousLesOrdres.find(o => o.id === id);
     if (!ordreEnCours) return;
+    
+    // Vérification si c'est un Bus ou un Avion
+    const isBusAvion = ordreEnCours.moyen_deplacement && (ordreEnCours.moyen_deplacement.includes('Bus') || ordreEnCours.moyen_deplacement.includes('Avion'));
+    
+    const fieldsChauffeurVehicule = document.getElementById('fieldsChauffeurVehicule');
+    const messageBusAvion = document.getElementById('messageBusAvion');
+    const modalTitle = document.getElementById('modalValiderOrdreTitle');
+    const btnAction = document.getElementById('btnActionOrdre');
+
+    if (isBusAvion) {
+      // Cacher les champs de chauffeur
+      fieldsChauffeurVehicule.style.display = 'none';
+      messageBusAvion.style.display = 'block';
+      modalTitle.textContent = '📄 Transmettre la demande (Bus / Vol)';
+      btnAction.textContent = '✅ Transmettre au RH';
+      
+      // Vider les champs cachés pour éviter les erreurs
+      document.getElementById('selectChauffeurOrdre').value = '';
+      document.getElementById('inputVehiculeOrdreMarque').value = '';
+      document.getElementById('inputVehiculeOrdreCouleur').value = '';
+      document.getElementById('inputVehiculeOrdreImmat').value = '';
+    } else {
+      // Afficher les champs normaux
+      fieldsChauffeurVehicule.style.display = 'block';
+      messageBusAvion.style.display = 'none';
+      modalTitle.textContent = '📄 Affectation Logistique';
+      btnAction.textContent = '✅ Affecter';
+      
+      document.getElementById('selectChauffeurOrdre').value = '';
+      document.getElementById('inputChauffeurOrdreAutre').style.display = 'none'; 
+      document.getElementById('inputChauffeurOrdreAutre').value = '';
+      document.getElementById('selectVehiculeOrdreType').value = 'Véhicule Location';
+      document.getElementById('inputVehiculeOrdreMarque').value = '';
+      document.getElementById('inputVehiculeOrdreCouleur').value = '';
+      document.getElementById('inputVehiculeOrdreImmat').value = '';
+    }
+
     document.getElementById('modalValiderOrdreInfo').textContent = `${ordreEnCours.nom} → ${ordreEnCours.destination}`;
-    document.getElementById('selectChauffeurOrdre').value = '';
-    document.getElementById('inputChauffeurOrdreAutre').style.display = 'none'; 
-    document.getElementById('inputChauffeurOrdreAutre').value = '';
-    document.getElementById('selectVehiculeOrdreType').value = 'Véhicule Location';
-    document.getElementById('inputVehiculeOrdreMarque').value = '';
-    document.getElementById('inputVehiculeOrdreCouleur').value = '';
-    document.getElementById('inputVehiculeOrdreImmat').value = '';
     document.getElementById('inputNotesInternes').value = '';
     document.getElementById('modalValiderOrdre').classList.add('active');
   }
 
   async function confirmerValidationOrdre() {
-    const sc = document.getElementById('selectChauffeurOrdre').value;
-    let chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurOrdreAutre').value.trim() : sc;
-    
-    const type = document.getElementById('selectVehiculeOrdreType').value;
-    const marque = document.getElementById('inputVehiculeOrdreMarque').value.trim();
-    const couleur = document.getElementById('inputVehiculeOrdreCouleur').value.trim();
-    const immat = document.getElementById('inputVehiculeOrdreImmat').value.trim();
+    const isBusAvion = ordreEnCours.moyen_deplacement && (ordreEnCours.moyen_deplacement.includes('Bus') || ordreEnCours.moyen_deplacement.includes('Avion'));
     const notes = document.getElementById('inputNotesInternes').value.trim();
     
-    if (!chauffeur || !marque || !couleur || !immat) { alert('⚠️ Remplissez tous les champs.'); return; }
-    
-    const vehiculeString = `${type} (${marque} - ${couleur} - ${immat})`;
+    let chauffeur = null;
+    let vehiculeString = null;
+
+    if (!isBusAvion) {
+      const sc = document.getElementById('selectChauffeurOrdre').value;
+      chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurOrdreAutre').value.trim() : sc;
+      
+      const type = document.getElementById('selectVehiculeOrdreType').value;
+      const marque = document.getElementById('inputVehiculeOrdreMarque').value.trim();
+      const couleur = document.getElementById('inputVehiculeOrdreCouleur').value.trim();
+      const immat = document.getElementById('inputVehiculeOrdreImmat').value.trim();
+      
+      if (!chauffeur || !marque || !couleur || !immat) { alert('⚠️ Remplissez tous les champs.'); return; }
+      vehiculeString = `${type} (${marque} - ${couleur} - ${immat})`;
+    }
 
     try {
       await apiCall('/missions_2?id=eq.' + ordreEnCours.id, { 
@@ -1185,7 +1292,7 @@
           affecte_par: getAdminName() 
         }) 
       });
-      fermerModal(); await chargerOrdres(); alert('✅ Ordre de mission affecté. En attente RH.');
+      fermerModal(); await chargerOrdres(); alert(`✅ Demande transmise au RH.`);
     } catch (err) { alert('❌ ' + err.message); }
   }
 
@@ -1227,7 +1334,7 @@
         await emailjs.send("service_e6k2e76", "template_gd96rfl", {
           to_email: ordreEnCours.email,
           subject: `✅ Ordre de Mission Validé - N° ${numOrdre}`,
-          message: `Bonjour ${ordreEnCours.nom},\n\nVotre demande d'ordre de mission a été validée par le service RH.\n\n📄 Numéro d'ordre attribué : ${numOrdre}\n📍 Destination : ${ordreEnCours.destination}\n📅 Date de départ : ${formatNigerDateShort(ordreEnCours.date_depart)}\n🚙 Véhicule : ${ordreEnCours.vehicule_assigne}\n\nPour télécharger et imprimer votre ordre de mission au format PDF, cliquez sur le lien ci-dessous :\n${lienPdf}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`
+          message: `Bonjour ${ordreEnCours.nom},\n\nVotre demande d'ordre de mission a été validée par le service RH.\n\n📄 Numéro d'ordre attribué : ${numOrdre}\n📍 Destination : ${ordreEnCours.destination}\n📅 Date de départ : ${formatNigerDateShort(ordreEnCours.date_depart)}\n🚙 Véhicule : ${ordreEnCours.vehicule_assigne || 'Aucun (Bus/Avion)'}\n\nPour télécharger et imprimer votre ordre de mission au format PDF, cliquez sur le lien ci-dessous :\n${lienPdf}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`
         });
         alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\nUn e-mail a été envoyé au demandeur.`);
       } catch (emailErr) {
@@ -1275,7 +1382,7 @@
       tel = prompt(`Entrez le numéro WhatsApp de ${o.chauffeur_assigne} (ex: 227XXXXXXXX) :`, "");
     }
     
-    const message = `Bonjour, voici l'ordre de mission pour *${o.nom}*.\n📍 Destination : ${o.destination}\n📅 Départ : ${formatNigerDateShort(o.date_depart)}\n🚙 Véhicule : ${o.vehicule_assigne}\n\nMerci de consulter le document officiel.`;
+    const message = `Bonjour, voici l'ordre de mission pour *${o.nom}*.\n📍 Destination : ${o.destination}\n📅 Départ : ${formatNigerDateShort(o.date_depart)}\n🚙 Véhicule : ${o.vehicule_assigne || 'Aucun (Bus/Avion)'}\n\nMerci de consulter le document officiel.`;
     const url = tel ? `https://wa.me/${tel.replace(/\D/g,'')}?text=${encodeURIComponent(message)}` : `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   }

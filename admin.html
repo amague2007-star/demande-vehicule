@@ -258,15 +258,15 @@
   <!-- SECTION ACCUEIL / GRAPHIQUES -->
   <div id="accueilSection">
     
-    <!-- NOUVEAU : LES ONGLETS DE FILTRAGE SUR L'ACCUEIL -->
-    <div class="type-tabs" style="padding: 15px 0 10px 0;">
-      <button class="type-tab active" id="btn-accueil-tous" onclick="changerTypeAccueil('tous', this)">📁 Tous</button>
-      <button class="type-tab" id="btn-accueil-UNHCR" onclick="changerTypeAccueil('Véhicule UNHCR', this)">🚙 UNHCR</button>
-      <button class="type-tab" id="btn-accueil-Partenaire" onclick="changerTypeAccueil('Véhicule Partenaire', this)">🤝 Partenaire</button>
-      <button class="type-tab" id="btn-accueil-Location" onclick="changerTypeAccueil('Véhicule Location', this)">🏢 Location</button>
-      <button class="type-tab" id="btn-accueil-ADKOUL" onclick="changerTypeAccueil('Véhicule ONG ADKOUL', this)">🚐 ONG ADKOUL</button>
-      <button class="type-tab" id="btn-accueil-Bus" onclick="changerTypeAccueil('Bus', this)">🚌 Bus</button>
-      <button class="type-tab" id="btn-accueil-Avion" onclick="changerTypeAccueil('Avion', this)">✈️ Vol</button>
+    <!-- NOUVEAU : LES ONGLETS DE FILTRAGE SUR L'ACCUEIL AVEC BADGES -->
+    <div class="type-tabs" id="accueilTypeTabs" style="padding: 15px 0 10px 0;">
+      <button class="type-tab active" onclick="changerTypeAccueil('tous', this)">📁 Tous <span class="notification-badge" id="badgeAccueilTous">0</span></button>
+      <button class="type-tab" onclick="changerTypeAccueil('Véhicule UNHCR', this)">🚙 UNHCR <span class="notification-badge" id="badgeAccueilUNHCR">0</span></button>
+      <button class="type-tab" onclick="changerTypeAccueil('Véhicule Partenaire', this)">🤝 Partenaire <span class="notification-badge" id="badgeAccueilPartenaire">0</span></button>
+      <button class="type-tab" onclick="changerTypeAccueil('Véhicule Location', this)">🏢 Location <span class="notification-badge" id="badgeAccueilLocation">0</span></button>
+      <button class="type-tab" onclick="changerTypeAccueil('Véhicule ONG ADKOUL', this)">🚐 ONG ADKOUL <span class="notification-badge" id="badgeAccueilADKOUL">0</span></button>
+      <button class="type-tab" onclick="changerTypeAccueil('Bus', this)">🚌 Bus <span class="notification-badge" id="badgeAccueilBus">0</span></button>
+      <button class="type-tab" onclick="changerTypeAccueil('Avion', this)">✈️ Vol <span class="notification-badge" id="badgeAccueilAvion">0</span></button>
     </div>
 
     <div class="dash-filters">
@@ -719,21 +719,37 @@
       }
     });
 
-    const updateBadge = (id, count) => {
+    // Mettre à jour les badges pour l'ACCUEIL
+    const updateBadgeAccueil = (id, count) => {
       const el = document.getElementById(id);
       if (el) {
         if (count > 0) { el.textContent = count; el.style.display = 'inline-block'; } 
         else { el.style.display = 'none'; }
       }
     };
+    updateBadgeAccueil('badgeAccueilTous', types['Tous']);
+    updateBadgeAccueil('badgeAccueilUNHCR', types['UNHCR']);
+    updateBadgeAccueil('badgeAccueilPartenaire', types['Partenaire']);
+    updateBadgeAccueil('badgeAccueilLocation', types['Location']);
+    updateBadgeAccueil('badgeAccueilADKOUL', types['ADKOUL']);
+    updateBadgeAccueil('badgeAccueilBus', types['Bus']);
+    updateBadgeAccueil('badgeAccueilAvion', types['Avion']);
 
-    updateBadge('badgeTypeTous', types['Tous']);
-    updateBadge('badgeTypeUNHCR', types['UNHCR']);
-    updateBadge('badgeTypePartenaire', types['Partenaire']);
-    updateBadge('badgeTypeLocation', types['Location']);
-    updateBadge('badgeTypeADKOUL', types['ADKOUL']);
-    updateBadge('badgeTypeBus', types['Bus']);
-    updateBadge('badgeTypeAvion', types['Avion']);
+    // Mettre à jour les badges pour la PAGE ORDRES
+    const updateBadgeOrdre = (id, count) => {
+      const el = document.getElementById(id);
+      if (el) {
+        if (count > 0) { el.textContent = count; el.style.display = 'inline-block'; } 
+        else { el.style.display = 'none'; }
+      }
+    };
+    updateBadgeOrdre('badgeTypeTous', types['Tous']);
+    updateBadgeOrdre('badgeTypeUNHCR', types['UNHCR']);
+    updateBadgeOrdre('badgeTypePartenaire', types['Partenaire']);
+    updateBadgeOrdre('badgeTypeLocation', types['Location']);
+    updateBadgeOrdre('badgeTypeADKOUL', types['ADKOUL']);
+    updateBadgeOrdre('badgeTypeBus', types['Bus']);
+    updateBadgeOrdre('badgeTypeAvion', types['Avion']);
   }
 
   function afficherDashboard() {
@@ -1152,7 +1168,7 @@
   // NOUVEAU : Gérer les clics sur les onglets de l'accueil
   function changerTypeAccueil(type, btn) {
     typeAccueilActif = type;
-    document.querySelectorAll('#accueilSection .type-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('#accueilTypeTabs .type-tab').forEach(t => t.classList.remove('active'));
     if(btn) btn.classList.add('active');
     mettreAJourGraphiques();
   }

@@ -657,7 +657,7 @@
     const attenteMissions = tousLesOrdres.filter(o => o.statut === 'en_attente' || o.statut === 'affecte_logistique').length;
     const badgeO = document.getElementById('badgeOrdres');
     
-    // On n'affiche PAS le badge global si on est RH (car il est déjà sur la page)
+    // Le RH ne voit PAS le badge global car il est déjà sur la page, et il ne traite que "affecte_logistique"
     if (role === 'rh') {
       badgeO.style.display = 'none';
     } else {
@@ -675,14 +675,16 @@
     };
 
     tousLesOrdres.forEach(o => {
-      let isRelevantForRh = false;
+      let isRelevant = false;
       if (role === 'rh') {
-        if (o.statut === 'affecte_logistique') isRelevantForRh = true; // Le RH ne compte que ce qu'il doit valider
+        // Le RH ne compte QUE ce qu'il doit valider
+        if (o.statut === 'affecte_logistique') isRelevant = true; 
       } else {
-        if (o.statut === 'en_attente' || o.statut === 'affecte_logistique') isRelevantForRh = true;
+        // Les autres comptent tout ce qui est en cours
+        if (o.statut === 'en_attente' || o.statut === 'affecte_logistique') isRelevant = true;
       }
 
-      if (isRelevantForRh) {
+      if (isRelevant) {
         types['Tous']++;
         const moyen = o.moyen_deplacement || '';
         if (moyen.includes('UNHCR')) types['UNHCR']++;
@@ -719,6 +721,7 @@
     document.getElementById('userName').textContent = adminName;
     
     if (role === 'rh') {
+      // Affichage simplifié pour le RH
       document.getElementById('navAccueil').style.display = 'none';
       document.getElementById('navDemandes').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
@@ -735,6 +738,31 @@
       
       // Sélectionner par défaut "En attente (RH)"
       filtreSelect.value = 'affecte_logistique';
+
+      // AJOUT DES GRAPHIQUES POUR LE RH
+      const ordresContainer = document.getElementById('ordresContainer');
+      
+      // On crée le bloc HTML des graphiques juste avant le conteneur des cartes
+      const graphiquesHTML = `
+        <div class="dashboard-layout" style="padding: 0 20px 20px 20px;">
+          <div class="chart-box" style="height: 200px;">
+            <h3>Mes Validations à Traiter</h3>
+            <div class="chart-container"><canvas id="chartStatuts"></canvas></div>
+          </div>
+          <div class="chart-box" style="height: 200px;">
+            <h3>Validations par Projet</h3>
+            <div class="chart-container"><canvas id="chartProjets"></canvas></div>
+          </div>
+        </div>
+      `;
+      
+      // Injection des graphiques
+      if (!document.getElementById('rhChartsContainer')) {
+        const div = document.createElement('div');
+        div.id = 'rhChartsContainer';
+        div.innerHTML = graphiquesHTML;
+        ordresContainer.parentNode.insertBefore(div, ordresContainer);
+      }
 
       afficherSection('ordres');
     } else if (role === 'assistant_logistique') {
@@ -1172,6 +1200,9 @@
     
     if (listeFinale.length === 0) { 
       container.innerHTML = '<div class="empty">📭 Aucun ordre de mission.</div>'; 
+      
+      // Si RH et pas de données, on met à jour les graphiques quand même
+      if (role === 'rh') genererGraphiquesRH(); 
       return; 
     }
 
@@ -1233,6 +1264,44 @@
           <div class="actions">${actionsHtml}</div>
         </div>`;
     }).join('');
+
+    if (role === 'rh') genererGraphiquesRH();
+  }
+
+  // FONCTION POUR GÉNÉRER LES GRAPHIQUES SPÉCIFIQUES AU RH
+  function genererGraphiquesRH() {
+    if(chartStatutsInstance) chartStatutsInstance.destroy();
+    if(chartProjetsInstance) chartProjetsInstance.destroy();
+
+    // On ne prend en compte que les dossiers que le RH voit (affectés et validés)
+    const ordresVisibles = tousLesOrdres.filter(o => o.statut === 'affecte_logistique' || o.statut === 'validee');
+
+    const statutsCount = { 'affecte_logistique': 0, 'validee': 0 };
+    ordresVisibles.forEach(o => { if (statutsCount[o.statut] !== undefined) statutsCount[o.statut]++; });
+    
+    chartStatutsInstance = new Chart(document.getElementById('chartStatuts').getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: ['À Valider (Attente)', 'Déjà Validés'],
+        datasets: [{ data: [statutsCount['affecte_logistique'], statutsCount['validee']], backgroundColor: ['#f39c12', '#27ae60'], borderWidth: 0 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 10} } } } }
+    });
+
+    const projetsCount = {};
+    ordresVisibles.forEach(o => {
+      const p = o.projet || 'Non spécifié';
+      projetsCount[p] = (projetsCount[p] || 0) + 1;
+    });
+    
+    chartProjetsInstance = new Chart(document.getElementById('chartProjets').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: Object.keys(projetsCount),
+        datasets: [{ label: 'Dossiers', data: Object.values(projetsCount), backgroundColor: '#1e3c72', borderRadius: 6 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: {size: 10} } }, x: { ticks: { font: {size: 10} } } } }
+    });
   }
 
   function toggleAutreOrdre(type) {
@@ -1248,7 +1317,6 @@
     ordreEnCours = tousLesOrdres.find(o => o.id === id);
     if (!ordreEnCours) return;
     
-    // Vérification si c'est un Bus ou un Avion
     const isBusAvion = ordreEnCours.moyen_deplacement && (ordreEnCours.moyen_deplacement.includes('Bus') || ordreEnCours.moyen_deplacement.includes('Avion'));
     
     const fieldsChauffeurVehicule = document.getElementById('fieldsChauffeurVehicule');
@@ -1257,19 +1325,16 @@
     const btnAction = document.getElementById('btnActionOrdre');
 
     if (isBusAvion) {
-      // Cacher les champs de chauffeur
       fieldsChauffeurVehicule.style.display = 'none';
       messageBusAvion.style.display = 'block';
       modalTitle.textContent = '📄 Transmettre la demande (Bus / Vol)';
       btnAction.textContent = '✅ Transmettre au RH';
       
-      // Vider les champs cachés pour éviter les erreurs
       document.getElementById('selectChauffeurOrdre').value = '';
       document.getElementById('inputVehiculeOrdreMarque').value = '';
       document.getElementById('inputVehiculeOrdreCouleur').value = '';
       document.getElementById('inputVehiculeOrdreImmat').value = '';
     } else {
-      // Afficher les champs normaux
       fieldsChauffeurVehicule.style.display = 'block';
       messageBusAvion.style.display = 'none';
       modalTitle.textContent = '📄 Affectation Logistique';

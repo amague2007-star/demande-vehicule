@@ -619,9 +619,8 @@
             <option value="Véhicule UNHCR">Véhicule UNHCR</option>
             <option value="Véhicule Partenaire">Véhicule Partenaire</option>
             <option value="Véhicule Location">Véhicule Location</option>
-            <option value="Bus">Bus</option>
-            <option value="Avion">Avion</option>
           </select>
+          <p style="font-size:12px;color:#526173;margin-top:5px;">Type déterminé par le moyen choisi dans la demande.</p>
         </div>
         <div>
           <label>Marque *</label>
@@ -1640,7 +1639,13 @@
       document.getElementById('selectChauffeurOrdre').value = '';
       document.getElementById('inputChauffeurOrdreAutre').style.display = 'none'; 
       document.getElementById('inputChauffeurOrdreAutre').value = '';
-      document.getElementById('selectVehiculeOrdreType').value = 'Véhicule Location';
+      const typeDemande = ordreEnCours.moyen_deplacement === 'Véhicule ONG'
+        ? 'Véhicule ONG ADKOUL'
+        : ordreEnCours.moyen_deplacement;
+      const selectType = document.getElementById('selectVehiculeOrdreType');
+      selectType.value = Array.from(selectType.options).some(opt => opt.value === typeDemande)
+        ? typeDemande : '';
+      selectType.disabled = true;
       document.getElementById('inputVehiculeOrdreMarque').value = '';
       document.getElementById('inputVehiculeOrdreCouleur').value = '';
       document.getElementById('inputVehiculeOrdreImmat').value = '';
@@ -1667,7 +1672,7 @@
       const couleur = document.getElementById('inputVehiculeOrdreCouleur').value.trim();
       const immat = document.getElementById('inputVehiculeOrdreImmat').value.trim();
       
-      if (!chauffeur || !marque || !couleur || !immat) { alert('⚠️ Remplissez tous les champs.'); return; }
+      if (!type || !chauffeur || !marque || !couleur || !immat) { alert('⚠️ Complétez le type de véhicule de la demande et tous les champs.'); return; }
       vehiculeString = `${type} (${marque} - ${couleur} - ${immat})`;
     }
 

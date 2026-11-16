@@ -1333,3 +1333,917 @@
         
         actionsHtml = `<button class="btn btn-whatsapp" onclick="notifierWhatsAppDemande(${d.id})">💬 Notifier</button>`;
       } else if (d.statut === 'refusee') {
+        resultatHtml = `<div class="resultat refusee"><strong>❌ Refusée</strong><br>Motif : ${d.message_admin}${d.refuse_par ? `<span class="par-admin">✖ Refusée par : ${d.refuse_par}</span>` : ''}</div>`;
+      }
+      
+      if (role === 'logistique') {
+        actionsHtml += `<button class="btn btn-suppr" onclick="supprimerDemande(${d.id})">🗑️ Supprimer</button>`;
+      }
+
+      return `
+        <div class="demande-item ${d.statut === 'validee' ? 'validee' : d.statut === 'refusee' ? 'refusee' : ''}">
+          <div class="demande-header"><h3>${d.prenom} ${d.nom} <span>— ${d.poste}</span></h3><span class="statut ${d.statut}">${d.statut === 'en_attente' ? '⏳ En attente' : d.statut === 'validee' ? '✅ Affectée' : '❌ Refusée'}</span></div>
+          <div class="demande-grid">
+            <div class="info-item"><strong>📅 Date</strong>${formatNigerDateShort(d.date_demande || d.date_sortie)} ${d.heure_depart ? 'à ' + d.heure_depart : ''}</div>
+            <div class="info-item"><strong>📍 Destination</strong>${d.destination}</div>
+            <div class="info-item"><strong>⏱ Durée</strong>${d.duree} min</div>
+          </div>
+          <div class="demande-motif"><strong>📝 Motif :</strong> ${d.motif}</div>
+          ${resultatHtml}
+          <div class="actions">${actionsHtml}</div>
+        </div>`;
+    }).join('');
+  }
+
+  function toggleAutre(type) {
+    const select = document.getElementById(type === 'chauffeur' ? 'selectChauffeur' : 'selectVehicule');
+    const input = document.getElementById(type === 'chauffeur' ? 'inputChauffeurAutre' : 'inputVehiculeAutre');
+    if(input) {
+      input.style.display = select.value === 'AUTRE' ? 'block' : 'none';
+      if (select.value !== 'AUTRE') input.value = '';
+    }
+  }
+
+  function toggleVehiculeDemandeAutre() {
+    const choix = document.getElementById('selectVehiculeType').value;
+    const bloc = document.getElementById('vehiculeDemandeAutreBox');
+    const saisie = document.getElementById('inputVehiculeAutre');
+    const autre = choix === 'AUTRE';
+    bloc.style.display = autre ? 'block' : 'none';
+    saisie.required = autre;
+    if (!autre) saisie.value = '';
+  }
+
+  function ouvrirModalValider(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
+    demandeEnCours = toutesLesDemandes.find(d => d.id === id);
+    if (!demandeEnCours) return;
+    document.getElementById('modalValiderInfo').textContent = `${demandeEnCours.prenom} ${demandeEnCours.nom} → ${demandeEnCours.destination}`;
+    document.getElementById('selectChauffeur').value = '';
+    document.getElementById('inputChauffeurAutre').style.display = 'none';
+    document.getElementById('inputChauffeurAutre').value = '';
+    document.getElementById('selectVehiculeType').value = '';
+    document.getElementById('inputVehiculeAutre').value = '';
+    toggleVehiculeDemandeAutre();
+    document.getElementById('modalValider').classList.add('active');
+  }
+
+  async function confirmerValidation() {
+    if (getAdminRole() === 'assistant_logistique') return;
+    const sc = document.getElementById('selectChauffeur').value;
+    const chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurAutre').value.trim() : sc;
+    const type = document.getElementById('selectVehiculeType').value;
+    const vehiculeString = type === 'AUTRE' ? document.getElementById('inputVehiculeAutre').value.trim() : type;
+
+    if (!chauffeur) { alert('⚠️ Sélectionnez ou saisissez le nom du chauffeur.'); return; }
+    if (!type) { alert('⚠️ Choisissez PRADO, HARD-TOP ou AUTRE.'); return; }
+    if (!vehiculeString) { alert('⚠️ Précisez le véhicule dans le champ de saisie manuelle.'); return; }
+
+    try {
+      await apiCall('/demandes?id=eq.' + demandeEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'validee', chauffeur_assigne: chauffeur, vehicule_assigne: vehiculeString, date_validation: new Date().toISOString(), valide_par: getAdminName() }) });
+
+      const notification = await notifierEmailAvecStatut('template_vehicule', demandeEnCours.email, {
+        nom: demandeEnCours.prenom + ' ' + demandeEnCours.nom,
+        chauffeur: chauffeur,
+        vehicule: vehiculeString,
+        destination: demandeEnCours.destination,
+        date: (demandeEnCours.date_demande || demandeEnCours.date_sortie) ? formatNigerDateShort(demandeEnCours.date_demande || demandeEnCours.date_sortie) : '-',
+        heure: demandeEnCours.heure_depart || '-'
+      });
+
+      fermerModal();
+      await chargerDemandes();
+      alert('✅ Demande validée et véhicule affecté.\n' +
+        (notification.success
+          ? 'Notification acceptée par EmailJS pour le demandeur.'
+          : '⚠️ Notification email non confirmée. La validation est enregistrée.'));
+    } catch (err) { alert('❌ ' + err.message); }
+  }
+
+  function ouvrirModalRefuser(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
+    demandeEnCours = toutesLesDemandes.find(d => d.id === id);
+    if (!demandeEnCours) return;
+    document.getElementById('modalRefuserInfo').textContent = `${demandeEnCours.prenom} ${demandeEnCours.nom}`;
+    document.getElementById('inputMotifRefus').value = '';
+    document.getElementById('modalRefuser').classList.add('active');
+  }
+
+  async function confirmerRefus() {
+    if (getAdminRole() === 'assistant_logistique') return;
+    const motif = document.getElementById('inputMotifRefus').value.trim();
+    if (!motif) { alert('⚠️ Motif obligatoire.'); return; }
+    try {
+      await apiCall('/demandes?id=eq.' + demandeEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'refusee', message_admin: motif, date_validation: new Date().toISOString(), refuse_par: getAdminName() }) });
+
+      const notification = await notifierEmailAvecStatut('template_refus', demandeEnCours.email, {
+        nom: demandeEnCours.prenom + ' ' + demandeEnCours.nom,
+        destination: demandeEnCours.destination,
+        motif_refus: motif,
+        date: (demandeEnCours.date_demande || demandeEnCours.date_sortie) ? formatNigerDateShort(demandeEnCours.date_demande || demandeEnCours.date_sortie) : '-'
+      });
+
+      fermerModal();
+      await chargerDemandes();
+      alert('✅ Demande refusée.\n' +
+        (notification.success
+          ? 'Notification acceptée par EmailJS pour le demandeur.'
+          : '⚠️ Notification email non confirmée. Le refus est enregistré.'));
+    } catch (err) { alert('❌ ' + err.message); }
+  }
+
+  async function supprimerDemande(id) { 
+    if (confirm('⚠️ Suppression définitive.\n\nConfirmer ?')) { 
+      await apiCall('/demandes?id=eq.' + id, { method: 'DELETE' }); 
+      chargerDemandes(); 
+    } 
+  }
+
+  function notifierWhatsAppDemande(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
+    const d = toutesLesDemandes.find(d => d.id === id);
+    if (!d) return;
+    
+    let tel = CHAUFFEURS[d.chauffeur_assigne] || "";
+    if (!tel && d.chauffeur_assigne) {
+      tel = prompt(`Entrez le numéro WhatsApp de ${d.chauffeur_assigne} (ex: 227XXXXXXXX) :`, "");
+    }
+    
+    const message = `Bonjour, vous avez une affectation de véhicule :\n👤 Agent : *${d.prenom} ${d.nom}*\n📍 Destination : ${d.destination}\n📅 Date : ${formatNigerDateShort(d.date_demande || d.date_sortie)} ${d.heure_depart ? 'à ' + d.heure_depart : ''}\n🚙 Véhicule : ${d.vehicule_assigne}\n\nMerci de confirmer votre disponibilité.`;
+    const url = tel ? `https://wa.me/${tel.replace(/\D/g,'')}?text=${encodeURIComponent(message)}` : `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  }
+
+  // ============ ORDRES DE MISSION ============
+  function changerTypeOrdre(type, btn) {
+    if (getAdminRole() === 'assistant_logistique' && type !== 'Véhicule Location') return;
+    typeOrdreActif = type;
+    document.querySelectorAll('#typeTabs .type-tab').forEach(t => t.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    afficherOrdres();
+  }
+
+  async function chargerOrdres() {
+    const container = document.getElementById('ordresContainer');
+    container.innerHTML = '<div class="loading">Chargement...</div>';
+    try {
+      const assistant = getAdminRole() === 'assistant_logistique';
+      const chemin = assistant
+        ? '/missions_2?moyen_deplacement=eq.' + encodeURIComponent('Véhicule Location') + '&order=created_at.desc'
+        : '/missions_2?order=created_at.desc';
+      tousLesOrdres = await apiCall(chemin);
+      if (assistant) typeOrdreActif = 'Véhicule Location';
+      mettreAJourNotifications();
+      if (!assistant) rafraichirSelectsAvances();
+      afficherOrdres();
+      if(document.getElementById('accueilSection').style.display === 'block') mettreAJourGraphiques();
+    } catch (err) { container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>'; }
+  }
+
+  function estEnRetard(o) {
+    if (o.statut === 'validee') return false;
+    if (!o.date_depart) return false;
+    const dateDepart = new Date(o.date_depart);
+    const now = new Date();
+    const diffHeures = (dateDepart - now) / (1000 * 60 * 60);
+    return diffHeures >= 0 && diffHeures <= 48;
+  }
+
+  function afficherOrdres() {
+    const filtreStatut = document.getElementById('filtreStatutOrdre').value;
+    const recherche = document.getElementById('searchOrdres').value.toLowerCase();
+    const container = document.getElementById('ordresContainer');
+    const role = getAdminRole();
+    
+    let listeBase = tousLesOrdres;
+    if (role === 'rh') {
+      listeBase = tousLesOrdres.filter(o => o.statut !== 'en_attente');
+    } else if (role === 'assistant_logistique') {
+      listeBase = tousLesOrdres.filter(o => o.moyen_deplacement === 'Véhicule Location');
+      typeOrdreActif = 'Véhicule Location';
+    }
+
+    if (typeOrdreActif !== 'tous') {
+      if (typeOrdreActif === 'Véhicule ONG ADKOUL') {
+        listeBase = listeBase.filter(o => o.moyen_deplacement === 'Véhicule ONG ADKOUL' || o.moyen_deplacement === 'Véhicule ONG');
+      } else {
+        listeBase = listeBase.filter(o => o.moyen_deplacement === typeOrdreActif);
+      }
+    }
+
+    if (window._afFilteredIds && document.getElementById('advancedFiltersBody').classList.contains('open')) {
+      listeBase = listeBase.filter(o => o.statut !== 'validee' || window._afFilteredIds.has(o.id));
+    }
+
+    document.getElementById('statOrdresAttente').textContent = listeBase.filter(o => o.statut === 'en_attente').length;
+    document.getElementById('statOrdresAffectes').textContent = listeBase.filter(o => o.statut === 'affecte_logistique').length;
+    document.getElementById('statOrdresValides').textContent = listeBase.filter(o => o.statut === 'validee').length;
+    document.getElementById('statOrdresRetard').textContent = listeBase.filter(o => estEnRetard(o)).length;
+    document.getElementById('statOrdresTotal').textContent = listeBase.length;
+
+    let listeFinale = listeBase.filter(o => {
+      let matchStatut = false;
+      if (filtreStatut === 'tous') matchStatut = true;
+      else if (filtreStatut === 'retard') matchStatut = estEnRetard(o);
+      else matchStatut = o.statut === filtreStatut;
+
+      const matchSearch = !recherche || 
+        (o.nom && o.nom.toLowerCase().includes(recherche)) ||
+        (o.destination && o.destination.toLowerCase().includes(recherche)) ||
+        (o.projet && o.projet.toLowerCase().includes(recherche)) ||
+        (o.objectif && o.objectif.toLowerCase().includes(recherche));
+      return matchStatut && matchSearch;
+    });
+    
+    if (listeFinale.length === 0) { 
+      container.innerHTML = '<div class="empty">📭 Aucun ordre de mission.</div>'; 
+      if (role === 'rh') setTimeout(genererGraphiquesRH, 100); 
+      return; 
+    }
+
+    container.innerHTML = listeFinale.map(o => {
+      let actionsHtml = ''; let resultatHtml = '';
+      
+      const retard = estEnRetard(o);
+      const classRetard = retard ? 'retard' : '';
+
+      if (o.statut === 'en_attente') {
+        if (role === 'logistique' || (role === 'assistant_logistique' && o.moyen_deplacement === 'Véhicule Location')) {
+          actionsHtml = `<button class="btn btn-valider" onclick="ouvrirModalValiderOrdre(${o.id})">✅ Affecter</button>`;
+        } else {
+          actionsHtml = `<span style="color:#d68910; font-weight:bold;">⏳ En attente.</span>`;
+        }
+      } else if (o.statut === 'affecte_logistique') {
+        resultatHtml = `<div class="resultat validee" style="background:#fff3cd; color:#856404; border-color:#ffeeba;"><strong>⏳ Attente N° Ordre (RH)</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne || 'Aucun (Bus/Avion)'}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne || 'Aucun'}</strong>${o.affecte_par ? `<span class="par-admin">✔ Affecté par : ${o.affecte_par}</span>` : ''}</div>`;
+        
+        actionsHtml = role === 'assistant_logistique' ? '' : `
+          <button class="btn btn-print-admin" onclick="voirOrdreMission(${o.id})" style="background:#3498db;">👁️ Voir</button>
+          <button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>
+          <button class="btn btn-print-admin" onclick="telechargerOrdreMission(${o.id})" style="background:#e67e22;">📥 Télécharger</button>
+          <button class="btn btn-whatsapp" onclick="notifierWhatsAppMission(${o.id})">💬 Notifier</button>
+        `;
+
+        if (role === 'rh' || role === 'logistique') {
+           actionsHtml += `<button class="btn btn-rh-urgent" onclick="ouvrirModalNumeroRH(${o.id})">🔢 Valider RH</button>`;
+        }
+      } else if (o.statut === 'validee') {
+        resultatHtml = `<div class="resultat validee"><strong>✅ Validé (N° ${o.message_admin})</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne || 'Aucun'}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne || 'Aucun'}</strong></div>`;
+        
+        actionsHtml = role === 'assistant_logistique' ? '' : `
+          <button class="btn btn-print-admin" onclick="voirOrdreMission(${o.id})" style="background:#3498db;">👁️ Voir</button>
+          <button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>
+          <button class="btn btn-print-admin" onclick="telechargerOrdreMission(${o.id})" style="background:#e67e22;">📥 Télécharger</button>
+          <button class="btn btn-whatsapp" onclick="notifierWhatsAppMission(${o.id})">💬 Notifier</button>
+        `;
+      }
+
+      if (role === 'logistique') {
+        actionsHtml += `<button class="btn btn-suppr" onclick="supprimerOrdre(${o.id})">🗑️ Supprimer</button>`;
+      }
+
+      return `
+        <div class="demande-item ${o.statut === 'validee' ? 'validee' : o.statut === 'affecte_logistique' ? 'validee' : ''} ${classRetard}">
+          <div class="demande-header">
+            <h3>${o.nom} <span>— ${o.poste}</span></h3>
+            <span class="statut ${o.statut}">${o.statut === 'en_attente' ? '⏳ En attente' : o.statut === 'affecte_logistique' ? '⏳ Attente RH' : '✅ Validé'}</span>
+          </div>
+          <div class="demande-grid">
+            <div class="info-item"><strong>📅 Départ</strong>${formatNigerDateShort(o.date_depart)}</div>
+            <div class="info-item"><strong>📅 Retour</strong>${formatNigerDateShort(o.date_retour)}</div>
+            <div class="info-item"><strong>📍 Destination</strong>${o.destination}</div>
+            <div class="info-item"><strong>🚌 Moyen</strong>${o.moyen_deplacement}</div>
+            <div class="info-item"><strong>📁 Projet</strong>${o.projet || '-'}</div>
+          </div>
+          <div class="demande-motif"><strong>🎯 Objectif :</strong> ${o.objectif}</div>
+          ${resultatHtml}
+          <div class="actions">${actionsHtml}</div>
+        </div>`;
+    }).join('');
+
+    if (role === 'rh') {
+      setTimeout(genererGraphiquesRH, 100);
+    }
+  }
+
+  function genererGraphiquesRH() {
+    if (!document.getElementById('rhChartsContainer')) {
+      const ordresContainer = document.getElementById('ordresContainer');
+      const graphiquesHTML = `
+        <div class="dashboard-layout" style="padding: 0 20px 20px 20px;" id="rhChartsContainer">
+          <div class="chart-box" style="height: 180px;">
+            <h3>Mes Validations à Traiter</h3>
+            <div class="chart-container"><canvas id="rhChartStatuts"></canvas></div>
+          </div>
+          <div class="chart-box" style="height: 180px;">
+            <h3>Répartition des Projets</h3>
+            <div class="chart-container"><canvas id="rhChartProjets"></canvas></div>
+          </div>
+        </div>
+      `;
+      ordresContainer.insertAdjacentHTML('beforebegin', graphiquesHTML);
+    }
+
+    if(chartStatutsInstance) chartStatutsInstance.destroy();
+    if(chartProjetsInstance) chartProjetsInstance.destroy();
+
+    const ordresVisibles = tousLesOrdres.filter(o => o.statut === 'affecte_logistique' || o.statut === 'validee');
+
+    const statutsCount = { 'affecte_logistique': 0, 'validee': 0 };
+    ordresVisibles.forEach(o => { if (statutsCount[o.statut] !== undefined) statutsCount[o.statut]++; });
+    
+    const ctxStatuts = document.getElementById('rhChartStatuts');
+    if(ctxStatuts) {
+      chartStatutsInstance = new Chart(ctxStatuts.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: ['À Valider', 'Déjà Validés'],
+          datasets: [{ data: [statutsCount['affecte_logistique'], statutsCount['validee']], backgroundColor: ['#f39c12', '#27ae60'], borderWidth: 0 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 9} } } } }
+      });
+    }
+
+    const projetsCount = {};
+    ordresVisibles.forEach(o => {
+      const p = o.projet || 'Non spécifié';
+      projetsCount[p] = (projetsCount[p] || 0) + 1;
+    });
+    
+    const ctxProjets = document.getElementById('rhChartProjets');
+    if(ctxProjets) {
+      chartProjetsInstance = new Chart(ctxProjets.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(projetsCount),
+          datasets: [{ 
+            data: Object.values(projetsCount), 
+            backgroundColor: ['#1e3c72', '#f39c12', '#27ae60', '#e74c3c', '#8e44ad', '#3498db'], 
+            borderWidth: 0 
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 9} } } } }
+      });
+    }
+  }
+
+  function toggleAutreOrdre(type) {
+    const select = document.getElementById('selectChauffeurOrdre');
+    const input = document.getElementById('inputChauffeurOrdreAutre');
+    if(input) {
+      input.style.display = select.value === 'AUTRE' ? 'block' : 'none';
+      if (select.value !== 'AUTRE') input.value = '';
+    }
+  }
+
+  function ouvrirModalValiderOrdre(id) {
+    ordreEnCours = tousLesOrdres.find(o => o.id === id);
+    if (!ordreEnCours) return;
+    if (getAdminRole() === 'assistant_logistique' &&
+        (ordreEnCours.moyen_deplacement !== 'Véhicule Location' || ordreEnCours.statut !== 'en_attente')) return;
+    
+    const isBusAvion = ordreEnCours.moyen_deplacement && (ordreEnCours.moyen_deplacement.includes('Bus') || ordreEnCours.moyen_deplacement.includes('Avion'));
+    
+    const fieldsChauffeurVehicule = document.getElementById('fieldsChauffeurVehicule');
+    const messageBusAvion = document.getElementById('messageBusAvion');
+    const modalTitle = document.getElementById('modalValiderOrdreTitle');
+    const btnAction = document.getElementById('btnActionOrdre');
+
+    if (isBusAvion) {
+      fieldsChauffeurVehicule.style.display = 'none';
+      messageBusAvion.style.display = 'block';
+      modalTitle.textContent = '📄 Transmettre la demande (Bus / Vol)';
+      btnAction.textContent = '✅ Transmettre au RH';
+      
+      document.getElementById('selectChauffeurOrdre').value = '';
+      document.getElementById('inputVehiculeOrdreMarque').value = '';
+      document.getElementById('inputVehiculeOrdreCouleur').value = '';
+      document.getElementById('inputVehiculeOrdreImmat').value = '';
+    } else {
+      fieldsChauffeurVehicule.style.display = 'block';
+      messageBusAvion.style.display = 'none';
+      modalTitle.textContent = '📄 Affectation Logistique';
+      btnAction.textContent = '✅ Affecter';
+      
+      document.getElementById('selectChauffeurOrdre').value = '';
+      document.getElementById('inputChauffeurOrdreAutre').style.display = 'none'; 
+      document.getElementById('inputChauffeurOrdreAutre').value = '';
+      const typeDemande = ordreEnCours.moyen_deplacement === 'Véhicule ONG'
+        ? 'Véhicule ONG ADKOUL'
+        : ordreEnCours.moyen_deplacement;
+      const selectType = document.getElementById('selectVehiculeOrdreType');
+      selectType.value = Array.from(selectType.options).some(opt => opt.value === typeDemande)
+        ? typeDemande : '';
+      selectType.disabled = true;
+      document.getElementById('inputVehiculeOrdreMarque').value = '';
+      document.getElementById('inputVehiculeOrdreCouleur').value = '';
+      document.getElementById('inputVehiculeOrdreImmat').value = '';
+    }
+
+    document.getElementById('modalValiderOrdreInfo').textContent = `${ordreEnCours.nom} → ${ordreEnCours.destination}`;
+    document.getElementById('inputNotesInternes').value = '';
+    document.getElementById('modalValiderOrdre').classList.add('active');
+  }
+
+  async function confirmerValidationOrdre() {
+    if (!ordreEnCours) return;
+    const assistant = getAdminRole() === 'assistant_logistique';
+    if (assistant && (ordreEnCours.moyen_deplacement !== 'Véhicule Location' || ordreEnCours.statut !== 'en_attente')) return;
+    const isBusAvion = ordreEnCours.moyen_deplacement && (ordreEnCours.moyen_deplacement.includes('Bus') || ordreEnCours.moyen_deplacement.includes('Avion'));
+    const notes = document.getElementById('inputNotesInternes').value.trim();
+    
+    let chauffeur = null;
+    let vehiculeString = null;
+
+    if (!isBusAvion) {
+      const sc = document.getElementById('selectChauffeurOrdre').value;
+      chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurOrdreAutre').value.trim() : sc;
+      
+      const type = document.getElementById('selectVehiculeOrdreType').value;
+      const marque = document.getElementById('inputVehiculeOrdreMarque').value.trim();
+      const couleur = document.getElementById('inputVehiculeOrdreCouleur').value.trim();
+      const immat = document.getElementById('inputVehiculeOrdreImmat').value.trim();
+      
+      if (!type || !chauffeur || !marque || !couleur || !immat) { alert('⚠️ Complétez le type de véhicule de la demande et tous les champs.'); return; }
+      vehiculeString = `${type} (${marque} - ${couleur} - ${immat})`;
+    }
+
+    try {
+      const filtreAffectation = assistant ? '&moyen_deplacement=eq.' +
+        encodeURIComponent('Véhicule Location') + '&statut=eq.en_attente' : '';
+      const sauvegarde = await apiCall('/missions_2?id=eq.' + ordreEnCours.id + filtreAffectation, { 
+        method: 'PATCH', 
+        body: JSON.stringify({ 
+          statut: 'affecte_logistique', 
+          chauffeur_assigne: chauffeur, 
+          vehicule_assigne: vehiculeString, 
+          notes_internes: notes || null,
+          affecte_par: getAdminName()
+        })
+      });
+      if (!Array.isArray(sauvegarde) || sauvegarde.length !== 1) {
+        alert('Aucune affectation enregistrée : demande déjà traitée ou non autorisée.');
+        await chargerOrdres();
+        return;
+      }
+      
+      const notification = await notifierEmailAvecStatut('template_ordre_attente_rh', EMAIL_LOGISTIQUE, {
+        agent: ordreEnCours.nom,
+        poste: ordreEnCours.poste || '-',
+        destination: ordreEnCours.destination,
+        projet: ordreEnCours.projet || '-',
+        date_depart: ordreEnCours.date_depart ? formatNigerDateShort(ordreEnCours.date_depart) : '-',
+        date_retour: ordreEnCours.date_retour ? formatNigerDateShort(ordreEnCours.date_retour) : '-',
+        moyen: ordreEnCours.moyen_deplacement || '-',
+        vehicule: vehiculeString || 'Aucun (Bus/Avion)'
+      });
+
+      fermerModal();
+      await chargerOrdres();
+      alert('✅ Affectation logistique enregistrée pour la suite du traitement RH.\n' +
+        (notification.success
+          ? 'Notification acceptée par EmailJS pour la boîte logistique.'
+          : '⚠️ Notification email non confirmée. L’affectation est enregistrée.'));
+
+    } catch (err) { alert('❌ ' + err.message); }
+  }
+
+  function ouvrirModalNumeroRH(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
+    ordreEnCours = tousLesOrdres.find(o => o.id === id);
+    if (!ordreEnCours) return;
+    document.getElementById('modalNumeroRHInfo').textContent = `${ordreEnCours.nom} → ${ordreEnCours.destination}`;
+    document.getElementById('modalNumeroRH').classList.add('active');
+  }
+
+  async function confirmerNumeroRH() {
+    if (getAdminRole() === 'assistant_logistique') return;
+    if (!confirm("Voulez-vous générer automatiquement le numéro d'ordre de mission et valider ? Le demandeur recevra un e-mail.")) {
+        return;
+    }
+
+    const btnAction = document.querySelector('#modalNumeroRH .btn-orange');
+    if (btnAction) { btnAction.disabled = true; btnAction.textContent = "⏳ Génération..."; }
+
+    try {
+      const dernieresMissions = await apiCall('/missions_2?message_admin=not.is.null&order=created_at.desc&limit=1&select=message_admin');
+      
+      let maxNum = 0;
+      if (dernieresMissions && dernieresMissions.length > 0) {
+        const dernierNum = dernieresMissions[0].message_admin;
+        const parts = dernierNum.split('/');
+        if (parts.length > 0) {
+          const num = parseInt(parts[0], 10);
+          if (!isNaN(num) && num > maxNum) {
+            maxNum = num;
+          }
+        }
+      }
+
+      const prochainNum = maxNum + 1;
+      const maintenant = new Date();
+      const mois = String(maintenant.getMonth() + 1).padStart(2, '0');
+      const annee = maintenant.getFullYear();
+      
+      const numOrdre = String(prochainNum).padStart(3, '0') + '/' + mois + '/' + annee + '/ADKOUL';
+
+      await apiCall('/missions_2?id=eq.' + ordreEnCours.id, { 
+        method: 'PATCH', 
+        body: JSON.stringify({ 
+            statut: 'validee', 
+            message_admin: numOrdre, 
+            valide_par: getAdminName() 
+        }) 
+      });
+
+      const lienPdf = `https://amague2007-star.github.io/demande-vehicule/imprimer.html?id=${ordreEnCours.id}&download=true`;
+      
+      try {
+        const result = await envoyerEmail('template_gd96rfl', ordreEnCours.email, {
+          nom: ordreEnCours.nom,
+          subject: `✅ Ordre de Mission Validé - N° ${numOrdre}`,
+          message: `Bonjour ${ordreEnCours.nom},\n\nVotre demande d'ordre de mission a été validée par le service RH.\n\n📄 Numéro d'ordre attribué : ${numOrdre}\n📍 Destination : ${ordreEnCours.destination}\n📅 Date de départ : ${formatNigerDateShort(ordreEnCours.date_depart)}\n🚙 Véhicule : ${ordreEnCours.vehicule_assigne || 'Aucun (Bus/Avion)'}\n\nPour télécharger et imprimer votre ordre de mission au format PDF, cliquez sur le lien ci-dessous :\n${lienPdf}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`
+        });
+        
+        if (result.success) {
+          alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\nUn e-mail a été envoyé au demandeur.`);
+        } else {
+          alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\n⚠️ L'e-mail n'a pas pu être envoyé.`);
+        }
+      } catch (emailErr) {
+        alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\n⚠️ L'e-mail n'a pas pu être envoyé.`);
+      }
+
+      fermerModal(); 
+      await chargerOrdres(); 
+      
+    } catch (err) { 
+        alert('❌ Erreur : ' + err.message); 
+    } finally {
+        if (btnAction) { btnAction.disabled = false; btnAction.textContent = "✅ Valider"; }
+    }
+  }
+
+  async function supprimerOrdre(id) {
+    if (getAdminRole() === 'assistant_logistique') return; 
+    if (confirm('⚠️ Suppression définitive.\n\nConfirmer ?')) { 
+      await apiCall('/missions_2?id=eq.' + id, { method: 'DELETE' }); 
+      chargerOrdres(); 
+    } 
+  }
+
+  function fermerModal() {
+    document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+  }
+
+  function voirOrdreMission(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
+    window.open(`imprimer.html?id=${id}`, '_blank');
+  }
+
+  function imprimerOrdreMission(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
+    window.open(`imprimer.html?id=${id}`, '_blank');
+  }
+
+  function telechargerOrdreMission(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
+    window.open(`imprimer.html?id=${id}&download=true`, '_blank');
+  }
+
+  function notifierWhatsAppMission(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
+    const o = tousLesOrdres.find(o => o.id === id);
+    if (!o) return;
+    
+    let tel = CHAUFFEURS[o.chauffeur_assigne] || "";
+    if (!tel && o.chauffeur_assigne) {
+      tel = prompt(`Entrez le numéro WhatsApp de ${o.chauffeur_assigne} (ex: 227XXXXXXXX) :`, "");
+    }
+    
+    const message = `Bonjour, voici l'ordre de mission pour *${o.nom}*.\n📍 Destination : ${o.destination}\n📅 Départ : ${formatNigerDateShort(o.date_depart)}\n🚙 Véhicule : ${o.vehicule_assigne || 'Aucun (Bus/Avion)'}\n\nMerci de consulter le document officiel.`;
+    const url = tel ? `https://wa.me/${tel.replace(/\D/g,'')}?text=${encodeURIComponent(message)}` : `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  }
+
+  // --- EXPORT EXCEL GLOBAL (BOUTONS DE LA BARRE PRINCIPALE) ---
+  function exporterCSV(type) {
+    if (getAdminRole() === 'assistant_logistique') return;
+    if (typeof XLSX === 'undefined') {
+      alert('❌ Bibliothèque Excel non chargée. Vérifiez votre connexion.');
+      return;
+    }
+
+    if (type === 'demandes') {
+      const filtre = document.getElementById('filtreStatut').value;
+      const recherche = document.getElementById('searchDemandes').value.toLowerCase();
+      const role = getAdminRole();
+      
+      let listeBase = toutesLesDemandes;
+      if (role === 'assistant_logistique') {
+        listeBase = toutesLesDemandes.filter(d =>
+          (d.motif && d.motif.toLowerCase().includes('location')) ||
+          (d.vehicule_assigne && d.vehicule_assigne.toLowerCase().includes('location'))
+        );
+      }
+
+      const listeFinale = listeBase.filter(d => {
+        const matchStatut = filtre === 'tous' || d.statut === filtre;
+        const matchSearch = !recherche ||
+          (d.nom && d.nom.toLowerCase().includes(recherche)) ||
+          (d.prenom && d.prenom.toLowerCase().includes(recherche)) ||
+          (d.destination && d.destination.toLowerCase().includes(recherche)) ||
+          (d.motif && d.motif.toLowerCase().includes(recherche));
+        return matchStatut && matchSearch;
+      });
+
+      if (!listeFinale.length) { alert('⚠️ Aucune demande à exporter.'); return; }
+
+      const rows = listeFinale.map(d => ({
+        "Date de la demande": (d.date_demande || d.date_sortie) ? formatNigerDateShort(d.date_demande || d.date_sortie) : '',
+        "Heure de départ": d.heure_depart || '',
+        "Nom": d.nom || '',
+        "Prénom": d.prenom || '',
+        "Poste": d.poste || '',
+        "Service": d.service || '',
+        "Email": d.email || '',
+        "Contact": d.contact || '',
+        "Destination": d.destination || '',
+        "Durée (min)": d.duree || '',
+        "Passagers": d.passagers || '',
+        "Motif": d.motif || '',
+        "Statut": d.statut === 'validee' ? 'Affectée' : d.statut === 'refusee' ? 'Refusée' : 'En attente',
+        "Chauffeur assigné": d.chauffeur_assigne || '',
+        "Véhicule assigné": d.vehicule_assigne || '',
+        "Motif de refus": d.message_admin || '',
+        "Traitée par": d.valide_par || d.refuse_par || ''
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      ws['!cols'] = [
+        {wch:12},{wch:10},{wch:18},{wch:18},{wch:22},{wch:14},{wch:28},{wch:14},
+        {wch:22},{wch:10},{wch:20},{wch:40},{wch:12},{wch:22},{wch:32},{wch:30},{wch:20}
+      ];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Demandes');
+      const stamp = new Date().toISOString().slice(0,10);
+      XLSX.writeFile(wb, `Demandes_${stamp}.xlsx`);
+      return;
+    }
+
+    const filtreStatut = document.getElementById('filtreStatutOrdre').value;
+    const recherche = document.getElementById('searchOrdres').value.toLowerCase();
+    const role = getAdminRole();
+
+    let listeBase = tousLesOrdres;
+    if (role === 'rh') {
+      listeBase = tousLesOrdres.filter(o => o.statut !== 'en_attente');
+    }
+    if (typeOrdreActif !== 'tous') {
+      if (typeOrdreActif === 'Véhicule ONG ADKOUL') {
+        listeBase = listeBase.filter(o => o.moyen_deplacement === 'Véhicule ONG ADKOUL' || o.moyen_deplacement === 'Véhicule ONG');
+      } else {
+        listeBase = listeBase.filter(o => o.moyen_deplacement === typeOrdreActif);
+      }
+    }
+    if (window._afFilteredIds && document.getElementById('advancedFiltersBody').classList.contains('open')) {
+      listeBase = listeBase.filter(o => o.statut !== 'validee' || window._afFilteredIds.has(o.id));
+    }
+
+    const listeFinale = listeBase.filter(o => {
+      let matchStatut = false;
+      if (filtreStatut === 'tous') matchStatut = true;
+      else if (filtreStatut === 'retard') matchStatut = estEnRetard(o);
+      else matchStatut = o.statut === filtreStatut;
+
+      const matchSearch = !recherche ||
+        (o.nom && o.nom.toLowerCase().includes(recherche)) ||
+        (o.destination && o.destination.toLowerCase().includes(recherche)) ||
+        (o.projet && o.projet.toLowerCase().includes(recherche)) ||
+        (o.objectif && o.objectif.toLowerCase().includes(recherche));
+      return matchStatut && matchSearch;
+    });
+
+    if (!listeFinale.length) { alert('⚠️ Aucun ordre de mission à exporter.'); return; }
+
+    const rows = listeFinale.map(o => ({
+      "N° Ordre de Mission": o.message_admin || '',
+      "Date départ": o.date_depart ? formatNigerDateShort(o.date_depart) : '',
+      "Date retour": o.date_retour ? formatNigerDateShort(o.date_retour) : '',
+      "Agent": o.nom || '',
+      "Poste": o.poste || '',
+      "Destination": o.destination || '',
+      "Projet": o.projet || '',
+      "Moyen": o.moyen_deplacement || '',
+      "Objectif": o.objectif || '',
+      "Chauffeur": o.chauffeur_assigne || '',
+      "Véhicule": o.vehicule_assigne || '',
+      "Statut": o.statut === 'validee' ? 'Validé' : o.statut === 'affecte_logistique' ? 'Attente RH' : 'En attente',
+      "Notes internes": o.notes_internes || '',
+      "Affecté par": o.affecte_par || '',
+      "Validé par": o.valide_par || '',
+      "Email demandeur": o.email || ''
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws['!cols'] = [
+      {wch:22},{wch:12},{wch:12},{wch:22},{wch:22},{wch:22},{wch:18},{wch:22},
+      {wch:40},{wch:22},{wch:32},{wch:14},{wch:30},{wch:20},{wch:20},{wch:28}
+    ];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Ordres de Mission');
+    const stamp = new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb, `Ordres_Mission_${stamp}.xlsx`);
+  }
+
+  function mettreAJourGraphiques() {
+    document.getElementById('dashTotalVehicules').textContent = toutesLesDemandes.length;
+    document.getElementById('dashTotalMissions').textContent = tousLesOrdres.length;
+    document.getElementById('dashMissionsValidees').textContent = tousLesOrdres.filter(o => o.statut === 'validee').length;
+    document.getElementById('dashEnAttente').textContent = toutesLesDemandes.filter(d => d.statut === 'en_attente').length;
+
+    if (chartMoyensInstance) chartMoyensInstance.destroy();
+    if (chartStatutsInstance) chartStatutsInstance.destroy();
+    if (chartProjetsInstance) chartProjetsInstance.destroy();
+
+    const moyensCount = {};
+    tousLesOrdres.forEach(o => {
+      let m = o.moyen_deplacement || 'Non spécifié';
+      if (m === 'Véhicule ONG') m = 'Véhicule ONG ADKOUL';
+      moyensCount[m] = (moyensCount[m] || 0) + 1;
+    });
+    chartMoyensInstance = new Chart(document.getElementById('chartMoyens').getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(moyensCount),
+        datasets: [{ data: Object.values(moyensCount), backgroundColor: ['#1e3c72', '#f39c12', '#27ae60', '#e74c3c', '#8e44ad', '#3498db', '#f1c40f'], borderWidth: 0 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 9} } } } }
+    });
+
+    const projetsCount = {};
+    tousLesOrdres.forEach(o => {
+      const p = o.projet || 'Non spécifié';
+      projetsCount[p] = (projetsCount[p] || 0) + 1;
+    });
+    chartProjetsInstance = new Chart(document.getElementById('chartProjets').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: Object.keys(projetsCount),
+        datasets: [{ label: 'Missions', data: Object.values(projetsCount), backgroundColor: '#1e3c72', borderRadius: 6 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: {size: 9} } }, x: { ticks: { font: {size: 9} } } } }
+    });
+
+    const statutsCount = { 'en_attente': 0, 'affecte_logistique': 0, 'validee': 0 };
+    tousLesOrdres.forEach(o => { if (statutsCount[o.statut] !== undefined) statutsCount[o.statut]++; });
+    chartStatutsInstance = new Chart(document.getElementById('chartStatuts').getContext('2d'), {
+      type: 'pie',
+      data: {
+        labels: ['En attente', 'Attente RH', 'Validées'],
+        datasets: [{ data: [statutsCount['en_attente'], statutsCount['affecte_logistique'], statutsCount['validee']], backgroundColor: ['#f39c12', '#f1c40f', '#27ae60'], borderWidth: 0 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 9} } } } }
+    });
+
+    const agentsCount = {}, chauffeursCount = {};
+    tousLesOrdres.forEach(o => { if(o.nom) agentsCount[o.nom] = (agentsCount[o.nom]||0)+1; if(o.chauffeur_assigne) chauffeursCount[o.chauffeur_assigne] = (chauffeursCount[o.chauffeur_assigne]||0)+1; });
+    
+    const topA = Object.entries(agentsCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    document.getElementById('topAgents').innerHTML = topA.length ? topA.map((a,i)=>`<li><span><span class="rank">#${i+1}</span> ${a[0]}</span> <span class="count">${a[1]}</span></li>`).join('') : '<li>Aucune donnée</li>';
+
+    const topC = Object.entries(chauffeursCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    document.getElementById('topChauffeurs').innerHTML = topC.length ? topC.map((c,i)=>`<li><span><span class="rank">#${i+1}</span> ${c[0]}</span> <span class="count">${c[1]}</span></li>`).join('') : '<li>Aucune donnée</li>';
+  }
+
+  /* ============================================================
+     FILTRES AVANCÉS + EXPORT EXCEL — MISSIONS VALIDÉES
+     ============================================================ */
+
+  let afOpen = false;
+
+  function toggleAdvancedFilters() {
+    afOpen = !afOpen;
+    document.getElementById('advancedFiltersBody').classList.toggle('open', afOpen);
+    document.getElementById('afToggleBtn').textContent = afOpen ? '▲ Masquer' : '▼ Afficher';
+  }
+
+  function rafraichirSelectsAvances() {
+    const validees = tousLesOrdres.filter(o => o.statut === 'validee');
+
+    const projets = [...new Set(validees.map(o => o.projet).filter(Boolean))].sort();
+    const moyens = [...new Set(validees.map(o => o.moyen_deplacement).filter(Boolean))].sort();
+    const agents = [...new Set(validees.map(o => o.nom).filter(Boolean))].sort();
+
+    const fill = (id, arr) => {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      const old = sel.value;
+      sel.innerHTML = '<option value="">— Tous —</option>' +
+        arr.map(v => `<option value="${v.replace(/"/g,'&quot;')}">${v}</option>`).join('');
+      sel.value = old;
+    };
+    fill('afProjet', projets);
+    fill('afMoyen', moyens);
+    fill('afAgent', agents);
+  }
+
+  function getMissionsValideesFiltrees() {
+    const from = document.getElementById('afDateFrom')?.value || '';
+    const to   = document.getElementById('afDateTo')?.value || '';
+    const projet = document.getElementById('afProjet')?.value || '';
+    const moyen  = document.getElementById('afMoyen')?.value || '';
+    const agent  = document.getElementById('afAgent')?.value || '';
+    const dest   = (document.getElementById('afDestination')?.value || '').toLowerCase().trim();
+    const numero = (document.getElementById('afNumero')?.value || '').toLowerCase().trim();
+
+    return tousLesOrdres.filter(o => {
+      if (o.statut !== 'validee') return false;
+      if (projet && o.projet !== projet) return false;
+      if (moyen && o.moyen_deplacement !== moyen) return false;
+      if (agent && o.nom !== agent) return false;
+      if (dest && !(o.destination || '').toLowerCase().includes(dest)) return false;
+      if (numero && !(o.message_admin || '').toLowerCase().includes(numero)) return false;
+
+      if (from || to) {
+        const d = o.date_depart ? new Date(o.date_depart) : null;
+        if (!d) return false;
+        if (from && d < new Date(from + 'T00:00:00')) return false;
+        if (to   && d > new Date(to   + 'T23:59:59')) return false;
+      }
+      return true;
+    });
+  }
+
+  function appliquerFiltresAvances() {
+    const filtered = getMissionsValideesFiltrees();
+    const info = document.getElementById('afResultInfo');
+    if (info) {
+      info.textContent = `✅ ${filtered.length} mission(s) validée(s) correspond(ent) aux filtres.`;
+    }
+
+    window._afFilteredIds = new Set(filtered.map(o => o.id));
+    afficherOrdres();
+  }
+
+  function resetFiltresAvances() {
+    ['afDateFrom','afDateTo','afDestination','afNumero'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    ['afProjet','afMoyen','afAgent'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    appliquerFiltresAvances();
+  }
+
+  function exporterExcelMissionsValidees() {
+    if (getAdminRole() === 'assistant_logistique') return;
+    if (typeof XLSX === 'undefined') {
+      alert('❌ Bibliothèque Excel non chargée. Vérifiez votre connexion.');
+      return;
+    }
+
+    const missions = getMissionsValideesFiltrees();
+    if (!missions.length) {
+      alert('⚠️ Aucune mission validée ne correspond aux filtres.');
+      return;
+    }
+
+    const rows = missions.map(o => ({
+      "N° Ordre de Mission": o.message_admin || '',
+      "Date départ": o.date_depart ? formatNigerDateShort(o.date_depart) : '',
+      "Date retour": o.date_retour ? formatNigerDateShort(o.date_retour) : '',
+      "Agent": o.nom || '',
+      "Poste": o.poste || '',
+      "Destination": o.destination || '',
+      "Projet": o.projet || '',
+      "Moyen de déplacement": o.moyen_deplacement || '',
+      "Chauffeur assigné": o.chauffeur_assigne || '',
+      "Véhicule assigné": o.vehicule_assigne || '',
+      "Objectif": o.objectif || '',
+      "Notes internes": o.notes_internes || '',
+      "Affecté par (Logistique)": o.affecte_par || '',
+      "Validé par (RH)": o.valide_par || '',
+      "Email demandeur": o.email || ''
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+
+    ws['!cols'] = [
+      { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 22 }, { wch: 22 },
+      { wch: 22 }, { wch: 18 }, { wch: 22 }, { wch: 22 }, { wch: 32 },
+      { wch: 40 }, { wch: 30 }, { wch: 20 }, { wch: 20 }, { wch: 28 }
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Missions Validées');
+
+    const now = new Date();
+    const stamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}h${String(now.getMinutes()).padStart(2,'0')}`;
+    const filename = `Missions_Validees_${stamp}.xlsx`;
+
+    XLSX.writeFile(wb, filename);
+  }
+</script>
+
+</body>
+</html>

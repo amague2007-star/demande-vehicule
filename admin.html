@@ -883,7 +883,6 @@
       
       filtreSelect.value = 'affecte_logistique';
 
-      // RH voit les filtres avancés
       document.getElementById('advancedFiltersBox').style.display = 'block';
 
       afficherSection('ordres');
@@ -892,7 +891,6 @@
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navOrdres').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
-      // Assistant logistique : PAS de filtres avancés
       document.getElementById('advancedFiltersBox').style.display = 'none';
       afficherSection('demandes');
     } else if (role === 'directeur_logistique') {
@@ -1656,10 +1654,137 @@
     window.open(url, '_blank');
   }
 
+  // --- EXPORT EXCEL GLOBAL (BOUTONS DE LA BARRE PRINCIPALE) ---
   function exporterCSV(type) {
-    alert(`📥 L'export Excel des ${type === 'demandes' ? 'demandes' : 'ordres de mission'} sera disponible prochainement.`);
+    if (typeof XLSX === 'undefined') {
+      alert('❌ Bibliothèque Excel non chargée. Vérifiez votre connexion.');
+      return;
+    }
+
+    if (type === 'demandes') {
+      const filtre = document.getElementById('filtreStatut').value;
+      const recherche = document.getElementById('searchDemandes').value.toLowerCase();
+      const role = getAdminRole();
+      
+      let listeBase = toutesLesDemandes;
+      if (role === 'assistant_logistique') {
+        listeBase = toutesLesDemandes.filter(d =>
+          (d.motif && d.motif.toLowerCase().includes('location')) ||
+          (d.vehicule_assigne && d.vehicule_assigne.toLowerCase().includes('location'))
+        );
+      }
+
+      const listeFinale = listeBase.filter(d => {
+        const matchStatut = filtre === 'tous' || d.statut === filtre;
+        const matchSearch = !recherche ||
+          (d.nom && d.nom.toLowerCase().includes(recherche)) ||
+          (d.prenom && d.prenom.toLowerCase().includes(recherche)) ||
+          (d.destination && d.destination.toLowerCase().includes(recherche)) ||
+          (d.motif && d.motif.toLowerCase().includes(recherche));
+        return matchStatut && matchSearch;
+      });
+
+      if (!listeFinale.length) { alert('⚠️ Aucune demande à exporter.'); return; }
+
+      const rows = listeFinale.map(d => ({
+        "Date de sortie": d.date_sortie ? formatNigerDateShort(d.date_sortie) : '',
+        "Heure de départ": d.heure_depart || '',
+        "Nom": d.nom || '',
+        "Prénom": d.prenom || '',
+        "Poste": d.poste || '',
+        "Service": d.service || '',
+        "Email": d.email || '',
+        "Contact": d.contact || '',
+        "Destination": d.destination || '',
+        "Durée (min)": d.duree || '',
+        "Passagers": d.passagers || '',
+        "Motif": d.motif || '',
+        "Statut": d.statut === 'validee' ? 'Affectée' : d.statut === 'refusee' ? 'Refusée' : 'En attente',
+        "Chauffeur assigné": d.chauffeur_assigne || '',
+        "Véhicule assigné": d.vehicule_assigne || '',
+        "Motif de refus": d.message_admin || '',
+        "Traitée par": d.valide_par || d.refuse_par || ''
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      ws['!cols'] = [
+        {wch:12},{wch:10},{wch:18},{wch:18},{wch:22},{wch:14},{wch:28},{wch:14},
+        {wch:22},{wch:10},{wch:20},{wch:40},{wch:12},{wch:22},{wch:32},{wch:30},{wch:20}
+      ];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Demandes');
+      const stamp = new Date().toISOString().slice(0,10);
+      XLSX.writeFile(wb, `Demandes_${stamp}.xlsx`);
+      return;
+    }
+
+    // === type === 'ordres' ===
+    const filtreStatut = document.getElementById('filtreStatutOrdre').value;
+    const recherche = document.getElementById('searchOrdres').value.toLowerCase();
+    const role = getAdminRole();
+
+    let listeBase = tousLesOrdres;
+    if (role === 'rh') {
+      listeBase = tousLesOrdres.filter(o => o.statut !== 'en_attente');
+    }
+    if (typeOrdreActif !== 'tous') {
+      if (typeOrdreActif === 'Véhicule ONG ADKOUL') {
+        listeBase = listeBase.filter(o => o.moyen_deplacement === 'Véhicule ONG ADKOUL' || o.moyen_deplacement === 'Véhicule ONG');
+      } else {
+        listeBase = listeBase.filter(o => o.moyen_deplacement === typeOrdreActif);
+      }
+    }
+    if (window._afFilteredIds && document.getElementById('advancedFiltersBody').classList.contains('open')) {
+      listeBase = listeBase.filter(o => o.statut !== 'validee' || window._afFilteredIds.has(o.id));
+    }
+
+    const listeFinale = listeBase.filter(o => {
+      let matchStatut = false;
+      if (filtreStatut === 'tous') matchStatut = true;
+      else if (filtreStatut === 'retard') matchStatut = estEnRetard(o);
+      else matchStatut = o.statut === filtreStatut;
+
+      const matchSearch = !recherche ||
+        (o.nom && o.nom.toLowerCase().includes(recherche)) ||
+        (o.destination && o.destination.toLowerCase().includes(recherche)) ||
+        (o.projet && o.projet.toLowerCase().includes(recherche)) ||
+        (o.objectif && o.objectif.toLowerCase().includes(recherche));
+      return matchStatut && matchSearch;
+    });
+
+    if (!listeFinale.length) { alert('⚠️ Aucun ordre de mission à exporter.'); return; }
+
+    const rows = listeFinale.map(o => ({
+      "N° Ordre de Mission": o.message_admin || '',
+      "Date départ": o.date_depart ? formatNigerDateShort(o.date_depart) : '',
+      "Date retour": o.date_retour ? formatNigerDateShort(o.date_retour) : '',
+      "Agent": o.nom || '',
+      "Poste": o.poste || '',
+      "Destination": o.destination || '',
+      "Projet": o.projet || '',
+      "Moyen": o.moyen_deplacement || '',
+      "Objectif": o.objectif || '',
+      "Chauffeur": o.chauffeur_assigne || '',
+      "Véhicule": o.vehicule_assigne || '',
+      "Statut": o.statut === 'validee' ? 'Validé' : o.statut === 'affecte_logistique' ? 'Attente RH' : 'En attente',
+      "Notes internes": o.notes_internes || '',
+      "Affecté par": o.affecte_par || '',
+      "Validé par": o.valide_par || '',
+      "Email demandeur": o.email || ''
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws['!cols'] = [
+      {wch:22},{wch:12},{wch:12},{wch:22},{wch:22},{wch:22},{wch:18},{wch:22},
+      {wch:40},{wch:22},{wch:32},{wch:14},{wch:30},{wch:20},{wch:20},{wch:28}
+    ];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Ordres de Mission');
+    const stamp = new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb, `Ordres_Mission_${stamp}.xlsx`);
   }
 
+  // --- GRAPHIQUES ACCUEIL ---
   function mettreAJourGraphiques() {
     document.getElementById('dashTotalVehicules').textContent = toutesLesDemandes.length;
     document.getElementById('dashTotalMissions').textContent = tousLesOrdres.length;
@@ -1722,7 +1847,6 @@
 
   /* ============================================================
      FILTRES AVANCÉS + EXPORT EXCEL — MISSIONS VALIDÉES
-     Accessible : logistique, directeur_logistique, rh
      ============================================================ */
 
   let afOpen = false;
@@ -1731,9 +1855,6 @@
     afOpen = !afOpen;
     document.getElementById('advancedFiltersBody').classList.toggle('open', afOpen);
     document.getElementById('afToggleBtn').textContent = afOpen ? '▲ Masquer' : '▼ Afficher';
-    if (afOpen && (!window._afFilteredIds || window._afFilteredIds.size === 0)) {
-      // Optionnel : ne rien filtrer tant que l'utilisateur n'a rien saisi
-    }
   }
 
   function rafraichirSelectsAvances() {

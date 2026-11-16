@@ -7,6 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="email-service.js"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
   body { background:#f0f2f5; min-height:100vh; }
@@ -1033,6 +1034,16 @@
         body: JSON.stringify({ password_hash: hashNew })
       });
 
+      envoyerEmail('template_demande_recue', adminEmail, {
+        nom: getAdminName(),
+        prenom: '',
+        type_demande: 'Changement de mot de passe (SÉCURITÉ)',
+        destination: '-',
+        date: new Date().toLocaleDateString('fr-FR'),
+        heure: new Date().toLocaleTimeString('fr-FR'),
+        motif: 'Si vous n\'êtes pas à l\'origine de ce changement, contactez immédiatement l\'administrateur.'
+      });
+
       fermerModal();
       alert('✅ Votre mot de passe a été modifié avec succès !');
       
@@ -1105,7 +1116,16 @@
       if (existing && existing.length > 0) { alert('❌ Cet email est déjà utilisé.'); return; }
       const hash = await hashPassword(pwd);
       await apiCall('/admins', { method: 'POST', body: JSON.stringify({ email, password_hash: hash, nom, role }) });
-      fermerModal(); await chargerUsers(); alert(`✅ Utilisateur "${nom}" créé.`);
+      
+      envoyerEmail('template_creation_user', email, {
+        nom: nom,
+        email: email,
+        mot_de_passe_temporaire: pwd,
+        role: role,
+        lien_connexion: window.location.origin + '/admin.html'
+      });
+
+      fermerModal(); await chargerUsers(); alert(`✅ Utilisateur "${nom}" créé. Un e-mail de bienvenue a été envoyé à ${email}.`);
     } catch (err) { alert('❌ ' + err.message); }
   }
 
@@ -1231,7 +1251,19 @@
 
     try {
       await apiCall('/demandes?id=eq.' + demandeEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'validee', chauffeur_assigne: chauffeur, vehicule_assigne: vehiculeString, date_validation: new Date().toISOString(), valide_par: getAdminName() }) });
-      fermerModal(); await chargerDemandes(); alert('✅ Demande traitée.');
+      
+      if (demandeEnCours.email) {
+        envoyerEmail('template_affectation_vehicule', demandeEnCours.email, {
+          nom: `${demandeEnCours.prenom} ${demandeEnCours.nom}`,
+          chauffeur: chauffeur,
+          vehicule: vehiculeString,
+          destination: demandeEnCours.destination,
+          date: demandeEnCours.date_sortie ? formatNigerDateShort(demandeEnCours.date_sortie) : '-',
+          heure: demandeEnCours.heure_depart || '-'
+        });
+      }
+
+      fermerModal(); await chargerDemandes(); alert('✅ Demande traitée. Le demandeur a été notifié par e-mail.');
     } catch (err) { alert('❌ ' + err.message); }
   }
 
@@ -1248,7 +1280,17 @@
     if (!motif) { alert('⚠️ Motif obligatoire.'); return; }
     try {
       await apiCall('/demandes?id=eq.' + demandeEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'refusee', message_admin: motif, date_validation: new Date().toISOString(), refuse_par: getAdminName() }) });
-      fermerModal(); await chargerDemandes(); alert('❌ Demande refusée.');
+      
+      if (demandeEnCours.email) {
+        envoyerEmail('template_refus', demandeEnCours.email, {
+          nom: `${demandeEnCours.prenom} ${demandeEnCours.nom}`,
+          destination: demandeEnCours.destination,
+          motif_refus: motif,
+          date: demandeEnCours.date_sortie ? formatNigerDateShort(demandeEnCours.date_sortie) : '-'
+        });
+      }
+      
+      fermerModal(); await chargerDemandes(); alert('❌ Demande refusée. Le demandeur a été notifié.');
     } catch (err) { alert('❌ ' + err.message); }
   }
 
@@ -1307,7 +1349,6 @@
       }
     }
 
-    // --- Applique les filtres avancés si actifs (uniquement sur les validées) ---
     if (window._afFilteredIds && document.getElementById('advancedFiltersBody').classList.contains('open')) {
       listeBase = listeBase.filter(o => o.statut !== 'validee' || window._afFilteredIds.has(o.id));
     }
@@ -1544,7 +1585,19 @@
           affecte_par: getAdminName() 
         }) 
       });
-      fermerModal(); await chargerOrdres(); alert(`✅ Demande transmise au RH.`);
+      
+      envoyerEmail('template_ordre_attente_rh', EMAIL_LOGISTIQUE, {
+        agent: ordreEnCours.nom,
+        poste: ordreEnCours.poste || '-',
+        destination: ordreEnCours.destination,
+        projet: ordreEnCours.projet || '-',
+        date_depart: ordreEnCours.date_depart ? formatNigerDateShort(ordreEnCours.date_depart) : '-',
+        date_retour: ordreEnCours.date_retour ? formatNigerDateShort(ordreEnCours.date_retour) : '-',
+        moyen: ordreEnCours.moyen_deplacement || '-',
+        vehicule: vehiculeString || 'Aucun (Bus/Avion)'
+      });
+
+      fermerModal(); await chargerOrdres(); alert('✅ Demande transmise au RH. Un e-mail de notification a été envoyé.');
     } catch (err) { alert('❌ ' + err.message); }
   }
 
@@ -1560,25 +1613,26 @@
         return;
     }
 
+    const btnAction = document.querySelector('#modalNumeroRH .btn-orange');
+    if (btnAction) { btnAction.disabled = true; btnAction.textContent = "⏳ Génération..."; }
+
     try {
-      const tousLesOrdresActuels = await apiCall('/missions_2?select=id,message_admin');
+      // CORRECTION BUG NUMERO : On demande uniquement le DERNIER numéro à Supabase
+      const dernieresMissions = await apiCall('/missions_2?message_admin=not.is.null&order=created_at.desc&limit=1&select=message_admin');
       
       let maxNum = 0;
-      
-      tousLesOrdresActuels.forEach(m => {
-        if (m.message_admin) {
-          const parts = m.message_admin.split('/');
-          if (parts.length > 0) {
-            const num = parseInt(parts[0], 10);
-            if (!isNaN(num) && num > maxNum) {
-              maxNum = num;
-            }
+      if (dernieresMissions && dernieresMissions.length > 0) {
+        const dernierNum = dernieresMissions[0].message_admin;
+        const parts = dernierNum.split('/');
+        if (parts.length > 0) {
+          const num = parseInt(parts[0], 10);
+          if (!isNaN(num) && num > maxNum) {
+            maxNum = num;
           }
         }
-      });
+      }
 
       const prochainNum = maxNum + 1;
-      
       const maintenant = new Date();
       const mois = String(maintenant.getMonth() + 1).padStart(2, '0');
       const annee = maintenant.getFullYear();
@@ -1597,15 +1651,18 @@
       const lienPdf = `https://amague2007-star.github.io/demande-vehicule/imprimer.html?id=${ordreEnCours.id}&download=true`;
       
       try {
-        emailjs.init("SUbWMSdrTf7JugMrS");
-        await emailjs.send("service_e6k2e76", "template_gd96rfl", {
-          to_email: ordreEnCours.email,
+        const result = await envoyerEmail('template_gd96rfl', ordreEnCours.email, {
+          nom: ordreEnCours.nom,
           subject: `✅ Ordre de Mission Validé - N° ${numOrdre}`,
           message: `Bonjour ${ordreEnCours.nom},\n\nVotre demande d'ordre de mission a été validée par le service RH.\n\n📄 Numéro d'ordre attribué : ${numOrdre}\n📍 Destination : ${ordreEnCours.destination}\n📅 Date de départ : ${formatNigerDateShort(ordreEnCours.date_depart)}\n🚙 Véhicule : ${ordreEnCours.vehicule_assigne || 'Aucun (Bus/Avion)'}\n\nPour télécharger et imprimer votre ordre de mission au format PDF, cliquez sur le lien ci-dessous :\n${lienPdf}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`
         });
-        alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\nUn e-mail a été envoyé au demandeur.`);
+        
+        if (result.success) {
+          alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\nUn e-mail a été envoyé au demandeur.`);
+        } else {
+          alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\n⚠️ L'e-mail n'a pas pu être envoyé.`);
+        }
       } catch (emailErr) {
-        console.warn("Erreur d'envoi d'email :", emailErr);
         alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\n⚠️ L'e-mail n'a pas pu être envoyé.`);
       }
 
@@ -1614,6 +1671,8 @@
       
     } catch (err) { 
         alert('❌ Erreur : ' + err.message); 
+    } finally {
+        if (btnAction) { btnAction.disabled = false; btnAction.textContent = "✅ Valider"; }
     }
   }
 
@@ -1718,7 +1777,6 @@
       return;
     }
 
-    // === type === 'ordres' ===
     const filtreStatut = document.getElementById('filtreStatutOrdre').value;
     const recherche = document.getElementById('searchOrdres').value.toLowerCase();
     const role = getAdminRole();
@@ -1784,7 +1842,6 @@
     XLSX.writeFile(wb, `Ordres_Mission_${stamp}.xlsx`);
   }
 
-  // --- GRAPHIQUES ACCUEIL ---
   function mettreAJourGraphiques() {
     document.getElementById('dashTotalVehicules').textContent = toutesLesDemandes.length;
     document.getElementById('dashTotalMissions').textContent = tousLesOrdres.length;

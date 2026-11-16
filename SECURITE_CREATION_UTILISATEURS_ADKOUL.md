@@ -19,7 +19,7 @@
 
 1. Faire une sauvegarde de l'état GitHub, des 5 comptes et des politiques RLS, **sans publier les empreintes ou mots de passe**.
 2. Vérifier que le compte Logistique actuel dispose du mot de passe de sa **session Supabase Auth** (qui peut être différent du mot de passe historique). Aucun secret ne doit être envoyé dans ChatGPT.
-3. Déployer uniquement la fonction secure-admin-users avec verify_jwt=true et les secrets automatiques SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY. L'Origin autorisée est https://amague2007-star.github.io.
+3. Déployer uniquement la fonction secure-admin-users avec verify_jwt=true et les variables SUPABASE_URL ainsi que SUPABASE_SERVICE_ROLE_KEY (legacy), ou SUPABASE_SECRET_KEYS (moderne). Ne jamais copier la clé secrète dans GitHub ni dans le navigateur. L'Origin autorisée est https://amague2007-star.github.io.
 4. Tester la fonction avec une session Auth vérifiée, une identité non habilitée et un jeton absent : les deux derniers doivent être refusés. Ne créer un nouveau compte que pour un agent habilité à la création.
 5. **Seulement après vérification**, fusionner la PR admin.html pour activer le nouveau bouton.
 6. Vérifier les nouveaux comptes et les emails sans toucher aux missions ou demandes existantes.

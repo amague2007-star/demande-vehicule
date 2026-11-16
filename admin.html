@@ -1253,7 +1253,7 @@
       await apiCall('/demandes?id=eq.' + demandeEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'validee', chauffeur_assigne: chauffeur, vehicule_assigne: vehiculeString, date_validation: new Date().toISOString(), valide_par: getAdminName() }) });
       
       if (demandeEnCours.email) {
-        envoyerEmail('template_affectation_vehicule', demandeEnCours.email, {
+        envoyerEmail('template_vehicule', demandeEnCours.email, {
           nom: `${demandeEnCours.prenom} ${demandeEnCours.nom}`,
           chauffeur: chauffeur,
           vehicule: vehiculeString,

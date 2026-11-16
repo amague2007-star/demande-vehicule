@@ -1,0 +1,5 @@
+# Supabase Edge Functions - ADKOUL
+# Intégrer à la configuration Supabase avant le déploiement.
+# La fonction exige un JWT Supabase Auth, validé par la plateforme ET côté fonction.
+[functions.secure-admin-users]
+verify_jwt = true

@@ -93,7 +93,7 @@
         </div>
         <div class="grid-2">
           <div class="form-group"><label for="email">Adresse e-mail <span class="required">*</span></label><input type="email" id="email" required></div>
-          <div class="form-group"><label for="contact">Contact téléphonique</label><input type="tel" id="contact"></div>
+          <div class="form-group"><label for="bureau">Bureau de départ <span class="required">*</span></label><input type="text" id="bureau" placeholder="Ex : Tahoua, Agadez, Niamey..." required></div>
         </div>
       </div>
 
@@ -124,14 +124,19 @@
             <option value="Bus">🚌 Bus</option>
             <option value="Avion">✈️ Avion</option>
           </select>
+          <p id="aideMoyenMission" role="status" aria-live="polite" style="font-size:0.82rem;color:#475569;margin-top:0.5rem;">Sélectionnez un moyen de déplacement. Le chauffeur et le véhicule seront renseignés par la logistique lorsque cela s'applique.</p>
         </div>
         <div class="form-group">
           <label for="objectif">Objectif de la mission <span class="required">*</span></label>
           <textarea id="objectif" placeholder="Décrivez brièvement l'objet de votre mission..." required></textarea>
         </div>
         <div class="form-group">
-          <label for="passagers">Autres passagers (optionnel)</label>
-          <input type="text" id="passagers" placeholder="Noms des personnes accompagnantes">
+          <label for="accompagnateurs">Accompagnateurs (optionnel)</label>
+          <input type="text" id="accompagnateurs" placeholder="Noms des personnes accompagnantes">
+        </div>
+        <div class="form-group">
+          <label for="imputation_budgetaire">Imputation budgétaire (optionnel)</label>
+          <input type="text" id="imputation_budgetaire" placeholder="Ex : Projet / code budgétaire, si connu">
         </div>
       </div>
 
@@ -155,6 +160,20 @@
   // Date de départ = aujourd'hui par défaut
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('date_depart').value = today;
+
+  function actualiserAideMoyenMission() {
+    const moyen = document.getElementById('moyen_deplacement').value;
+    const aide = document.getElementById('aideMoyenMission');
+    if (moyen === 'Bus' || moyen === 'Avion') {
+      aide.textContent = 'Transport ' + moyen + ' : aucun chauffeur ni véhicule ADKOUL à affecter. Le document indiquera le moyen de déplacement sans inventer de véhicule.';
+    } else if (moyen) {
+      aide.textContent = 'Transport par ' + moyen + ' : la logistique attribuera le chauffeur et les caractéristiques du véhicule avant validation RH.';
+    } else {
+      aide.textContent = 'Sélectionnez un moyen de déplacement. Le chauffeur et le véhicule seront renseignés par la logistique lorsque cela s\'applique.';
+    }
+  }
+  document.getElementById('moyen_deplacement').addEventListener('change', actualiserAideMoyenMission);
+  actualiserAideMoyenMission();
 
   function safeValue(id) {
     const el = document.getElementById(id);
@@ -192,14 +211,15 @@
       nom: document.getElementById('nom').value.trim(),
       poste: document.getElementById('poste').value,
       email: document.getElementById('email').value.trim(),
-      contact: safeValue('contact'),
+      bureau: safeValue('bureau'),
       date_depart: dDep,
       date_retour: dRet,
       destination: document.getElementById('destination').value.trim(),
       projet: document.getElementById('projet').value.trim(),
       moyen_deplacement: document.getElementById('moyen_deplacement').value,
       objectif: document.getElementById('objectif').value.trim(),
-      passagers: safeValue('passagers'),
+      accompagnateurs: safeValue('accompagnateurs'),
+      imputation_budgetaire: safeValue('imputation_budgetaire'),
       statut: 'en_attente'
     };
 
@@ -259,6 +279,7 @@
           : ' ⚠️ Notification logistique non confirmée.');
       form.reset();
       document.getElementById('date_depart').value = today;
+      actualiserAideMoyenMission();
     } catch (error) {
       console.error(error);
       messageBox.className = 'message-box error';

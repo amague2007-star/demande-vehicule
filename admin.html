@@ -724,16 +724,20 @@
       <option value="assistant_logistique">Assistant Logistique (Saisie véhicules)</option>
       <option value="rh">RH (Valide les ordres)</option>
     </select>
-    <label>Mot de passe *</label>
+    <label>Mot de passe du nouvel utilisateur * (12 caractères minimum)</label>
     <div class="password-reveal">
-      <input type="password" id="newUserPassword" placeholder="Mot de passe">
+      <input type="password" id="newUserPassword" minlength="12" autocomplete="new-password" placeholder="Mot de passe fort et unique">
       <button class="btn-reveal" type="button" onclick="togglePassword('newUserPassword', this)">👁️</button>
     </div>
     <label>Confirmer le mot de passe *</label>
-    <input type="password" id="newUserPassword2" placeholder="Retapez">
+    <input type="password" id="newUserPassword2" autocomplete="new-password" placeholder="Retapez">
+    <p style="font-size:12px;color:#475569;margin:5px 0 10px">Le nouveau mot de passe ne sera pas envoyé par email. Remettez-le à l'agent par un canal privé.</p>
+    <label>Vérification administrateur Supabase Auth *</label>
+    <input type="password" id="newUserAuthPassword" autocomplete="current-password" placeholder="Votre mot de passe Supabase Auth">
+    <p style="font-size:12px;color:#92400e;margin:4px 0 12px">Seul un compte Logistique vérifié dans Supabase Auth peut créer un utilisateur. Ce mot de passe peut être différent de celui de l'application actuelle.</p>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
-      <button class="btn-valider" onclick="confirmerAjoutUser()">✅ Créer</button>
+      <button class="btn-valider" id="btnCreateUser" onclick="confirmerAjoutUser()">✅ Créer</button>
     </div>
   </div>
 </div>
@@ -1140,6 +1144,7 @@
     document.getElementById('newUserEmail').value = '';
     document.getElementById('newUserPassword').value = '';
     document.getElementById('newUserPassword2').value = '';
+    document.getElementById('newUserAuthPassword').value = '';
     document.getElementById('modalAjoutUser').classList.add('active');
   }
 
@@ -1166,32 +1171,81 @@
     }
   }
 
+  // Étape supplémentaire Supabase Auth : l'identité du créateur doit être
+  // prouvée au serveur. Le rôle dans sessionStorage n'accorde aucun droit.
   async function confirmerAjoutUser() {
     const nom = document.getElementById('newUserName').value.trim();
     const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
     const role = document.getElementById('newUserRole').value;
-    const pwd = document.getElementById('newUserPassword').value;
-    const pwd2 = document.getElementById('newUserPassword2').value;
-    if (!nom || !email.includes('@') || pwd.length < 6 || pwd !== pwd2) { alert('⚠️ Vérifiez les champs.'); return; }
+    const pwdInput = document.getElementById('newUserPassword');
+    const pwd = pwdInput.value;
+    const pwd2Input = document.getElementById('newUserPassword2');
+    const pwd2 = pwd2Input.value;
+    const adminPwdInput = document.getElementById('newUserAuthPassword');
+    const adminPwd = adminPwdInput.value;
+    const bouton = document.getElementById('btnCreateUser');
+    const autorises = ['logistique', 'rh', 'directeur_logistique', 'assistant_logistique'];
+
+    if (!nom || nom.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+        pwd.length < 12 || pwd !== pwd2 || !autorises.includes(role) || !adminPwd) {
+      alert('⚠️ Vérifiez les champs. Mot de passe de 12 caractères minimum et confirmation Supabase Auth requis.');
+      return;
+    }
+    const adminEmail = sessionStorage.getItem('admin_email');
+    if (!adminEmail || getAdminRole() !== 'logistique') {
+      alert('⛔ Seul un administrateur Logistique habilité peut demander une création de compte.');
+      return;
+    }
+
+    bouton.disabled = true;
     try {
-      const existing = await apiCall('/admins?email=eq.' + encodeURIComponent(email) + '&select=id');
-      if (existing && existing.length > 0) { alert('❌ Cet email est déjà utilisé.'); return; }
-      const hash = await hashPassword(pwd);
-      await apiCall('/admins', { method: 'POST', body: JSON.stringify({ email, password_hash: hash, nom, role }) });
-      // Aucun mot de passe n'est transmis à EmailJS.
+      // Mot de passe envoyé uniquement à l'API Auth officielle en HTTPS.
+      const connexion = await fetch(ADKOUL_ADMIN_SUPABASE_URL + '/auth/v1/token?grant_type=password', {
+        method: 'POST',
+        headers: { 'apikey': ADKOUL_ADMIN_SUPABASE_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: adminEmail, password: adminPwd }),
+        cache: 'no-store'
+      });
+      const identite = await connexion.json().catch(() => ({}));
+      if (!connexion.ok || !identite.access_token) {
+        throw new Error('Authentification Supabase Auth impossible. Vérifiez le compte et son mot de passe Supabase Auth.');
+      }
+
+      const response = await fetch(ADKOUL_ADMIN_SUPABASE_URL + '/functions/v1/secure-admin-users', {
+        method: 'POST',
+        headers: {
+          'apikey': ADKOUL_ADMIN_SUPABASE_KEY,
+          'Authorization': 'Bearer ' + identite.access_token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ nom, email, role, password: pwd }),
+        cache: 'no-store'
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || result.success !== true) {
+        throw new Error(result.error || 'Création refusée par le service sécurisé (HTTP ' + response.status + ').');
+      }
+
+      // EmailJS n'envoie ni le nouveau mot de passe ni le mot de passe Auth.
       const notification = await notifierEmailAvecStatut('template_creation_user', email, {
-        nom: nom,
-        email: email,
-        role: role,
+        nom, email, role,
         lien_connexion: window.location.origin + '/admin.html'
       });
       fermerModal();
       await chargerUsers();
-      alert('✅ Utilisateur "' + nom + '" créé.\n' +
-        (notification.success
-          ? 'Email de bienvenue accepté par EmailJS pour ' + email + '.'
-          : '⚠️ Email de bienvenue non confirmé. Le compte a bien été créé.'));
-    } catch (err) { alert('❌ ' + err.message); }
+      alert('✅ Compte "' + nom + '" créé.\n' +
+        (notification.success ? 'Email de bienvenue accepté par EmailJS.\n' : '⚠️ Email de bienvenue non confirmé.\n') +
+        'Transmettez le mot de passe à l’agent par un canal privé, jamais par email.');
+    } catch (err) {
+      console.error('Création de compte non confirmée :', err);
+      alert('❌ ' + (err && err.message ? err.message : 'Erreur de création du compte.'));
+    } finally {
+      // Ne laisser aucun mot de passe dans le formulaire après l'opération.
+      pwdInput.value = '';
+      pwd2Input.value = '';
+      adminPwdInput.value = '';
+      bouton.disabled = false;
+    }
   }
 
   async function supprimerUser(id, email) {

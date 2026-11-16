@@ -1,32 +1,36 @@
 /* =====================================================
-   ONG ADKOUL — Service d'envoi d'e-mails (via Supabase & Resend)
+   ONG ADKOUL — Service d'envoi d'e-mails (Supabase / Resend)
    Fichier : email-service.js
+   Correction du 16 novembre 2026 :
+   - Endpoint réel : smart-endpoint
+   - Clé publique envoyée dans apikey
+   - Noms isolés pour éviter le doublon de const avec les formulaires
+   - Erreurs HTTP et erreurs de réponse affichées dans la console
    ===================================================== */
 
-const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
-const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
+// Les noms sont spécifiques au service email afin de ne pas entrer en conflit
+// avec les constantes SUPABASE_URL et SUPABASE_KEY d'ordre-mission.html.
+const ADKOUL_EMAIL_SUPABASE_URL = 'https://mvmzhdvkeromtljnvrow.supabase.co';
+const ADKOUL_EMAIL_SUPABASE_KEY = 'sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh';
 
-// ⚠️ ADRESSE DE LA LOGISTIQUE (Reçoit les alertes)
-const EMAIL_LOGISTIQUE = "amague2007@gmail.com";
+// Adresse de notification du service Logistique.
+const EMAIL_LOGISTIQUE = 'amague2007@gmail.com';
 
 /**
- * Envoie un e-mail en appelant la fonction Edge de Supabase
- * @param {string} templateId - Type de message (ex: 'template_demande_recue')
- * @param {string} destinataire - Adresse email du destinataire
- * @param {object} variables - Variables à injecter dans le message
- * @returns {Promise<{success:boolean, error?:any}>}
+ * Demande un envoi email à la fonction Edge Supabase.
+ * @returns {Promise<{success:boolean, error?:string}>}
+ * success=true signifie que la fonction a accepté la requête ;
+ * la livraison effective dépend du prestataire d'envoi.
  */
-async function envoyerEmail(templateId, destinataire, variables) {
-  // 1. Vérification basique du destinataire
-  if (!destinataire || !destinataire.includes('@')) {
-    console.warn(`⚠️ Email non envoyé (destinataire invalide) :`, destinataire);
+async function envoyerEmail(templateId, destinataire, variables = {}) {
+  if (!destinataire || typeof destinataire !== 'string' || !destinataire.includes('@')) {
+    console.warn('Email non demandé : destinataire invalide.', destinataire);
     return { success: false, error: 'Destinataire invalide' };
   }
 
-  let subject = "";
-  let html = "";
+  let subject = '';
+  let html = '';
 
-  // 2. Construction du message selon le type
   if (templateId === 'template_demande_recue') {
     subject = `📩 Nouvelle demande — ${variables.type_demande}`;
     html = `<h2>Bonjour ${variables.nom} ${variables.prenom || ''},</h2>
@@ -38,7 +42,7 @@ async function envoyerEmail(templateId, destinataire, variables) {
             </ul>
             <p>Cordialement,<br>Le service Logistique - ONG ADKOUL</p>`;
   } else if (templateId === 'template_vehicule') {
-    subject = `✅ Votre véhicule est affecté`;
+    subject = '✅ Votre véhicule est affecté';
     html = `<h2>Bonjour ${variables.nom},</h2>
             <p>Votre demande de sortie de véhicule a été <strong>validée</strong>.</p>
             <ul>
@@ -49,7 +53,7 @@ async function envoyerEmail(templateId, destinataire, variables) {
             </ul>
             <p>Cordialement,<br>Le service Logistique - ONG ADKOUL</p>`;
   } else if (templateId === 'template_refus') {
-    subject = `❌ Votre demande a été refusée`;
+    subject = '❌ Votre demande a été refusée';
     html = `<h2>Bonjour ${variables.nom},</h2>
             <p>Nous sommes au regret de vous informer que votre demande pour la destination <strong>${variables.destination}</strong> a été refusée.</p>
             <p><strong>Motif :</strong> ${variables.motif_refus}</p>
@@ -64,36 +68,36 @@ async function envoyerEmail(templateId, destinataire, variables) {
               <li><strong>Dates :</strong> du ${variables.date_depart} au ${variables.date_retour}</li>
             </ul>`;
   } else {
-    // Pour la validation RH finale
-    subject = variables.subject || "Notification ONG ADKOUL";
-    html = variables.message ? variables.message.replace(/\n/g, '<br>') : "Nouvelle notification.";
+    subject = variables.subject || 'Notification ONG ADKOUL';
+    html = variables.message ? String(variables.message).replace(/\n/g, '<br>') : 'Nouvelle notification.';
   }
 
-  // 3. Envoi via la fonction Edge de Supabase
   try {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
+    const response = await fetch(`${ADKOUL_EMAIL_SUPABASE_URL}/functions/v1/smart-endpoint`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_KEY}`
+        'apikey': ADKOUL_EMAIL_SUPABASE_KEY
       },
-      body: JSON.stringify({
-        to: destinataire,
-        subject: subject,
-        html: html
-      })
+      body: JSON.stringify({ to: destinataire, subject, html })
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error("Erreur Supabase : " + errorText);
+    const rawResponse = await response.text();
+    let body = null;
+    try { body = rawResponse ? JSON.parse(rawResponse) : null; } catch (_) { /* réponse texte */ }
+
+    if (!response.ok || (body && (body.success === false || body.error))) {
+      const detail = body && body.error
+        ? (typeof body.error === 'string' ? body.error : JSON.stringify(body.error))
+        : (rawResponse || response.statusText || 'Réponse sans détail');
+      throw new Error(`HTTP ${response.status} — ${detail}`);
     }
 
-    console.log(`✅ Email envoyé à ${destinataire} via Supabase/Resend`);
+    console.info(`Email accepté par smart-endpoint (${response.status}) pour ${destinataire}.`);
     return { success: true };
-
   } catch (err) {
-    console.error(`❌ Échec email pour ${destinataire}:`, err);
-    return { success: false, error: err };
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`Échec de la notification email pour ${destinataire} :`, message);
+    return { success: false, error: message };
   }
 }

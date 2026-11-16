@@ -1,25 +1,19 @@
 /* =====================================================
-   ONG ADKOUL — Service d'envoi d'e-mails centralisé
+   ONG ADKOUL — Service d'envoi d'e-mails (via Supabase & Resend)
    Fichier : email-service.js
    ===================================================== */
 
-const EMAILJS_PUBLIC_KEY = "SUbWMSdrTf7JugMrS";
-const EMAILJS_SERVICE_ID = "service_e6k2e76";
+const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
+const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
 
-// ⚠️ ADRESSE DE LA LOGISTIQUE (Reçoit les nouvelles demandes)
+// ⚠️ ADRESSE DE LA LOGISTIQUE (Reçoit les alertes)
 const EMAIL_LOGISTIQUE = "amague2007@gmail.com";
-// Initialisation UNE SEULE FOIS
-if (typeof emailjs !== 'undefined') {
-  emailjs.init(EMAILJS_PUBLIC_KEY);
-} else {
-  console.warn("⚠️ EmailJS n'est pas chargé. Vérifiez le CDN dans le <head>.");
-}
 
 /**
- * Envoie un e-mail via EmailJS avec gestion d'erreur silencieuse
- * @param {string} templateId - ID du template EmailJS (ex: 'template_demande_recue')
+ * Envoie un e-mail en appelant la fonction Edge de Supabase
+ * @param {string} templateId - Type de message (ex: 'template_demande_recue')
  * @param {string} destinataire - Adresse email du destinataire
- * @param {object} variables - Variables à injecter dans le template
+ * @param {object} variables - Variables à injecter dans le message
  * @returns {Promise<{success:boolean, error?:any}>}
  */
 async function envoyerEmail(templateId, destinataire, variables) {
@@ -29,26 +23,77 @@ async function envoyerEmail(templateId, destinataire, variables) {
     return { success: false, error: 'Destinataire invalide' };
   }
 
-  // 2. Vérification que EmailJS est bien chargé
-  if (typeof emailjs === 'undefined') {
-    console.error("❌ Impossible d'envoyer l'e-mail : la bibliothèque EmailJS n'est pas chargée.");
-    return { success: false, error: 'EmailJS non chargé' };
+  let subject = "";
+  let html = "";
+
+  // 2. Construction du message selon le type
+  if (templateId === 'template_demande_recue') {
+    subject = `📩 Nouvelle demande — ${variables.type_demande}`;
+    html = `<h2>Bonjour ${variables.nom} ${variables.prenom || ''},</h2>
+            <p>Votre demande (${variables.type_demande}) a bien été reçue par nos services.</p>
+            <ul>
+              <li><strong>Destination :</strong> ${variables.destination || '-'}</li>
+              <li><strong>Date :</strong> ${variables.date || '-'} ${variables.heure || ''}</li>
+              <li><strong>Motif :</strong> ${variables.motif || '-'}</li>
+            </ul>
+            <p>Cordialement,<br>Le service Logistique - ONG ADKOUL</p>`;
+  } else if (templateId === 'template_vehicule') {
+    subject = `✅ Votre véhicule est affecté`;
+    html = `<h2>Bonjour ${variables.nom},</h2>
+            <p>Votre demande de sortie de véhicule a été <strong>validée</strong>.</p>
+            <ul>
+              <li><strong>Chauffeur :</strong> ${variables.chauffeur}</li>
+              <li><strong>Véhicule :</strong> ${variables.vehicule}</li>
+              <li><strong>Destination :</strong> ${variables.destination}</li>
+              <li><strong>Date :</strong> ${variables.date} ${variables.heure ? 'à ' + variables.heure : ''}</li>
+            </ul>
+            <p>Cordialement,<br>Le service Logistique - ONG ADKOUL</p>`;
+  } else if (templateId === 'template_refus') {
+    subject = `❌ Votre demande a été refusée`;
+    html = `<h2>Bonjour ${variables.nom},</h2>
+            <p>Nous sommes au regret de vous informer que votre demande pour la destination <strong>${variables.destination}</strong> a été refusée.</p>
+            <p><strong>Motif :</strong> ${variables.motif_refus}</p>
+            <p>Cordialement,<br>Le service Logistique - ONG ADKOUL</p>`;
+  } else if (templateId === 'template_ordre_attente_rh') {
+    subject = `📄 Dossier à valider — ${variables.agent}`;
+    html = `<h2>Nouveau dossier à valider</h2>
+            <p>L'agent <strong>${variables.agent}</strong> (${variables.poste}) attend votre validation.</p>
+            <ul>
+              <li><strong>Destination :</strong> ${variables.destination}</li>
+              <li><strong>Projet :</strong> ${variables.projet}</li>
+              <li><strong>Dates :</strong> du ${variables.date_depart} au ${variables.date_retour}</li>
+            </ul>`;
+  } else {
+    // Pour la validation RH finale
+    subject = variables.subject || "Notification ONG ADKOUL";
+    html = variables.message ? variables.message.replace(/\n/g, '<br>') : "Nouvelle notification.";
   }
 
+  // 3. Envoi via la fonction Edge de Supabase
   try {
-    // 3. Envoi de l'e-mail
-    const response = await emailjs.send(EMAILJS_SERVICE_ID, templateId, {
-      to_email: destinataire, // Destinataire principal
-      email: destinataire,    // Sécurité : certains templates utilisent {{email}}
-      ...variables
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      },
+      body: JSON.stringify({
+        to: destinataire,
+        subject: subject,
+        html: html
+      })
     });
 
-    console.log(`✅ Email envoyé à ${destinataire} (template: ${templateId})`, response.status);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error("Erreur Supabase : " + errorText);
+    }
+
+    console.log(`✅ Email envoyé à ${destinataire} via Supabase/Resend`);
     return { success: true };
 
   } catch (err) {
-    // 4. Gestion de l'erreur (ne bloque pas l'application si l'e-mail échoue)
-    console.error(`❌ Échec de l'envoi de l'e-mail ${templateId} pour ${destinataire}:`, err);
+    console.error(`❌ Échec email pour ${destinataire}:`, err);
     return { success: false, error: err };
   }
 }

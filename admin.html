@@ -564,32 +564,17 @@
     </select>
     <input type="text" id="inputChauffeurAutre" placeholder="Nom" style="display:none; margin-top:8px;">
 
-    <div class="grid-2" style="margin-top:10px;">
-      <div>
-        <label>Type de véhicule *</label>
-        <select id="selectVehiculeType">
-          <option value="Véhicule ONG ADKOUL">Véhicule ONG ADKOUL</option>
-          <option value="Véhicule UNHCR">Véhicule UNHCR</option>
-          <option value="Véhicule Partenaire">Véhicule Partenaire</option>
-          <option value="Véhicule Location">Véhicule Location</option>
-          <option value="Bus">Bus</option>
-          <option value="Avion">Avion</option>
-        </select>
-      </div>
-      <div>
-        <label>Marque *</label>
-        <input type="text" id="inputVehiculeMarque" placeholder="Ex: Toyota" required>
-      </div>
-    </div>
-    <div class="grid-2" style="margin-top:10px;">
-      <div>
-        <label>Couleur *</label>
-        <input type="text" id="inputVehiculeCouleur" placeholder="Ex: Blanche" required>
-      </div>
-      <div>
-        <label>N° Immatriculation *</label>
-        <input type="text" id="inputVehiculeImmat" placeholder="Ex: AB-123-CD" required>
-      </div>
+    <!-- Choix simplifié : UNIQUEMENT pour les demandes de véhicule, pas les missions -->
+    <label for="selectVehiculeType" style="margin-top:12px;">🚙 Véhicule à affecter *</label>
+    <select id="selectVehiculeType" onchange="toggleVehiculeDemandeAutre()">
+      <option value="">— Sélectionnez un véhicule —</option>
+      <option value="PRADO">PRADO</option>
+      <option value="HARD-TOP">HARD-TOP</option>
+      <option value="AUTRE">AUTRE (saisie manuelle)</option>
+    </select>
+    <div id="vehiculeDemandeAutreBox" style="display:none; margin-top:10px;">
+      <label for="inputVehiculeAutre">Précisez le véhicule *</label>
+      <input type="text" id="inputVehiculeAutre" placeholder="Ex. : Toyota Hilux / autre véhicule" maxlength="150" autocomplete="off">
     </div>
 
     <div class="modal-actions">
@@ -1288,30 +1273,38 @@
     }
   }
 
+  function toggleVehiculeDemandeAutre() {
+    const choix = document.getElementById('selectVehiculeType').value;
+    const bloc = document.getElementById('vehiculeDemandeAutreBox');
+    const saisie = document.getElementById('inputVehiculeAutre');
+    const autre = choix === 'AUTRE';
+    bloc.style.display = autre ? 'block' : 'none';
+    saisie.required = autre;
+    if (!autre) saisie.value = '';
+  }
+
   function ouvrirModalValider(id) {
     demandeEnCours = toutesLesDemandes.find(d => d.id === id);
     if (!demandeEnCours) return;
     document.getElementById('modalValiderInfo').textContent = `${demandeEnCours.prenom} ${demandeEnCours.nom} → ${demandeEnCours.destination}`;
-    document.getElementById('selectChauffeur').value = ''; document.getElementById('inputChauffeurAutre').style.display = 'none'; document.getElementById('inputChauffeurAutre').value = '';
-    document.getElementById('selectVehiculeType').value = 'Véhicule Location';
-    document.getElementById('inputVehiculeMarque').value = '';
-    document.getElementById('inputVehiculeCouleur').value = '';
-    document.getElementById('inputVehiculeImmat').value = '';
+    document.getElementById('selectChauffeur').value = '';
+    document.getElementById('inputChauffeurAutre').style.display = 'none';
+    document.getElementById('inputChauffeurAutre').value = '';
+    document.getElementById('selectVehiculeType').value = '';
+    document.getElementById('inputVehiculeAutre').value = '';
+    toggleVehiculeDemandeAutre();
     document.getElementById('modalValider').classList.add('active');
   }
 
   async function confirmerValidation() {
     const sc = document.getElementById('selectChauffeur').value;
-    let chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurAutre').value.trim() : sc;
-    
+    const chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurAutre').value.trim() : sc;
     const type = document.getElementById('selectVehiculeType').value;
-    const marque = document.getElementById('inputVehiculeMarque').value.trim();
-    const couleur = document.getElementById('inputVehiculeCouleur').value.trim();
-    const immat = document.getElementById('inputVehiculeImmat').value.trim();
-    
-    if (!chauffeur || !marque || !couleur || !immat) { alert('⚠️ Remplissez tous les champs.'); return; }
-    
-    const vehiculeString = `${type} (${marque} - ${couleur} - ${immat})`;
+    const vehiculeString = type === 'AUTRE' ? document.getElementById('inputVehiculeAutre').value.trim() : type;
+
+    if (!chauffeur) { alert('⚠️ Sélectionnez ou saisissez le nom du chauffeur.'); return; }
+    if (!type) { alert('⚠️ Choisissez PRADO, HARD-TOP ou AUTRE.'); return; }
+    if (!vehiculeString) { alert('⚠️ Précisez le véhicule dans le champ de saisie manuelle.'); return; }
 
     try {
       await apiCall('/demandes?id=eq.' + demandeEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'validee', chauffeur_assigne: chauffeur, vehicule_assigne: vehiculeString, date_validation: new Date().toISOString(), valide_par: getAdminName() }) });

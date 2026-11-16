@@ -1255,7 +1255,7 @@
       } else if (d.statut === 'validee') {
         resultatHtml = `<div class="resultat validee"><strong>✅ Affectée</strong><br>👤 Chauffeur : <strong>${d.chauffeur_assigne}</strong> | 🚙 Véhicule : <strong>${d.vehicule_assigne}</strong>${d.valide_par ? `<span class="par-admin">✔ Traitée par : ${d.valide_par}</span>` : ''}</div>`;
         
-        // ✅ AJOUT DU BOUTON WHATSAPP ICI
+        // AJOUT DU BOUTON WHATSAPP
         actionsHtml = `<button class="btn btn-whatsapp" onclick="notifierWhatsAppDemande(${d.id})">💬 Notifier</button>`;
       } else if (d.statut === 'refusee') {
         resultatHtml = `<div class="resultat refusee"><strong>❌ Refusée</strong><br>Motif : ${d.message_admin}${d.refuse_par ? `<span class="par-admin">✖ Refusée par : ${d.refuse_par}</span>` : ''}</div>`;
@@ -1366,7 +1366,7 @@
     } 
   }
 
-  // ✅ NOUVELLE FONCTION POUR NOTIFIER LE CHAUFFEUR SUR UNE DEMANDE DE VEHICULE
+  // NOUVELLE FONCTION POUR NOTIFIER LE CHAUFFEUR SUR UNE DEMANDE DE VEHICULE
   function notifierWhatsAppDemande(id) {
     const d = toutesLesDemandes.find(d => d.id === id);
     if (!d) return;

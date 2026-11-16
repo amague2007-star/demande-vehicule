@@ -7,8 +7,7 @@ const EMAILJS_PUBLIC_KEY = "SUbWMSdrTf7JugMrS";
 const EMAILJS_SERVICE_ID = "service_e6k2e76";
 
 // ⚠️ ADRESSE DE LA LOGISTIQUE (Reçoit les nouvelles demandes)
-const EMAIL_LOGISTIQUE = "abdoul.aziz@adkoul.org";
-
+const EMAIL_LOGISTIQUE = "amague2007@gmail.com";
 // Initialisation UNE SEULE FOIS
 if (typeof emailjs !== 'undefined') {
   emailjs.init(EMAILJS_PUBLIC_KEY);

@@ -1336,7 +1336,8 @@
         resultatHtml = `<div class="resultat refusee"><strong>❌ Refusée</strong><br>Motif : ${d.message_admin}${d.refuse_par ? `<span class="par-admin">✖ Refusée par : ${d.refuse_par}</span>` : ''}</div>`;
       }
       
-      if (role === 'logistique') {
+      // ✅ MODIFICATION : Suppression autorisée pour Logistique ET Assistant Logistique
+      if (role === 'logistique' || role === 'assistant_logistique') {
         actionsHtml += `<button class="btn btn-suppr" onclick="supprimerDemande(${d.id})">🗑️ Supprimer</button>`;
       }
 
@@ -1452,11 +1453,20 @@
     } catch (err) { alert('❌ ' + err.message); }
   }
 
-  async function supprimerDemande(id) { 
-    if (confirm('⚠️ Suppression définitive.\n\nConfirmer ?')) { 
-      await apiCall('/demandes?id=eq.' + id, { method: 'DELETE' }); 
-      chargerDemandes(); 
-    } 
+  // ✅ MODIFICATION : contrôle de rôle + try/catch
+  async function supprimerDemande(id) {
+    const role = getAdminRole();
+    if (role !== 'logistique' && role !== 'assistant_logistique') {
+      alert('⛔ Vous n\'avez pas les droits pour supprimer une demande.');
+      return;
+    }
+    if (!confirm('⚠️ Suppression définitive de cette demande.\n\nConfirmer ?')) return;
+    try {
+      await apiCall('/demandes?id=eq.' + id, { method: 'DELETE' });
+      await chargerDemandes();
+    } catch (err) {
+      alert('❌ Erreur lors de la suppression : ' + err.message);
+    }
   }
 
   function notifierWhatsAppDemande(id) {
@@ -1883,12 +1893,20 @@
     }
   }
 
+  // ✅ MODIFICATION : contrôle de rôle uniformisé + try/catch
   async function supprimerOrdre(id) {
-    if (getAdminRole() === 'assistant_logistique') return; 
-    if (confirm('⚠️ Suppression définitive.\n\nConfirmer ?')) { 
-      await apiCall('/missions_2?id=eq.' + id, { method: 'DELETE' }); 
-      chargerOrdres(); 
-    } 
+    const role = getAdminRole();
+    if (role !== 'logistique') {
+      alert('⛔ Seul le rôle Logistique peut supprimer un ordre de mission.');
+      return;
+    }
+    if (!confirm('⚠️ Suppression définitive de cet ordre de mission.\n\nConfirmer ?')) return;
+    try {
+      await apiCall('/missions_2?id=eq.' + id, { method: 'DELETE' });
+      await chargerOrdres();
+    } catch (err) {
+      alert('❌ Erreur lors de la suppression : ' + err.message);
+    }
   }
 
   function fermerModal() {

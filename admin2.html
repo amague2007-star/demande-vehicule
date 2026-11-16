@@ -1254,6 +1254,8 @@
         }
       } else if (d.statut === 'validee') {
         resultatHtml = `<div class="resultat validee"><strong>✅ Affectée</strong><br>👤 Chauffeur : <strong>${d.chauffeur_assigne}</strong> | 🚙 Véhicule : <strong>${d.vehicule_assigne}</strong>${d.valide_par ? `<span class="par-admin">✔ Traitée par : ${d.valide_par}</span>` : ''}</div>`;
+        
+        actionsHtml = `<button class="btn btn-whatsapp" onclick="notifierWhatsAppDemande(${d.id})">💬 Notifier</button>`;
       } else if (d.statut === 'refusee') {
         resultatHtml = `<div class="resultat refusee"><strong>❌ Refusée</strong><br>Motif : ${d.message_admin}${d.refuse_par ? `<span class="par-admin">✖ Refusée par : ${d.refuse_par}</span>` : ''}</div>`;
       }
@@ -1266,7 +1268,7 @@
         <div class="demande-item ${d.statut === 'validee' ? 'validee' : d.statut === 'refusee' ? 'refusee' : ''}">
           <div class="demande-header"><h3>${d.prenom} ${d.nom} <span>— ${d.poste}</span></h3><span class="statut ${d.statut}">${d.statut === 'en_attente' ? '⏳ En attente' : d.statut === 'validee' ? '✅ Affectée' : '❌ Refusée'}</span></div>
           <div class="demande-grid">
-            <div class="info-item"><strong>📅 Date</strong>${formatNigerDateShort(d.date_sortie)} à ${d.heure_depart}</div>
+            <div class="info-item"><strong>📅 Date</strong>${formatNigerDateShort(d.date_sortie)} ${d.heure_depart ? 'à ' + d.heure_depart : ''}</div>
             <div class="info-item"><strong>📍 Destination</strong>${d.destination}</div>
             <div class="info-item"><strong>⏱ Durée</strong>${d.duree} min</div>
           </div>
@@ -1361,6 +1363,20 @@
       await apiCall('/demandes?id=eq.' + id, { method: 'DELETE' }); 
       chargerDemandes(); 
     } 
+  }
+
+  function notifierWhatsAppDemande(id) {
+    const d = toutesLesDemandes.find(d => d.id === id);
+    if (!d) return;
+    
+    let tel = CHAUFFEURS[d.chauffeur_assigne] || "";
+    if (!tel && d.chauffeur_assigne) {
+      tel = prompt(`Entrez le numéro WhatsApp de ${d.chauffeur_assigne} (ex: 227XXXXXXXX) :`, "");
+    }
+    
+    const message = `Bonjour, vous avez une affectation de véhicule :\n👤 Agent : *${d.prenom} ${d.nom}*\n📍 Destination : ${d.destination}\n📅 Date : ${formatNigerDateShort(d.date_sortie)} ${d.heure_depart ? 'à ' + d.heure_depart : ''}\n🚙 Véhicule : ${d.vehicule_assigne}\n\nMerci de confirmer votre disponibilité.`;
+    const url = tel ? `https://wa.me/${tel.replace(/\D/g,'')}?text=${encodeURIComponent(message)}` : `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
   }
 
   // ============ ORDRES DE MISSION ============
@@ -1679,7 +1695,6 @@
     if (btnAction) { btnAction.disabled = true; btnAction.textContent = "⏳ Génération..."; }
 
     try {
-      // CORRECTION BUG NUMERO : On demande uniquement le DERNIER numéro à Supabase
       const dernieresMissions = await apiCall('/missions_2?message_admin=not.is.null&order=created_at.desc&limit=1&select=message_admin');
       
       let maxNum = 0;

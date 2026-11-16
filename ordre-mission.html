@@ -218,31 +218,45 @@
         throw new Error(errTxt);
       }
 
-      // ✅ E-MAILS (non bloquants)
-      // 1. Confirmation au demandeur
-      envoyerEmail('template_demande_recue', newMission.email, {
-        nom: newMission.nom,
-        prenom: '',
-        type_demande: 'Ordre de Mission',
-        destination: newMission.destination,
-        date: newMission.date_depart,
-        heure: '-',
-        motif: newMission.objectif || '-'
-      });
-      // 2. Notification à la logistique
-      envoyerEmail('template_demande_recue', EMAIL_LOGISTIQUE, {
-        nom: newMission.nom,
-        prenom: '',
-        type_demande: 'Ordre de Mission (NOUVELLE À TRAITER)',
-        destination: newMission.destination,
-        date: newMission.date_depart,
-        heure: '-',
-        motif: newMission.objectif || '-'
-      });
+      // L'enregistrement de l'ordre de mission reste valide même si l'email échoue.
+      const notifications = await Promise.allSettled([
+        typeof envoyerEmail === 'function'
+          ? envoyerEmail('template_demande_recue', newMission.email, {
+              nom: newMission.nom,
+              prenom: '',
+              type_demande: 'Ordre de Mission',
+              destination: newMission.destination,
+              date: newMission.date_depart,
+              heure: '-',
+              motif: newMission.objectif || '-'
+            })
+          : Promise.resolve({ success: false }),
+        typeof envoyerEmail === 'function' && typeof EMAIL_LOGISTIQUE !== 'undefined'
+          ? envoyerEmail('template_demande_recue', EMAIL_LOGISTIQUE, {
+              nom: newMission.nom,
+              prenom: '',
+              type_demande: 'Ordre de Mission (NOUVELLE À TRAITER)',
+              destination: newMission.destination,
+              date: newMission.date_depart,
+              heure: '-',
+              motif: newMission.objectif || '-'
+            })
+          : Promise.resolve({ success: false })
+      ]);
+      const emailDemandeurOK = notifications[0].status === 'fulfilled' &&
+        notifications[0].value && notifications[0].value.success === true;
+      const emailLogistiqueOK = notifications[1].status === 'fulfilled' &&
+        notifications[1].value && notifications[1].value.success === true;
 
       messageBox.className = 'message-box success';
       msgIcon.textContent = '✅';
-      msgText.textContent = 'Votre demande d\'ordre de mission a bien été envoyée. Un e-mail de confirmation vous a été adressé.';
+      msgText.textContent = 'Votre demande d’ordre de mission a bien été enregistrée. ' +
+        (emailDemandeurOK
+          ? 'Confirmation acceptée par EmailJS.'
+          : '⚠️ Confirmation email non confirmée.') +
+        (emailLogistiqueOK
+          ? ' Notification logistique acceptée.'
+          : ' ⚠️ Notification logistique non confirmée.');
       form.reset();
       document.getElementById('date_depart').value = today;
     } catch (error) {

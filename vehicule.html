@@ -249,30 +249,46 @@
         throw new Error(errTxt);
       }
 
-      // ✅ ENVOI DES E-MAILS (non bloquants)
-      // 1. Confirmation au demandeur
-      if (typeof envoyerEmail === 'function') envoyerEmail('template_demande_recue', newDemande.email, {
-        nom: newDemande.nom,
-        prenom: newDemande.prenom,
-        type_demande: 'Sortie de Véhicule',
-        destination: newDemande.destination,
-        date: newDemande.date_demande,
-        heure: newDemande.heure_depart || '-',
-        motif: newDemande.motif
-      });
-      // 2. Notification à la logistique
-      if (typeof envoyerEmail === 'function' && typeof EMAIL_LOGISTIQUE !== 'undefined') envoyerEmail('template_demande_recue', EMAIL_LOGISTIQUE, {
-        nom: newDemande.nom,
-        prenom: newDemande.prenom,
-        type_demande: 'Sortie de Véhicule (NOUVELLE À TRAITER)',
-        destination: newDemande.destination,
-        date: newDemande.date_demande,
-        heure: newDemande.heure_depart || '-',
-        motif: newDemande.motif
-      });
+      // Envois de notifications après enregistrement ; un échec email ne remet
+      // jamais en cause la demande déjà sauvegardée dans Supabase.
+      const notifications = await Promise.allSettled([
+        typeof envoyerEmail === 'function'
+          ? envoyerEmail('template_demande_recue', newDemande.email, {
+              nom: newDemande.nom,
+              prenom: newDemande.prenom,
+              type_demande: 'Sortie de Véhicule',
+              destination: newDemande.destination,
+              date: newDemande.date_demande,
+              heure: newDemande.heure_depart || '-',
+              motif: newDemande.motif
+            })
+          : Promise.resolve({ success: false }),
+        typeof envoyerEmail === 'function' && typeof EMAIL_LOGISTIQUE !== 'undefined'
+          ? envoyerEmail('template_demande_recue', EMAIL_LOGISTIQUE, {
+              nom: newDemande.nom,
+              prenom: newDemande.prenom,
+              type_demande: 'Sortie de Véhicule (NOUVELLE À TRAITER)',
+              destination: newDemande.destination,
+              date: newDemande.date_demande,
+              heure: newDemande.heure_depart || '-',
+              motif: newDemande.motif
+            })
+          : Promise.resolve({ success: false })
+      ]);
+      const emailDemandeurOK = notifications[0].status === 'fulfilled' &&
+        notifications[0].value && notifications[0].value.success === true;
+      const emailLogistiqueOK = notifications[1].status === 'fulfilled' &&
+        notifications[1].value && notifications[1].value.success === true;
 
       messageBox.className = 'message-box success';
-      msgIcon.textContent = '✅'; msgText.textContent = 'Votre demande a bien été enregistrée. Les notifications e-mail sont lancées si le service est disponible.';
+      msgIcon.textContent = '✅';
+      msgText.textContent = 'Votre demande de véhicule a bien été enregistrée. ' +
+        (emailDemandeurOK
+          ? 'Confirmation acceptée par EmailJS.'
+          : '⚠️ Confirmation email non confirmée.') +
+        (emailLogistiqueOK
+          ? ' Notification logistique acceptée.'
+          : ' ⚠️ Notification logistique non confirmée.');
       form.reset();
       dateDemande.value = dateAujourdhuiNiger();
       afficherChampAccompagnants();

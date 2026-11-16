@@ -1150,6 +1150,23 @@
     btn.textContent = input.type === 'password' ? '👁️' : '🙈';
   }
 
+
+  // Le résultat décrit l'acceptation de l'envoi par EmailJS, pas la réception finale.
+  async function notifierEmailAvecStatut(modele, email, donnees) {
+    if (typeof envoyerEmail !== 'function') {
+      return { success: false, error: 'Service EmailJS indisponible' };
+    }
+    try {
+      const resultat = await envoyerEmail(modele, email, donnees);
+      return resultat && resultat.success === true
+        ? resultat
+        : { success: false, error: (resultat && resultat.error) || 'Envoi non confirmé' };
+    } catch (erreur) {
+      console.error('Erreur de notification :', erreur);
+      return { success: false, error: String(erreur) };
+    }
+  }
+
   async function confirmerAjoutUser() {
     const nom = document.getElementById('newUserName').value.trim();
     const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
@@ -1158,20 +1175,23 @@
     const pwd2 = document.getElementById('newUserPassword2').value;
     if (!nom || !email.includes('@') || pwd.length < 6 || pwd !== pwd2) { alert('⚠️ Vérifiez les champs.'); return; }
     try {
-      const existing = await apiCall(`/admins?email=eq.${encodeURIComponent(email)}&select=id`);
+      const existing = await apiCall('/admins?email=eq.' + encodeURIComponent(email) + '&select=id');
       if (existing && existing.length > 0) { alert('❌ Cet email est déjà utilisé.'); return; }
       const hash = await hashPassword(pwd);
       await apiCall('/admins', { method: 'POST', body: JSON.stringify({ email, password_hash: hash, nom, role }) });
-      
-      envoyerEmail('template_creation_user', email, {
+      // Aucun mot de passe n'est transmis à EmailJS.
+      const notification = await notifierEmailAvecStatut('template_creation_user', email, {
         nom: nom,
         email: email,
-        mot_de_passe_temporaire: pwd,
         role: role,
         lien_connexion: window.location.origin + '/admin.html'
       });
-
-      fermerModal(); await chargerUsers(); alert(`✅ Utilisateur "${nom}" créé. Un e-mail de bienvenue a été envoyé à ${email}.`);
+      fermerModal();
+      await chargerUsers();
+      alert('✅ Utilisateur "' + nom + '" créé.\n' +
+        (notification.success
+          ? 'Email de bienvenue accepté par EmailJS pour ' + email + '.'
+          : '⚠️ Email de bienvenue non confirmé. Le compte a bien été créé.'));
     } catch (err) { alert('❌ ' + err.message); }
   }
 
@@ -1308,19 +1328,22 @@
 
     try {
       await apiCall('/demandes?id=eq.' + demandeEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'validee', chauffeur_assigne: chauffeur, vehicule_assigne: vehiculeString, date_validation: new Date().toISOString(), valide_par: getAdminName() }) });
-      
-      if (demandeEnCours.email) {
-        envoyerEmail('template_vehicule', demandeEnCours.email, {
-          nom: `${demandeEnCours.prenom} ${demandeEnCours.nom}`,
-          chauffeur: chauffeur,
-          vehicule: vehiculeString,
-          destination: demandeEnCours.destination,
-          date: (demandeEnCours.date_demande || demandeEnCours.date_sortie) ? formatNigerDateShort(demandeEnCours.date_demande || demandeEnCours.date_sortie) : '-',
-          heure: demandeEnCours.heure_depart || '-'
-        });
-      }
 
-      fermerModal(); await chargerDemandes(); alert('✅ Demande traitée. Le demandeur a été notifié par e-mail.');
+      const notification = await notifierEmailAvecStatut('template_vehicule', demandeEnCours.email, {
+        nom: demandeEnCours.prenom + ' ' + demandeEnCours.nom,
+        chauffeur: chauffeur,
+        vehicule: vehiculeString,
+        destination: demandeEnCours.destination,
+        date: (demandeEnCours.date_demande || demandeEnCours.date_sortie) ? formatNigerDateShort(demandeEnCours.date_demande || demandeEnCours.date_sortie) : '-',
+        heure: demandeEnCours.heure_depart || '-'
+      });
+
+      fermerModal();
+      await chargerDemandes();
+      alert('✅ Demande validée et véhicule affecté.\n' +
+        (notification.success
+          ? 'Notification acceptée par EmailJS pour le demandeur.'
+          : '⚠️ Notification email non confirmée. La validation est enregistrée.'));
     } catch (err) { alert('❌ ' + err.message); }
   }
 
@@ -1337,17 +1360,20 @@
     if (!motif) { alert('⚠️ Motif obligatoire.'); return; }
     try {
       await apiCall('/demandes?id=eq.' + demandeEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'refusee', message_admin: motif, date_validation: new Date().toISOString(), refuse_par: getAdminName() }) });
-      
-      if (demandeEnCours.email) {
-        envoyerEmail('template_refus', demandeEnCours.email, {
-          nom: `${demandeEnCours.prenom} ${demandeEnCours.nom}`,
-          destination: demandeEnCours.destination,
-          motif_refus: motif,
-          date: (demandeEnCours.date_demande || demandeEnCours.date_sortie) ? formatNigerDateShort(demandeEnCours.date_demande || demandeEnCours.date_sortie) : '-'
-        });
-      }
-      
-      fermerModal(); await chargerDemandes(); alert('❌ Demande refusée. Le demandeur a été notifié.');
+
+      const notification = await notifierEmailAvecStatut('template_refus', demandeEnCours.email, {
+        nom: demandeEnCours.prenom + ' ' + demandeEnCours.nom,
+        destination: demandeEnCours.destination,
+        motif_refus: motif,
+        date: (demandeEnCours.date_demande || demandeEnCours.date_sortie) ? formatNigerDateShort(demandeEnCours.date_demande || demandeEnCours.date_sortie) : '-'
+      });
+
+      fermerModal();
+      await chargerDemandes();
+      alert('✅ Demande refusée.\n' +
+        (notification.success
+          ? 'Notification acceptée par EmailJS pour le demandeur.'
+          : '⚠️ Notification email non confirmée. Le refus est enregistré.'));
     } catch (err) { alert('❌ ' + err.message); }
   }
 
@@ -1657,7 +1683,7 @@
         }) 
       });
       
-      envoyerEmail('template_ordre_attente_rh', EMAIL_LOGISTIQUE, {
+      const notification = await notifierEmailAvecStatut('template_ordre_attente_rh', EMAIL_LOGISTIQUE, {
         agent: ordreEnCours.nom,
         poste: ordreEnCours.poste || '-',
         destination: ordreEnCours.destination,
@@ -1668,7 +1694,13 @@
         vehicule: vehiculeString || 'Aucun (Bus/Avion)'
       });
 
-      fermerModal(); await chargerOrdres(); alert('✅ Demande transmise au RH. Un e-mail de notification a été envoyé.');
+      fermerModal();
+      await chargerOrdres();
+      alert('✅ Affectation logistique enregistrée pour la suite du traitement RH.\n' +
+        (notification.success
+          ? 'Notification acceptée par EmailJS pour la boîte logistique.'
+          : '⚠️ Notification email non confirmée. L’affectation est enregistrée.'));
+
     } catch (err) { alert('❌ ' + err.message); }
   }
 

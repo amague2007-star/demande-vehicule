@@ -54,6 +54,12 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .highlight-border { border-color: var(--danger) !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important; }
   .info-note { display: flex; align-items: center; gap: 0.6rem; padding: 0.8rem 1rem; background: #eff6ff; border-left: 4px solid var(--primary); border-radius: 8px; font-size: 0.85rem; color: var(--primary); margin-bottom: 1.5rem; }
+  .accompagnateur-ligne { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem; }
+  .form-group .accompagnateur-input { min-width: 0; }
+  .btn-ajouter-accompagnateur { align-self: flex-start; background: #eff6ff; border: 1px solid #2563eb; color: #1e40af; border-radius: 9px; padding: 0.6rem 1rem; font-weight: 700; cursor: pointer; }
+  .btn-ajouter-accompagnateur:hover { background: #dbeafe; }
+  .btn-retirer-accompagnateur { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 9px; padding: 0.6rem 0.85rem; cursor: pointer; font-weight: 700; }
+  .btn-retirer-accompagnateur:hover { background: #fee2e2; }
 </style>
 </head>
 <body>
@@ -74,21 +80,7 @@
           <div class="form-group"><label for="nom">Nom complet <span class="required">*</span></label><input type="text" id="nom" required></div>
           <div class="form-group">
             <label for="poste">Poste occupé <span class="required">*</span></label>
-            <select id="poste" required>
-              <option value="" disabled selected>— Sélectionnez —</option>
-              <option value="ASSISTANT LOGISTIQUE">ASSISTANT LOGISTIQUE</option>
-              <option value="ASSISTANT RH">ASSISTANT RH</option>
-              <option value="DLM">DLM</option>
-              <option value="DAF">DAF</option>
-              <option value="ASSISTANT COMPTABLE">ASSISTANT COMPTABLE</option>
-              <option value="COMPTABLE">COMPTABLE</option>
-              <option value="DRH">DRH</option>
-              <option value="SECURITE">SECURITE</option>
-              <option value="CHEF DE PROJET">CHEF DE PROJET</option>
-              <option value="ASSISTANT TECHNIQUE">ASSISTANT TECHNIQUE</option>
-              <option value="DIRECTEUR DE PROGRAMME">DIRECTEUR DE PROGRAMME</option>
-              <option value="SECRETAIRE EXECUTIF">SECRETAIRE EXECUTIF</option>
-            </select>
+            <input type="text" id="poste" required maxlength="160" autocomplete="organization-title" placeholder="Saisissez votre poste (ex : Référent sécurité)">
           </div>
         </div>
         <div class="grid-2">
@@ -131,12 +123,18 @@
           <textarea id="objectif" placeholder="Décrivez brièvement l'objet de votre mission..." required></textarea>
         </div>
         <div class="form-group">
-          <label for="accompagnateurs">Accompagnateurs (optionnel)</label>
-          <input type="text" id="accompagnateurs" placeholder="Noms des personnes accompagnantes">
+          <label for="accompagnateurInitial">Accompagnateurs (optionnel)</label>
+          <div id="accompagnateursListe">
+            <div class="accompagnateur-ligne">
+              <input type="text" id="accompagnateurInitial" class="accompagnateur-input" maxlength="160" placeholder="Nom complet de l'accompagnateur" aria-label="Accompagnateur 1">
+              <button type="button" class="btn-retirer-accompagnateur" aria-label="Retirer cet accompagnateur" title="Retirer cet accompagnateur">✕</button>
+            </div>
+          </div>
+          <button type="button" class="btn-ajouter-accompagnateur" id="ajouterAccompagnateur">＋ Ajouter un accompagnateur</button>
         </div>
         <div class="form-group">
-          <label for="imputation_budgetaire">Imputation budgétaire (optionnel)</label>
-          <input type="text" id="imputation_budgetaire" placeholder="Ex : Projet / code budgétaire, si connu">
+          <label for="imputation_budgetaire">Imputation budgétaire <span class="required">*</span></label>
+          <input type="text" id="imputation_budgetaire" placeholder="Saisissez le projet ou le code budgétaire" maxlength="200" required>
         </div>
       </div>
 
@@ -174,6 +172,56 @@
   }
   document.getElementById('moyen_deplacement').addEventListener('change', actualiserAideMoyenMission);
   actualiserAideMoyenMission();
+
+  // Les accompagnateurs sont facultatifs ; chaque clic sur + ajoute une ligne.
+  // On conserve la colonne texte existante « accompagnateurs » dans missions_2.
+  const accompagnateursListe = document.getElementById('accompagnateursListe');
+  const ajouterAccompagnateurBtn = document.getElementById('ajouterAccompagnateur');
+
+  function renumeroterAccompagnateurs() {
+    accompagnateursListe.querySelectorAll('.accompagnateur-input').forEach((input, index) => {
+      input.setAttribute('aria-label', 'Accompagnateur ' + (index + 1));
+    });
+  }
+
+  ajouterAccompagnateurBtn.addEventListener('click', () => {
+    const premiereLigne = accompagnateursListe.querySelector('.accompagnateur-ligne');
+    const nouvelleLigne = premiereLigne.cloneNode(true);
+    const nouvelInput = nouvelleLigne.querySelector('.accompagnateur-input');
+    nouvelInput.value = '';
+    nouvelInput.removeAttribute('id');
+    accompagnateursListe.appendChild(nouvelleLigne);
+    renumeroterAccompagnateurs();
+    nouvelInput.focus();
+  });
+
+  accompagnateursListe.addEventListener('click', event => {
+    const bouton = event.target.closest('.btn-retirer-accompagnateur');
+    if (!bouton || !accompagnateursListe.contains(bouton)) return;
+    const ligne = bouton.closest('.accompagnateur-ligne');
+    if (accompagnateursListe.querySelectorAll('.accompagnateur-ligne').length === 1) {
+      ligne.querySelector('.accompagnateur-input').value = '';
+    } else {
+      ligne.remove();
+    }
+    renumeroterAccompagnateurs();
+  });
+
+  function nomsAccompagnateurs() {
+    const noms = Array.from(accompagnateursListe.querySelectorAll('.accompagnateur-input'))
+      .map(input => input.value.trim())
+      .filter(Boolean);
+    return noms.length ? noms.join(', ') : null;
+  }
+
+  function reinitialiserAccompagnateurs() {
+    const lignes = accompagnateursListe.querySelectorAll('.accompagnateur-ligne');
+    lignes.forEach((ligne, index) => {
+      if (index > 0) ligne.remove();
+    });
+    accompagnateursListe.querySelector('.accompagnateur-input').value = '';
+    renumeroterAccompagnateurs();
+  }
 
   function safeValue(id) {
     const el = document.getElementById(id);
@@ -218,7 +266,7 @@
       projet: document.getElementById('projet').value.trim(),
       moyen_deplacement: document.getElementById('moyen_deplacement').value,
       objectif: document.getElementById('objectif').value.trim(),
-      accompagnateurs: safeValue('accompagnateurs'),
+      accompagnateurs: nomsAccompagnateurs(),
       imputation_budgetaire: safeValue('imputation_budgetaire'),
       statut: 'en_attente'
     };
@@ -278,6 +326,7 @@
           ? ' Notification logistique acceptée.'
           : ' ⚠️ Notification logistique non confirmée.');
       form.reset();
+      reinitialiserAccompagnateurs();
       document.getElementById('date_depart').value = today;
       actualiserAideMoyenMission();
     } catch (error) {

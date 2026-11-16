@@ -1,103 +1,88 @@
-/* =====================================================
-   ONG ADKOUL — Service d'envoi d'e-mails (Supabase / Resend)
-   Fichier : email-service.js
-   Correction du 16 novembre 2026 :
-   - Endpoint réel : smart-endpoint
-   - Clé publique envoyée dans apikey
-   - Noms isolés pour éviter le doublon de const avec les formulaires
-   - Erreurs HTTP et erreurs de réponse affichées dans la console
-   ===================================================== */
+/* ONG ADKOUL — Notifications e-mail par EmailJS (préparation du 16/11/2026)
+   Restaure le service Gmail historique, sans modifier Supabase ou Microsoft 365.
+   À utiliser seulement après vérification du modèle EmailJS template_gd96rfl.
+   Les identifiants ci-dessous sont des identifiants PUBLICS, issus de l'ancien code GitHub.
+*/
 
-// Les noms sont spécifiques au service email afin de ne pas entrer en conflit
-// avec les constantes SUPABASE_URL et SUPABASE_KEY d'ordre-mission.html.
-const ADKOUL_EMAIL_SUPABASE_URL = 'https://mvmzhdvkeromtljnvrow.supabase.co';
-const ADKOUL_EMAIL_SUPABASE_KEY = 'sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh';
-
-// Adresse de notification du service Logistique.
+const ADKOUL_EMAILJS_PUBLIC_KEY = 'SUbWMSdrTf7JugMrS';
+const ADKOUL_EMAILJS_SERVICE_ID = 'service_e6k2e76';
+const ADKOUL_EMAILJS_TEMPLATE_ID = 'template_gd96rfl';
 const EMAIL_LOGISTIQUE = 'amague2007@gmail.com';
 
+let ADKOUL_EMAILJS_QUEUE = Promise.resolve();
+let ADKOUL_EMAILJS_LAST_SEND = 0;
+let ADKOUL_EMAILJS_INITIALIZED = false;
+
+function adkoulChamp(valeur, defaut = '-') {
+  const texte = String(valeur === undefined || valeur === null ? '' : valeur).trim();
+  return texte || defaut;
+}
+
 /**
- * Demande un envoi email à la fonction Edge Supabase.
- * @returns {Promise<{success:boolean, error?:string}>}
- * success=true signifie que la fonction a accepté la requête ;
- * la livraison effective dépend du prestataire d'envoi.
+ * Fonction compatible avec les appels existants de vehicule.html,
+ * ordre-mission.html et admin.html.
+ * success:true = EmailJS a accepté la demande d'envoi ; pas de garantie de réception.
  */
 async function envoyerEmail(templateId, destinataire, variables = {}) {
-  if (!destinataire || typeof destinataire !== 'string' || !destinataire.includes('@')) {
-    console.warn('Email non demandé : destinataire invalide.', destinataire);
-    return { success: false, error: 'Destinataire invalide' };
+  if (typeof destinataire !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(destinataire.trim())) {
+    return { success: false, error: 'Adresse email du destinataire invalide.' };
   }
 
+  const nom = [variables.nom, variables.prenom].filter(Boolean).join(' ');
+  const date = adkoulChamp(variables.date);
+  const heure = adkoulChamp(variables.heure, '');
   let subject = '';
-  let html = '';
+  let message = '';
 
   if (templateId === 'template_demande_recue') {
-    subject = `📩 Nouvelle demande — ${variables.type_demande}`;
-    html = `<h2>Bonjour ${variables.nom} ${variables.prenom || ''},</h2>
-            <p>Votre demande (${variables.type_demande}) a bien été reçue par nos services.</p>
-            <ul>
-              <li><strong>Destination :</strong> ${variables.destination || '-'}</li>
-              <li><strong>Date :</strong> ${variables.date || '-'} ${variables.heure || ''}</li>
-              <li><strong>Motif :</strong> ${variables.motif || '-'}</li>
-            </ul>
-            <p>Cordialement,<br>Le service Logistique - ONG ADKOUL</p>`;
+    subject = `Nouvelle demande — ${adkoulChamp(variables.type_demande)}`;
+    message = `Bonjour ${adkoulChamp(nom, 'cher collègue')},\n\nVotre demande (${adkoulChamp(variables.type_demande)}) a été enregistrée.\nDestination : ${adkoulChamp(variables.destination)}\nDate : ${date}${heure ? ' à ' + heure : ''}\nMotif : ${adkoulChamp(variables.motif)}\n\nCordialement,\nService Logistique — ONG ADKOUL`;
   } else if (templateId === 'template_vehicule') {
-    subject = '✅ Votre véhicule est affecté';
-    html = `<h2>Bonjour ${variables.nom},</h2>
-            <p>Votre demande de sortie de véhicule a été <strong>validée</strong>.</p>
-            <ul>
-              <li><strong>Chauffeur :</strong> ${variables.chauffeur}</li>
-              <li><strong>Véhicule :</strong> ${variables.vehicule}</li>
-              <li><strong>Destination :</strong> ${variables.destination}</li>
-              <li><strong>Date :</strong> ${variables.date} ${variables.heure ? 'à ' + variables.heure : ''}</li>
-            </ul>
-            <p>Cordialement,<br>Le service Logistique - ONG ADKOUL</p>`;
+    subject = 'Votre véhicule est affecté — ONG ADKOUL';
+    message = `Bonjour ${adkoulChamp(variables.nom, 'cher collègue')},\n\nVotre demande de sortie de véhicule a été validée.\nChauffeur : ${adkoulChamp(variables.chauffeur)}\nVéhicule : ${adkoulChamp(variables.vehicule)}\nDestination : ${adkoulChamp(variables.destination)}\nDate : ${date}${heure ? ' à ' + heure : ''}\n\nCordialement,\nService Logistique — ONG ADKOUL`;
   } else if (templateId === 'template_refus') {
-    subject = '❌ Votre demande a été refusée';
-    html = `<h2>Bonjour ${variables.nom},</h2>
-            <p>Nous sommes au regret de vous informer que votre demande pour la destination <strong>${variables.destination}</strong> a été refusée.</p>
-            <p><strong>Motif :</strong> ${variables.motif_refus}</p>
-            <p>Cordialement,<br>Le service Logistique - ONG ADKOUL</p>`;
+    subject = 'Votre demande de véhicule — ONG ADKOUL';
+    message = `Bonjour ${adkoulChamp(variables.nom, 'cher collègue')},\n\nVotre demande concernant ${adkoulChamp(variables.destination)} a été refusée.\nMotif : ${adkoulChamp(variables.motif_refus)}\nDate : ${date}\n\nCordialement,\nService Logistique — ONG ADKOUL`;
   } else if (templateId === 'template_ordre_attente_rh') {
-    subject = `📄 Dossier à valider — ${variables.agent}`;
-    html = `<h2>Nouveau dossier à valider</h2>
-            <p>L'agent <strong>${variables.agent}</strong> (${variables.poste}) attend votre validation.</p>
-            <ul>
-              <li><strong>Destination :</strong> ${variables.destination}</li>
-              <li><strong>Projet :</strong> ${variables.projet}</li>
-              <li><strong>Dates :</strong> du ${variables.date_depart} au ${variables.date_retour}</li>
-            </ul>`;
+    subject = `Ordre de mission à valider — ${adkoulChamp(variables.agent)}`;
+    message = `Nouvelle demande d'ordre de mission à valider.\nAgent : ${adkoulChamp(variables.agent)}\nPoste : ${adkoulChamp(variables.poste)}\nDestination : ${adkoulChamp(variables.destination)}\nProjet : ${adkoulChamp(variables.projet)}\nDépart : ${adkoulChamp(variables.date_depart)}\nRetour : ${adkoulChamp(variables.date_retour)}\n\nService Logistique — ONG ADKOUL`;
+  } else if (templateId === 'template_creation_user') {
+    subject = 'Votre compte de gestion ONG ADKOUL a été créé';
+    // Ne jamais inclure le mot de passe fourni par le formulaire dans un email.
+    message = `Bonjour ${adkoulChamp(variables.nom)},\n\nVotre compte a été créé.\nIdentifiant : ${adkoulChamp(variables.email)}\nRôle : ${adkoulChamp(variables.role)}\nAccès : ${adkoulChamp(variables.lien_connexion)}\n\nDemandez vos informations d'accès via un canal sécurisé.\nONG ADKOUL`;
   } else {
-    subject = variables.subject || 'Notification ONG ADKOUL';
-    html = variables.message ? String(variables.message).replace(/\n/g, '<br>') : 'Nouvelle notification.';
+    // Couvre notamment 'template_gd96rfl' utilisé après validation RH.
+    subject = adkoulChamp(variables.subject, 'Notification ONG ADKOUL');
+    message = adkoulChamp(variables.message, 'Nouvelle notification ONG ADKOUL.');
   }
 
-  try {
-    const response = await fetch(`${ADKOUL_EMAIL_SUPABASE_URL}/functions/v1/smart-endpoint`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': ADKOUL_EMAIL_SUPABASE_KEY
-      },
-      body: JSON.stringify({ to: destinataire, subject, html })
-    });
-
-    const rawResponse = await response.text();
-    let body = null;
-    try { body = rawResponse ? JSON.parse(rawResponse) : null; } catch (_) { /* réponse texte */ }
-
-    if (!response.ok || (body && (body.success === false || body.error))) {
-      const detail = body && body.error
-        ? (typeof body.error === 'string' ? body.error : JSON.stringify(body.error))
-        : (rawResponse || response.statusText || 'Réponse sans détail');
-      throw new Error(`HTTP ${response.status} — ${detail}`);
+  // EmailJS impose 1 requête par seconde ; les pages actuelles déclenchent parfois
+  // deux notifications pour une même demande. La file évite les appels simultanés.
+  const tache = ADKOUL_EMAILJS_QUEUE.then(async () => {
+    if (typeof emailjs === 'undefined' || typeof emailjs.send !== 'function') {
+      return { success: false, error: 'Bibliothèque EmailJS indisponible dans le navigateur.' };
     }
-
-    console.info(`Email accepté par smart-endpoint (${response.status}) pour ${destinataire}.`);
-    return { success: true };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error(`Échec de la notification email pour ${destinataire} :`, message);
-    return { success: false, error: message };
-  }
+    try {
+      if (!ADKOUL_EMAILJS_INITIALIZED) {
+        emailjs.init({ publicKey: ADKOUL_EMAILJS_PUBLIC_KEY });
+        ADKOUL_EMAILJS_INITIALIZED = true;
+      }
+      const attente = Math.max(0, 1100 - (Date.now() - ADKOUL_EMAILJS_LAST_SEND));
+      if (attente) await new Promise(resoudre => setTimeout(resoudre, attente));
+      ADKOUL_EMAILJS_LAST_SEND = Date.now();
+      const resultat = await emailjs.send(
+        ADKOUL_EMAILJS_SERVICE_ID,
+        ADKOUL_EMAILJS_TEMPLATE_ID,
+        { to_email: destinataire.trim(), subject, message }
+      );
+      console.info('EmailJS a accepté un email pour :', destinataire, resultat.status);
+      return { success: true, status: resultat.status };
+    } catch (erreur) {
+      const detail = erreur && (erreur.text || erreur.message) || String(erreur);
+      console.error('Échec EmailJS :', detail);
+      return { success: false, error: detail };
+    }
+  });
+  ADKOUL_EMAILJS_QUEUE = tache.then(() => undefined, () => undefined);
+  return tache;
 }

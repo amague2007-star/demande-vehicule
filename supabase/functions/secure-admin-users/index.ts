@@ -5,19 +5,21 @@ const ORIGINE = "https://amague2007-star.github.io";
 const ROLES = new Set(["logistique", "rh", "directeur_logistique", "assistant_logistique"]);
 
 function reponse(body, status = 200, origin = "") {
-  const headers = {
+  const headers = new Headers({
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
     "Vary": "Origin",
-  };
-  if (origin === ORIGINE) headers["Access-Control-Allow-Origin"] = ORIGINE;
+  });
+  if (origin === ORIGINE) headers.set("Access-Control-Allow-Origin", ORIGINE);
   return new Response(JSON.stringify(body), { status, headers });
 }
 
 function headersService(secret, json = false) {
+  // Clé legacy = JWT (Bearer autorisé). Une clé moderne sb_secret_* n'est
+  // PAS un JWT et doit passer uniquement dans apikey.
   return {
     "apikey": secret,
-    "Authorization": "Bearer " + secret,
+    ...(secret.startsWith("sb_secret_") ? {} : { "Authorization": "Bearer " + secret }),
     ...(json ? { "Content-Type": "application/json" } : {}),
   };
 }
@@ -47,7 +49,14 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return reponse({ error: "Méthode non autorisée." }, 405, origin);
 
   const url = Deno.env.get("SUPABASE_URL");
-  const secret = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  // Compatible avec l'ancienne clé JWT et les nouvelles clés sb_secret_*.
+  const legacy = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  let modern = "";
+  try {
+    const keys = Deno.env.get("SUPABASE_SECRET_KEYS") || "{}";
+    modern = JSON.parse(keys)?.default || "";
+  } catch { /* ne pas exposer le contenu des secrets dans les logs */ }
+  const secret = legacy || modern;
   if (!url || !secret) return reponse({ error: "Configuration serveur absente." }, 503, origin);
 
   const bearer = req.headers.get("authorization") || "";

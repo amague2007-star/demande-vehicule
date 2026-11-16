@@ -2110,3 +2110,107 @@
 
 </body>
 </html>
+    fill('afProjet', projets);
+    fill('afMoyen', moyens);
+    fill('afAgent', agents);
+  }
+
+  function getMissionsValideesFiltrees() {
+    const from = document.getElementById('afDateFrom')?.value || '';
+    const to   = document.getElementById('afDateTo')?.value || '';
+    const projet = document.getElementById('afProjet')?.value || '';
+    const moyen  = document.getElementById('afMoyen')?.value || '';
+    const agent  = document.getElementById('afAgent')?.value || '';
+    const dest   = (document.getElementById('afDestination')?.value || '').toLowerCase().trim();
+    const numero = (document.getElementById('afNumero')?.value || '').toLowerCase().trim();
+
+    return tousLesOrdres.filter(o => {
+      if (o.statut !== 'validee') return false;
+      if (projet && o.projet !== projet) return false;
+      if (moyen && o.moyen_deplacement !== moyen) return false;
+      if (agent && o.nom !== agent) return false;
+      if (dest && !(o.destination || '').toLowerCase().includes(dest)) return false;
+      if (numero && !(o.message_admin || '').toLowerCase().includes(numero)) return false;
+
+      if (from || to) {
+        const d = o.date_depart ? new Date(o.date_depart) : null;
+        if (!d) return false;
+        if (from && d < new Date(from + 'T00:00:00')) return false;
+        if (to   && d > new Date(to   + 'T23:59:59')) return false;
+      }
+      return true;
+    });
+  }
+
+  function appliquerFiltresAvances() {
+    const filtered = getMissionsValideesFiltrees();
+    const info = document.getElementById('afResultInfo');
+    if (info) {
+      info.textContent = `✅ ${filtered.length} mission(s) validée(s) correspond(ent) aux filtres.`;
+    }
+
+    window._afFilteredIds = new Set(filtered.map(o => o.id));
+    afficherOrdres();
+  }
+
+  function resetFiltresAvances() {
+    ['afDateFrom','afDateTo','afDestination','afNumero'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    ['afProjet','afMoyen','afAgent'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    appliquerFiltresAvances();
+  }
+
+  function exporterExcelMissionsValidees() {
+    if (typeof XLSX === 'undefined') {
+      alert('❌ Bibliothèque Excel non chargée. Vérifiez votre connexion.');
+      return;
+    }
+
+    const missions = getMissionsValideesFiltrees();
+    if (!missions.length) {
+      alert('⚠️ Aucune mission validée ne correspond aux filtres.');
+      return;
+    }
+
+    const rows = missions.map(o => ({
+      "N° Ordre de Mission": o.message_admin || '',
+      "Date départ": o.date_depart ? formatNigerDateShort(o.date_depart) : '',
+      "Date retour": o.date_retour ? formatNigerDateShort(o.date_retour) : '',
+      "Agent": o.nom || '',
+      "Poste": o.poste || '',
+      "Destination": o.destination || '',
+      "Projet": o.projet || '',
+      "Moyen de déplacement": o.moyen_deplacement || '',
+      "Chauffeur assigné": o.chauffeur_assigne || '',
+      "Véhicule assigné": o.vehicule_assigne || '',
+      "Objectif": o.objectif || '',
+      "Notes internes": o.notes_internes || '',
+      "Affecté par (Logistique)": o.affecte_par || '',
+      "Validé par (RH)": o.valide_par || '',
+      "Email demandeur": o.email || ''
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+
+    ws['!cols'] = [
+      { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 22 }, { wch: 22 },
+      { wch: 22 }, { wch: 18 }, { wch: 22 }, { wch: 22 }, { wch: 32 },
+      { wch: 40 }, { wch: 30 }, { wch: 20 }, { wch: 20 }, { wch: 28 }
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Missions Validées');
+
+    const now = new Date();
+    const stamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}h${String(now.getMinutes()).padStart(2,'0')}`;
+    const filename = `Missions_Validees_${stamp}.xlsx`;
+
+    XLSX.writeFile(wb, filename);
+  }
+</script>
+
+</body>
+</html>

@@ -6,6 +6,7 @@
 <title>Admin - ONG ADKOUL - Gestion Logistique</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
   body { background:#f0f2f5; min-height:100vh; }
@@ -50,7 +51,6 @@
   .logout-btn { background:#e74c3c; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600; font-size:11px; transition: 0.2s; }
   .logout-btn:hover { background:#c0392b; }
 
-  /* OPTIMISATION : Marges réduites */
   #accueilSection { padding: 10px 15px; display: block; }
   .dash-filters { display: flex; justify-content: flex-end; margin-bottom: 10px; }
   .dash-filters select { padding: 5px 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 11px; font-weight: 600; color: #1e3c72; outline: none; cursor: pointer; background:#fff; }
@@ -60,10 +60,8 @@
   .dash-card h3 { color: #666; font-size: 10px; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px;}
   .dash-card .number { color: #1e3c72; font-size: 22px; font-weight: bold; }
   
-  /* OPTIMISATION : Grille en 2 colonnes pour tout faire tenir */
   .dashboard-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   
-  /* OPTIMISATION : Réduction de la hauteur de 220px à 180px */
   .chart-box { background: #fff; padding: 8px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); height: 180px; display: flex; flex-direction: column; }
   .chart-box h3 { color: #1e3c72; font-size: 12px; margin-bottom: 2px; text-align: center; font-weight: 600; }
   .chart-container { position: relative; flex: 1; width: 100%; min-height: 0; }
@@ -133,7 +131,6 @@
   .btn-orange { background:#f39c12; color:#fff; box-shadow:0 4px 12px rgba(243,156,18,0.3); }
   .btn-orange:hover { background:#d68910; transform:translateY(-2px); }
   
-  /* Bouton RH clignotant */
   .btn-rh-urgent { 
     background:#e67e22; color:#fff; 
     box-shadow:0 0 0 0 rgba(230, 126, 34, 0.7);
@@ -205,6 +202,105 @@
   .btn-reveal { background:#ecf0f1; color:#555; border:none; padding:0 12px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600; }
   
   .hidden-fields { display: none !important; }
+
+  /* ===== FILTRES AVANCÉS + EXPORT ===== */
+  .advanced-filters {
+    background: #fff;
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin: 0 20px 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-left: 4px solid #1e3c72;
+  }
+  .advanced-filters .af-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  .advanced-filters .af-header h4 {
+    color: #1e3c72;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+  }
+  .advanced-filters .af-toggle {
+    background: none;
+    border: none;
+    color: #1e3c72;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .advanced-filters .af-body {
+    display: none;
+    margin-top: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  .advanced-filters .af-body.open { display: grid; }
+  .af-field { display: flex; flex-direction: column; gap: 4px; }
+  .af-field label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .af-field input, .af-field select {
+    padding: 7px 10px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 12px;
+    background: #fff;
+    font-family: inherit;
+  }
+  .af-field input:focus, .af-field select:focus {
+    outline: none;
+    border-color: #1e3c72;
+  }
+  .af-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 5px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f2f5;
+  }
+  .af-actions button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    transition: 0.2s;
+  }
+  .af-btn-reset { background: #ecf0f1; color: #555; }
+  .af-btn-reset:hover { background: #d5dbdb; }
+  .af-btn-excel {
+    background: linear-gradient(135deg, #1e7e34, #27ae60);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(39,174,96,0.3);
+    margin-left: auto;
+  }
+  .af-btn-excel:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(39,174,96,0.4); }
+  .af-result-info {
+    grid-column: 1 / -1;
+    font-size: 12px;
+    color: #1e3c72;
+    font-weight: 600;
+    padding: 6px 10px;
+    background: #e8f0fb;
+    border-radius: 6px;
+    border-left: 3px solid #1e3c72;
+  }
 </style>
 </head>
 <body>
@@ -245,7 +341,6 @@
       </button>
       <button class="nav-btn" id="navUsers" onclick="afficherSection('users')">👥 Utilisateurs</button>
       
-      <!-- BADGE UTILISATEUR AVEC BOUTON MODIFIER MOT DE PASSE -->
       <div class="user-badge">
         👤 <span id="userName">Admin</span>
         <button class="btn-change-pwd" onclick="ouvrirModalMotDePasse()" title="Modifier mon mot de passe">🔑</button>
@@ -377,6 +472,62 @@
       <button onclick="chargerOrdres()">🔄 Rafraîchir</button>
       <button class="btn-export" onclick="exporterCSV('ordres')">📥 Exporter Excel</button>
     </div>
+
+    <!-- ===== FILTRES AVANCÉS (Admin & RH) ===== -->
+    <div class="advanced-filters" id="advancedFiltersBox">
+      <div class="af-header" onclick="toggleAdvancedFilters()">
+        <h4>🔎 Filtres avancés — Missions validées</h4>
+        <button class="af-toggle" id="afToggleBtn" type="button">▼ Afficher</button>
+      </div>
+      <div class="af-body" id="advancedFiltersBody">
+
+        <div class="af-field">
+          <label for="afDateFrom">Date départ — du</label>
+          <input type="date" id="afDateFrom" onchange="appliquerFiltresAvances()">
+        </div>
+        <div class="af-field">
+          <label for="afDateTo">Date départ — au</label>
+          <input type="date" id="afDateTo" onchange="appliquerFiltresAvances()">
+        </div>
+        <div class="af-field">
+          <label for="afProjet">Projet</label>
+          <select id="afProjet" onchange="appliquerFiltresAvances()">
+            <option value="">— Tous —</option>
+          </select>
+        </div>
+        <div class="af-field">
+          <label for="afMoyen">Moyen de déplacement</label>
+          <select id="afMoyen" onchange="appliquerFiltresAvances()">
+            <option value="">— Tous —</option>
+          </select>
+        </div>
+        <div class="af-field">
+          <label for="afAgent">Agent</label>
+          <select id="afAgent" onchange="appliquerFiltresAvances()">
+            <option value="">— Tous —</option>
+          </select>
+        </div>
+        <div class="af-field">
+          <label for="afDestination">Destination (contient)</label>
+          <input type="text" id="afDestination" placeholder="Ex : Niamey" onkeyup="appliquerFiltresAvances()">
+        </div>
+        <div class="af-field">
+          <label for="afNumero">N° Ordre (contient)</label>
+          <input type="text" id="afNumero" placeholder="Ex : 042" onkeyup="appliquerFiltresAvances()">
+        </div>
+
+        <div class="af-actions">
+          <button class="af-btn-reset" onclick="resetFiltresAvances()">♻️ Réinitialiser</button>
+          <button class="af-btn-excel" onclick="exporterExcelMissionsValidees()">
+            📥 Exporter en Excel (.xlsx)
+          </button>
+        </div>
+        <div class="af-result-info" id="afResultInfo">
+          Filtres avancés appliqués sur les missions validées uniquement.
+        </div>
+      </div>
+    </div>
+
     <div class="demandes-container" id="ordresContainer">
       <div class="loading">Chargement des ordres de mission...</div>
     </div>
@@ -464,7 +615,6 @@
     <h2 id="modalValiderOrdreTitle">📄 Affectation Logistique</h2>
     <p class="subtitle" id="modalValiderOrdreInfo"></p>
     
-    <!-- Champs masqués si c'est un Bus ou Avion -->
     <div id="fieldsChauffeurVehicule">
       <label>👤 Chauffeur à assigner *</label>
       <select id="selectChauffeurOrdre" onchange="toggleAutreOrdre('chauffeur')">
@@ -583,7 +733,7 @@
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
 
-   const CHAUFFEURS = {
+  const CHAUFFEURS = {
     "ABDOULAHI MOHAMED": "22789915798", 
     "ALI RHOUBEID": "22798524300", 
     "HAMAD SALLAH": "22797301132",
@@ -650,53 +800,39 @@
 
   function logout() { sessionStorage.clear(); location.reload(); }
 
-  // MISE À JOUR DES BADGES ET NOTIFICATIONS
   function mettreAJourNotifications() {
     const role = getAdminRole();
     
-    // Badge Menu Demandes (Véhicules)
     const attenteVehicules = toutesLesDemandes.filter(d => d.statut === 'en_attente').length;
     const badgeD = document.getElementById('badgeDemandes');
     if (attenteVehicules > 0) { badgeD.textContent = attenteVehicules; badgeD.style.display = 'inline-block'; } else { badgeD.style.display = 'none'; }
 
-    // Badge Menu Ordres (RH)
     const attenteMissions = tousLesOrdres.filter(o => o.statut === 'en_attente' || o.statut === 'affecte_logistique').length;
     const badgeO = document.getElementById('badgeOrdres');
     
-    // Le RH ne voit PAS le badge global car il est déjà sur la page, et il ne traite que "affecte_logistique"
     if (role === 'rh') {
       badgeO.style.display = 'none';
-      badgeO.hidden = true; // Sécurité supplémentaire
+      badgeO.hidden = true;
     } else {
       if (attenteMissions > 0) { badgeO.textContent = attenteMissions; badgeO.style.display = 'inline-block'; badgeO.hidden = false; } 
       else { badgeO.style.display = 'none'; }
     }
 
-    // Badges par Type de Transport (Onglets)
     const types = {
-      'Tous': 0,
-      'UNHCR': 0,
-      'Partenaire': 0,
-      'Location': 0,
-      'ADKOUL': 0,
-      'Bus': 0,
-      'Avion': 0
+      'Tous': 0, 'UNHCR': 0, 'Partenaire': 0, 'Location': 0, 'ADKOUL': 0, 'Bus': 0, 'Avion': 0
     };
 
     tousLesOrdres.forEach(o => {
       let isRelevant = false;
       if (role === 'rh') {
-        // Le RH ne compte QUE ce qu'il doit valider
         if (o.statut === 'affecte_logistique') isRelevant = true; 
       } else {
-        // Les autres comptent tout ce qui est en cours
         if (o.statut === 'en_attente' || o.statut === 'affecte_logistique') isRelevant = true;
       }
 
       if (isRelevant) {
         types['Tous']++;
         const moyen = o.moyen_deplacement || '';
-        // On fusionne "Véhicule ONG" et "Véhicule ONG ADKOUL"
         if (moyen.includes('UNHCR')) types['UNHCR']++;
         else if (moyen.includes('Partenaire')) types['Partenaire']++;
         else if (moyen.includes('Location')) types['Location']++;
@@ -706,7 +842,6 @@
       }
     });
 
-    // Mettre à jour les badges pour la PAGE ORDRES
     const updateBadgeOrdre = (id, count) => {
       const el = document.getElementById(id);
       if (el) {
@@ -733,24 +868,23 @@
     document.getElementById('userName').textContent = adminName;
     
     if (role === 'rh') {
-      // Affichage simplifié pour le RH
       document.getElementById('navAccueil').style.display = 'none';
       document.getElementById('navDemandes').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
-      document.getElementById('navOrdres').style.display = 'none'; // ON MASQUE LE BOUTON "ORDRES (RH)"
+      document.getElementById('navOrdres').style.display = 'none';
       
-      // Masquer la carte "Attente Logistique" pour le RH
       const statCardAttenteLogistique = document.getElementById('statCardAttenteLogistique');
       if(statCardAttenteLogistique) statCardAttenteLogistique.style.display = 'none';
       
-      // Masquer l'option "En attente Logistique" dans le filtre
       const filtreSelect = document.getElementById('filtreStatutOrdre');
       Array.from(filtreSelect.options).forEach(opt => {
         if(opt.value === 'en_attente') opt.style.display = 'none';
       });
       
-      // Sélectionner par défaut "En attente (RH)"
       filtreSelect.value = 'affecte_logistique';
+
+      // RH voit les filtres avancés
+      document.getElementById('advancedFiltersBox').style.display = 'block';
 
       afficherSection('ordres');
     } else if (role === 'assistant_logistique') {
@@ -758,13 +892,16 @@
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navOrdres').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
+      // Assistant logistique : PAS de filtres avancés
+      document.getElementById('advancedFiltersBox').style.display = 'none';
       afficherSection('demandes');
     } else if (role === 'directeur_logistique') {
       document.getElementById('navAccueil').style.display = 'block';
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navOrdres').style.display = 'block';
       document.getElementById('navUsers').style.display = 'none';
-      document.getElementById('top5Grid').style.display = 'flex'; 
+      document.getElementById('top5Grid').style.display = 'flex';
+      document.getElementById('advancedFiltersBox').style.display = 'block';
       afficherSection('accueil');
     } else {
       document.getElementById('navAccueil').style.display = 'block';
@@ -772,6 +909,7 @@
       document.getElementById('navOrdres').style.display = 'block';
       document.getElementById('navUsers').style.display = 'block';
       document.getElementById('top5Grid').style.display = 'flex';
+      document.getElementById('advancedFiltersBox').style.display = 'block';
       afficherSection('accueil');
     }
 
@@ -788,7 +926,6 @@
   function afficherSection(section) {
     ['accueil', 'demandes', 'ordres', 'users'].forEach(sec => {
       document.getElementById(sec + 'Section').style.display = 'none';
-      // On vérifie si le bouton existe pour éviter les erreurs (s'il a été masqué)
       const navBtn = document.getElementById('nav' + sec.charAt(0).toUpperCase() + sec.slice(1));
       if(navBtn) navBtn.classList.remove('active');
     });
@@ -816,7 +953,6 @@
     }
   }
 
-  // --- REMPLISSAGE DYNAMIQUE DES CHAUFFEURS ---
   function remplirListesChauffeurs() {
     const selVehicule = document.getElementById('selectChauffeur');
     const selOrdre = document.getElementById('selectChauffeurOrdre');
@@ -856,7 +992,6 @@
     return text ? JSON.parse(text) : [];
   }
 
-  // --- GESTION MOT DE PASSE ---
   function ouvrirModalMotDePasse() {
     document.getElementById('oldPassword').value = '';
     document.getElementById('newPassword').value = '';
@@ -908,7 +1043,6 @@
     }
   }
 
-  // --- UTILISATEURS ---
   async function chargerUsers() {
     const container = document.getElementById('usersList');
     if(!container) return;
@@ -983,7 +1117,6 @@
     try { await apiCall(`/admins?id=eq.${id}`, { method: 'DELETE' }); await chargerUsers(); } catch (err) { alert('❌ ' + err.message); }
   }
 
-  // --- DEMANDES VEHICULES ---
   async function chargerDemandes() {
     const container = document.getElementById('demandesContainer');
     container.innerHTML = '<div class="loading">Chargement...</div>';
@@ -1142,6 +1275,7 @@
     try {
       tousLesOrdres = await apiCall('/missions_2?order=created_at.desc');
       mettreAJourNotifications();
+      rafraichirSelectsAvances();
       afficherOrdres();
       if(document.getElementById('accueilSection').style.display === 'block') mettreAJourGraphiques();
     } catch (err) { container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>'; }
@@ -1162,19 +1296,22 @@
     const container = document.getElementById('ordresContainer');
     const role = getAdminRole();
     
-    // Sécurité pour le RH : ne jamais inclure les dossiers en attente de logistique
     let listeBase = tousLesOrdres;
     if (role === 'rh') {
       listeBase = tousLesOrdres.filter(o => o.statut !== 'en_attente');
     }
 
     if (typeOrdreActif !== 'tous') {
-      // Gestion de la fusion "Véhicule ONG" et "Véhicule ONG ADKOUL"
       if (typeOrdreActif === 'Véhicule ONG ADKOUL') {
         listeBase = listeBase.filter(o => o.moyen_deplacement === 'Véhicule ONG ADKOUL' || o.moyen_deplacement === 'Véhicule ONG');
       } else {
         listeBase = listeBase.filter(o => o.moyen_deplacement === typeOrdreActif);
       }
+    }
+
+    // --- Applique les filtres avancés si actifs (uniquement sur les validées) ---
+    if (window._afFilteredIds && document.getElementById('advancedFiltersBody').classList.contains('open')) {
+      listeBase = listeBase.filter(o => o.statut !== 'validee' || window._afFilteredIds.has(o.id));
     }
 
     document.getElementById('statOrdresAttente').textContent = tousLesOrdres.filter(o => o.statut === 'en_attente').length;
@@ -1199,8 +1336,6 @@
     
     if (listeFinale.length === 0) { 
       container.innerHTML = '<div class="empty">📭 Aucun ordre de mission.</div>'; 
-      
-      // Si RH et pas de données, on génère quand même les graphiques (vides)
       if (role === 'rh') setTimeout(genererGraphiquesRH, 100); 
       return; 
     }
@@ -1264,15 +1399,12 @@
         </div>`;
     }).join('');
 
-    // Lancer les graphiques pour le RH APRES le rendu du HTML
     if (role === 'rh') {
       setTimeout(genererGraphiquesRH, 100);
     }
   }
 
-  // FONCTION POUR GÉNÉRER LES GRAPHIQUES SPÉCIFIQUES AU RH (Injectés dynamiquement)
   function genererGraphiquesRH() {
-    // 1. Créer la zone HTML si elle n'existe pas
     if (!document.getElementById('rhChartsContainer')) {
       const ordresContainer = document.getElementById('ordresContainer');
       const graphiquesHTML = `
@@ -1290,14 +1422,11 @@
       ordresContainer.insertAdjacentHTML('beforebegin', graphiquesHTML);
     }
 
-    // 2. On nettoie les anciens graphiques s'ils existent pour éviter les superpositions
     if(chartStatutsInstance) chartStatutsInstance.destroy();
     if(chartProjetsInstance) chartProjetsInstance.destroy();
 
-    // 3. Filtrer les données pour le RH (uniquement affecté_logistique et validée)
     const ordresVisibles = tousLesOrdres.filter(o => o.statut === 'affecte_logistique' || o.statut === 'validee');
 
-    // 4. Dessiner le graphique des statuts (Doughnut)
     const statutsCount = { 'affecte_logistique': 0, 'validee': 0 };
     ordresVisibles.forEach(o => { if (statutsCount[o.statut] !== undefined) statutsCount[o.statut]++; });
     
@@ -1313,7 +1442,6 @@
       });
     }
 
-    // 5. Dessiner le graphique par projet (Maintenant en Doughnut pour plus de clarté)
     const projetsCount = {};
     ordresVisibles.forEach(o => {
       const p = o.projet || 'Non spécifié';
@@ -1323,7 +1451,7 @@
     const ctxProjets = document.getElementById('rhChartProjets');
     if(ctxProjets) {
       chartProjetsInstance = new Chart(ctxProjets.getContext('2d'), {
-        type: 'doughnut', // Changé de 'bar' à 'doughnut' pour un meilleur rendu
+        type: 'doughnut',
         data: {
           labels: Object.keys(projetsCount),
           datasets: [{ 
@@ -1435,15 +1563,12 @@
     }
 
     try {
-      // --- MODIFICATION ICI : RECHERCHE DU NUMÉRO MAXIMUM ---
       const tousLesOrdresActuels = await apiCall('/missions_2?select=id,message_admin');
       
       let maxNum = 0;
       
-      // On parcourt toutes les missions qui ont déjà un numéro
       tousLesOrdresActuels.forEach(m => {
         if (m.message_admin) {
-          // On extrait la partie "001" de "001/11/2026/ADKOUL"
           const parts = m.message_admin.split('/');
           if (parts.length > 0) {
             const num = parseInt(parts[0], 10);
@@ -1454,7 +1579,6 @@
         }
       });
 
-      // Le nouveau numéro est le maximum trouvé + 1
       const prochainNum = maxNum + 1;
       
       const maintenant = new Date();
@@ -1549,7 +1673,6 @@
     const moyensCount = {};
     tousLesOrdres.forEach(o => {
       let m = o.moyen_deplacement || 'Non spécifié';
-      // Fusionner ONG et ONG ADKOUL
       if (m === 'Véhicule ONG') m = 'Véhicule ONG ADKOUL';
       moyensCount[m] = (moyensCount[m] || 0) + 1;
     });
@@ -1595,6 +1718,138 @@
 
     const topC = Object.entries(chauffeursCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
     document.getElementById('topChauffeurs').innerHTML = topC.length ? topC.map((c,i)=>`<li><span><span class="rank">#${i+1}</span> ${c[0]}</span> <span class="count">${c[1]}</span></li>`).join('') : '<li>Aucune donnée</li>';
+  }
+
+  /* ============================================================
+     FILTRES AVANCÉS + EXPORT EXCEL — MISSIONS VALIDÉES
+     Accessible : logistique, directeur_logistique, rh
+     ============================================================ */
+
+  let afOpen = false;
+
+  function toggleAdvancedFilters() {
+    afOpen = !afOpen;
+    document.getElementById('advancedFiltersBody').classList.toggle('open', afOpen);
+    document.getElementById('afToggleBtn').textContent = afOpen ? '▲ Masquer' : '▼ Afficher';
+    if (afOpen && (!window._afFilteredIds || window._afFilteredIds.size === 0)) {
+      // Optionnel : ne rien filtrer tant que l'utilisateur n'a rien saisi
+    }
+  }
+
+  function rafraichirSelectsAvances() {
+    const validees = tousLesOrdres.filter(o => o.statut === 'validee');
+
+    const projets = [...new Set(validees.map(o => o.projet).filter(Boolean))].sort();
+    const moyens = [...new Set(validees.map(o => o.moyen_deplacement).filter(Boolean))].sort();
+    const agents = [...new Set(validees.map(o => o.nom).filter(Boolean))].sort();
+
+    const fill = (id, arr) => {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      const old = sel.value;
+      sel.innerHTML = '<option value="">— Tous —</option>' +
+        arr.map(v => `<option value="${v.replace(/"/g,'&quot;')}">${v}</option>`).join('');
+      sel.value = old;
+    };
+    fill('afProjet', projets);
+    fill('afMoyen', moyens);
+    fill('afAgent', agents);
+  }
+
+  function getMissionsValideesFiltrees() {
+    const from = document.getElementById('afDateFrom')?.value || '';
+    const to   = document.getElementById('afDateTo')?.value || '';
+    const projet = document.getElementById('afProjet')?.value || '';
+    const moyen  = document.getElementById('afMoyen')?.value || '';
+    const agent  = document.getElementById('afAgent')?.value || '';
+    const dest   = (document.getElementById('afDestination')?.value || '').toLowerCase().trim();
+    const numero = (document.getElementById('afNumero')?.value || '').toLowerCase().trim();
+
+    return tousLesOrdres.filter(o => {
+      if (o.statut !== 'validee') return false;
+      if (projet && o.projet !== projet) return false;
+      if (moyen && o.moyen_deplacement !== moyen) return false;
+      if (agent && o.nom !== agent) return false;
+      if (dest && !(o.destination || '').toLowerCase().includes(dest)) return false;
+      if (numero && !(o.message_admin || '').toLowerCase().includes(numero)) return false;
+
+      if (from || to) {
+        const d = o.date_depart ? new Date(o.date_depart) : null;
+        if (!d) return false;
+        if (from && d < new Date(from + 'T00:00:00')) return false;
+        if (to   && d > new Date(to   + 'T23:59:59')) return false;
+      }
+      return true;
+    });
+  }
+
+  function appliquerFiltresAvances() {
+    const filtered = getMissionsValideesFiltrees();
+    const info = document.getElementById('afResultInfo');
+    if (info) {
+      info.textContent = `✅ ${filtered.length} mission(s) validée(s) correspond(ent) aux filtres.`;
+    }
+
+    window._afFilteredIds = new Set(filtered.map(o => o.id));
+    afficherOrdres();
+  }
+
+  function resetFiltresAvances() {
+    ['afDateFrom','afDateTo','afDestination','afNumero'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    ['afProjet','afMoyen','afAgent'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    appliquerFiltresAvances();
+  }
+
+  function exporterExcelMissionsValidees() {
+    if (typeof XLSX === 'undefined') {
+      alert('❌ Bibliothèque Excel non chargée. Vérifiez votre connexion.');
+      return;
+    }
+
+    const missions = getMissionsValideesFiltrees();
+    if (!missions.length) {
+      alert('⚠️ Aucune mission validée ne correspond aux filtres.');
+      return;
+    }
+
+    const rows = missions.map(o => ({
+      "N° Ordre de Mission": o.message_admin || '',
+      "Date départ": o.date_depart ? formatNigerDateShort(o.date_depart) : '',
+      "Date retour": o.date_retour ? formatNigerDateShort(o.date_retour) : '',
+      "Agent": o.nom || '',
+      "Poste": o.poste || '',
+      "Destination": o.destination || '',
+      "Projet": o.projet || '',
+      "Moyen de déplacement": o.moyen_deplacement || '',
+      "Chauffeur assigné": o.chauffeur_assigne || '',
+      "Véhicule assigné": o.vehicule_assigne || '',
+      "Objectif": o.objectif || '',
+      "Notes internes": o.notes_internes || '',
+      "Affecté par (Logistique)": o.affecte_par || '',
+      "Validé par (RH)": o.valide_par || '',
+      "Email demandeur": o.email || ''
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+
+    ws['!cols'] = [
+      { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 22 }, { wch: 22 },
+      { wch: 22 }, { wch: 18 }, { wch: 22 }, { wch: 22 }, { wch: 32 },
+      { wch: 40 }, { wch: 30 }, { wch: 20 }, { wch: 20 }, { wch: 28 }
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Missions Validées');
+
+    const now = new Date();
+    const stamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}h${String(now.getMinutes()).padStart(2,'0')}`;
+    const filename = `Missions_Validees_${stamp}.xlsx`;
+
+    XLSX.writeFile(wb, filename);
   }
 </script>
 

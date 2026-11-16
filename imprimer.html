@@ -94,7 +94,12 @@
 
       if (data && data.length > 0) {
         const d = data[0];
-        
+        // Les dossiers historiques restent intacts : l'affichage neutralise
+        // les anciennes valeurs incohérentes telles que « Bus (Bus - - -) ».
+        const transportCollectif = ['bus', 'avion'].includes(String(d.moyen_deplacement || '').trim().toLowerCase());
+        const chauffeurAffiche = transportCollectif ? 'Sans objet' : (d.chauffeur_assigne || '—');
+        const vehiculeAffiche = transportCollectif ? (d.moyen_deplacement || '—') : (d.vehicule_assigne || '—');
+
         const lienEntete = "https://amague2007-star.github.io/demande-vehicule/entete.png"; 
 
         document.getElementById('documentContent').innerHTML = `
@@ -119,8 +124,8 @@
             <div class="ligne"><span class="label">DESTINATION :</span> <span class="valeur">${escapeHtml(d.destination)}</span></div>
             <div class="ligne"><span class="label">OBJECTIF :</span> <span class="valeur">${escapeHtml(d.objectif)}</span></div>
             <div class="ligne"><span class="label">MOYEN DE DEPLACEMENT :</span> <span class="valeur">${escapeHtml(d.moyen_deplacement)}</span></div>
-            <div class="ligne"><span class="label">CHAUFFEUR :</span> <span class="valeur">${escapeHtml(d.chauffeur_assigne || '—')}</span></div>
-            <div class="ligne"><span class="label">VÉHICULE :</span> <span class="valeur">${escapeHtml(d.vehicule_assigne || '—')}</span></div>
+            <div class="ligne"><span class="label">CHAUFFEUR :</span> <span class="valeur">${escapeHtml(chauffeurAffiche)}</span></div>
+            <div class="ligne"><span class="label">VÉHICULE :</span> <span class="valeur">${escapeHtml(vehiculeAffiche)}</span></div>
             <div class="ligne"><span class="label">DATE DE DEPART :</span> <span class="valeur">${formatDate(d.date_depart)}</span></div>
             <div class="ligne"><span class="label">DATE DE RETOUR :</span> <span class="valeur">${formatDate(d.date_retour)}</span></div>
             <div class="ligne"><span class="label">IMPUTATION BUDGETAIRE :</span> <span class="valeur">${escapeHtml(d.imputation_budgetaire)}</span></div>

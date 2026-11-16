@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Test Connexion</title>
+<script src="email-service.js"></script>
+<style>
+  body { font-family: Arial; background: #1e3c72; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+  .box { background: white; padding: 30px; border-radius: 10px; width: 300px; text-align: center; }
+  input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+  button { width: 100%; padding: 10px; background: #27ae60; color: white; border: none; cursor: pointer; }
+  #msg { color: red; margin-top: 10px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="box">
+  <h2>Test Connexion</h2>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="pass" placeholder="Mot de passe">
+  <button onclick="testLogin()">Se connecter</button>
+  <div id="msg"></div>
+</div>
+
+<script>
+  const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
+
+  async function testLogin() {
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('pass').value;
+    const msg = document.getElementById('msg');
+    msg.textContent = "⏳ Connexion...";
+
+    // On hash le mot de passe (adkoul2026 = ef92b778...)
+    const encoder = new TextEncoder();
+    const data = encoder.encode(pass);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/admins?email=eq.${email}&password_hash=eq.${hash}&select=*`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+      });
+      const users = await res.json();
+      
+      if (users && users.length === 1) {
+        msg.style.color = "green";
+        msg.textContent = "✅ CONNEXION RÉUSSIE !";
+      } else {
+        msg.style.color = "red";
+        msg.textContent = "❌ Échec : Email ou mot de passe incorrect.";
+      }
+    } catch (err) {
+      msg.textContent = "❌ Erreur réseau : " + err.message;
+    }
+  }
+</script>
+</body>
+</html>

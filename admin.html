@@ -192,6 +192,8 @@
   .user-info .user-email { font-size:12px; color:#666; }
   .user-info .user-date { font-size:10px; color:#999; font-style:italic; }
   .user-actions { display:flex; gap:8px; }
+  .btn-edit-user { background:#3498db; color:#fff; padding:8px 14px; border:none; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px; transition:0.2s; }
+  .btn-edit-user:hover { background:#2980b9; transform:translateY(-2px); }
   .btn-del-user { background:#e74c3c; color:#fff; padding:8px 14px; border:none; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px; transition:0.2s; }
   .btn-del-user:hover { background:#c0392b; transform:translateY(-2px); }
   .btn-del-user:disabled { background:#bdc3c7; cursor:not-allowed; transform:none; }
@@ -679,7 +681,7 @@
   </div>
 </div>
 
-<!-- MODALE MODIFIER MOT DE PASSE -->
+<!-- MODALE MODIFIER MOT DE PASSE (Soi-même) -->
 <div class="modal-overlay" id="modalMotDePasse">
   <div class="modal">
     <h2>🔑 Modifier mon mot de passe</h2>
@@ -697,6 +699,28 @@
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
       <button class="btn-valider" onclick="confirmerChangementMotDePasse()">✅ Modifier</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE MODIFIER MOT DE PASSE (Autre utilisateur) -->
+<div class="modal-overlay" id="modalEditUserPwd">
+  <div class="modal">
+    <h2>🔑 Modifier le mot de passe</h2>
+    <p class="subtitle" id="editUserPwdInfo">Définir un nouveau mot de passe pour cet utilisateur.</p>
+    
+    <label>Nouveau mot de passe *</label>
+    <div class="password-reveal">
+      <input type="password" id="editUserNewPassword" placeholder="Saisissez le nouveau mot de passe">
+      <button class="btn-reveal" type="button" onclick="togglePassword('editUserNewPassword', this)">👁️</button>
+    </div>
+    
+    <label>Confirmer le nouveau mot de passe *</label>
+    <input type="password" id="editUserNewPassword2" placeholder="Confirmez le nouveau mot de passe">
+    
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
+      <button class="btn-valider" onclick="confirmerEditUserPwd()">✅ Modifier</button>
     </div>
   </div>
 </div>
@@ -743,6 +767,7 @@
   let demandeEnCours = null, toutesLesDemandes = [];
   let ordreEnCours = null, tousLesOrdres = [];
   let tousLesUsers = [];
+  let userEnCoursEdition = null;
   
   let typeOrdreActif = 'tous';
 
@@ -1052,6 +1077,7 @@
     }
   }
 
+  // ============ GESTION DES UTILISATEURS ============
   async function chargerUsers() {
     const container = document.getElementById('usersList');
     if(!container) return;
@@ -1084,10 +1110,45 @@
             <div class="user-date">Créé le ${u.created_at ? formatNigerDate(u.created_at) : '—'}</div>
           </div>
           <div class="user-actions">
+            <button class="btn-edit-user" onclick="ouvrirModalEditUserPwd(${u.id}, '${u.nom.replace(/'/g, "\\'")}')">🔑 Modifier</button>
             <button class="btn-del-user" ${canDelete ? '' : 'disabled'} onclick="supprimerUser(${u.id}, '${u.email.replace(/'/g, "\\'")}')">🗑️ Supprimer</button>
           </div>
         </div>`;
     }).join('');
+  }
+
+  function ouvrirModalEditUserPwd(id, nom) {
+    userEnCoursEdition = id;
+    document.getElementById('editUserPwdInfo').textContent = `Définir un nouveau mot de passe pour ${nom}.`;
+    document.getElementById('editUserNewPassword').value = '';
+    document.getElementById('editUserNewPassword2').value = '';
+    document.getElementById('modalEditUserPwd').classList.add('active');
+  }
+
+  async function confirmerEditUserPwd() {
+    const pwd = document.getElementById('editUserNewPassword').value;
+    const pwd2 = document.getElementById('editUserNewPassword2').value;
+
+    if (!pwd || pwd.length < 6) {
+      alert('⚠️ Le mot de passe doit contenir au moins 6 caractères.');
+      return;
+    }
+    if (pwd !== pwd2) {
+      alert('⚠️ Les mots de passe ne correspondent pas.');
+      return;
+    }
+
+    try {
+      const hash = await hashPassword(pwd);
+      await apiCall(`/admins?id=eq.${userEnCoursEdition}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ password_hash: hash })
+      });
+      fermerModal();
+      alert('✅ Mot de passe modifié avec succès !');
+    } catch (err) {
+      alert('❌ Erreur : ' + err.message);
+    }
   }
 
   function ouvrirModalAjoutUser() {
@@ -1135,6 +1196,7 @@
     try { await apiCall(`/admins?id=eq.${id}`, { method: 'DELETE' }); await chargerUsers(); } catch (err) { alert('❌ ' + err.message); }
   }
 
+  // ============ DEMANDES VEHICULES ============
   async function chargerDemandes() {
     const container = document.getElementById('demandesContainer');
     container.innerHTML = '<div class="loading">Chargement...</div>';
@@ -1301,7 +1363,7 @@
     } 
   }
 
-  // --- ORDRES DE MISSION ---
+  // ============ ORDRES DE MISSION ============
   function changerTypeOrdre(type, btn) {
     typeOrdreActif = type;
     document.querySelectorAll('#typeTabs .type-tab').forEach(t => t.classList.remove('active'));

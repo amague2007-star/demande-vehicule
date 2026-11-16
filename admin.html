@@ -902,11 +902,20 @@
       afficherSection('ordres');
     } else if (role === 'assistant_logistique') {
       document.getElementById('navAccueil').style.display = 'none';
-      document.getElementById('navDemandes').style.display = 'block';
-      document.getElementById('navOrdres').style.display = 'none';
+      document.getElementById('navDemandes').style.display = 'none';
+      document.getElementById('navOrdres').style.display = 'block';
       document.getElementById('navUsers').style.display = 'none';
       document.getElementById('advancedFiltersBox').style.display = 'none';
-      afficherSection('demandes');
+      typeOrdreActif = 'Véhicule Location';
+      document.getElementById('navOrdres').firstChild.textContent = '🏢 Missions location ';
+      document.querySelectorAll('#typeTabs .type-tab').forEach(btn => {
+        const location = btn.getAttribute('onclick')?.includes("'Véhicule Location'") === true;
+        btn.style.display = location ? 'inline-flex' : 'none';
+        btn.classList.toggle('active', location);
+      });
+      document.getElementById('filtreStatutOrdre').value = 'en_attente';
+      document.querySelectorAll('#ordresSection .btn-export').forEach(btn => btn.style.display = 'none');
+      afficherSection('ordres');
     } else if (role === 'directeur_logistique') {
       document.getElementById('navAccueil').style.display = 'block';
       document.getElementById('navDemandes').style.display = 'block';
@@ -926,7 +935,8 @@
     }
 
     remplirListesChauffeurs();
-    chargerDemandes(); chargerOrdres(); chargerUsers();
+    if (role !== 'assistant_logistique') { chargerDemandes(); chargerUsers(); }
+    chargerOrdres();
   }
 
   if (sessionStorage.getItem('admin_logged') === 'true') afficherDashboard();
@@ -936,6 +946,7 @@
   function getAdminRole() { return sessionStorage.getItem('admin_role') || 'logistique'; }
 
   function afficherSection(section) {
+    if (getAdminRole() === 'assistant_logistique' && section !== 'ordres') return;
     ['accueil', 'demandes', 'ordres', 'users'].forEach(sec => {
       document.getElementById(sec + 'Section').style.display = 'none';
       const navBtn = document.getElementById('nav' + sec.charAt(0).toUpperCase() + sec.slice(1));
@@ -1067,6 +1078,7 @@
 
   // ============ GESTION DES UTILISATEURS ============
   async function chargerUsers() {
+    if (getAdminRole() === 'assistant_logistique') return;
     const container = document.getElementById('usersList');
     if(!container) return;
     container.innerHTML = '<div class="loading">Chargement...</div>';
@@ -1106,6 +1118,7 @@
   }
 
   function ouvrirModalEditUserPwd(id, nom) {
+    if (getAdminRole() === 'assistant_logistique') return;
     userEnCoursEdition = id;
     document.getElementById('editUserPwdInfo').textContent = `Définir un nouveau mot de passe pour ${nom}.`;
     document.getElementById('editUserNewPassword').value = '';
@@ -1114,6 +1127,7 @@
   }
 
   async function confirmerEditUserPwd() {
+    if (getAdminRole() === 'assistant_logistique') return;
     const pwd = document.getElementById('editUserNewPassword').value;
     const pwd2 = document.getElementById('editUserNewPassword2').value;
 
@@ -1140,6 +1154,7 @@
   }
 
   function ouvrirModalAjoutUser() {
+    if (getAdminRole() === 'assistant_logistique') return;
     document.getElementById('newUserName').value = '';
     document.getElementById('newUserEmail').value = '';
     document.getElementById('newUserPassword').value = '';
@@ -1174,6 +1189,7 @@
   // Étape supplémentaire Supabase Auth : l'identité du créateur doit être
   // prouvée au serveur. Le rôle dans sessionStorage n'accorde aucun droit.
   async function confirmerAjoutUser() {
+    if (getAdminRole() === 'assistant_logistique') return;
     const nom = document.getElementById('newUserName').value.trim();
     const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
     const role = document.getElementById('newUserRole').value;
@@ -1249,6 +1265,7 @@
   }
 
   async function supprimerUser(id, email) {
+    if (getAdminRole() === 'assistant_logistique') return;
     if (tousLesUsers.length <= 1 || id === getAdminId()) { alert('⚠️ Action impossible.'); return; }
     if (!confirm(`Supprimer l'utilisateur ${email} ?`)) return;
     try { await apiCall(`/admins?id=eq.${id}`, { method: 'DELETE' }); await chargerUsers(); } catch (err) { alert('❌ ' + err.message); }
@@ -1256,6 +1273,7 @@
 
   // ============ DEMANDES VEHICULES ============
   async function chargerDemandes() {
+    if (getAdminRole() === 'assistant_logistique') return;
     const container = document.getElementById('demandesContainer');
     container.innerHTML = '<div class="loading">Chargement...</div>';
     try {
@@ -1357,6 +1375,7 @@
   }
 
   function ouvrirModalValider(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
     demandeEnCours = toutesLesDemandes.find(d => d.id === id);
     if (!demandeEnCours) return;
     document.getElementById('modalValiderInfo').textContent = `${demandeEnCours.prenom} ${demandeEnCours.nom} → ${demandeEnCours.destination}`;
@@ -1370,6 +1389,7 @@
   }
 
   async function confirmerValidation() {
+    if (getAdminRole() === 'assistant_logistique') return;
     const sc = document.getElementById('selectChauffeur').value;
     const chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurAutre').value.trim() : sc;
     const type = document.getElementById('selectVehiculeType').value;
@@ -1401,6 +1421,7 @@
   }
 
   function ouvrirModalRefuser(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
     demandeEnCours = toutesLesDemandes.find(d => d.id === id);
     if (!demandeEnCours) return;
     document.getElementById('modalRefuserInfo').textContent = `${demandeEnCours.prenom} ${demandeEnCours.nom}`;
@@ -1409,6 +1430,7 @@
   }
 
   async function confirmerRefus() {
+    if (getAdminRole() === 'assistant_logistique') return;
     const motif = document.getElementById('inputMotifRefus').value.trim();
     if (!motif) { alert('⚠️ Motif obligatoire.'); return; }
     try {
@@ -1438,6 +1460,7 @@
   }
 
   function notifierWhatsAppDemande(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
     const d = toutesLesDemandes.find(d => d.id === id);
     if (!d) return;
     
@@ -1453,6 +1476,7 @@
 
   // ============ ORDRES DE MISSION ============
   function changerTypeOrdre(type, btn) {
+    if (getAdminRole() === 'assistant_logistique' && type !== 'Véhicule Location') return;
     typeOrdreActif = type;
     document.querySelectorAll('#typeTabs .type-tab').forEach(t => t.classList.remove('active'));
     if(btn) btn.classList.add('active');
@@ -1463,9 +1487,14 @@
     const container = document.getElementById('ordresContainer');
     container.innerHTML = '<div class="loading">Chargement...</div>';
     try {
-      tousLesOrdres = await apiCall('/missions_2?order=created_at.desc');
+      const assistant = getAdminRole() === 'assistant_logistique';
+      const chemin = assistant
+        ? '/missions_2?moyen_deplacement=eq.' + encodeURIComponent('Véhicule Location') + '&order=created_at.desc'
+        : '/missions_2?order=created_at.desc';
+      tousLesOrdres = await apiCall(chemin);
+      if (assistant) typeOrdreActif = 'Véhicule Location';
       mettreAJourNotifications();
-      rafraichirSelectsAvances();
+      if (!assistant) rafraichirSelectsAvances();
       afficherOrdres();
       if(document.getElementById('accueilSection').style.display === 'block') mettreAJourGraphiques();
     } catch (err) { container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>'; }
@@ -1489,6 +1518,9 @@
     let listeBase = tousLesOrdres;
     if (role === 'rh') {
       listeBase = tousLesOrdres.filter(o => o.statut !== 'en_attente');
+    } else if (role === 'assistant_logistique') {
+      listeBase = tousLesOrdres.filter(o => o.moyen_deplacement === 'Véhicule Location');
+      typeOrdreActif = 'Véhicule Location';
     }
 
     if (typeOrdreActif !== 'tous') {
@@ -1503,7 +1535,7 @@
       listeBase = listeBase.filter(o => o.statut !== 'validee' || window._afFilteredIds.has(o.id));
     }
 
-    document.getElementById('statOrdresAttente').textContent = tousLesOrdres.filter(o => o.statut === 'en_attente').length;
+    document.getElementById('statOrdresAttente').textContent = listeBase.filter(o => o.statut === 'en_attente').length;
     document.getElementById('statOrdresAffectes').textContent = listeBase.filter(o => o.statut === 'affecte_logistique').length;
     document.getElementById('statOrdresValides').textContent = listeBase.filter(o => o.statut === 'validee').length;
     document.getElementById('statOrdresRetard').textContent = listeBase.filter(o => estEnRetard(o)).length;
@@ -1536,7 +1568,7 @@
       const classRetard = retard ? 'retard' : '';
 
       if (o.statut === 'en_attente') {
-        if (role === 'logistique') {
+        if (role === 'logistique' || (role === 'assistant_logistique' && o.moyen_deplacement === 'Véhicule Location')) {
           actionsHtml = `<button class="btn btn-valider" onclick="ouvrirModalValiderOrdre(${o.id})">✅ Affecter</button>`;
         } else {
           actionsHtml = `<span style="color:#d68910; font-weight:bold;">⏳ En attente.</span>`;
@@ -1544,7 +1576,7 @@
       } else if (o.statut === 'affecte_logistique') {
         resultatHtml = `<div class="resultat validee" style="background:#fff3cd; color:#856404; border-color:#ffeeba;"><strong>⏳ Attente N° Ordre (RH)</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne || 'Aucun (Bus/Avion)'}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne || 'Aucun'}</strong>${o.affecte_par ? `<span class="par-admin">✔ Affecté par : ${o.affecte_par}</span>` : ''}</div>`;
         
-        actionsHtml = `
+        actionsHtml = role === 'assistant_logistique' ? '' : `
           <button class="btn btn-print-admin" onclick="voirOrdreMission(${o.id})" style="background:#3498db;">👁️ Voir</button>
           <button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>
           <button class="btn btn-print-admin" onclick="telechargerOrdreMission(${o.id})" style="background:#e67e22;">📥 Télécharger</button>
@@ -1557,7 +1589,7 @@
       } else if (o.statut === 'validee') {
         resultatHtml = `<div class="resultat validee"><strong>✅ Validé (N° ${o.message_admin})</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne || 'Aucun'}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne || 'Aucun'}</strong></div>`;
         
-        actionsHtml = `
+        actionsHtml = role === 'assistant_logistique' ? '' : `
           <button class="btn btn-print-admin" onclick="voirOrdreMission(${o.id})" style="background:#3498db;">👁️ Voir</button>
           <button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>
           <button class="btn btn-print-admin" onclick="telechargerOrdreMission(${o.id})" style="background:#e67e22;">📥 Télécharger</button>
@@ -1666,6 +1698,8 @@
   function ouvrirModalValiderOrdre(id) {
     ordreEnCours = tousLesOrdres.find(o => o.id === id);
     if (!ordreEnCours) return;
+    if (getAdminRole() === 'assistant_logistique' &&
+        (ordreEnCours.moyen_deplacement !== 'Véhicule Location' || ordreEnCours.statut !== 'en_attente')) return;
     
     const isBusAvion = ordreEnCours.moyen_deplacement && (ordreEnCours.moyen_deplacement.includes('Bus') || ordreEnCours.moyen_deplacement.includes('Avion'));
     
@@ -1711,6 +1745,9 @@
   }
 
   async function confirmerValidationOrdre() {
+    if (!ordreEnCours) return;
+    const assistant = getAdminRole() === 'assistant_logistique';
+    if (assistant && (ordreEnCours.moyen_deplacement !== 'Véhicule Location' || ordreEnCours.statut !== 'en_attente')) return;
     const isBusAvion = ordreEnCours.moyen_deplacement && (ordreEnCours.moyen_deplacement.includes('Bus') || ordreEnCours.moyen_deplacement.includes('Avion'));
     const notes = document.getElementById('inputNotesInternes').value.trim();
     
@@ -1731,16 +1768,23 @@
     }
 
     try {
-      await apiCall('/missions_2?id=eq.' + ordreEnCours.id, { 
+      const filtreAffectation = assistant ? '&moyen_deplacement=eq.' +
+        encodeURIComponent('Véhicule Location') + '&statut=eq.en_attente' : '';
+      const sauvegarde = await apiCall('/missions_2?id=eq.' + ordreEnCours.id + filtreAffectation, { 
         method: 'PATCH', 
         body: JSON.stringify({ 
           statut: 'affecte_logistique', 
           chauffeur_assigne: chauffeur, 
           vehicule_assigne: vehiculeString, 
           notes_internes: notes || null,
-          affecte_par: getAdminName() 
-        }) 
+          affecte_par: getAdminName()
+        })
       });
+      if (!Array.isArray(sauvegarde) || sauvegarde.length !== 1) {
+        alert('Aucune affectation enregistrée : demande déjà traitée ou non autorisée.');
+        await chargerOrdres();
+        return;
+      }
       
       const notification = await notifierEmailAvecStatut('template_ordre_attente_rh', EMAIL_LOGISTIQUE, {
         agent: ordreEnCours.nom,
@@ -1764,6 +1808,7 @@
   }
 
   function ouvrirModalNumeroRH(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
     ordreEnCours = tousLesOrdres.find(o => o.id === id);
     if (!ordreEnCours) return;
     document.getElementById('modalNumeroRHInfo').textContent = `${ordreEnCours.nom} → ${ordreEnCours.destination}`;
@@ -1771,6 +1816,7 @@
   }
 
   async function confirmerNumeroRH() {
+    if (getAdminRole() === 'assistant_logistique') return;
     if (!confirm("Voulez-vous générer automatiquement le numéro d'ordre de mission et valider ? Le demandeur recevra un e-mail.")) {
         return;
     }
@@ -1837,7 +1883,8 @@
     }
   }
 
-  async function supprimerOrdre(id) { 
+  async function supprimerOrdre(id) {
+    if (getAdminRole() === 'assistant_logistique') return; 
     if (confirm('⚠️ Suppression définitive.\n\nConfirmer ?')) { 
       await apiCall('/missions_2?id=eq.' + id, { method: 'DELETE' }); 
       chargerOrdres(); 
@@ -1849,18 +1896,22 @@
   }
 
   function voirOrdreMission(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
     window.open(`imprimer.html?id=${id}`, '_blank');
   }
 
   function imprimerOrdreMission(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
     window.open(`imprimer.html?id=${id}`, '_blank');
   }
 
   function telechargerOrdreMission(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
     window.open(`imprimer.html?id=${id}&download=true`, '_blank');
   }
 
   function notifierWhatsAppMission(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
     const o = tousLesOrdres.find(o => o.id === id);
     if (!o) return;
     
@@ -1876,6 +1927,7 @@
 
   // --- EXPORT EXCEL GLOBAL (BOUTONS DE LA BARRE PRINCIPALE) ---
   function exporterCSV(type) {
+    if (getAdminRole() === 'assistant_logistique') return;
     if (typeof XLSX === 'undefined') {
       alert('❌ Bibliothèque Excel non chargée. Vérifiez votre connexion.');
       return;
@@ -2144,6 +2196,7 @@
   }
 
   function exporterExcelMissionsValidees() {
+    if (getAdminRole() === 'assistant_logistique') return;
     if (typeof XLSX === 'undefined') {
       alert('❌ Bibliothèque Excel non chargée. Vérifiez votre connexion.');
       return;

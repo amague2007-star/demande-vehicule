@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ONG ADKOUL — Demande de Sortie Véhicule</title>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="email-service.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -194,8 +195,30 @@
         throw new Error(errTxt);
       }
 
+      // ✅ ENVOI DES E-MAILS (non bloquants)
+      // 1. Confirmation au demandeur
+      envoyerEmail('template_demande_recue', newDemande.email, {
+        nom: newDemande.nom,
+        prenom: newDemande.prenom,
+        type_demande: 'Sortie de Véhicule',
+        destination: newDemande.destination,
+        date: newDemande.date_demande,
+        heure: newDemande.heure_depart || '-',
+        motif: newDemande.motif
+      });
+      // 2. Notification à la logistique
+      envoyerEmail('template_demande_recue', EMAIL_LOGISTIQUE, {
+        nom: newDemande.nom,
+        prenom: newDemande.prenom,
+        type_demande: 'Sortie de Véhicule (NOUVELLE À TRAITER)',
+        destination: newDemande.destination,
+        date: newDemande.date_demande,
+        heure: newDemande.heure_depart || '-',
+        motif: newDemande.motif
+      });
+
       messageBox.className = 'message-box success';
-      msgIcon.textContent = '✅'; msgText.textContent = 'Votre demande a bien été envoyée.';
+      msgIcon.textContent = '✅'; msgText.textContent = 'Votre demande a bien été envoyée. Un e-mail de confirmation vous a été adressé.';
       form.reset();
       dateDemande.value = today;
     } catch (error) {

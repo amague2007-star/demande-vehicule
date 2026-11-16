@@ -53,6 +53,8 @@
   .message-box.error { display: flex; background: #fef2f2; border: 1.5px solid #fecaca; color: #991b1b; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .highlight-border { border-color: var(--danger) !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important; }
+  .form-help { display: block; color: var(--gray-600); font-size: 0.78rem; line-height: 1.5; }
+  #groupeAccompagnants[hidden] { display: none !important; }
 </style>
 </head>
 <body>
@@ -81,6 +83,7 @@
               <option value="DAF">DAF</option>
               <option value="ASSISTANT COMPTABLE">ASSISTANT COMPTABLE</option>
               <option value="COMPTABLE">COMPTABLE</option>
+              <option value="CAISSIER">CAISSIER</option>
               <option value="DRH">DRH</option>
               <option value="SECURITE">SECURITE</option>
               <option value="CHEF DE PROJET">CHEF DE PROJET</option>
@@ -102,9 +105,9 @@
             </select>
           </div>
         </div>
-        <div class="grid-2">
-          <div class="form-group"><label for="email">Adresse e-mail <span class="required">*</span></label><input type="email" id="email" required></div>
-          <div class="form-group"><label for="contact">Contact téléphonique</label><input type="tel" id="contact"></div>
+        <div class="form-group">
+          <label for="email">Adresse e-mail <span class="required">*</span></label>
+          <input type="email" id="email" required>
         </div>
       </div>
       <div class="divider"></div>
@@ -118,7 +121,18 @@
           <div class="form-group"><label for="duree">Durée estimée (minutes) <span class="required">*</span></label><input type="number" id="duree" min="15" required></div>
           <div class="form-group"><label for="destination">Destination <span class="required">*</span></label><input type="text" id="destination" required></div>
         </div>
-        <div class="form-group"><label for="passagers">Passagers (nombre ou noms)</label><input type="text" id="passagers"></div>
+        <div class="form-group">
+          <label for="avecAccompagnants">Y a-t-il des accompagnants ? <span class="required">*</span></label>
+          <select id="avecAccompagnants" required>
+            <option value="non" selected>Non — aucun accompagnant</option>
+            <option value="oui">Oui — j'ai des accompagnants</option>
+          </select>
+        </div>
+        <div class="form-group" id="groupeAccompagnants" hidden>
+          <label for="passagers">Noms et prénoms de tous les accompagnants <span class="required">*</span></label>
+          <textarea id="passagers" rows="4" placeholder="Un accompagnant par ligne, par exemple :&#10;MOHAMED TAHI&#10;AMINA IBRAHIM"></textarea>
+          <small class="form-help">Obligatoire si vous êtes accompagné. Inscrivez le nom et le prénom de chaque personne, un par ligne. Un nombre seul n'est pas accepté.</small>
+        </div>
         <div class="form-group"><label for="motif">Motif de la sortie <span class="required">*</span></label><textarea id="motif" required></textarea></div>
       </div>
       <div class="submit-area">
@@ -130,8 +144,8 @@
   </div>
 </div>
 <script>
-  const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
+  const VEHICULE_SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
+  const VEHICULE_SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
   const form = document.getElementById('vehicleForm');
   const btnSubmit = document.getElementById('btnSubmit');
   const messageBox = document.getElementById('messageBox');
@@ -139,8 +153,31 @@
   const msgText = document.getElementById('msgText');
   
   const dateDemande = document.getElementById('date_demande');
-  const today = new Date().toISOString().split('T')[0];
-  dateDemande.value = today;
+  const selectAccompagnants = document.getElementById('avecAccompagnants');
+  const groupeAccompagnants = document.getElementById('groupeAccompagnants');
+  const champPassagers = document.getElementById('passagers');
+
+  function dateAujourdhuiNiger() {
+    const parties = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Africa/Niamey', year: 'numeric', month: '2-digit', day: '2-digit'
+    }).formatToParts(new Date());
+    const p = Object.fromEntries(parties.map(part => [part.type, part.value]));
+    return `${p.year}-${p.month}-${p.day}`;
+  }
+
+  function afficherChampAccompagnants() {
+    const avec = selectAccompagnants.value === 'oui';
+    groupeAccompagnants.hidden = !avec;
+    champPassagers.required = avec;
+    if (!avec) {
+      champPassagers.value = '';
+      champPassagers.classList.remove('highlight-border');
+    }
+  }
+
+  dateDemande.value = dateAujourdhuiNiger();
+  selectAccompagnants.addEventListener('change', afficherChampAccompagnants);
+  afficherChampAccompagnants();
 
   function safeValue(id) {
     const el = document.getElementById(id);
@@ -160,8 +197,26 @@
 
     if (!isValid) {
       messageBox.className = 'message-box error';
-      msgIcon.textContent = '❌'; msgText.textContent = 'Veuillez remplir tous les champs obligatoires.';
+      msgIcon.textContent = '❌';
+      msgText.textContent = 'Veuillez remplir tous les champs obligatoires, y compris les accompagnants s’il y en a.';
       return;
+    }
+
+    // Un accompagnant doit être identifié par nom ET prénom. Aucun nombre seul.
+    let nomsAccompagnants = null;
+    if (selectAccompagnants.value === 'oui') {
+      const noms = champPassagers.value.split(/\r?\n/).map(n => n.trim()).filter(Boolean);
+      const nomInvalide = noms.some(n => n.split(/\s+/).length < 2 || /\d/.test(n) || !/[A-Za-zÀ-ÖØ-öø-ÿ]/.test(n));
+      if (noms.length === 0 || nomInvalide) {
+        champPassagers.classList.add('highlight-border');
+        champPassagers.focus();
+        messageBox.className = 'message-box error';
+        msgIcon.textContent = '❌';
+        msgText.textContent = 'Indiquez le nom et le prénom de chaque accompagnant, un par ligne (pas seulement leur nombre).';
+        return;
+      }
+      champPassagers.classList.remove('highlight-border');
+      nomsAccompagnants = noms.join('\n');
     }
 
     const newDemande = {
@@ -171,11 +226,10 @@
       poste: document.getElementById('poste').value,
       service: document.getElementById('service').value,
       email: document.getElementById('email').value.trim(),
-      contact: safeValue('contact'), 
       heure_depart: safeValue('heure_depart'), 
       duree: parseInt(safeValue('duree')), 
       destination: document.getElementById('destination').value.trim(),
-      passagers: safeValue('passagers'), 
+      passagers: nomsAccompagnants, 
       motif: document.getElementById('motif').value.trim(),
       statut: 'en_attente'
     };
@@ -184,9 +238,9 @@
     btnSubmit.classList.add('loading');
 
     try {
-      const response = await fetch(SUPABASE_URL + '/rest/v1/demandes', {
+      const response = await fetch(VEHICULE_SUPABASE_URL + '/rest/v1/demandes', {
         method: 'POST',
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        headers: { 'apikey': VEHICULE_SUPABASE_KEY, 'Authorization': 'Bearer ' + VEHICULE_SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
         body: JSON.stringify(newDemande)
       });
 
@@ -197,7 +251,7 @@
 
       // ✅ ENVOI DES E-MAILS (non bloquants)
       // 1. Confirmation au demandeur
-      envoyerEmail('template_demande_recue', newDemande.email, {
+      if (typeof envoyerEmail === 'function') envoyerEmail('template_demande_recue', newDemande.email, {
         nom: newDemande.nom,
         prenom: newDemande.prenom,
         type_demande: 'Sortie de Véhicule',
@@ -207,7 +261,7 @@
         motif: newDemande.motif
       });
       // 2. Notification à la logistique
-      envoyerEmail('template_demande_recue', EMAIL_LOGISTIQUE, {
+      if (typeof envoyerEmail === 'function' && typeof EMAIL_LOGISTIQUE !== 'undefined') envoyerEmail('template_demande_recue', EMAIL_LOGISTIQUE, {
         nom: newDemande.nom,
         prenom: newDemande.prenom,
         type_demande: 'Sortie de Véhicule (NOUVELLE À TRAITER)',
@@ -218,9 +272,10 @@
       });
 
       messageBox.className = 'message-box success';
-      msgIcon.textContent = '✅'; msgText.textContent = 'Votre demande a bien été envoyée. Un e-mail de confirmation vous a été adressé.';
+      msgIcon.textContent = '✅'; msgText.textContent = 'Votre demande a bien été enregistrée. Les notifications e-mail sont lancées si le service est disponible.';
       form.reset();
-      dateDemande.value = today;
+      dateDemande.value = dateAujourdhuiNiger();
+      afficherChampAccompagnants();
     } catch (error) {
       console.error(error);
       messageBox.className = 'message-box error';

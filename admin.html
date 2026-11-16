@@ -1118,6 +1118,7 @@
   }
 
   function ouvrirModalEditUserPwd(id, nom) {
+    if (getAdminRole() === 'assistant_logistique') return;
     userEnCoursEdition = id;
     document.getElementById('editUserPwdInfo').textContent = `Définir un nouveau mot de passe pour ${nom}.`;
     document.getElementById('editUserNewPassword').value = '';
@@ -1126,6 +1127,7 @@
   }
 
   async function confirmerEditUserPwd() {
+    if (getAdminRole() === 'assistant_logistique') return;
     const pwd = document.getElementById('editUserNewPassword').value;
     const pwd2 = document.getElementById('editUserNewPassword2').value;
 
@@ -1152,6 +1154,7 @@
   }
 
   function ouvrirModalAjoutUser() {
+    if (getAdminRole() === 'assistant_logistique') return;
     document.getElementById('newUserName').value = '';
     document.getElementById('newUserEmail').value = '';
     document.getElementById('newUserPassword').value = '';
@@ -1186,6 +1189,7 @@
   // Étape supplémentaire Supabase Auth : l'identité du créateur doit être
   // prouvée au serveur. Le rôle dans sessionStorage n'accorde aucun droit.
   async function confirmerAjoutUser() {
+    if (getAdminRole() === 'assistant_logistique') return;
     const nom = document.getElementById('newUserName').value.trim();
     const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
     const role = document.getElementById('newUserRole').value;
@@ -1261,6 +1265,7 @@
   }
 
   async function supprimerUser(id, email) {
+    if (getAdminRole() === 'assistant_logistique') return;
     if (tousLesUsers.length <= 1 || id === getAdminId()) { alert('⚠️ Action impossible.'); return; }
     if (!confirm(`Supprimer l'utilisateur ${email} ?`)) return;
     try { await apiCall(`/admins?id=eq.${id}`, { method: 'DELETE' }); await chargerUsers(); } catch (err) { alert('❌ ' + err.message); }
@@ -1370,6 +1375,7 @@
   }
 
   function ouvrirModalValider(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
     demandeEnCours = toutesLesDemandes.find(d => d.id === id);
     if (!demandeEnCours) return;
     document.getElementById('modalValiderInfo').textContent = `${demandeEnCours.prenom} ${demandeEnCours.nom} → ${demandeEnCours.destination}`;
@@ -1383,6 +1389,7 @@
   }
 
   async function confirmerValidation() {
+    if (getAdminRole() === 'assistant_logistique') return;
     const sc = document.getElementById('selectChauffeur').value;
     const chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurAutre').value.trim() : sc;
     const type = document.getElementById('selectVehiculeType').value;
@@ -1414,6 +1421,7 @@
   }
 
   function ouvrirModalRefuser(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
     demandeEnCours = toutesLesDemandes.find(d => d.id === id);
     if (!demandeEnCours) return;
     document.getElementById('modalRefuserInfo').textContent = `${demandeEnCours.prenom} ${demandeEnCours.nom}`;
@@ -1422,6 +1430,7 @@
   }
 
   async function confirmerRefus() {
+    if (getAdminRole() === 'assistant_logistique') return;
     const motif = document.getElementById('inputMotifRefus').value.trim();
     if (!motif) { alert('⚠️ Motif obligatoire.'); return; }
     try {
@@ -1451,6 +1460,7 @@
   }
 
   function notifierWhatsAppDemande(id) {
+    if (getAdminRole() === 'assistant_logistique') return;
     const d = toutesLesDemandes.find(d => d.id === id);
     if (!d) return;
     
@@ -2186,6 +2196,7 @@
   }
 
   function exporterExcelMissionsValidees() {
+    if (getAdminRole() === 'assistant_logistique') return;
     if (typeof XLSX === 'undefined') {
       alert('❌ Bibliothèque Excel non chargée. Vérifiez votre connexion.');
       return;

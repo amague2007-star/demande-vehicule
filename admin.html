@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin - ONG ADKOUL - Gestion Logistique</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="email-service.js"></script>
 <style>
@@ -52,37 +50,6 @@
   .logout-btn { background:#e74c3c; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600; font-size:11px; transition: 0.2s; }
   .logout-btn:hover { background:#c0392b; }
 
-  #accueilSection { padding: 10px 15px; display: block; }
-  .dash-filters { display: flex; justify-content: flex-end; margin-bottom: 10px; }
-  .dash-filters select { padding: 5px 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 11px; font-weight: 600; color: #1e3c72; outline: none; cursor: pointer; background:#fff; }
-
-  .dashboard-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px; }
-  .dash-card { background: #fff; padding: 8px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; border-bottom: 3px solid #1e3c72; }
-  .dash-card h3 { color: #666; font-size: 10px; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px;}
-  .dash-card .number { color: #1e3c72; font-size: 22px; font-weight: bold; }
-  
-  .dashboard-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  
-  .chart-box { background: #fff; padding: 8px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); height: 180px; display: flex; flex-direction: column; }
-  .chart-box h3 { color: #1e3c72; font-size: 12px; margin-bottom: 2px; text-align: center; font-weight: 600; }
-  .chart-container { position: relative; flex: 1; width: 100%; min-height: 0; }
-
-  .top5-wrapper { background: #fff; padding: 8px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; height: 180px; }
-  .top5-wrapper h3 { color: #1e3c72; font-size: 12px; margin-bottom: 4px; text-align: center; font-weight: 600;}
-  .top5-grid-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; overflow-y: hidden; }
-  .top5-box h4 { color: #1e3c72; font-size: 10px; margin-bottom: 3px; border-bottom: 1px solid #f0f2f5; padding-bottom: 2px; text-align: center; }
-  .top5-box ul { list-style: none; padding: 0; margin: 0; }
-  .top5-box li { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px solid #f0f2f5; font-size: 10px; color: #333; }
-  .top5-box li:last-child { border-bottom: none; }
-  .top5-box li span.rank { color: #f39c12; font-weight: bold; margin-right: 3px; }
-  .top5-box li span.count { font-weight: bold; color: #1e3c72; }
-
-  @media (max-width: 900px) {
-    .dashboard-cards { grid-template-columns: 1fr 1fr; }
-    .dashboard-layout { grid-template-columns: 1fr; }
-    .chart-box, .top5-wrapper { height: auto; min-height: 180px; }
-  }
-
   .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:15px; padding:20px; }
   .stat-card { background:#fff; padding:15px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.05); border-left:5px solid #f39c12; }
   .stat-card.validees { border-left-color:#27ae60; }
@@ -128,15 +95,9 @@
   .btn { padding:10px 20px; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; text-transform:uppercase; letter-spacing:0.5px; transition:0.2s; }
   .btn-valider { background:#27ae60; color:#fff; box-shadow:0 4px 12px rgba(39,174,96,0.3); }
   .btn-valider:hover { background:#229954; transform:translateY(-2px); }
-  
   .btn-orange { background:#f39c12; color:#fff; box-shadow:0 4px 12px rgba(243,156,18,0.3); }
   .btn-orange:hover { background:#d68910; transform:translateY(-2px); }
-  
-  .btn-rh-urgent { 
-    background:#e67e22; color:#fff; 
-    box-shadow:0 0 0 0 rgba(230, 126, 34, 0.7);
-    animation: pulse-btn 1.5s infinite;
-  }
+  .btn-rh-urgent { background:#e67e22; color:#fff; box-shadow:0 0 0 0 rgba(230, 126, 34, 0.7); animation: pulse-btn 1.5s infinite; }
   .btn-rh-urgent:hover { background:#d35400; transform:translateY(-2px); animation: none; }
   
   @keyframes pulse-btn {
@@ -158,8 +119,6 @@
   .resultat.validee { background:#d5f4e6; color:#1e8449; border-left:4px solid #27ae60; }
   .resultat.refusee { background:#fadbd8; color:#922b21; border-left:4px solid #e74c3c; }
   .resultat .par-admin { display:block; margin-top:4px; font-size:11px; opacity:0.8; font-style:italic; }
-  
-  .notes-internes-box { background: #fff3cd; border: 1px solid #ffeeba; padding: 8px; border-radius: 6px; font-size: 12px; color: #856404; margin-top: 8px; font-style: italic; }
 
   .modal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center; padding:20px; }
   .modal-overlay.active { display:flex; }
@@ -181,7 +140,6 @@
   .users-header h2 { color:#1e3c72; font-size:20px; }
   .btn-add-user { background:#27ae60; color:#fff; padding:10px 18px; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 4px 12px rgba(39,174,96,0.3); transition:0.2s; }
   .btn-add-user:hover { background:#229954; transform:translateY(-2px); }
-
   .users-list { display:flex; flex-direction:column; gap:10px; }
   .user-row { background:#fff; padding:15px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.06); border-left:5px solid #1e3c72; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; transition:0.2s; }
   .user-row:hover { box-shadow:0 4px 20px rgba(0,0,0,0.1); }
@@ -199,111 +157,27 @@
   .btn-del-user:disabled { background:#bdc3c7; cursor:not-allowed; transform:none; }
 
   .users-info-box { background:#e8f0fb; border-left:4px solid #1e3c72; padding:12px 15px; border-radius:8px; font-size:12px; color:#1e3c72; margin-bottom:15px; line-height:1.5; }
-
   .password-reveal { display:flex; gap:8px; }
   .password-reveal input { flex:1; }
   .btn-reveal { background:#ecf0f1; color:#555; border:none; padding:0 12px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600; }
   
-  .hidden-fields { display: none !important; }
-
-  /* ===== FILTRES AVANCÉS + EXPORT ===== */
-  .advanced-filters {
-    background: #fff;
-    border-radius: 10px;
-    padding: 12px 15px;
-    margin: 0 20px 15px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    border-left: 4px solid #1e3c72;
-  }
-  .advanced-filters .af-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-  }
-  .advanced-filters .af-header h4 {
-    color: #1e3c72;
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 0;
-  }
-  .advanced-filters .af-toggle {
-    background: none;
-    border: none;
-    color: #1e3c72;
-    font-size: 14px;
-    cursor: pointer;
-    font-weight: 700;
-  }
-  .advanced-filters .af-body {
-    display: none;
-    margin-top: 12px;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 10px;
-  }
+  .advanced-filters { background: #fff; border-radius: 10px; padding: 12px 15px; margin: 0 20px 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 4px solid #1e3c72; }
+  .advanced-filters .af-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+  .advanced-filters .af-header h4 { color: #1e3c72; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 0; }
+  .advanced-filters .af-toggle { background: none; border: none; color: #1e3c72; font-size: 14px; cursor: pointer; font-weight: 700; }
+  .advanced-filters .af-body { display: none; margin-top: 12px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
   .advanced-filters .af-body.open { display: grid; }
   .af-field { display: flex; flex-direction: column; gap: 4px; }
-  .af-field label {
-    font-size: 11px;
-    font-weight: 700;
-    color: #555;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-  }
-  .af-field input, .af-field select {
-    padding: 7px 10px;
-    border: 1.5px solid #e0e0e0;
-    border-radius: 6px;
-    font-size: 12px;
-    background: #fff;
-    font-family: inherit;
-  }
-  .af-field input:focus, .af-field select:focus {
-    outline: none;
-    border-color: #1e3c72;
-  }
-  .af-actions {
-    grid-column: 1 / -1;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 5px;
-    padding-top: 10px;
-    border-top: 1px solid #f0f2f5;
-  }
-  .af-actions button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    transition: 0.2s;
-  }
+  .af-field label { font-size: 11px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.4px; }
+  .af-field input, .af-field select { padding: 7px 10px; border: 1.5px solid #e0e0e0; border-radius: 6px; font-size: 12px; background: #fff; font-family: inherit; }
+  .af-field input:focus, .af-field select:focus { outline: none; border-color: #1e3c72; }
+  .af-actions { grid-column: 1 / -1; display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px; padding-top: 10px; border-top: 1px solid #f0f2f5; }
+  .af-actions button { padding: 8px 16px; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.4px; transition: 0.2s; }
   .af-btn-reset { background: #ecf0f1; color: #555; }
   .af-btn-reset:hover { background: #d5dbdb; }
-  .af-btn-excel {
-    background: linear-gradient(135deg, #1e7e34, #27ae60);
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(39,174,96,0.3);
-    margin-left: auto;
-  }
+  .af-btn-excel { background: linear-gradient(135deg, #1e7e34, #27ae60); color: #fff; box-shadow: 0 4px 12px rgba(39,174,96,0.3); margin-left: auto; }
   .af-btn-excel:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(39,174,96,0.4); }
-  .af-result-info {
-    grid-column: 1 / -1;
-    font-size: 12px;
-    color: #1e3c72;
-    font-weight: 600;
-    padding: 6px 10px;
-    background: #e8f0fb;
-    border-radius: 6px;
-    border-left: 3px solid #1e3c72;
-  }
+  .af-result-info { grid-column: 1 / -1; font-size: 12px; color: #1e3c72; font-weight: 600; padding: 6px 10px; background: #e8f0fb; border-radius: 6px; border-left: 3px solid #1e3c72; }
 </style>
 </head>
 <body>
@@ -335,7 +209,6 @@
       </div>
     </div>
     <div class="header-right">
-      <button class="nav-btn" id="navAccueil" onclick="afficherSection('accueil')">📊 Accueil</button>
       <button class="nav-btn" id="navDemandes" onclick="afficherSection('demandes')">
         📋 Demandes <span class="notification-badge" id="badgeDemandes">0</span>
       </button>
@@ -352,71 +225,6 @@
       <button class="logout-btn" onclick="logout()">Déconnexion</button>
     </div>
   </header>
-
-  <!-- SECTION ACCUEIL / GRAPHIQUES -->
-  <div id="accueilSection">
-    <div class="dash-filters">
-      <select id="filtreDateAccueil" onchange="mettreAJourGraphiques()">
-        <option value="tout">📅 Toutes les périodes</option>
-        <option value="mois">📅 Ce mois-ci</option>
-        <option value="trimestre">📅 Ce trimestre</option>
-        <option value="annee">📅 Cette année</option>
-      </select>
-    </div>
-
-    <div class="dashboard-cards">
-      <div class="dash-card">
-        <h3>Total Demandes (Véhicules)</h3>
-        <div class="number" id="dashTotalVehicules">0</div>
-      </div>
-      <div class="dash-card" style="border-bottom-color: #f39c12;">
-        <h3>Total Missions</h3>
-        <div class="number" id="dashTotalMissions">0</div>
-      </div>
-      <div class="dash-card" style="border-bottom-color: #27ae60;">
-        <h3>Missions Validées</h3>
-        <div class="number" id="dashMissionsValidees">0</div>
-      </div>
-      <div class="dash-card" style="border-bottom-color: #e74c3c;">
-        <h3>En Attente (Véhicules)</h3>
-        <div class="number" id="dashEnAttente">0</div>
-      </div>
-    </div>
-
-    <div class="dashboard-layout">
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        <div class="chart-box">
-          <h3>Moyens de Déplacement</h3>
-          <div class="chart-container"><canvas id="chartMoyens"></canvas></div>
-        </div>
-        <div class="chart-box">
-          <h3>Répartition par Projet</h3>
-          <div class="chart-container"><canvas id="chartProjets"></canvas></div>
-        </div>
-      </div>
-      
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        <div class="chart-box">
-          <h3>Statut des Ordres de Mission</h3>
-          <div class="chart-container"><canvas id="chartStatuts"></canvas></div>
-        </div>
-        <div class="top5-wrapper" id="top5Grid">
-          <h3>🏆 Classements (Top 5)</h3>
-          <div class="top5-grid-inner">
-            <div class="top5-box">
-              <h4>Agents</h4>
-              <ul id="topAgents"><li>Chargement...</li></ul>
-            </div>
-            <div class="top5-box">
-              <h4>Chauffeurs</h4>
-              <ul id="topChauffeurs"><li>Chargement...</li></ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
 
   <!-- SECTION DEMANDES VEHICULES -->
   <div id="demandesSection" style="display:none;">
@@ -444,7 +252,6 @@
 
   <!-- SECTION ORDRES DE MISSION -->
   <div id="ordresSection" style="display:none;">
-    
     <div class="type-tabs" id="typeTabs">
       <button class="type-tab active" onclick="changerTypeOrdre('tous', this)">📁 Tous <span class="notification-badge" id="badgeTypeTous">0</span></button>
       <button class="type-tab" onclick="changerTypeOrdre('Véhicule UNHCR', this)">🚙 UNHCR <span class="notification-badge" id="badgeTypeUNHCR">0</span></button>
@@ -476,58 +283,24 @@
       <button class="btn-export" onclick="exporterCSV('ordres')">📥 Exporter Excel</button>
     </div>
 
-    <!-- ===== FILTRES AVANCÉS (Admin & RH) ===== -->
     <div class="advanced-filters" id="advancedFiltersBox">
       <div class="af-header" onclick="toggleAdvancedFilters()">
         <h4>🔎 Filtres avancés — Missions validées</h4>
         <button class="af-toggle" id="afToggleBtn" type="button">▼ Afficher</button>
       </div>
       <div class="af-body" id="advancedFiltersBody">
-
-        <div class="af-field">
-          <label for="afDateFrom">Date départ — du</label>
-          <input type="date" id="afDateFrom" onchange="appliquerFiltresAvances()">
-        </div>
-        <div class="af-field">
-          <label for="afDateTo">Date départ — au</label>
-          <input type="date" id="afDateTo" onchange="appliquerFiltresAvances()">
-        </div>
-        <div class="af-field">
-          <label for="afProjet">Projet</label>
-          <select id="afProjet" onchange="appliquerFiltresAvances()">
-            <option value="">— Tous —</option>
-          </select>
-        </div>
-        <div class="af-field">
-          <label for="afMoyen">Moyen de déplacement</label>
-          <select id="afMoyen" onchange="appliquerFiltresAvances()">
-            <option value="">— Tous —</option>
-          </select>
-        </div>
-        <div class="af-field">
-          <label for="afAgent">Agent</label>
-          <select id="afAgent" onchange="appliquerFiltresAvances()">
-            <option value="">— Tous —</option>
-          </select>
-        </div>
-        <div class="af-field">
-          <label for="afDestination">Destination (contient)</label>
-          <input type="text" id="afDestination" placeholder="Ex : Niamey" onkeyup="appliquerFiltresAvances()">
-        </div>
-        <div class="af-field">
-          <label for="afNumero">N° Ordre (contient)</label>
-          <input type="text" id="afNumero" placeholder="Ex : 042" onkeyup="appliquerFiltresAvances()">
-        </div>
-
+        <div class="af-field"><label for="afDateFrom">Date départ — du</label><input type="date" id="afDateFrom" onchange="appliquerFiltresAvances()"></div>
+        <div class="af-field"><label for="afDateTo">Date départ — au</label><input type="date" id="afDateTo" onchange="appliquerFiltresAvances()"></div>
+        <div class="af-field"><label for="afProjet">Projet</label><select id="afProjet" onchange="appliquerFiltresAvances()"><option value="">— Tous —</option></select></div>
+        <div class="af-field"><label for="afMoyen">Moyen de déplacement</label><select id="afMoyen" onchange="appliquerFiltresAvances()"><option value="">— Tous —</option></select></div>
+        <div class="af-field"><label for="afAgent">Agent</label><select id="afAgent" onchange="appliquerFiltresAvances()"><option value="">— Tous —</option></select></div>
+        <div class="af-field"><label for="afDestination">Destination (contient)</label><input type="text" id="afDestination" placeholder="Ex : Niamey" onkeyup="appliquerFiltresAvances()"></div>
+        <div class="af-field"><label for="afNumero">N° Ordre (contient)</label><input type="text" id="afNumero" placeholder="Ex : 042" onkeyup="appliquerFiltresAvances()"></div>
         <div class="af-actions">
           <button class="af-btn-reset" onclick="resetFiltresAvances()">♻️ Réinitialiser</button>
-          <button class="af-btn-excel" onclick="exporterExcelMissionsValidees()">
-            📥 Exporter en Excel (.xlsx)
-          </button>
+          <button class="af-btn-excel" onclick="exporterExcelMissionsValidees()">📥 Exporter en Excel (.xlsx)</button>
         </div>
-        <div class="af-result-info" id="afResultInfo">
-          Filtres avancés appliqués sur les missions validées uniquement.
-        </div>
+        <div class="af-result-info" id="afResultInfo">Filtres avancés appliqués sur les missions validées uniquement.</div>
       </div>
     </div>
 
@@ -542,9 +315,7 @@
       <h2>👥 Gestion des utilisateurs</h2>
       <button class="btn-add-user" onclick="ouvrirModalAjoutUser()">➕ Ajouter un utilisateur</button>
     </div>
-    <div class="users-info-box">
-      💡 <strong>Info :</strong> Les rôles déterminent les accès.
-    </div>
+    <div class="users-info-box">💡 <strong>Info :</strong> Les rôles déterminent les accès.</div>
     <div class="users-list" id="usersList">
       <div class="loading">Chargement des utilisateurs...</div>
     </div>
@@ -556,14 +327,12 @@
   <div class="modal">
     <h2>🚗 Affecter un véhicule</h2>
     <p class="subtitle" id="modalValiderInfo"></p>
-    
     <label>👤 Chauffeur *</label>
     <select id="selectChauffeur" onchange="toggleAutre('chauffeur')">
       <option value="">-- Sélectionnez --</option>
       <option value="AUTRE">➕ Autre</option>
     </select>
     <input type="text" id="inputChauffeurAutre" placeholder="Nom" style="display:none; margin-top:8px;">
-
     <div class="grid-2" style="margin-top:10px;">
       <div>
         <label>Type de véhicule *</label>
@@ -591,7 +360,6 @@
         <input type="text" id="inputVehiculeImmat" placeholder="Ex: AB-123-CD" required>
       </div>
     </div>
-
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
       <button class="btn-valider" onclick="confirmerValidation()">✅ Enregistrer</button>
@@ -617,7 +385,6 @@
   <div class="modal">
     <h2 id="modalValiderOrdreTitle">📄 Affectation Logistique</h2>
     <p class="subtitle" id="modalValiderOrdreInfo"></p>
-    
     <div id="fieldsChauffeurVehicule">
       <label>👤 Chauffeur à assigner *</label>
       <select id="selectChauffeurOrdre" onchange="toggleAutreOrdre('chauffeur')">
@@ -625,7 +392,6 @@
         <option value="AUTRE">➕ Autre</option>
       </select>
       <input type="text" id="inputChauffeurOrdreAutre" placeholder="Nom du chauffeur" style="display:none; margin-top:8px;">
-
       <div class="grid-2" style="margin-top:10px;">
         <div>
           <label>Type de véhicule *</label>
@@ -654,14 +420,11 @@
         </div>
       </div>
     </div>
-
     <div id="messageBusAvion" style="display: none; background: #e8f4f8; padding: 12px; border-radius: 8px; border-left: 4px solid #2980b9; margin-top: 15px; font-size: 13px; color: #2980b9; font-weight: 600;">
       ℹ️ Aucun chauffeur ni véhicule spécifique n'est requis pour ce type de transport.
     </div>
-
     <label>📝 Notes internes (optionnel)</label>
     <textarea id="inputNotesInternes" rows="2" placeholder="Ex: Chauffeur prévenu..."></textarea>
-
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
       <button class="btn-valider" id="btnActionOrdre" onclick="confirmerValidationOrdre()">✅ Affecter</button>
@@ -686,16 +449,12 @@
   <div class="modal">
     <h2>🔑 Modifier mon mot de passe</h2>
     <p class="subtitle">Sécurisez votre compte en changeant votre mot de passe.</p>
-    
     <label>Ancien mot de passe *</label>
     <input type="password" id="oldPassword" placeholder="Saisissez votre ancien mot de passe">
-    
     <label>Nouveau mot de passe *</label>
     <input type="password" id="newPassword" placeholder="Saisissez le nouveau mot de passe">
-    
     <label>Confirmer le nouveau mot de passe *</label>
     <input type="password" id="confirmNewPassword" placeholder="Confirmez le nouveau mot de passe">
-    
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
       <button class="btn-valider" onclick="confirmerChangementMotDePasse()">✅ Modifier</button>
@@ -708,16 +467,13 @@
   <div class="modal">
     <h2>🔑 Modifier le mot de passe</h2>
     <p class="subtitle" id="editUserPwdInfo">Définir un nouveau mot de passe pour cet utilisateur.</p>
-    
     <label>Nouveau mot de passe *</label>
     <div class="password-reveal">
       <input type="password" id="editUserNewPassword" placeholder="Saisissez le nouveau mot de passe">
       <button class="btn-reveal" type="button" onclick="togglePassword('editUserNewPassword', this)">👁️</button>
     </div>
-    
     <label>Confirmer le nouveau mot de passe *</label>
     <input type="password" id="editUserNewPassword2" placeholder="Confirmez le nouveau mot de passe">
-    
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
       <button class="btn-valider" onclick="confirmerEditUserPwd()">✅ Modifier</button>
@@ -770,10 +526,6 @@
   let userEnCoursEdition = null;
   
   let typeOrdreActif = 'tous';
-
-  let chartMoyensInstance = null;
-  let chartStatutsInstance = null;
-  let chartProjetsInstance = null;
 
   function formatNigerDate(dateStr) {
     if (!dateStr) return '-';
@@ -828,33 +580,20 @@
 
   function mettreAJourNotifications() {
     const role = getAdminRole();
-    
     const attenteVehicules = toutesLesDemandes.filter(d => d.statut === 'en_attente').length;
     const badgeD = document.getElementById('badgeDemandes');
     if (attenteVehicules > 0) { badgeD.textContent = attenteVehicules; badgeD.style.display = 'inline-block'; } else { badgeD.style.display = 'none'; }
 
     const attenteMissions = tousLesOrdres.filter(o => o.statut === 'en_attente' || o.statut === 'affecte_logistique').length;
     const badgeO = document.getElementById('badgeOrdres');
-    
-    if (role === 'rh') {
-      badgeO.style.display = 'none';
-      badgeO.hidden = true;
-    } else {
-      if (attenteMissions > 0) { badgeO.textContent = attenteMissions; badgeO.style.display = 'inline-block'; badgeO.hidden = false; } 
-      else { badgeO.style.display = 'none'; }
-    }
+    if (role === 'rh') { badgeO.style.display = 'none'; badgeO.hidden = true; } 
+    else { if (attenteMissions > 0) { badgeO.textContent = attenteMissions; badgeO.style.display = 'inline-block'; badgeO.hidden = false; } else { badgeO.style.display = 'none'; } }
 
-    const types = {
-      'Tous': 0, 'UNHCR': 0, 'Partenaire': 0, 'Location': 0, 'ADKOUL': 0, 'Bus': 0, 'Avion': 0
-    };
-
+    const types = { 'Tous': 0, 'UNHCR': 0, 'Partenaire': 0, 'Location': 0, 'ADKOUL': 0, 'Bus': 0, 'Avion': 0 };
     tousLesOrdres.forEach(o => {
       let isRelevant = false;
-      if (role === 'rh') {
-        if (o.statut === 'affecte_logistique') isRelevant = true; 
-      } else {
-        if (o.statut === 'en_attente' || o.statut === 'affecte_logistique') isRelevant = true;
-      }
+      if (role === 'rh') { if (o.statut === 'affecte_logistique') isRelevant = true; } 
+      else { if (o.statut === 'en_attente' || o.statut === 'affecte_logistique') isRelevant = true; }
 
       if (isRelevant) {
         types['Tous']++;
@@ -870,10 +609,7 @@
 
     const updateBadgeOrdre = (id, count) => {
       const el = document.getElementById(id);
-      if (el) {
-        if (count > 0) { el.textContent = count; el.style.display = 'inline-block'; } 
-        else { el.style.display = 'none'; }
-      }
+      if (el) { if (count > 0) { el.textContent = count; el.style.display = 'inline-block'; } else { el.style.display = 'none'; } }
     };
     updateBadgeOrdre('badgeTypeTous', types['Tous']);
     updateBadgeOrdre('badgeTypeUNHCR', types['UNHCR']);
@@ -890,51 +626,36 @@
     
     const adminName = sessionStorage.getItem('admin_name') || 'Admin';
     const role = sessionStorage.getItem('admin_role') || 'logistique';
-    
     document.getElementById('userName').textContent = adminName;
     
     if (role === 'rh') {
-      document.getElementById('navAccueil').style.display = 'none';
       document.getElementById('navDemandes').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
-      document.getElementById('navOrdres').style.display = 'none';
-      
       const statCardAttenteLogistique = document.getElementById('statCardAttenteLogistique');
       if(statCardAttenteLogistique) statCardAttenteLogistique.style.display = 'none';
-      
       const filtreSelect = document.getElementById('filtreStatutOrdre');
-      Array.from(filtreSelect.options).forEach(opt => {
-        if(opt.value === 'en_attente') opt.style.display = 'none';
-      });
-      
+      Array.from(filtreSelect.options).forEach(opt => { if(opt.value === 'en_attente') opt.style.display = 'none'; });
       filtreSelect.value = 'affecte_logistique';
-
       document.getElementById('advancedFiltersBox').style.display = 'block';
-
       afficherSection('ordres');
     } else if (role === 'assistant_logistique') {
-      document.getElementById('navAccueil').style.display = 'none';
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navOrdres').style.display = 'none';
       document.getElementById('navUsers').style.display = 'none';
       document.getElementById('advancedFiltersBox').style.display = 'none';
       afficherSection('demandes');
     } else if (role === 'directeur_logistique') {
-      document.getElementById('navAccueil').style.display = 'block';
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navOrdres').style.display = 'block';
       document.getElementById('navUsers').style.display = 'none';
-      document.getElementById('top5Grid').style.display = 'flex';
       document.getElementById('advancedFiltersBox').style.display = 'block';
-      afficherSection('accueil');
+      afficherSection('demandes');
     } else {
-      document.getElementById('navAccueil').style.display = 'block';
       document.getElementById('navDemandes').style.display = 'block';
       document.getElementById('navOrdres').style.display = 'block';
       document.getElementById('navUsers').style.display = 'block';
-      document.getElementById('top5Grid').style.display = 'flex';
       document.getElementById('advancedFiltersBox').style.display = 'block';
-      afficherSection('accueil');
+      afficherSection('demandes');
     }
 
     remplirListesChauffeurs();
@@ -948,18 +669,13 @@
   function getAdminRole() { return sessionStorage.getItem('admin_role') || 'logistique'; }
 
   function afficherSection(section) {
-    ['accueil', 'demandes', 'ordres', 'users'].forEach(sec => {
+    ['demandes', 'ordres', 'users'].forEach(sec => {
       document.getElementById(sec + 'Section').style.display = 'none';
       const navBtn = document.getElementById('nav' + sec.charAt(0).toUpperCase() + sec.slice(1));
       if(navBtn) navBtn.classList.remove('active');
     });
 
-    if (section === 'accueil') {
-      document.getElementById('accueilSection').style.display = 'block';
-      const btn = document.getElementById('navAccueil');
-      if(btn) btn.classList.add('active');
-      mettreAJourGraphiques();
-    } else if (section === 'ordres') {
+    if (section === 'ordres') {
       document.getElementById('ordresSection').style.display = 'block';
       const btn = document.getElementById('navOrdres');
       if(btn) btn.classList.add('active');
@@ -980,31 +696,14 @@
   function remplirListesChauffeurs() {
     const selVehicule = document.getElementById('selectChauffeur');
     const selOrdre = document.getElementById('selectChauffeurOrdre');
-    
     selVehicule.innerHTML = '<option value="">-- Sélectionnez --</option>';
     selOrdre.innerHTML = '<option value="">-- Sélectionnez un chauffeur --</option>';
-
     for (const nom in CHAUFFEURS) {
-      let opt1 = document.createElement('option');
-      opt1.value = nom;
-      opt1.textContent = nom;
-      selVehicule.appendChild(opt1);
-
-      let opt2 = document.createElement('option');
-      opt2.value = nom;
-      opt2.textContent = nom;
-      selOrdre.appendChild(opt2);
+      let opt1 = document.createElement('option'); opt1.value = nom; opt1.textContent = nom; selVehicule.appendChild(opt1);
+      let opt2 = document.createElement('option'); opt2.value = nom; opt2.textContent = nom; selOrdre.appendChild(opt2);
     }
-
-    let optAutre1 = document.createElement('option');
-    optAutre1.value = 'AUTRE';
-    optAutre1.textContent = '➕ Autre';
-    selVehicule.appendChild(optAutre1);
-
-    let optAutre2 = document.createElement('option');
-    optAutre2.value = 'AUTRE';
-    optAutre2.textContent = '➕ Autre';
-    selOrdre.appendChild(optAutre2);
+    let optAutre1 = document.createElement('option'); optAutre1.value = 'AUTRE'; optAutre1.textContent = '➕ Autre'; selVehicule.appendChild(optAutre1);
+    let optAutre2 = document.createElement('option'); optAutre2.value = 'AUTRE'; optAutre2.textContent = '➕ Autre'; selOrdre.appendChild(optAutre2);
   }
 
   async function apiCall(path, options = {}) {
@@ -1028,53 +727,25 @@
     const newPwd = document.getElementById('newPassword').value;
     const confirmPwd = document.getElementById('confirmNewPassword').value;
 
-    if (!oldPwd || !newPwd || !confirmPwd) {
-      alert('⚠️ Veuillez remplir tous les champs.');
-      return;
-    }
-    if (newPwd.length < 6) {
-      alert('⚠️ Le nouveau mot de passe doit contenir au moins 6 caractères.');
-      return;
-    }
-    if (newPwd !== confirmPwd) {
-      alert('⚠️ Les nouveaux mots de passe ne correspondent pas.');
-      return;
-    }
+    if (!oldPwd || !newPwd || !confirmPwd) { alert('⚠️ Veuillez remplir tous les champs.'); return; }
+    if (newPwd.length < 6) { alert('⚠️ Le nouveau mot de passe doit contenir au moins 6 caractères.'); return; }
+    if (newPwd !== confirmPwd) { alert('⚠️ Les nouveaux mots de passe ne correspondent pas.'); return; }
 
     try {
       const adminId = getAdminId();
       const adminEmail = sessionStorage.getItem('admin_email');
-
       const hashOld = await hashPassword(oldPwd);
       const check = await apiCall(`/admins?email=eq.${encodeURIComponent(adminEmail)}&password_hash=eq.${hashOld}&select=id`);
-      
-      if (!check || check.length === 0) {
-        alert('❌ L\'ancien mot de passe est incorrect.');
-        return;
-      }
+      if (!check || check.length === 0) { alert('❌ L\'ancien mot de passe est incorrect.'); return; }
 
       const hashNew = await hashPassword(newPwd);
-      await apiCall(`/admins?id=eq.${adminId}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ password_hash: hashNew })
-      });
-
+      await apiCall(`/admins?id=eq.${adminId}`, { method: 'PATCH', body: JSON.stringify({ password_hash: hashNew }) });
       envoyerEmail('template_demande_recue', adminEmail, {
-        nom: getAdminName(),
-        prenom: '',
-        type_demande: 'Changement de mot de passe (SÉCURITÉ)',
-        destination: '-',
-        date: new Date().toLocaleDateString('fr-FR'),
-        heure: new Date().toLocaleTimeString('fr-FR'),
-        motif: 'Si vous n\'êtes pas à l\'origine de ce changement, contactez immédiatement l\'administrateur.'
+        nom: getAdminName(), prenom: '', type_demande: 'Changement de mot de passe (SÉCURITÉ)', destination: '-', date: new Date().toLocaleDateString('fr-FR'), heure: new Date().toLocaleTimeString('fr-FR'), motif: 'Si vous n\'êtes pas à l\'origine de ce changement, contactez immédiatement l\'administrateur.'
       });
-
       fermerModal();
       alert('✅ Votre mot de passe a été modifié avec succès !');
-      
-    } catch (err) {
-      alert('❌ Erreur : ' + err.message);
-    }
+    } catch (err) { alert('❌ Erreur : ' + err.message); }
   }
 
   // ============ GESTION DES UTILISATEURS ============
@@ -1128,27 +799,14 @@
   async function confirmerEditUserPwd() {
     const pwd = document.getElementById('editUserNewPassword').value;
     const pwd2 = document.getElementById('editUserNewPassword2').value;
-
-    if (!pwd || pwd.length < 6) {
-      alert('⚠️ Le mot de passe doit contenir au moins 6 caractères.');
-      return;
-    }
-    if (pwd !== pwd2) {
-      alert('⚠️ Les mots de passe ne correspondent pas.');
-      return;
-    }
-
+    if (!pwd || pwd.length < 6) { alert('⚠️ Le mot de passe doit contenir au moins 6 caractères.'); return; }
+    if (pwd !== pwd2) { alert('⚠️ Les mots de passe ne correspondent pas.'); return; }
     try {
       const hash = await hashPassword(pwd);
-      await apiCall(`/admins?id=eq.${userEnCoursEdition}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ password_hash: hash })
-      });
+      await apiCall(`/admins?id=eq.${userEnCoursEdition}`, { method: 'PATCH', body: JSON.stringify({ password_hash: hash }) });
       fermerModal();
       alert('✅ Mot de passe modifié avec succès !');
-    } catch (err) {
-      alert('❌ Erreur : ' + err.message);
-    }
+    } catch (err) { alert('❌ Erreur : ' + err.message); }
   }
 
   function ouvrirModalAjoutUser() {
@@ -1177,15 +835,7 @@
       if (existing && existing.length > 0) { alert('❌ Cet email est déjà utilisé.'); return; }
       const hash = await hashPassword(pwd);
       await apiCall('/admins', { method: 'POST', body: JSON.stringify({ email, password_hash: hash, nom, role }) });
-      
-      envoyerEmail('template_creation_user', email, {
-        nom: nom,
-        email: email,
-        mot_de_passe_temporaire: pwd,
-        role: role,
-        lien_connexion: window.location.origin + '/admin.html'
-      });
-
+      envoyerEmail('template_creation_user', email, { nom: nom, email: email, mot_de_passe_temporaire: pwd, role: role, lien_connexion: window.location.origin + '/admin.html' });
       fermerModal(); await chargerUsers(); alert(`✅ Utilisateur "${nom}" créé. Un e-mail de bienvenue a été envoyé à ${email}.`);
     } catch (err) { alert('❌ ' + err.message); }
   }
@@ -1204,7 +854,6 @@
       toutesLesDemandes = await apiCall('/demandes?order=created_at.desc');
       mettreAJourNotifications();
       afficherDemandes();
-      if(document.getElementById('accueilSection').style.display === 'block') mettreAJourGraphiques();
     } catch (err) { container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>'; }
   }
 
@@ -1213,14 +862,9 @@
     const recherche = document.getElementById('searchDemandes').value.toLowerCase();
     const container = document.getElementById('demandesContainer');
     const role = getAdminRole();
-    
     let listeBase = toutesLesDemandes;
-    
     if (role === 'assistant_logistique') {
-      listeBase = toutesLesDemandes.filter(d => 
-        (d.motif && d.motif.toLowerCase().includes('location')) || 
-        (d.vehicule_assigne && d.vehicule_assigne.toLowerCase().includes('location'))
-      );
+      listeBase = toutesLesDemandes.filter(d => (d.motif && d.motif.toLowerCase().includes('location')) || (d.vehicule_assigne && d.vehicule_assigne.toLowerCase().includes('location')));
     }
 
     document.getElementById('statAttente').textContent = listeBase.filter(d => d.statut === 'en_attente').length;
@@ -1238,31 +882,20 @@
       return matchStatut && matchSearch;
     });
     
-    if (listeFinale.length === 0) { 
-      container.innerHTML = '<div class="empty">📭 Aucune demande.</div>'; 
-      return; 
-    }
+    if (listeFinale.length === 0) { container.innerHTML = '<div class="empty">📭 Aucune demande.</div>'; return; }
     
     container.innerHTML = listeFinale.map(d => {
       let actionsHtml = ''; let resultatHtml = '';
       if (d.statut === 'en_attente') {
-        if (role === 'logistique' || role === 'assistant_logistique') {
-           actionsHtml = `<button class="btn btn-valider" onclick="ouvrirModalValider(${d.id})">✅ Affecter</button>`;
-        }
-        if (role === 'logistique') {
-           actionsHtml += `<button class="btn btn-refuser" onclick="ouvrirModalRefuser(${d.id})">❌ Rejeter</button>`;
-        }
+        if (role === 'logistique' || role === 'assistant_logistique') { actionsHtml = `<button class="btn btn-valider" onclick="ouvrirModalValider(${d.id})">✅ Affecter</button>`; }
+        if (role === 'logistique') { actionsHtml += `<button class="btn btn-refuser" onclick="ouvrirModalRefuser(${d.id})">❌ Rejeter</button>`; }
       } else if (d.statut === 'validee') {
         resultatHtml = `<div class="resultat validee"><strong>✅ Affectée</strong><br>👤 Chauffeur : <strong>${d.chauffeur_assigne}</strong> | 🚙 Véhicule : <strong>${d.vehicule_assigne}</strong>${d.valide_par ? `<span class="par-admin">✔ Traitée par : ${d.valide_par}</span>` : ''}</div>`;
-        
         actionsHtml = `<button class="btn btn-whatsapp" onclick="notifierWhatsAppDemande(${d.id})">💬 Notifier</button>`;
       } else if (d.statut === 'refusee') {
         resultatHtml = `<div class="resultat refusee"><strong>❌ Refusée</strong><br>Motif : ${d.message_admin}${d.refuse_par ? `<span class="par-admin">✖ Refusée par : ${d.refuse_par}</span>` : ''}</div>`;
       }
-      
-      if (role === 'logistique') {
-        actionsHtml += `<button class="btn btn-suppr" onclick="supprimerDemande(${d.id})">🗑️ Supprimer</button>`;
-      }
+      if (role === 'logistique') { actionsHtml += `<button class="btn btn-suppr" onclick="supprimerDemande(${d.id})">🗑️ Supprimer</button>`; }
 
       return `
         <div class="demande-item ${d.statut === 'validee' ? 'validee' : d.statut === 'refusee' ? 'refusee' : ''}">
@@ -1303,30 +936,20 @@
   async function confirmerValidation() {
     const sc = document.getElementById('selectChauffeur').value;
     let chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurAutre').value.trim() : sc;
-    
     const type = document.getElementById('selectVehiculeType').value;
     const marque = document.getElementById('inputVehiculeMarque').value.trim();
     const couleur = document.getElementById('inputVehiculeCouleur').value.trim();
     const immat = document.getElementById('inputVehiculeImmat').value.trim();
-    
     if (!chauffeur || !marque || !couleur || !immat) { alert('⚠️ Remplissez tous les champs.'); return; }
-    
     const vehiculeString = `${type} (${marque} - ${couleur} - ${immat})`;
 
     try {
       await apiCall('/demandes?id=eq.' + demandeEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'validee', chauffeur_assigne: chauffeur, vehicule_assigne: vehiculeString, date_validation: new Date().toISOString(), valide_par: getAdminName() }) });
-      
       if (demandeEnCours.email) {
         envoyerEmail('template_vehicule', demandeEnCours.email, {
-          nom: `${demandeEnCours.prenom} ${demandeEnCours.nom}`,
-          chauffeur: chauffeur,
-          vehicule: vehiculeString,
-          destination: demandeEnCours.destination,
-          date: demandeEnCours.date_sortie ? formatNigerDateShort(demandeEnCours.date_sortie) : '-',
-          heure: demandeEnCours.heure_depart || '-'
+          nom: `${demandeEnCours.prenom} ${demandeEnCours.nom}`, chauffeur: chauffeur, vehicule: vehiculeString, destination: demandeEnCours.destination, date: demandeEnCours.date_sortie ? formatNigerDateShort(demandeEnCours.date_sortie) : '-', heure: demandeEnCours.heure_depart || '-'
         });
       }
-
       fermerModal(); await chargerDemandes(); alert('✅ Demande traitée. Le demandeur a été notifié par e-mail.');
     } catch (err) { alert('❌ ' + err.message); }
   }
@@ -1344,36 +967,24 @@
     if (!motif) { alert('⚠️ Motif obligatoire.'); return; }
     try {
       await apiCall('/demandes?id=eq.' + demandeEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'refusee', message_admin: motif, date_validation: new Date().toISOString(), refuse_par: getAdminName() }) });
-      
       if (demandeEnCours.email) {
         envoyerEmail('template_refus', demandeEnCours.email, {
-          nom: `${demandeEnCours.prenom} ${demandeEnCours.nom}`,
-          destination: demandeEnCours.destination,
-          motif_refus: motif,
-          date: demandeEnCours.date_sortie ? formatNigerDateShort(demandeEnCours.date_sortie) : '-'
+          nom: `${demandeEnCours.prenom} ${demandeEnCours.nom}`, destination: demandeEnCours.destination, motif_refus: motif, date: demandeEnCours.date_sortie ? formatNigerDateShort(demandeEnCours.date_sortie) : '-'
         });
       }
-      
       fermerModal(); await chargerDemandes(); alert('❌ Demande refusée. Le demandeur a été notifié.');
     } catch (err) { alert('❌ ' + err.message); }
   }
 
   async function supprimerDemande(id) { 
-    if (confirm('⚠️ Suppression définitive.\n\nConfirmer ?')) { 
-      await apiCall('/demandes?id=eq.' + id, { method: 'DELETE' }); 
-      chargerDemandes(); 
-    } 
+    if (confirm('⚠️ Suppression définitive.\n\nConfirmer ?')) { await apiCall('/demandes?id=eq.' + id, { method: 'DELETE' }); chargerDemandes(); } 
   }
 
   function notifierWhatsAppDemande(id) {
     const d = toutesLesDemandes.find(d => d.id === id);
     if (!d) return;
-    
     let tel = CHAUFFEURS[d.chauffeur_assigne] || "";
-    if (!tel && d.chauffeur_assigne) {
-      tel = prompt(`Entrez le numéro WhatsApp de ${d.chauffeur_assigne} (ex: 227XXXXXXXX) :`, "");
-    }
-    
+    if (!tel && d.chauffeur_assigne) { tel = prompt(`Entrez le numéro WhatsApp de ${d.chauffeur_assigne} (ex: 227XXXXXXXX) :`, ""); }
     const message = `Bonjour, vous avez une affectation de véhicule :\n👤 Agent : *${d.prenom} ${d.nom}*\n📍 Destination : ${d.destination}\n📅 Date : ${formatNigerDateShort(d.date_sortie)} ${d.heure_depart ? 'à ' + d.heure_depart : ''}\n🚙 Véhicule : ${d.vehicule_assigne}\n\nMerci de confirmer votre disponibilité.`;
     const url = tel ? `https://wa.me/${tel.replace(/\D/g,'')}?text=${encodeURIComponent(message)}` : `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
@@ -1395,7 +1006,6 @@
       mettreAJourNotifications();
       rafraichirSelectsAvances();
       afficherOrdres();
-      if(document.getElementById('accueilSection').style.display === 'block') mettreAJourGraphiques();
     } catch (err) { container.innerHTML = '<div class="empty">❌ Erreur : ' + err.message + '</div>'; }
   }
 
@@ -1413,20 +1023,12 @@
     const recherche = document.getElementById('searchOrdres').value.toLowerCase();
     const container = document.getElementById('ordresContainer');
     const role = getAdminRole();
-    
     let listeBase = tousLesOrdres;
-    if (role === 'rh') {
-      listeBase = tousLesOrdres.filter(o => o.statut !== 'en_attente');
-    }
-
+    if (role === 'rh') { listeBase = tousLesOrdres.filter(o => o.statut !== 'en_attente'); }
     if (typeOrdreActif !== 'tous') {
-      if (typeOrdreActif === 'Véhicule ONG ADKOUL') {
-        listeBase = listeBase.filter(o => o.moyen_deplacement === 'Véhicule ONG ADKOUL' || o.moyen_deplacement === 'Véhicule ONG');
-      } else {
-        listeBase = listeBase.filter(o => o.moyen_deplacement === typeOrdreActif);
-      }
+      if (typeOrdreActif === 'Véhicule ONG ADKOUL') { listeBase = listeBase.filter(o => o.moyen_deplacement === 'Véhicule ONG ADKOUL' || o.moyen_deplacement === 'Véhicule ONG'); } 
+      else { listeBase = listeBase.filter(o => o.moyen_deplacement === typeOrdreActif); }
     }
-
     if (window._afFilteredIds && document.getElementById('advancedFiltersBody').classList.contains('open')) {
       listeBase = listeBase.filter(o => o.statut !== 'validee' || window._afFilteredIds.has(o.id));
     }
@@ -1451,40 +1053,27 @@
       return matchStatut && matchSearch;
     });
     
-    if (listeFinale.length === 0) { 
-      container.innerHTML = '<div class="empty">📭 Aucun ordre de mission.</div>'; 
-      if (role === 'rh') setTimeout(genererGraphiquesRH, 100); 
-      return; 
-    }
+    if (listeFinale.length === 0) { container.innerHTML = '<div class="empty">📭 Aucun ordre de mission.</div>'; return; }
 
     container.innerHTML = listeFinale.map(o => {
       let actionsHtml = ''; let resultatHtml = '';
-      
       const retard = estEnRetard(o);
       const classRetard = retard ? 'retard' : '';
 
       if (o.statut === 'en_attente') {
-        if (role === 'logistique') {
-          actionsHtml = `<button class="btn btn-valider" onclick="ouvrirModalValiderOrdre(${o.id})">✅ Affecter</button>`;
-        } else {
-          actionsHtml = `<span style="color:#d68910; font-weight:bold;">⏳ En attente.</span>`;
-        }
+        if (role === 'logistique') { actionsHtml = `<button class="btn btn-valider" onclick="ouvrirModalValiderOrdre(${o.id})">✅ Affecter</button>`; } 
+        else { actionsHtml = `<span style="color:#d68910; font-weight:bold;">⏳ En attente.</span>`; }
       } else if (o.statut === 'affecte_logistique') {
         resultatHtml = `<div class="resultat validee" style="background:#fff3cd; color:#856404; border-color:#ffeeba;"><strong>⏳ Attente N° Ordre (RH)</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne || 'Aucun (Bus/Avion)'}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne || 'Aucun'}</strong>${o.affecte_par ? `<span class="par-admin">✔ Affecté par : ${o.affecte_par}</span>` : ''}</div>`;
-        
         actionsHtml = `
           <button class="btn btn-print-admin" onclick="voirOrdreMission(${o.id})" style="background:#3498db;">👁️ Voir</button>
           <button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>
           <button class="btn btn-print-admin" onclick="telechargerOrdreMission(${o.id})" style="background:#e67e22;">📥 Télécharger</button>
           <button class="btn btn-whatsapp" onclick="notifierWhatsAppMission(${o.id})">💬 Notifier</button>
         `;
-
-        if (role === 'rh' || role === 'logistique') {
-           actionsHtml += `<button class="btn btn-rh-urgent" onclick="ouvrirModalNumeroRH(${o.id})">🔢 Valider RH</button>`;
-        }
+        if (role === 'rh' || role === 'logistique') { actionsHtml += `<button class="btn btn-rh-urgent" onclick="ouvrirModalNumeroRH(${o.id})">🔢 Valider RH</button>`; }
       } else if (o.statut === 'validee') {
         resultatHtml = `<div class="resultat validee"><strong>✅ Validé (N° ${o.message_admin})</strong><br>👤 Chauffeur : <strong>${o.chauffeur_assigne || 'Aucun'}</strong> | 🚙 Véhicule : <strong>${o.vehicule_assigne || 'Aucun'}</strong></div>`;
-        
         actionsHtml = `
           <button class="btn btn-print-admin" onclick="voirOrdreMission(${o.id})" style="background:#3498db;">👁️ Voir</button>
           <button class="btn btn-print-admin" onclick="imprimerOrdreMission(${o.id})">🖨️ Imprimer</button>
@@ -1492,10 +1081,7 @@
           <button class="btn btn-whatsapp" onclick="notifierWhatsAppMission(${o.id})">💬 Notifier</button>
         `;
       }
-
-      if (role === 'logistique') {
-        actionsHtml += `<button class="btn btn-suppr" onclick="supprimerOrdre(${o.id})">🗑️ Supprimer</button>`;
-      }
+      if (role === 'logistique') { actionsHtml += `<button class="btn btn-suppr" onclick="supprimerOrdre(${o.id})">🗑️ Supprimer</button>`; }
 
       return `
         <div class="demande-item ${o.statut === 'validee' ? 'validee' : o.statut === 'affecte_logistique' ? 'validee' : ''} ${classRetard}">
@@ -1515,71 +1101,6 @@
           <div class="actions">${actionsHtml}</div>
         </div>`;
     }).join('');
-
-    if (role === 'rh') {
-      setTimeout(genererGraphiquesRH, 100);
-    }
-  }
-
-  function genererGraphiquesRH() {
-    if (!document.getElementById('rhChartsContainer')) {
-      const ordresContainer = document.getElementById('ordresContainer');
-      const graphiquesHTML = `
-        <div class="dashboard-layout" style="padding: 0 20px 20px 20px;" id="rhChartsContainer">
-          <div class="chart-box" style="height: 180px;">
-            <h3>Mes Validations à Traiter</h3>
-            <div class="chart-container"><canvas id="rhChartStatuts"></canvas></div>
-          </div>
-          <div class="chart-box" style="height: 180px;">
-            <h3>Répartition des Projets</h3>
-            <div class="chart-container"><canvas id="rhChartProjets"></canvas></div>
-          </div>
-        </div>
-      `;
-      ordresContainer.insertAdjacentHTML('beforebegin', graphiquesHTML);
-    }
-
-    if(chartStatutsInstance) chartStatutsInstance.destroy();
-    if(chartProjetsInstance) chartProjetsInstance.destroy();
-
-    const ordresVisibles = tousLesOrdres.filter(o => o.statut === 'affecte_logistique' || o.statut === 'validee');
-
-    const statutsCount = { 'affecte_logistique': 0, 'validee': 0 };
-    ordresVisibles.forEach(o => { if (statutsCount[o.statut] !== undefined) statutsCount[o.statut]++; });
-    
-    const ctxStatuts = document.getElementById('rhChartStatuts');
-    if(ctxStatuts) {
-      chartStatutsInstance = new Chart(ctxStatuts.getContext('2d'), {
-        type: 'doughnut',
-        data: {
-          labels: ['À Valider', 'Déjà Validés'],
-          datasets: [{ data: [statutsCount['affecte_logistique'], statutsCount['validee']], backgroundColor: ['#f39c12', '#27ae60'], borderWidth: 0 }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 9} } } } }
-      });
-    }
-
-    const projetsCount = {};
-    ordresVisibles.forEach(o => {
-      const p = o.projet || 'Non spécifié';
-      projetsCount[p] = (projetsCount[p] || 0) + 1;
-    });
-    
-    const ctxProjets = document.getElementById('rhChartProjets');
-    if(ctxProjets) {
-      chartProjetsInstance = new Chart(ctxProjets.getContext('2d'), {
-        type: 'doughnut',
-        data: {
-          labels: Object.keys(projetsCount),
-          datasets: [{ 
-            data: Object.values(projetsCount), 
-            backgroundColor: ['#1e3c72', '#f39c12', '#27ae60', '#e74c3c', '#8e44ad', '#3498db'], 
-            borderWidth: 0 
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 9} } } } }
-      });
-    }
   }
 
   function toggleAutreOrdre(type) {
@@ -1594,39 +1115,19 @@
   function ouvrirModalValiderOrdre(id) {
     ordreEnCours = tousLesOrdres.find(o => o.id === id);
     if (!ordreEnCours) return;
-    
     const isBusAvion = ordreEnCours.moyen_deplacement && (ordreEnCours.moyen_deplacement.includes('Bus') || ordreEnCours.moyen_deplacement.includes('Avion'));
-    
     const fieldsChauffeurVehicule = document.getElementById('fieldsChauffeurVehicule');
     const messageBusAvion = document.getElementById('messageBusAvion');
     const modalTitle = document.getElementById('modalValiderOrdreTitle');
     const btnAction = document.getElementById('btnActionOrdre');
 
     if (isBusAvion) {
-      fieldsChauffeurVehicule.style.display = 'none';
-      messageBusAvion.style.display = 'block';
-      modalTitle.textContent = '📄 Transmettre la demande (Bus / Vol)';
-      btnAction.textContent = '✅ Transmettre au RH';
-      
-      document.getElementById('selectChauffeurOrdre').value = '';
-      document.getElementById('inputVehiculeOrdreMarque').value = '';
-      document.getElementById('inputVehiculeOrdreCouleur').value = '';
-      document.getElementById('inputVehiculeOrdreImmat').value = '';
+      fieldsChauffeurVehicule.style.display = 'none'; messageBusAvion.style.display = 'block'; modalTitle.textContent = '📄 Transmettre la demande (Bus / Vol)'; btnAction.textContent = '✅ Transmettre au RH';
+      document.getElementById('selectChauffeurOrdre').value = ''; document.getElementById('inputVehiculeOrdreMarque').value = ''; document.getElementById('inputVehiculeOrdreCouleur').value = ''; document.getElementById('inputVehiculeOrdreImmat').value = '';
     } else {
-      fieldsChauffeurVehicule.style.display = 'block';
-      messageBusAvion.style.display = 'none';
-      modalTitle.textContent = '📄 Affectation Logistique';
-      btnAction.textContent = '✅ Affecter';
-      
-      document.getElementById('selectChauffeurOrdre').value = '';
-      document.getElementById('inputChauffeurOrdreAutre').style.display = 'none'; 
-      document.getElementById('inputChauffeurOrdreAutre').value = '';
-      document.getElementById('selectVehiculeOrdreType').value = 'Véhicule Location';
-      document.getElementById('inputVehiculeOrdreMarque').value = '';
-      document.getElementById('inputVehiculeOrdreCouleur').value = '';
-      document.getElementById('inputVehiculeOrdreImmat').value = '';
+      fieldsChauffeurVehicule.style.display = 'block'; messageBusAvion.style.display = 'none'; modalTitle.textContent = '📄 Affectation Logistique'; btnAction.textContent = '✅ Affecter';
+      document.getElementById('selectChauffeurOrdre').value = ''; document.getElementById('inputChauffeurOrdreAutre').style.display = 'none'; document.getElementById('inputChauffeurOrdreAutre').value = ''; document.getElementById('selectVehiculeOrdreType').value = 'Véhicule Location'; document.getElementById('inputVehiculeOrdreMarque').value = ''; document.getElementById('inputVehiculeOrdreCouleur').value = ''; document.getElementById('inputVehiculeOrdreImmat').value = '';
     }
-
     document.getElementById('modalValiderOrdreInfo').textContent = `${ordreEnCours.nom} → ${ordreEnCours.destination}`;
     document.getElementById('inputNotesInternes').value = '';
     document.getElementById('modalValiderOrdre').classList.add('active');
@@ -1635,46 +1136,22 @@
   async function confirmerValidationOrdre() {
     const isBusAvion = ordreEnCours.moyen_deplacement && (ordreEnCours.moyen_deplacement.includes('Bus') || ordreEnCours.moyen_deplacement.includes('Avion'));
     const notes = document.getElementById('inputNotesInternes').value.trim();
-    
-    let chauffeur = null;
-    let vehiculeString = null;
+    let chauffeur = null; let vehiculeString = null;
 
     if (!isBusAvion) {
       const sc = document.getElementById('selectChauffeurOrdre').value;
       chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurOrdreAutre').value.trim() : sc;
-      
       const type = document.getElementById('selectVehiculeOrdreType').value;
       const marque = document.getElementById('inputVehiculeOrdreMarque').value.trim();
       const couleur = document.getElementById('inputVehiculeOrdreCouleur').value.trim();
       const immat = document.getElementById('inputVehiculeOrdreImmat').value.trim();
-      
       if (!chauffeur || !marque || !couleur || !immat) { alert('⚠️ Remplissez tous les champs.'); return; }
       vehiculeString = `${type} (${marque} - ${couleur} - ${immat})`;
     }
 
     try {
-      await apiCall('/missions_2?id=eq.' + ordreEnCours.id, { 
-        method: 'PATCH', 
-        body: JSON.stringify({ 
-          statut: 'affecte_logistique', 
-          chauffeur_assigne: chauffeur, 
-          vehicule_assigne: vehiculeString, 
-          notes_internes: notes || null,
-          affecte_par: getAdminName() 
-        }) 
-      });
-      
-      envoyerEmail('template_ordre_attente_rh', EMAIL_LOGISTIQUE, {
-        agent: ordreEnCours.nom,
-        poste: ordreEnCours.poste || '-',
-        destination: ordreEnCours.destination,
-        projet: ordreEnCours.projet || '-',
-        date_depart: ordreEnCours.date_depart ? formatNigerDateShort(ordreEnCours.date_depart) : '-',
-        date_retour: ordreEnCours.date_retour ? formatNigerDateShort(ordreEnCours.date_retour) : '-',
-        moyen: ordreEnCours.moyen_deplacement || '-',
-        vehicule: vehiculeString || 'Aucun (Bus/Avion)'
-      });
-
+      await apiCall('/missions_2?id=eq.' + ordreEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'affecte_logistique', chauffeur_assigne: chauffeur, vehicule_assigne: vehiculeString, notes_internes: notes || null, affecte_par: getAdminName() }) });
+      envoyerEmail('template_ordre_attente_rh', EMAIL_LOGISTIQUE, { agent: ordreEnCours.nom, poste: ordreEnCours.poste || '-', destination: ordreEnCours.destination, projet: ordreEnCours.projet || '-', date_depart: ordreEnCours.date_depart ? formatNigerDateShort(ordreEnCours.date_depart) : '-', date_retour: ordreEnCours.date_retour ? formatNigerDateShort(ordreEnCours.date_retour) : '-', moyen: ordreEnCours.moyen_deplacement || '-', vehicule: vehiculeString || 'Aucun (Bus/Avion)' });
       fermerModal(); await chargerOrdres(); alert('✅ Demande transmise au RH. Un e-mail de notification a été envoyé.');
     } catch (err) { alert('❌ ' + err.message); }
   }
@@ -1687,353 +1164,128 @@
   }
 
   async function confirmerNumeroRH() {
-    if (!confirm("Voulez-vous générer automatiquement le numéro d'ordre de mission et valider ? Le demandeur recevra un e-mail.")) {
-        return;
-    }
-
+    if (!confirm("Voulez-vous générer automatiquement le numéro d'ordre de mission et valider ? Le demandeur recevra un e-mail.")) { return; }
     const btnAction = document.querySelector('#modalNumeroRH .btn-orange');
     if (btnAction) { btnAction.disabled = true; btnAction.textContent = "⏳ Génération..."; }
 
     try {
       const dernieresMissions = await apiCall('/missions_2?message_admin=not.is.null&order=created_at.desc&limit=1&select=message_admin');
-      
       let maxNum = 0;
       if (dernieresMissions && dernieresMissions.length > 0) {
         const dernierNum = dernieresMissions[0].message_admin;
         const parts = dernierNum.split('/');
-        if (parts.length > 0) {
-          const num = parseInt(parts[0], 10);
-          if (!isNaN(num) && num > maxNum) {
-            maxNum = num;
-          }
-        }
+        if (parts.length > 0) { const num = parseInt(parts[0], 10); if (!isNaN(num) && num > maxNum) { maxNum = num; } }
       }
-
       const prochainNum = maxNum + 1;
       const maintenant = new Date();
       const mois = String(maintenant.getMonth() + 1).padStart(2, '0');
       const annee = maintenant.getFullYear();
-      
       const numOrdre = String(prochainNum).padStart(3, '0') + '/' + mois + '/' + annee + '/ADKOUL';
 
-      await apiCall('/missions_2?id=eq.' + ordreEnCours.id, { 
-        method: 'PATCH', 
-        body: JSON.stringify({ 
-            statut: 'validee', 
-            message_admin: numOrdre, 
-            valide_par: getAdminName() 
-        }) 
-      });
-
+      await apiCall('/missions_2?id=eq.' + ordreEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'validee', message_admin: numOrdre, valide_par: getAdminName() }) });
       const lienPdf = `https://amague2007-star.github.io/demande-vehicule/imprimer.html?id=${ordreEnCours.id}&download=true`;
       
       try {
         const result = await envoyerEmail('template_gd96rfl', ordreEnCours.email, {
-          nom: ordreEnCours.nom,
-          subject: `✅ Ordre de Mission Validé - N° ${numOrdre}`,
+          nom: ordreEnCours.nom, subject: `✅ Ordre de Mission Validé - N° ${numOrdre}`,
           message: `Bonjour ${ordreEnCours.nom},\n\nVotre demande d'ordre de mission a été validée par le service RH.\n\n📄 Numéro d'ordre attribué : ${numOrdre}\n📍 Destination : ${ordreEnCours.destination}\n📅 Date de départ : ${formatNigerDateShort(ordreEnCours.date_depart)}\n🚙 Véhicule : ${ordreEnCours.vehicule_assigne || 'Aucun (Bus/Avion)'}\n\nPour télécharger et imprimer votre ordre de mission au format PDF, cliquez sur le lien ci-dessous :\n${lienPdf}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`
         });
-        
-        if (result.success) {
-          alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\nUn e-mail a été envoyé au demandeur.`);
-        } else {
-          alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\n⚠️ L'e-mail n'a pas pu être envoyé.`);
-        }
-      } catch (emailErr) {
-        alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\n⚠️ L'e-mail n'a pas pu être envoyé.`);
-      }
-
-      fermerModal(); 
-      await chargerOrdres(); 
-      
-    } catch (err) { 
-        alert('❌ Erreur : ' + err.message); 
-    } finally {
-        if (btnAction) { btnAction.disabled = false; btnAction.textContent = "✅ Valider"; }
-    }
+        if (result.success) { alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\nUn e-mail a été envoyé au demandeur.`); } 
+        else { alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\n⚠️ L'e-mail n'a pas pu être envoyé.`); }
+      } catch (emailErr) { alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\n⚠️ L'e-mail n'a pas pu être envoyé.`); }
+      fermerModal(); await chargerOrdres(); 
+    } catch (err) { alert('❌ Erreur : ' + err.message); } 
+    finally { if (btnAction) { btnAction.disabled = false; btnAction.textContent = "✅ Valider"; } }
   }
 
   async function supprimerOrdre(id) { 
-    if (confirm('⚠️ Suppression définitive.\n\nConfirmer ?')) { 
-      await apiCall('/missions_2?id=eq.' + id, { method: 'DELETE' }); 
-      chargerOrdres(); 
-    } 
+    if (confirm('⚠️ Suppression définitive.\n\nConfirmer ?')) { await apiCall('/missions_2?id=eq.' + id, { method: 'DELETE' }); chargerOrdres(); } 
   }
 
-  function fermerModal() {
-    document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
-  }
-
-  function voirOrdreMission(id) {
-    window.open(`imprimer.html?id=${id}`, '_blank');
-  }
-
-  function imprimerOrdreMission(id) {
-    window.open(`imprimer.html?id=${id}`, '_blank');
-  }
-
-  function telechargerOrdreMission(id) {
-    window.open(`imprimer.html?id=${id}&download=true`, '_blank');
-  }
+  function fermerModal() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); }
+  function voirOrdreMission(id) { window.open(`imprimer.html?id=${id}`, '_blank'); }
+  function imprimerOrdreMission(id) { window.open(`imprimer.html?id=${id}`, '_blank'); }
+  function telechargerOrdreMission(id) { window.open(`imprimer.html?id=${id}&download=true`, '_blank'); }
 
   function notifierWhatsAppMission(id) {
     const o = tousLesOrdres.find(o => o.id === id);
     if (!o) return;
-    
     let tel = CHAUFFEURS[o.chauffeur_assigne] || "";
-    if (!tel && o.chauffeur_assigne) {
-      tel = prompt(`Entrez le numéro WhatsApp de ${o.chauffeur_assigne} (ex: 227XXXXXXXX) :`, "");
-    }
-    
+    if (!tel && o.chauffeur_assigne) { tel = prompt(`Entrez le numéro WhatsApp de ${o.chauffeur_assigne} (ex: 227XXXXXXXX) :`, ""); }
     const message = `Bonjour, voici l'ordre de mission pour *${o.nom}*.\n📍 Destination : ${o.destination}\n📅 Départ : ${formatNigerDateShort(o.date_depart)}\n🚙 Véhicule : ${o.vehicule_assigne || 'Aucun (Bus/Avion)'}\n\nMerci de consulter le document officiel.`;
     const url = tel ? `https://wa.me/${tel.replace(/\D/g,'')}?text=${encodeURIComponent(message)}` : `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   }
 
-  // --- EXPORT EXCEL GLOBAL (BOUTONS DE LA BARRE PRINCIPALE) ---
+  // --- EXPORT EXCEL ---
   function exporterCSV(type) {
-    if (typeof XLSX === 'undefined') {
-      alert('❌ Bibliothèque Excel non chargée. Vérifiez votre connexion.');
-      return;
-    }
+    if (typeof XLSX === 'undefined') { alert('❌ Bibliothèque Excel non chargée.'); return; }
 
     if (type === 'demandes') {
       const filtre = document.getElementById('filtreStatut').value;
       const recherche = document.getElementById('searchDemandes').value.toLowerCase();
       const role = getAdminRole();
-      
       let listeBase = toutesLesDemandes;
-      if (role === 'assistant_logistique') {
-        listeBase = toutesLesDemandes.filter(d =>
-          (d.motif && d.motif.toLowerCase().includes('location')) ||
-          (d.vehicule_assigne && d.vehicule_assigne.toLowerCase().includes('location'))
-        );
-      }
-
+      if (role === 'assistant_logistique') { listeBase = toutesLesDemandes.filter(d => (d.motif && d.motif.toLowerCase().includes('location')) || (d.vehicule_assigne && d.vehicule_assigne.toLowerCase().includes('location'))); }
       const listeFinale = listeBase.filter(d => {
         const matchStatut = filtre === 'tous' || d.statut === filtre;
-        const matchSearch = !recherche ||
-          (d.nom && d.nom.toLowerCase().includes(recherche)) ||
-          (d.prenom && d.prenom.toLowerCase().includes(recherche)) ||
-          (d.destination && d.destination.toLowerCase().includes(recherche)) ||
-          (d.motif && d.motif.toLowerCase().includes(recherche));
+        const matchSearch = !recherche || (d.nom && d.nom.toLowerCase().includes(recherche)) || (d.prenom && d.prenom.toLowerCase().includes(recherche)) || (d.destination && d.destination.toLowerCase().includes(recherche)) || (d.motif && d.motif.toLowerCase().includes(recherche));
         return matchStatut && matchSearch;
       });
-
       if (!listeFinale.length) { alert('⚠️ Aucune demande à exporter.'); return; }
 
       const rows = listeFinale.map(d => ({
-        "Date de sortie": d.date_sortie ? formatNigerDateShort(d.date_sortie) : '',
-        "Heure de départ": d.heure_depart || '',
-        "Nom": d.nom || '',
-        "Prénom": d.prenom || '',
-        "Poste": d.poste || '',
-        "Service": d.service || '',
-        "Email": d.email || '',
-        "Contact": d.contact || '',
-        "Destination": d.destination || '',
-        "Durée (min)": d.duree || '',
-        "Passagers": d.passagers || '',
-        "Motif": d.motif || '',
-        "Statut": d.statut === 'validee' ? 'Affectée' : d.statut === 'refusee' ? 'Refusée' : 'En attente',
-        "Chauffeur assigné": d.chauffeur_assigne || '',
-        "Véhicule assigné": d.vehicule_assigne || '',
-        "Motif de refus": d.message_admin || '',
-        "Traitée par": d.valide_par || d.refuse_par || ''
+        "Date de sortie": d.date_sortie ? formatNigerDateShort(d.date_sortie) : '', "Heure de départ": d.heure_depart || '', "Nom": d.nom || '', "Prénom": d.prenom || '', "Poste": d.poste || '', "Service": d.service || '', "Email": d.email || '', "Contact": d.contact || '', "Destination": d.destination || '', "Durée (min)": d.duree || '', "Passagers": d.passagers || '', "Motif": d.motif || '', "Statut": d.statut === 'validee' ? 'Affectée' : d.statut === 'refusee' ? 'Refusée' : 'En attente', "Chauffeur assigné": d.chauffeur_assigne || '', "Véhicule assigné": d.vehicule_assigne || '', "Motif de refus": d.message_admin || '', "Traitée par": d.valide_par || d.refuse_par || ''
       }));
-
       const ws = XLSX.utils.json_to_sheet(rows);
-      ws['!cols'] = [
-        {wch:12},{wch:10},{wch:18},{wch:18},{wch:22},{wch:14},{wch:28},{wch:14},
-        {wch:22},{wch:10},{wch:20},{wch:40},{wch:12},{wch:22},{wch:32},{wch:30},{wch:20}
-      ];
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Demandes');
-      const stamp = new Date().toISOString().slice(0,10);
-      XLSX.writeFile(wb, `Demandes_${stamp}.xlsx`);
+      ws['!cols'] = [{wch:12},{wch:10},{wch:18},{wch:18},{wch:22},{wch:14},{wch:28},{wch:14},{wch:22},{wch:10},{wch:20},{wch:40},{wch:12},{wch:22},{wch:32},{wch:30},{wch:20}];
+      const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Demandes');
+      XLSX.writeFile(wb, `Demandes_${new Date().toISOString().slice(0,10)}.xlsx`);
       return;
     }
 
     const filtreStatut = document.getElementById('filtreStatutOrdre').value;
     const recherche = document.getElementById('searchOrdres').value.toLowerCase();
     const role = getAdminRole();
-
     let listeBase = tousLesOrdres;
-    if (role === 'rh') {
-      listeBase = tousLesOrdres.filter(o => o.statut !== 'en_attente');
-    }
-    if (typeOrdreActif !== 'tous') {
-      if (typeOrdreActif === 'Véhicule ONG ADKOUL') {
-        listeBase = listeBase.filter(o => o.moyen_deplacement === 'Véhicule ONG ADKOUL' || o.moyen_deplacement === 'Véhicule ONG');
-      } else {
-        listeBase = listeBase.filter(o => o.moyen_deplacement === typeOrdreActif);
-      }
-    }
-    if (window._afFilteredIds && document.getElementById('advancedFiltersBody').classList.contains('open')) {
-      listeBase = listeBase.filter(o => o.statut !== 'validee' || window._afFilteredIds.has(o.id));
-    }
-
+    if (role === 'rh') { listeBase = tousLesOrdres.filter(o => o.statut !== 'en_attente'); }
+    if (typeOrdreActif !== 'tous') { if (typeOrdreActif === 'Véhicule ONG ADKOUL') { listeBase = listeBase.filter(o => o.moyen_deplacement === 'Véhicule ONG ADKOUL' || o.moyen_deplacement === 'Véhicule ONG'); } else { listeBase = listeBase.filter(o => o.moyen_deplacement === typeOrdreActif); } }
+    if (window._afFilteredIds && document.getElementById('advancedFiltersBody').classList.contains('open')) { listeBase = listeBase.filter(o => o.statut !== 'validee' || window._afFilteredIds.has(o.id)); }
     const listeFinale = listeBase.filter(o => {
       let matchStatut = false;
-      if (filtreStatut === 'tous') matchStatut = true;
-      else if (filtreStatut === 'retard') matchStatut = estEnRetard(o);
-      else matchStatut = o.statut === filtreStatut;
-
-      const matchSearch = !recherche ||
-        (o.nom && o.nom.toLowerCase().includes(recherche)) ||
-        (o.destination && o.destination.toLowerCase().includes(recherche)) ||
-        (o.projet && o.projet.toLowerCase().includes(recherche)) ||
-        (o.objectif && o.objectif.toLowerCase().includes(recherche));
+      if (filtreStatut === 'tous') matchStatut = true; else if (filtreStatut === 'retard') matchStatut = estEnRetard(o); else matchStatut = o.statut === filtreStatut;
+      const matchSearch = !recherche || (o.nom && o.nom.toLowerCase().includes(recherche)) || (o.destination && o.destination.toLowerCase().includes(recherche)) || (o.projet && o.projet.toLowerCase().includes(recherche)) || (o.objectif && o.objectif.toLowerCase().includes(recherche));
       return matchStatut && matchSearch;
     });
-
     if (!listeFinale.length) { alert('⚠️ Aucun ordre de mission à exporter.'); return; }
 
     const rows = listeFinale.map(o => ({
-      "N° Ordre de Mission": o.message_admin || '',
-      "Date départ": o.date_depart ? formatNigerDateShort(o.date_depart) : '',
-      "Date retour": o.date_retour ? formatNigerDateShort(o.date_retour) : '',
-      "Agent": o.nom || '',
-      "Poste": o.poste || '',
-      "Destination": o.destination || '',
-      "Projet": o.projet || '',
-      "Moyen": o.moyen_deplacement || '',
-      "Objectif": o.objectif || '',
-      "Chauffeur": o.chauffeur_assigne || '',
-      "Véhicule": o.vehicule_assigne || '',
-      "Statut": o.statut === 'validee' ? 'Validé' : o.statut === 'affecte_logistique' ? 'Attente RH' : 'En attente',
-      "Notes internes": o.notes_internes || '',
-      "Affecté par": o.affecte_par || '',
-      "Validé par": o.valide_par || '',
-      "Email demandeur": o.email || ''
+      "N° Ordre de Mission": o.message_admin || '', "Date départ": o.date_depart ? formatNigerDateShort(o.date_depart) : '', "Date retour": o.date_retour ? formatNigerDateShort(o.date_retour) : '', "Agent": o.nom || '', "Poste": o.poste || '', "Destination": o.destination || '', "Projet": o.projet || '', "Moyen": o.moyen_deplacement || '', "Objectif": o.objectif || '', "Chauffeur": o.chauffeur_assigne || '', "Véhicule": o.vehicule_assigne || '', "Statut": o.statut === 'validee' ? 'Validé' : o.statut === 'affecte_logistique' ? 'Attente RH' : 'En attente', "Notes internes": o.notes_internes || '', "Affecté par": o.affecte_par || '', "Validé par": o.valide_par || '', "Email demandeur": o.email || ''
     }));
-
     const ws = XLSX.utils.json_to_sheet(rows);
-    ws['!cols'] = [
-      {wch:22},{wch:12},{wch:12},{wch:22},{wch:22},{wch:22},{wch:18},{wch:22},
-      {wch:40},{wch:22},{wch:32},{wch:14},{wch:30},{wch:20},{wch:20},{wch:28}
-    ];
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Ordres de Mission');
-    const stamp = new Date().toISOString().slice(0,10);
-    XLSX.writeFile(wb, `Ordres_Mission_${stamp}.xlsx`);
+    ws['!cols'] = [{wch:22},{wch:12},{wch:12},{wch:22},{wch:22},{wch:22},{wch:18},{wch:22},{wch:40},{wch:22},{wch:32},{wch:14},{wch:30},{wch:20},{wch:20},{wch:28}];
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Ordres de Mission');
+    XLSX.writeFile(wb, `Ordres_Mission_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
-
-  function mettreAJourGraphiques() {
-    document.getElementById('dashTotalVehicules').textContent = toutesLesDemandes.length;
-    document.getElementById('dashTotalMissions').textContent = tousLesOrdres.length;
-    document.getElementById('dashMissionsValidees').textContent = tousLesOrdres.filter(o => o.statut === 'validee').length;
-    document.getElementById('dashEnAttente').textContent = toutesLesDemandes.filter(d => d.statut === 'en_attente').length;
-
-    if (chartMoyensInstance) chartMoyensInstance.destroy();
-    if (chartStatutsInstance) chartStatutsInstance.destroy();
-    if (chartProjetsInstance) chartProjetsInstance.destroy();
-
-    const moyensCount = {};
-    tousLesOrdres.forEach(o => {
-      let m = o.moyen_deplacement || 'Non spécifié';
-      if (m === 'Véhicule ONG') m = 'Véhicule ONG ADKOUL';
-      moyensCount[m] = (moyensCount[m] || 0) + 1;
-    });
-    chartMoyensInstance = new Chart(document.getElementById('chartMoyens').getContext('2d'), {
-      type: 'doughnut',
-      data: {
-        labels: Object.keys(moyensCount),
-        datasets: [{ data: Object.values(moyensCount), backgroundColor: ['#1e3c72', '#f39c12', '#27ae60', '#e74c3c', '#8e44ad', '#3498db', '#f1c40f'], borderWidth: 0 }]
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 9} } } } }
-    });
-
-    const projetsCount = {};
-    tousLesOrdres.forEach(o => {
-      const p = o.projet || 'Non spécifié';
-      projetsCount[p] = (projetsCount[p] || 0) + 1;
-    });
-    chartProjetsInstance = new Chart(document.getElementById('chartProjets').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: Object.keys(projetsCount),
-        datasets: [{ label: 'Missions', data: Object.values(projetsCount), backgroundColor: '#1e3c72', borderRadius: 6 }]
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: {size: 9} } }, x: { ticks: { font: {size: 9} } } } }
-    });
-
-    const statutsCount = { 'en_attente': 0, 'affecte_logistique': 0, 'validee': 0 };
-    tousLesOrdres.forEach(o => { if (statutsCount[o.statut] !== undefined) statutsCount[o.statut]++; });
-    chartStatutsInstance = new Chart(document.getElementById('chartStatuts').getContext('2d'), {
-      type: 'pie',
-      data: {
-        labels: ['En attente', 'Attente RH', 'Validées'],
-        datasets: [{ data: [statutsCount['en_attente'], statutsCount['affecte_logistique'], statutsCount['validee']], backgroundColor: ['#f39c12', '#f1c40f', '#27ae60'], borderWidth: 0 }]
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 9} } } } }
-    });
-
-    const agentsCount = {}, chauffeursCount = {};
-    tousLesOrdres.forEach(o => { if(o.nom) agentsCount[o.nom] = (agentsCount[o.nom]||0)+1; if(o.chauffeur_assigne) chauffeursCount[o.chauffeur_assigne] = (chauffeursCount[o.chauffeur_assigne]||0)+1; });
-    
-    const topA = Object.entries(agentsCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    document.getElementById('topAgents').innerHTML = topA.length ? topA.map((a,i)=>`<li><span><span class="rank">#${i+1}</span> ${a[0]}</span> <span class="count">${a[1]}</span></li>`).join('') : '<li>Aucune donnée</li>';
-
-    const topC = Object.entries(chauffeursCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    document.getElementById('topChauffeurs').innerHTML = topC.length ? topC.map((c,i)=>`<li><span><span class="rank">#${i+1}</span> ${c[0]}</span> <span class="count">${c[1]}</span></li>`).join('') : '<li>Aucune donnée</li>';
-  }
-
-  /* ============================================================
-     FILTRES AVANCÉS + EXPORT EXCEL — MISSIONS VALIDÉES
-     ============================================================ */
 
   let afOpen = false;
-
-  function toggleAdvancedFilters() {
-    afOpen = !afOpen;
-    document.getElementById('advancedFiltersBody').classList.toggle('open', afOpen);
-    document.getElementById('afToggleBtn').textContent = afOpen ? '▲ Masquer' : '▼ Afficher';
-  }
+  function toggleAdvancedFilters() { afOpen = !afOpen; document.getElementById('advancedFiltersBody').classList.toggle('open', afOpen); document.getElementById('afToggleBtn').textContent = afOpen ? '▲ Masquer' : '▼ Afficher'; }
 
   function rafraichirSelectsAvances() {
     const validees = tousLesOrdres.filter(o => o.statut === 'validee');
-
     const projets = [...new Set(validees.map(o => o.projet).filter(Boolean))].sort();
     const moyens = [...new Set(validees.map(o => o.moyen_deplacement).filter(Boolean))].sort();
     const agents = [...new Set(validees.map(o => o.nom).filter(Boolean))].sort();
-
-    const fill = (id, arr) => {
-      const sel = document.getElementById(id);
-      if (!sel) return;
-      const old = sel.value;
-      sel.innerHTML = '<option value="">— Tous —</option>' +
-        arr.map(v => `<option value="${v.replace(/"/g,'&quot;')}">${v}</option>`).join('');
-      sel.value = old;
-    };
-    fill('afProjet', projets);
-    fill('afMoyen', moyens);
-    fill('afAgent', agents);
+    const fill = (id, arr) => { const sel = document.getElementById(id); if (!sel) return; const old = sel.value; sel.innerHTML = '<option value="">— Tous —</option>' + arr.map(v => `<option value="${v.replace(/"/g,'&quot;')}">${v}</option>`).join(''); sel.value = old; };
+    fill('afProjet', projets); fill('afMoyen', moyens); fill('afAgent', agents);
   }
 
   function getMissionsValideesFiltrees() {
-    const from = document.getElementById('afDateFrom')?.value || '';
-    const to   = document.getElementById('afDateTo')?.value || '';
-    const projet = document.getElementById('afProjet')?.value || '';
-    const moyen  = document.getElementById('afMoyen')?.value || '';
-    const agent  = document.getElementById('afAgent')?.value || '';
-    const dest   = (document.getElementById('afDestination')?.value || '').toLowerCase().trim();
-    const numero = (document.getElementById('afNumero')?.value || '').toLowerCase().trim();
+    const from = document.getElementById('afDateFrom')?.value || ''; const to = document.getElementById('afDateTo')?.value || ''; const projet = document.getElementById('afProjet')?.value || ''; const moyen = document.getElementById('afMoyen')?.value || ''; const agent = document.getElementById('afAgent')?.value || ''; const dest = (document.getElementById('afDestination')?.value || '').toLowerCase().trim(); const numero = (document.getElementById('afNumero')?.value || '').toLowerCase().trim();
 
     return tousLesOrdres.filter(o => {
-      if (o.statut !== 'validee') return false;
-      if (projet && o.projet !== projet) return false;
-      if (moyen && o.moyen_deplacement !== moyen) return false;
-      if (agent && o.nom !== agent) return false;
-      if (dest && !(o.destination || '').toLowerCase().includes(dest)) return false;
-      if (numero && !(o.message_admin || '').toLowerCase().includes(numero)) return false;
-
-      if (from || to) {
-        const d = o.date_depart ? new Date(o.date_depart) : null;
-        if (!d) return false;
-        if (from && d < new Date(from + 'T00:00:00')) return false;
-        if (to   && d > new Date(to   + 'T23:59:59')) return false;
-      }
+      if (o.statut !== 'validee') return false; if (projet && o.projet !== projet) return false; if (moyen && o.moyen_deplacement !== moyen) return false; if (agent && o.nom !== agent) return false; if (dest && !(o.destination || '').toLowerCase().includes(dest)) return false; if (numero && !(o.message_admin || '').toLowerCase().includes(numero)) return false;
+      if (from || to) { const d = o.date_depart ? new Date(o.date_depart) : null; if (!d) return false; if (from && d < new Date(from + 'T00:00:00')) return false; if (to && d > new Date(to + 'T23:59:59')) return false; }
       return true;
     });
   }
@@ -2041,176 +1293,30 @@
   function appliquerFiltresAvances() {
     const filtered = getMissionsValideesFiltrees();
     const info = document.getElementById('afResultInfo');
-    if (info) {
-      info.textContent = `✅ ${filtered.length} mission(s) validée(s) correspond(ent) aux filtres.`;
-    }
-
+    if (info) { info.textContent = `✅ ${filtered.length} mission(s) validée(s) correspond(ent) aux filtres.`; }
     window._afFilteredIds = new Set(filtered.map(o => o.id));
     afficherOrdres();
   }
 
   function resetFiltresAvances() {
-    ['afDateFrom','afDateTo','afDestination','afNumero'].forEach(id => {
-      const el = document.getElementById(id); if (el) el.value = '';
-    });
-    ['afProjet','afMoyen','afAgent'].forEach(id => {
-      const el = document.getElementById(id); if (el) el.value = '';
-    });
+    ['afDateFrom','afDateTo','afDestination','afNumero'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    ['afProjet','afMoyen','afAgent'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     appliquerFiltresAvances();
   }
 
   function exporterExcelMissionsValidees() {
-    if (typeof XLSX === 'undefined') {
-      alert('❌ Bibliothèque Excel non chargée. Vérifiez votre connexion.');
-      return;
-    }
-
+    if (typeof XLSX === 'undefined') { alert('❌ Bibliothèque Excel non chargée.'); return; }
     const missions = getMissionsValideesFiltrees();
-    if (!missions.length) {
-      alert('⚠️ Aucune mission validée ne correspond aux filtres.');
-      return;
-    }
-
+    if (!missions.length) { alert('⚠️ Aucune mission validée ne correspond aux filtres.'); return; }
     const rows = missions.map(o => ({
-      "N° Ordre de Mission": o.message_admin || '',
-      "Date départ": o.date_depart ? formatNigerDateShort(o.date_depart) : '',
-      "Date retour": o.date_retour ? formatNigerDateShort(o.date_retour) : '',
-      "Agent": o.nom || '',
-      "Poste": o.poste || '',
-      "Destination": o.destination || '',
-      "Projet": o.projet || '',
-      "Moyen de déplacement": o.moyen_deplacement || '',
-      "Chauffeur assigné": o.chauffeur_assigne || '',
-      "Véhicule assigné": o.vehicule_assigne || '',
-      "Objectif": o.objectif || '',
-      "Notes internes": o.notes_internes || '',
-      "Affecté par (Logistique)": o.affecte_par || '',
-      "Validé par (RH)": o.valide_par || '',
-      "Email demandeur": o.email || ''
+      "N° Ordre de Mission": o.message_admin || '', "Date départ": o.date_depart ? formatNigerDateShort(o.date_depart) : '', "Date retour": o.date_retour ? formatNigerDateShort(o.date_retour) : '', "Agent": o.nom || '', "Poste": o.poste || '', "Destination": o.destination || '', "Projet": o.projet || '', "Moyen de déplacement": o.moyen_deplacement || '', "Chauffeur assigné": o.chauffeur_assigne || '', "Véhicule assigné": o.vehicule_assigne || '', "Objectif": o.objectif || '', "Notes internes": o.notes_internes || '', "Affecté par (Logistique)": o.affecte_par || '', "Validé par (RH)": o.valide_par || '', "Email demandeur": o.email || ''
     }));
-
     const ws = XLSX.utils.json_to_sheet(rows);
-
-    ws['!cols'] = [
-      { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 22 }, { wch: 22 },
-      { wch: 22 }, { wch: 18 }, { wch: 22 }, { wch: 22 }, { wch: 32 },
-      { wch: 40 }, { wch: 30 }, { wch: 20 }, { wch: 20 }, { wch: 28 }
-    ];
-
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Missions Validées');
-
-    const now = new Date();
-    const stamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}h${String(now.getMinutes()).padStart(2,'0')}`;
-    const filename = `Missions_Validees_${stamp}.xlsx`;
-
-    XLSX.writeFile(wb, filename);
+    ws['!cols'] = [{ wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 22 }, { wch: 22 }, { wch: 22 }, { wch: 18 }, { wch: 22 }, { wch: 22 }, { wch: 32 }, { wch: 40 }, { wch: 30 }, { wch: 20 }, { wch: 20 }, { wch: 28 }];
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Missions Validées');
+    const now = new Date(); const stamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}h${String(now.getMinutes()).padStart(2,'0')}`;
+    XLSX.writeFile(wb, `Missions_Validees_${stamp}.xlsx`);
   }
 </script>
-
-</body>
-</html>
-    fill('afProjet', projets);
-    fill('afMoyen', moyens);
-    fill('afAgent', agents);
-  }
-
-  function getMissionsValideesFiltrees() {
-    const from = document.getElementById('afDateFrom')?.value || '';
-    const to   = document.getElementById('afDateTo')?.value || '';
-    const projet = document.getElementById('afProjet')?.value || '';
-    const moyen  = document.getElementById('afMoyen')?.value || '';
-    const agent  = document.getElementById('afAgent')?.value || '';
-    const dest   = (document.getElementById('afDestination')?.value || '').toLowerCase().trim();
-    const numero = (document.getElementById('afNumero')?.value || '').toLowerCase().trim();
-
-    return tousLesOrdres.filter(o => {
-      if (o.statut !== 'validee') return false;
-      if (projet && o.projet !== projet) return false;
-      if (moyen && o.moyen_deplacement !== moyen) return false;
-      if (agent && o.nom !== agent) return false;
-      if (dest && !(o.destination || '').toLowerCase().includes(dest)) return false;
-      if (numero && !(o.message_admin || '').toLowerCase().includes(numero)) return false;
-
-      if (from || to) {
-        const d = o.date_depart ? new Date(o.date_depart) : null;
-        if (!d) return false;
-        if (from && d < new Date(from + 'T00:00:00')) return false;
-        if (to   && d > new Date(to   + 'T23:59:59')) return false;
-      }
-      return true;
-    });
-  }
-
-  function appliquerFiltresAvances() {
-    const filtered = getMissionsValideesFiltrees();
-    const info = document.getElementById('afResultInfo');
-    if (info) {
-      info.textContent = `✅ ${filtered.length} mission(s) validée(s) correspond(ent) aux filtres.`;
-    }
-
-    window._afFilteredIds = new Set(filtered.map(o => o.id));
-    afficherOrdres();
-  }
-
-  function resetFiltresAvances() {
-    ['afDateFrom','afDateTo','afDestination','afNumero'].forEach(id => {
-      const el = document.getElementById(id); if (el) el.value = '';
-    });
-    ['afProjet','afMoyen','afAgent'].forEach(id => {
-      const el = document.getElementById(id); if (el) el.value = '';
-    });
-    appliquerFiltresAvances();
-  }
-
-  function exporterExcelMissionsValidees() {
-    if (typeof XLSX === 'undefined') {
-      alert('❌ Bibliothèque Excel non chargée. Vérifiez votre connexion.');
-      return;
-    }
-
-    const missions = getMissionsValideesFiltrees();
-    if (!missions.length) {
-      alert('⚠️ Aucune mission validée ne correspond aux filtres.');
-      return;
-    }
-
-    const rows = missions.map(o => ({
-      "N° Ordre de Mission": o.message_admin || '',
-      "Date départ": o.date_depart ? formatNigerDateShort(o.date_depart) : '',
-      "Date retour": o.date_retour ? formatNigerDateShort(o.date_retour) : '',
-      "Agent": o.nom || '',
-      "Poste": o.poste || '',
-      "Destination": o.destination || '',
-      "Projet": o.projet || '',
-      "Moyen de déplacement": o.moyen_deplacement || '',
-      "Chauffeur assigné": o.chauffeur_assigne || '',
-      "Véhicule assigné": o.vehicule_assigne || '',
-      "Objectif": o.objectif || '',
-      "Notes internes": o.notes_internes || '',
-      "Affecté par (Logistique)": o.affecte_par || '',
-      "Validé par (RH)": o.valide_par || '',
-      "Email demandeur": o.email || ''
-    }));
-
-    const ws = XLSX.utils.json_to_sheet(rows);
-
-    ws['!cols'] = [
-      { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 22 }, { wch: 22 },
-      { wch: 22 }, { wch: 18 }, { wch: 22 }, { wch: 22 }, { wch: 32 },
-      { wch: 40 }, { wch: 30 }, { wch: 20 }, { wch: 20 }, { wch: 28 }
-    ];
-
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Missions Validées');
-
-    const now = new Date();
-    const stamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}h${String(now.getMinutes()).padStart(2,'0')}`;
-    const filename = `Missions_Validees_${stamp}.xlsx`;
-
-    XLSX.writeFile(wb, filename);
-  }
-</script>
-
 </body>
 </html>

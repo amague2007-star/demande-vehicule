@@ -1697,7 +1697,6 @@
     if (btnAction) { btnAction.disabled = true; btnAction.textContent = "⏳ Génération..."; }
 
     try {
-      // CORRECTION BUG NUMERO : On demande uniquement le DERNIER numéro à Supabase
       const dernieresMissions = await apiCall('/missions_2?message_admin=not.is.null&order=created_at.desc&limit=1&select=message_admin');
       
       let maxNum = 0;

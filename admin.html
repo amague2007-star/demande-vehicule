@@ -579,11 +579,11 @@
     <label>Ancien mot de passe *</label>
     <input type="password" id="oldPassword" placeholder="Saisissez votre ancien mot de passe">
     
-    <label>Nouveau mot de passe * (12 caractères minimum)</label>
-    <input type="password" id="newPassword" placeholder="Saisissez le nouveau mot de passe" minlength="12">
+    <label>Nouveau mot de passe * (6 caractères minimum)</label>
+    <input type="password" id="newPassword" placeholder="Saisissez le nouveau mot de passe" minlength="6">
     
     <label>Confirmer le nouveau mot de passe *</label>
-    <input type="password" id="confirmNewPassword" placeholder="Confirmez le nouveau mot de passe" minlength="12">
+    <input type="password" id="confirmNewPassword" placeholder="Confirmez le nouveau mot de passe" minlength="6">
     
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
@@ -597,14 +597,14 @@
     <h2>🔑 Modifier le mot de passe</h2>
     <p class="subtitle" id="editUserPwdInfo">Définir un nouveau mot de passe pour cet utilisateur.</p>
     
-    <label>Nouveau mot de passe * (12 caractères minimum)</label>
+    <label>Nouveau mot de passe * (6 caractères minimum)</label>
     <div class="password-reveal">
-      <input type="password" id="editUserNewPassword" placeholder="Saisissez le nouveau mot de passe" minlength="12">
+      <input type="password" id="editUserNewPassword" placeholder="Saisissez le nouveau mot de passe" minlength="6">
       <button class="btn-reveal" type="button" onclick="togglePassword('editUserNewPassword', this)" aria-label="Afficher/masquer le mot de passe">👁️</button>
     </div>
     
     <label>Confirmer le nouveau mot de passe *</label>
-    <input type="password" id="editUserNewPassword2" placeholder="Confirmez le nouveau mot de passe" minlength="12">
+    <input type="password" id="editUserNewPassword2" placeholder="Confirmez le nouveau mot de passe" minlength="6">
     
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
@@ -627,13 +627,13 @@
       <option value="assistant_logistique">Assistant Logistique (Saisie véhicules)</option>
       <option value="rh">RH (Valide les ordres)</option>
     </select>
-    <label>Mot de passe du nouvel utilisateur * (12 caractères minimum)</label>
+    <label>Mot de passe du nouvel utilisateur * (6 caractères minimum)</label>
     <div class="password-reveal">
-      <input type="password" id="newUserPassword" minlength="12" autocomplete="new-password" placeholder="Mot de passe fort et unique">
+      <input type="password" id="newUserPassword" minlength="6" autocomplete="new-password" placeholder="Mot de passe fort et unique">
       <button class="btn-reveal" type="button" onclick="togglePassword('newUserPassword', this)" aria-label="Afficher/masquer le mot de passe">👁️</button>
     </div>
     <label>Confirmer le mot de passe *</label>
-    <input type="password" id="newUserPassword2" autocomplete="new-password" placeholder="Retapez" minlength="12">
+    <input type="password" id="newUserPassword2" autocomplete="new-password" placeholder="Retapez" minlength="6">
     <p style="font-size:12px;color:#475569;margin:5px 0 10px">Le nouveau mot de passe ne sera pas envoyé par email. Remettez-le à l'agent par un canal privé.</p>
     <label>Vérification administrateur Supabase Auth *</label>
     <input type="password" id="newUserAuthPassword" autocomplete="current-password" placeholder="Votre mot de passe Supabase Auth">
@@ -966,8 +966,8 @@
     if (!oldPwd || !newPwd || !confirmPwd) {
       toast('⚠️ Veuillez remplir tous les champs.', 'warning'); return;
     }
-    if (newPwd.length < 12) {
-      toast('⚠️ Le nouveau mot de passe doit contenir au moins 12 caractères.', 'warning'); return;
+    if (newPwd.length < 6) {
+      toast('⚠️ Le nouveau mot de passe doit contenir au moins 6 caractères.', 'warning'); return;
     }
     if (newPwd !== confirmPwd) {
       toast('⚠️ Les nouveaux mots de passe ne correspondent pas.', 'warning'); return;
@@ -1063,8 +1063,8 @@
     const pwd = document.getElementById('editUserNewPassword').value;
     const pwd2 = document.getElementById('editUserNewPassword2').value;
 
-    if (!pwd || pwd.length < 12) {
-      toast('⚠️ Le mot de passe doit contenir au moins 12 caractères.', 'warning'); return;
+    if (!pwd || pwd.length < 6) {
+      toast('⚠️ Le mot de passe doit contenir au moins 6 caractères.', 'warning'); return;
     }
     if (pwd !== pwd2) {
       toast('⚠️ Les mots de passe ne correspondent pas.', 'warning'); return;
@@ -1129,8 +1129,8 @@
     const autorises = ['logistique', 'rh', 'directeur_logistique', 'assistant_logistique'];
 
     if (!nom || nom.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
-        pwd.length < 12 || pwd !== pwd2 || !autorises.includes(role) || !adminPwd) {
-      toast('⚠️ Vérifiez les champs. Mot de passe de 12 caractères minimum et confirmation Supabase Auth requis.', 'warning', 5000);
+        pwd.length < 6 || pwd !== pwd2 || !autorises.includes(role) || !adminPwd) {
+      toast('⚠️ Vérifiez les champs. Mot de passe de 6 caractères minimum et confirmation Supabase Auth requis.', 'warning', 5000);
       return;
     }
     const adminEmail = sessionStorage.getItem('admin_email');

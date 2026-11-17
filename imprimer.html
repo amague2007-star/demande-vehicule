@@ -20,13 +20,14 @@
             padding: 20mm;
             box-sizing: border-box;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
         }
 
         /* --- EN-TÊTE --- */
         .header { text-align: center; margin-bottom: 20px; }
         .logo { height: 80px; margin-bottom: 5px; }
         .ong-name {
-            color: #d68910; /* Couleur du logo */
+            color: #d68910;
             font-size: 18px;
             font-weight: bold;
             text-transform: uppercase;
@@ -35,7 +36,7 @@
         }
         
         .bandeau-marron {
-            background-color: #8B4513; /* Marron */
+            background-color: #8B4513;
             color: white;
             text-align: center;
             padding: 8px;
@@ -45,7 +46,7 @@
             letter-spacing: 1px;
         }
         .bandeau-bleu {
-            background-color: #4682B4; /* Bleu acier */
+            background-color: #4682B4;
             color: white;
             text-align: center;
             padding: 5px;
@@ -73,8 +74,15 @@
             text-transform: uppercase;
         }
         
-        /* --- SIGNATURE (Sans cachet) --- */
-        .signature-block { margin-top: 50px; margin-left: 20px; text-align: left; }
+        /* --- SIGNATURE --- */
+        .signature-block { 
+            margin-top: 60px; 
+            margin-left: 20px; 
+            text-align: left; 
+            /* Empêche le bloc signature d'être coupé en deux */
+            page-break-inside: avoid; 
+            break-inside: avoid;
+        }
         .signature-block p { margin: 5px 0; font-size: 16px; }
 
         /* --- BOUTONS D'ACTION --- */
@@ -92,9 +100,14 @@
 
         /* --- RÈGLES D'IMPRESSION --- */
         @media print {
-            body { background: #fff; padding: 0; }
-            .page { box-shadow: none; width: 100%; padding: 10mm; min-height: auto; }
+            body { background: #fff; padding: 0; margin: 0; }
+            .page { box-shadow: none; width: 100%; padding: 15mm; min-height: auto; }
             .actions { display: none; }
+            
+            /* Assure que la signature reste bien sur la page */
+            .signature-block {
+                page-break-before: auto; 
+            }
         }
     </style>
 </head>
@@ -142,7 +155,7 @@
             <p><strong>IMPUTATION BUDGETAIRE :</strong> <span id="imputation">CBM/ADKOUL</span></p>
         </div>
 
-        <!-- SIGNATURE (Le cachet a été retiré) -->
+        <!-- SIGNATURE -->
         <div class="signature-block">
             <p><strong>DATE ET SIGNATURE :</strong></p>
             <p>Fait à Tahoua, le <span id="dateSignature">---</span></p>

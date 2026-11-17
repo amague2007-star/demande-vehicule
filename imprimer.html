@@ -1,204 +1,213 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Impression Ordre de Mission - ONG ADKOUL</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<style>
-  body { font-family: 'Times New Roman', Times, serif; background: #f0f2f5; margin: 0; padding: 20px; }
-  .document { background: #fff; max-width: 800px; margin: 0 auto; padding: 20px 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); color: #000; line-height: 1.4; }
-  
-  .entete-document { width: 100%; max-height: 150px; object-fit: contain; display: block; margin-bottom: 15px; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordre de Mission - ONG ADKOUL</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            color: #000;
+        }
+        .page {
+            background: #fff;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 20mm;
+            box-sizing: border-box;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
 
-  .header h1 { font-size: 20px; font-weight: bold; margin: 10px 0 5px 0; text-align: center; text-transform: uppercase; }
-  .header h2 { font-size: 13px; font-weight: normal; margin: 0 0 15px 0; text-align: center; }
-  .titre-om { text-align: center; font-size: 16px; font-weight: bold; margin: 15px 0; text-transform: uppercase; text-decoration: underline; }
-  .bureau { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
-  .contenu { font-size: 14px; line-height: 1.5; }
-  .contenu p { margin-bottom: 10px; font-weight: bold; text-transform: uppercase; }
-  
-  .ligne { margin-bottom: 8px; display: flex; align-items: flex-end; }
-  .label { font-weight: bold; width: 200px; flex-shrink: 0; text-transform: uppercase; font-size: 13px; }
-  .valeur { flex-grow: 1; border-bottom: 1px dotted #000; padding-left: 10px; font-size: 14px; font-weight: 500; }
-  
-  @media print {
-    body { background: #fff; padding: 0; margin: 0; }
-    .document { box-shadow: none; padding: 0; max-width: 100%; }
-    .actions-buttons { display: none !important; }
-    @page { size: A4 portrait; margin: 10mm; }
-    .page-2 { page-break-before: always; }
-  }
+        /* --- EN-TÊTE --- */
+        .header { text-align: center; margin-bottom: 20px; }
+        .logo { height: 80px; margin-bottom: 5px; }
+        .ong-name {
+            color: #d68910; /* Couleur du logo */
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+        
+        .bandeau-marron {
+            background-color: #8B4513; /* Marron */
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 22px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .bandeau-bleu {
+            background-color: #4682B4; /* Bleu acier */
+            color: white;
+            text-align: center;
+            padding: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+        .bureau {
+            text-align: left;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            margin-left: 20px;
+        }
 
-  .page-2 { margin-top: 30px; }
-  .cadre-signature { border: 1px solid #000; padding: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; font-size: 13px; page-break-inside: avoid; height: 105px; box-sizing: border-box; }
-  .colonne-signature { width: 48%; display: flex; flex-direction: column; justify-content: space-between; }
-  .ligne-top { display: flex; justify-content: space-between; margin-bottom: 10px; }
-  .ligne-milieu { display: flex; gap: 5px; margin-bottom: 10px; }
-  .ligne-bas { display: flex; gap: 5px; }
-  
-  .actions-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
-  .btn { padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-size: 16px; font-weight: bold; color: #fff; display: flex; align-items: center; gap: 8px; font-family: sans-serif; }
-  .btn-print { background: #27ae60; }
-  .btn-print:hover { background: #229954; }
-  .btn-download { background: #1e3c72; }
-  .btn-download:hover { background: #2a5298; }
-</style>
+        /* --- CORPS DU DOCUMENT --- */
+        .content { margin-left: 20px; font-size: 16px; line-height: 1.6; }
+        .content p { margin: 10px 0; }
+        .content strong { font-weight: bold; }
+        .titre-autorisation {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+        
+        /* --- SIGNATURE (Sans cachet) --- */
+        .signature-block { margin-top: 50px; margin-left: 20px; text-align: left; }
+        .signature-block p { margin: 5px 0; font-size: 16px; }
+
+        /* --- BOUTONS D'ACTION --- */
+        .actions { text-align: center; margin-top: 20px; }
+        .actions button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #1e3c72;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        .actions button:hover { background-color: #2a5298; }
+
+        /* --- RÈGLES D'IMPRESSION --- */
+        @media print {
+            body { background: #fff; padding: 0; }
+            .page { box-shadow: none; width: 100%; padding: 10mm; min-height: auto; }
+            .actions { display: none; }
+        }
+    </style>
 </head>
 <body>
 
-<div class="document" id="documentContent">
-  <p style="text-align: center; color: #666; padding: 50px; font-family: sans-serif;">⏳ Chargement des données...</p>
-</div>
-
-<div class="actions-buttons" id="actionButtons" style="display: none;">
-  <button class="btn btn-print" onclick="window.print()">🖨️ Imprimer</button>
-  <button class="btn btn-download" id="btnDownloadPdf">📥 Télécharger en PDF</button>
-</div>
-
-<script>
-  const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
-
-  const contenu = document.getElementById("documentContent");
-  const actionButtons = document.getElementById("actionButtons");
-  const escapeHtml = value => String(value ?? "—").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  
-  function refuser(texte) {
-    contenu.innerHTML = `<p style="text-align: center; color: red;">${texte}</p>`;
-  }
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const ordreId = urlParams.get('id');
-  const autoDownload = urlParams.get('download') === 'true';
-
-  function formatDate(dateStr) {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString('fr-FR');
-  }
-
-  async function consulter() {
-    if (!ordreId) { refuser("Aucun identifiant fourni dans le lien."); return; }
-
-    try {
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/missions_2?id=eq.${encodeURIComponent(ordreId)}&select=*`, {
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY
-        },
-        cache: "no-store"
-      });
-
-      if (!response.ok) throw new Error("Erreur de connexion à la base de données.");
-      const data = await response.json();
-
-      if (data && data.length > 0) {
-        const d = data[0];
-        // Les dossiers historiques restent intacts : l'affichage neutralise
-        // les anciennes valeurs incohérentes telles que « Bus (Bus - - -) ».
-        const transportCollectif = ['bus', 'avion'].includes(String(d.moyen_deplacement || '').trim().toLowerCase());
-        const chauffeurAffiche = transportCollectif ? 'Sans objet' : (d.chauffeur_assigne || '—');
-        const vehiculeAffiche = transportCollectif ? (d.moyen_deplacement || '—') : (d.vehicule_assigne || '—');
-
-        const lienEntete = "https://amague2007-star.github.io/demande-vehicule/entete.png"; 
-
-        document.getElementById('documentContent').innerHTML = `
-          <!-- ================= PAGE 1 ================= -->
-          <img src="${lienEntete}" alt="En-tête ONG ADKOUL" class="entete-document" crossorigin="anonymous">
-          
-          <div class="header">
-            <h1>ORDRE DE MISSION</h1>
-            <h2>Référence : ${d.message_admin ? escapeHtml(d.message_admin) : 'En attente de validation'}</h2>
-          </div>
-          
-          <div class="titre-om">DEMANDE D'ORDRE DE MISSION</div>
-          
-          <div class="bureau">Bureau : ${escapeHtml(d.bureau)}</div>
-          
-          <div class="contenu">
-            <p>LE SECRETAIRE EXECUTIF DE L'ONG ADKOUL AUTORISE :</p>
+    <div class="page">
+        <!-- EN-TÊTE -->
+        <div class="header">
+            <img src="https://amague2007-star.github.io/demande-vehicule/logo.png" alt="Logo ONG ADKOUL" class="logo" onerror="this.style.display='none'">
+            <div class="ong-name">ONG ADKOUL</div>
             
-            <div class="ligne"><span class="label">CHEF DE MISSION :</span> <span class="valeur">${escapeHtml(d.nom)}</span></div>
-            <div class="ligne"><span class="label">EMPLOI OCCUPE :</span> <span class="valeur">${escapeHtml(d.poste)}</span></div>
-            <div class="ligne"><span class="label">ACCOMPAGNATEURS :</span> <span class="valeur">${escapeHtml(d.accompagnateurs || '—')}</span></div>
-            <div class="ligne"><span class="label">DESTINATION :</span> <span class="valeur">${escapeHtml(d.destination)}</span></div>
-            <div class="ligne"><span class="label">OBJECTIF :</span> <span class="valeur">${escapeHtml(d.objectif)}</span></div>
-            <div class="ligne"><span class="label">MOYEN DE DEPLACEMENT :</span> <span class="valeur">${escapeHtml(d.moyen_deplacement)}</span></div>
-            <div class="ligne"><span class="label">CHAUFFEUR :</span> <span class="valeur">${escapeHtml(chauffeurAffiche)}</span></div>
-            <div class="ligne"><span class="label">VÉHICULE :</span> <span class="valeur">${escapeHtml(vehiculeAffiche)}</span></div>
-            <div class="ligne"><span class="label">DATE DE DEPART :</span> <span class="valeur">${formatDate(d.date_depart)}</span></div>
-            <div class="ligne"><span class="label">DATE DE RETOUR :</span> <span class="valeur">${formatDate(d.date_retour)}</span></div>
-            <div class="ligne"><span class="label">IMPUTATION BUDGETAIRE :</span> <span class="valeur">${escapeHtml(d.imputation_budgetaire)}</span></div>
-          </div>
+            <div class="bandeau-marron">ONG ADKOUL</div>
+            <div class="bandeau-bleu" id="numeroOrdre">ORDRE DE MISSION N° --- /ADKOUL/---</div>
+        </div>
 
-          <!-- ZONE DE SIGNATURE CENTRÉE SANS CADRE -->
-          <div style="margin-top: 40px; display: flex; justify-content: center;">
-            <div style="width: 350px; font-size: 14px;">
-              <div style="display: flex; justify-content: space-between; margin-bottom: 25px;">
-                <span>Lieu : ${escapeHtml(d.bureau)}</span>
-               <span>Date : ${formatDate(d.created_at)}</span>
-              </div>
-              <div style="text-align: center; font-weight: bold;">
-                LE SECRETAIRE EXECUTIF
-              </div>
-            </div>
-          </div>
+        <div class="bureau">
+            Bureau : <span id="bureauAgent">TAHOUA</span>
+        </div>
 
-          <!-- ================= PAGE 2 (6 VISAS) ================= -->
-          <div class="page-2">
-            ${Array(6).fill(`
-            <div class="cadre-signature">
-              <div class="colonne-signature">
-                <div>
-                  <div class="ligne-top"><span>Lieu : ..................................</span><span>Date de départ : ....../....../2026</span></div>
-                  <div class="ligne-milieu"><span>Autorité : ..................................</span></div>
-                </div>
-                <div class="ligne-bas"><span>Visa : ..................................</span></div>
-              </div>
-              <div class="colonne-signature">
-                <div>
-                  <div class="ligne-top"><span>Lieu : ..................................</span><span>Date d'arrivée : ....../....../2026</span></div>
-                  <div class="ligne-milieu"><span>Autorité : ..................................</span></div>
-                </div>
-                <div class="ligne-bas"><span>Visa : ..................................</span></div>
-              </div>
-            </div>
-            `).join('')}
-          </div>
-        `;
-        
-        actionButtons.style.display = 'flex';
+        <!-- CORPS -->
+        <div class="content">
+            <div class="titre-autorisation">LE SECRETAIRE EXECUTIF DE L'ONG ADKOUL AUTORISE :</div>
+            
+            <p><strong>CHEF DE MISSION :</strong> <span id="nomAgent">---</span></p>
+            <p><strong>EMPLOI OCCUPE :</strong> <span id="posteAgent">---</span></p>
+            <p><strong>ACCOMPAGNATEURS :</strong> <span id="accompagnateurs">---</span></p>
+            
+            <br>
+            
+            <p><strong>DE SE RENDRE EN MISSION A :</strong> <span id="destination">---</span></p>
+            <p><strong>OBJECTIF DE LA MISSION :</strong> <span id="objectif">---</span></p>
+            <p><strong>MOYEN DE DEPLACEMENT :</strong> <span id="vehicule">---</span></p>
+            
+            <br>
+            
+            <p><strong>CHAUFFEUR :</strong> <span id="chauffeur">---</span></p>
+            
+            <br>
+            
+            <p><strong>DATE DE DEPART :</strong> <span id="dateDepart">---</span></p>
+            <p><strong>DATE DE RETOUR PREVUE :</strong> <span id="dateRetour">---</span></p>
+            
+            <br>
+            
+            <p><strong>IMPUTATION BUDGETAIRE :</strong> <span id="imputation">CBM/ADKOUL</span></p>
+        </div>
 
-        document.getElementById('btnDownloadPdf').addEventListener('click', () => {
-          const element = document.getElementById('documentContent');
-          
-          const opt = {
-            margin:       [10, 10, 10, 10], 
-            filename:     `Ordre_Mission_${d.nom.replace(/\s+/g, '_')}.pdf`,
-            image:        { type: 'jpeg', quality: 1 },
-            html2canvas:  { scale: 2, useCORS: true, scrollY: 0 }, 
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-          };
+        <!-- SIGNATURE (Le cachet a été retiré) -->
+        <div class="signature-block">
+            <p><strong>DATE ET SIGNATURE :</strong></p>
+            <p>Fait à Tahoua, le <span id="dateSignature">---</span></p>
+            <p style="margin-top: 15px;"><strong>SECRETAIRE EXECUTIF</strong></p>
+        </div>
+    </div>
 
-          html2pdf().set(opt).from(element).save();
-        });
+    <div class="actions">
+        <button onclick="window.print()">🖨️ Imprimer / Télécharger en PDF</button>
+    </div>
 
-        if (autoDownload) {
-          setTimeout(() => {
-            document.getElementById('btnDownloadPdf').click();
-          }, 1500); 
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const missionId = urlParams.get('id');
+
+        const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
+
+        async function chargerDonnees() {
+            if (!missionId) { alert("Erreur : Aucun ID de mission fourni."); return; }
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/missions_2?id=eq.${missionId}`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+                });
+                
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    const mission = data[0];
+                    
+                    document.getElementById('numeroOrdre').textContent = 
+                        mission.message_admin ? `ORDRE DE MISSION N° ${mission.message_admin}` : 'ORDRE DE MISSION N° (En attente)';
+
+                    document.getElementById('nomAgent').textContent = mission.nom || '---';
+                    document.getElementById('posteAgent').textContent = mission.poste || '---';
+                    document.getElementById('accompagnateurs').textContent = mission.accompagnateurs || '---'; 
+                    
+                    document.getElementById('destination').textContent = mission.destination || '---';
+                    document.getElementById('objectif').textContent = mission.objectif || '---';
+                    document.getElementById('vehicule').textContent = mission.vehicule_assigne || '---';
+                    document.getElementById('chauffeur').textContent = mission.chauffeur_assigne || '---';
+
+                    const formatDate = (dateStr) => {
+                        if (!dateStr) return '---';
+                        const d = new Date(dateStr);
+                        return d.toLocaleDateString('fr-FR');
+                    };
+
+                    document.getElementById('dateDepart').textContent = formatDate(mission.date_depart);
+                    document.getElementById('dateRetour').textContent = formatDate(mission.date_retour);
+                    document.getElementById('dateSignature').textContent = new Date().toLocaleDateString('fr-FR');
+
+                    if (urlParams.get('download') === 'true') {
+                        setTimeout(() => { window.print(); }, 1000);
+                    }
+                } else {
+                    alert("Mission introuvable.");
+                }
+            } catch (err) {
+                console.error("Erreur :", err);
+                alert("Erreur lors de la récupération des données.");
+            }
         }
-
-      } else {
-        refuser("Erreur : Ordre de mission introuvable dans la base de données.");
-      }
-    } catch (err) {
-      refuser("Erreur : " + err.message);
-    }
-  }
-
-  consulter();
-</script>
-
+        window.onload = chargerDonnees;
+    </script>
 </body>
 </html>

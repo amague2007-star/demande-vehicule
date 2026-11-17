@@ -148,31 +148,32 @@
 
 <script>
   // ==========================================
-  // CONFIGURATION EMAILJS (CLÉ INTÉGRÉE)
+  // CONFIGURATION EMAILJS
   // ==========================================
   const EMAILJS_PUBLIC_KEY = 'SUbWMSdrTf7JugMrS'; 
   const EMAILJS_SERVICE_ID = 'service_e6k2e76'; 
+  // L'ID du template "Contact Us" que nous avons trouvé
+  const EMAILJS_TEMPLATE_ID = 'c6oso9u'; 
   const EMAIL_LOGISTIQUE = 'amague2007@gmail.com';
 
-  // Initialisation d'EmailJS
   if (typeof emailjs !== 'undefined') {
       emailjs.init(EMAILJS_PUBLIC_KEY);
   }
 
-  // Fonction d'envoi d'email
-  async function envoyerEmail(templateId, destinataire, variables) {
+  // Fonction d'envoi d'email adaptée au template "Contact Us"
+  async function envoyerEmail(destinataire, variables) {
       try {
           if (typeof emailjs === 'undefined') {
-              throw new Error("Le script EmailJS n'est pas chargé. Vérifiez le CDN.");
+              throw new Error("Le script EmailJS n'est pas chargé.");
           }
 
           const templateParams = {
               to_email: destinataire,
-              email: destinataire,
-              ...variables
+              subject: variables.subject,
+              message: variables.message
           };
 
-          const response = await emailjs.send(EMAILJS_SERVICE_ID, templateId, templateParams);
+          const response = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
           
           if (response.status === 200) {
               console.log('✅ Email envoyé avec succès');
@@ -195,7 +196,6 @@
   const msgIcon = document.getElementById('msgIcon');
   const msgText = document.getElementById('msgText');
 
-  // Date de départ = aujourd'hui par défaut
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('date_depart').value = today;
 
@@ -213,7 +213,6 @@
   document.getElementById('moyen_deplacement').addEventListener('change', actualiserAideMoyenMission);
   actualiserAideMoyenMission();
 
-  // Les accompagnateurs sont facultatifs ; chaque clic sur + ajoute une ligne.
   const accompagnateursListe = document.getElementById('accompagnateursListe');
   const ajouterAccompagnateurBtn = document.getElementById('ajouterAccompagnateur');
 
@@ -279,7 +278,6 @@
       else { field.classList.remove('highlight-border'); }
     });
 
-    // Vérif logique : retour >= départ
     const dDep = document.getElementById('date_depart').value;
     const dRet = document.getElementById('date_retour').value;
     if (dDep && dRet && new Date(dRet) < new Date(dDep)) {
@@ -325,25 +323,19 @@
         throw new Error(errTxt);
       }
 
-      // L'enregistrement de l'ordre de mission reste valide même si l'email échoue.
+      // Préparation des messages pour le template "Contact Us"
+      const msgDemandeur = `Bonjour ${newMission.nom},\n\nVotre demande d'ordre de mission a bien été enregistrée.\n\n📍 Destination : ${newMission.destination}\n📅 Date de départ : ${newMission.date_depart}\n\nElle est en attente de traitement par le service logistique.\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`;
+
+      const msgLogistique = `Nouvelle demande d'ordre de mission reçue.\n\n👤 Agent : ${newMission.nom} (${newMission.poste})\n📍 Destination : ${newMission.destination}\n📅 Date de départ : ${newMission.date_depart}\n🚌 Moyen : ${newMission.moyen_deplacement}\n\nMerci de vous connecter au tableau de bord pour la traiter.`;
+
       const notifications = await Promise.allSettled([
-        envoyerEmail('template_demande_recue', newMission.email, {
-            nom: newMission.nom,
-            prenom: '',
-            type_demande: 'Ordre de Mission',
-            destination: newMission.destination,
-            date: newMission.date_depart,
-            heure: '-',
-            motif: newMission.objectif || '-'
+        envoyerEmail(newMission.email, {
+            subject: "✅ Confirmation de réception - Demande d'Ordre de Mission",
+            message: msgDemandeur
         }),
-        envoyerEmail('template_demande_recue', EMAIL_LOGISTIQUE, {
-            nom: newMission.nom,
-            prenom: '',
-            type_demande: 'Ordre de Mission (NOUVELLE À TRAITER)',
-            destination: newMission.destination,
-            date: newMission.date_depart,
-            heure: '-',
-            motif: newMission.objectif || '-'
+        envoyerEmail(EMAIL_LOGISTIQUE, {
+            subject: `🚨 Nouvelle demande de mission : ${newMission.nom}`,
+            message: msgLogistique
         })
       ]);
       
@@ -353,12 +345,9 @@
       messageBox.className = 'message-box success';
       msgIcon.textContent = '✅';
       msgText.textContent = 'Votre demande d’ordre de mission a bien été enregistrée. ' +
-        (emailDemandeurOK
-          ? 'Confirmation acceptée par EmailJS.'
-          : '⚠️ Confirmation email non confirmée.') +
-        (emailLogistiqueOK
-          ? ' Notification logistique acceptée.'
-          : ' ⚠️ Notification logistique non confirmée.');
+        (emailDemandeurOK ? 'Confirmation acceptée.' : '⚠️ Confirmation email non confirmée.') +
+        (emailLogistiqueOK ? ' Notification logistique acceptée.' : ' ⚠️ Notification logistique non confirmée.');
+      
       form.reset();
       reinitialiserAccompagnateurs();
       document.getElementById('date_depart').value = today;

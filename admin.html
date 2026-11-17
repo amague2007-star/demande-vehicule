@@ -304,22 +304,11 @@
     border-left: 3px solid #1e3c72;
   }
 
-  /* Indicateur auto-refresh */
   .auto-refresh-indicator {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background: #27ae60;
-    color: #fff;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 600;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    opacity: 0;
-    transition: opacity 0.5s;
-    z-index: 9999;
-    pointer-events: none;
+    position: fixed; bottom: 10px; right: 10px; background: #27ae60; color: #fff;
+    padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2); opacity: 0; transition: opacity 0.5s;
+    z-index: 9999; pointer-events: none;
   }
   .auto-refresh-indicator.show { opacity: 1; }
 </style>
@@ -664,6 +653,12 @@
 </div>
 
 <script>
+  // ✅ SÉCURITÉ : Définition de EMAIL_LOGISTIQUE en local pour éviter l'erreur "is not defined"
+  // si le fichier email-service.js ne la charge pas à temps.
+  if (typeof EMAIL_LOGISTIQUE === 'undefined') {
+    window.EMAIL_LOGISTIQUE = 'amague2007@gmail.com';
+  }
+
   const ADKOUL_ADMIN_SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const ADKOUL_ADMIN_SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
 
@@ -1730,9 +1725,6 @@
     XLSX.writeFile(wb, `Missions_Validees_${stamp}.xlsx`);
   }
 
-  /* ============================================================
-     RAFRAÎCHISSEMENT AUTOMATIQUE DES NOTIFICATIONS
-     ============================================================ */
   function afficherIndicateurRefresh() {
     const ind = document.getElementById('autoRefreshIndicator');
     if (!ind) return;
@@ -1747,7 +1739,6 @@
       const role = getAdminRole();
       let changed = false;
 
-      // Rafraîchir les demandes
       if (role !== 'assistant_logistique') {
         try {
           const nouvelles = await apiCall('/demandes?order=created_at.desc');
@@ -1756,7 +1747,6 @@
         } catch (e) { console.warn('Auto-refresh demandes échoué:', e); }
       }
 
-      // Rafraîchir les ordres
       try {
         const assistant = role === 'assistant_logistique';
         const chemin = assistant
@@ -1767,10 +1757,8 @@
         tousLesOrdres = nouveaux;
       } catch (e) { console.warn('Auto-refresh ordres échoué:', e); }
 
-      // Mettre à jour les badges
       mettreAJourNotifications();
 
-      // Rafraîchir la vue active
       const sectionAccueil = document.getElementById('accueilSection');
       const sectionDemandes = document.getElementById('demandesSection');
       const sectionOrdres = document.getElementById('ordresSection');
@@ -1788,7 +1776,6 @@
     }, 60000);
   }
 
-  // Rafraîchir aussi quand l'onglet redevient actif
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden && sessionStorage.getItem('admin_logged') === 'true') {
       const role = getAdminRole();

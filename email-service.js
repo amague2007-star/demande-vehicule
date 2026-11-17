@@ -1,88 +1,94 @@
-/* ONG ADKOUL — Notifications e-mail par EmailJS (préparation du 16/11/2026)
-   Restaure le service Gmail historique, sans modifier Supabase ou Microsoft 365.
-   À utiliser seulement après vérification du modèle EmailJS template_gd96rfl.
-   Les identifiants ci-dessous sont des identifiants PUBLICS, issus de l'ancien code GitHub.
-*/
-
-const ADKOUL_EMAILJS_PUBLIC_KEY = 'SUbWMSdrTf7JugMrS';
-const ADKOUL_EMAILJS_SERVICE_ID = 'service_e6k2e76';
-const ADKOUL_EMAILJS_TEMPLATE_ID = 'template_gd96rfl';
-const EMAIL_LOGISTIQUE = 'amague2007@gmail.com';
-
-let ADKOUL_EMAILJS_QUEUE = Promise.resolve();
-let ADKOUL_EMAILJS_LAST_SEND = 0;
-let ADKOUL_EMAILJS_INITIALIZED = false;
-
-function adkoulChamp(valeur, defaut = '-') {
-  const texte = String(valeur === undefined || valeur === null ? '' : valeur).trim();
-  return texte || defaut;
-}
-
-/**
- * Fonction compatible avec les appels existants de vehicule.html,
- * ordre-mission.html et admin.html.
- * success:true = EmailJS a accepté la demande d'envoi ; pas de garantie de réception.
- */
-async function envoyerEmail(templateId, destinataire, variables = {}) {
-  if (typeof destinataire !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(destinataire.trim())) {
-    return { success: false, error: 'Adresse email du destinataire invalide.' };
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ONG ADKOUL — Portail des Demandes</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1e3c72">
+<link rel="icon" href="./logo.webp" type="image/webp">
+<link rel="apple-touch-icon" href="./logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1e40af; --primary-light: #2563eb; --accent-orange: #f59e0b;
+    --success: #27ae60; --gray-50: #f8fafc; --gray-600: #475569;
+    --gray-800: #1e293b; --gray-900: #0f172a;
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   }
-
-  const nom = [variables.nom, variables.prenom].filter(Boolean).join(' ');
-  const date = adkoulChamp(variables.date);
-  const heure = adkoulChamp(variables.heure, '');
-  let subject = '';
-  let message = '';
-
-  if (templateId === 'template_demande_recue') {
-    subject = `Nouvelle demande — ${adkoulChamp(variables.type_demande)}`;
-    message = `Bonjour ${adkoulChamp(nom, 'cher collègue')},\n\nVotre demande (${adkoulChamp(variables.type_demande)}) a été enregistrée.\nDestination : ${adkoulChamp(variables.destination)}\nDate : ${date}${heure ? ' à ' + heure : ''}\nMotif : ${adkoulChamp(variables.motif)}\n\nCordialement,\nService Logistique — ONG ADKOUL`;
-  } else if (templateId === 'template_vehicule') {
-    subject = 'Votre véhicule est affecté — ONG ADKOUL';
-    message = `Bonjour ${adkoulChamp(variables.nom, 'cher collègue')},\n\nVotre demande de sortie de véhicule a été validée.\nChauffeur : ${adkoulChamp(variables.chauffeur)}\nVéhicule : ${adkoulChamp(variables.vehicule)}\nDestination : ${adkoulChamp(variables.destination)}\nDate : ${date}${heure ? ' à ' + heure : ''}\n\nCordialement,\nService Logistique — ONG ADKOUL`;
-  } else if (templateId === 'template_refus') {
-    subject = 'Votre demande de véhicule — ONG ADKOUL';
-    message = `Bonjour ${adkoulChamp(variables.nom, 'cher collègue')},\n\nVotre demande concernant ${adkoulChamp(variables.destination)} a été refusée.\nMotif : ${adkoulChamp(variables.motif_refus)}\nDate : ${date}\n\nCordialement,\nService Logistique — ONG ADKOUL`;
-  } else if (templateId === 'template_ordre_attente_rh') {
-    subject = `Ordre de mission à valider — ${adkoulChamp(variables.agent)}`;
-    message = `Nouvelle demande d'ordre de mission à valider.\nAgent : ${adkoulChamp(variables.agent)}\nPoste : ${adkoulChamp(variables.poste)}\nDestination : ${adkoulChamp(variables.destination)}\nProjet : ${adkoulChamp(variables.projet)}\nDépart : ${adkoulChamp(variables.date_depart)}\nRetour : ${adkoulChamp(variables.date_retour)}\n\nService Logistique — ONG ADKOUL`;
-  } else if (templateId === 'template_creation_user') {
-    subject = 'Votre compte de gestion ONG ADKOUL a été créé';
-    // Ne jamais inclure le mot de passe fourni par le formulaire dans un email.
-    message = `Bonjour ${adkoulChamp(variables.nom)},\n\nVotre compte a été créé.\nIdentifiant : ${adkoulChamp(variables.email)}\nRôle : ${adkoulChamp(variables.role)}\nAccès : ${adkoulChamp(variables.lien_connexion)}\n\nDemandez vos informations d'accès via un canal sécurisé.\nONG ADKOUL`;
-  } else {
-    // Couvre notamment 'template_gd96rfl' utilisé après validation RH.
-    subject = adkoulChamp(variables.subject, 'Notification ONG ADKOUL');
-    message = adkoulChamp(variables.message, 'Nouvelle notification ONG ADKOUL.');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, var(--gray-50) 0%, #eef2f6 100%);
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 2rem 1rem; color: var(--gray-800);
   }
-
-  // EmailJS impose 1 requête par seconde ; les pages actuelles déclenchent parfois
-  // deux notifications pour une même demande. La file évite les appels simultanés.
-  const tache = ADKOUL_EMAILJS_QUEUE.then(async () => {
-    if (typeof emailjs === 'undefined' || typeof emailjs.send !== 'function') {
-      return { success: false, error: 'Bibliothèque EmailJS indisponible dans le navigateur.' };
+  .header { text-align: center; margin-bottom: 3rem; animation: fadeInDown 0.6s ease-out; }
+  .logo-badge { display: inline-flex; align-items: center; gap: 0.75rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: #fff; padding: 0.65rem 1.6rem; border-radius: 100px; font-weight: 700;
+    font-size: 0.95rem; letter-spacing: 0.03em; box-shadow: var(--shadow-md); margin-bottom: 1.5rem; }
+  .logo-badge .dot { width: 10px; height: 10px; background: var(--accent-orange); border-radius: 50%; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3); }
+  .header h1 { font-size: 2.2rem; font-weight: 800; color: var(--gray-900); letter-spacing: -0.03em; margin-bottom: 0.5rem; }
+  .header p { color: var(--gray-600); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+  .menu-container { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; max-width: 900px; width: 100%; animation: fadeInUp 0.6s ease-out 0.1s both; }
+  .menu-card { background: #fff; border-radius: 20px; padding: 2.5rem 2rem; width: 340px; text-decoration: none; color: inherit; box-shadow: var(--shadow-lg); border: 1px solid rgba(255, 255, 255, 0.8); transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; overflow: hidden; }
+  .menu-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--primary), var(--primary-light)); transition: height 0.3s ease; }
+  .menu-card.ordre::before { background: linear-gradient(90deg, var(--success), #2ecc71); }
+  .menu-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-xl); }
+  .menu-card:hover::before { height: 8px; }
+  .card-icon { width: 80px; height: 80px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 1.5rem; background: #eff6ff; color: var(--primary); transition: transform 0.3s ease; }
+  .menu-card.ordre .card-icon { background: #e8f8f5; color: var(--success); }
+  .menu-card:hover .card-icon { transform: scale(1.1) rotate(5deg); }
+  .menu-card h2 { font-size: 1.4rem; font-weight: 800; color: var(--gray-900); margin-bottom: 0.75rem; }
+  .menu-card p { font-size: 0.95rem; color: var(--gray-600); line-height: 1.5; margin-bottom: 1.5rem; flex-grow: 1; }
+  .btn-access { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700; color: #fff; background: var(--primary); padding: 0.8rem 1.8rem; border-radius: 12px; transition: all 0.2s ease; width: 100%; }
+  .menu-card.ordre .btn-access { background: var(--success); }
+  .menu-card:hover .btn-access { background: var(--primary-light); }
+  .menu-card.ordre:hover .btn-access { background: #229954; }
+  .footer { margin-top: 3rem; text-align: center; font-size: 0.85rem; color: var(--gray-600); animation: fadeIn 1s ease-out; }
+  .footer strong { color: var(--primary); font-weight: 700; }
+  @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @media (max-width: 768px) { .header h1 { font-size: 1.8rem; } .menu-card { width: 100%; max-width: 400px; } }
+</style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo-badge"><span class="dot"></span>ONG ADKOUL</div>
+    <h1>Portail des Demandes</h1>
+    <p>Veuillez sélectionner le type de demande que vous souhaitez effectuer.</p>
+  </header>
+  <main class="menu-container">
+    <a href="vehicule.html" class="menu-card">
+      <div class="card-icon">🚗</div>
+      <h2>Sortie de Véhicule</h2>
+      <p>Demande d'autorisation pour l'utilisation d'un véhicule de la flotte de l'ONG.</p>
+      <span class="btn-access">Remplir la demande →</span>
+    </a>
+    <a href="ordre-mission.html" class="menu-card ordre">
+      <div class="card-icon">📄</div>
+      <h2>Ordre de Mission</h2>
+      <p>Formulaire officiel RH pour vos déplacements et ordres de mission.</p>
+      <span class="btn-access">Remplir la demande →</span>
+    </a>
+  </main>
+  <footer class="footer">
+    <strong>ONG ADKOUL</strong> — Solidarité • Éducation • Développement<br>
+    Toute demande est soumise à validation par le responsable logistique.
+  </footer>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(registration => { console.log('Service Worker enregistré avec succès:', registration.scope); })
+          .catch(error => { console.log('Échec de l\'enregistrement du Service Worker:', error); });
+      });
     }
-    try {
-      if (!ADKOUL_EMAILJS_INITIALIZED) {
-        emailjs.init({ publicKey: ADKOUL_EMAILJS_PUBLIC_KEY });
-        ADKOUL_EMAILJS_INITIALIZED = true;
-      }
-      const attente = Math.max(0, 1100 - (Date.now() - ADKOUL_EMAILJS_LAST_SEND));
-      if (attente) await new Promise(resoudre => setTimeout(resoudre, attente));
-      ADKOUL_EMAILJS_LAST_SEND = Date.now();
-      const resultat = await emailjs.send(
-        ADKOUL_EMAILJS_SERVICE_ID,
-        ADKOUL_EMAILJS_TEMPLATE_ID,
-        { to_email: destinataire.trim(), subject, message }
-      );
-      console.info('EmailJS a accepté un email pour :', destinataire, resultat.status);
-      return { success: true, status: resultat.status };
-    } catch (erreur) {
-      const detail = erreur && (erreur.text || erreur.message) || String(erreur);
-      console.error('Échec EmailJS :', detail);
-      return { success: false, error: detail };
-    }
-  });
-  ADKOUL_EMAILJS_QUEUE = tache.then(() => undefined, () => undefined);
-  return tache;
-}
+  </script>
+</body>
+</html>

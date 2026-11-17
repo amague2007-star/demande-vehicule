@@ -21,6 +21,8 @@
             box-sizing: border-box;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             position: relative;
+            /* On s'assure que le contenu ne déborde pas de la page */
+            overflow: hidden; 
         }
 
         /* --- EN-TÊTE --- */
@@ -74,14 +76,17 @@
             text-transform: uppercase;
         }
         
-        /* --- SIGNATURE --- */
+        /* --- SIGNATURE (FORCÉE EN BAS) --- */
         .signature-block { 
-            margin-top: 60px; 
+            margin-top: 50px; 
             margin-left: 20px; 
             text-align: left; 
-            /* Empêche le bloc signature d'être coupé en deux */
+            /* Empêche la signature d'être coupée en deux */
             page-break-inside: avoid; 
             break-inside: avoid;
+            /* Pousse la signature vers le bas de la page */
+            margin-top: auto; 
+            padding-top: 20px;
         }
         .signature-block p { margin: 5px 0; font-size: 16px; }
 
@@ -104,7 +109,7 @@
             .page { box-shadow: none; width: 100%; padding: 15mm; min-height: auto; }
             .actions { display: none; }
             
-            /* Assure que la signature reste bien sur la page */
+            /* Force un saut de page propre si le contenu dépasse */
             .signature-block {
                 page-break-before: auto; 
             }
@@ -160,6 +165,9 @@
             <p><strong>DATE ET SIGNATURE :</strong></p>
             <p>Fait à Tahoua, le <span id="dateSignature">---</span></p>
             <p style="margin-top: 15px;"><strong>SECRETAIRE EXECUTIF</strong></p>
+            
+            <!-- Espace vide pour le cachet ou la signature manuscrite -->
+            <div style="height: 100px; width: 250px; border-bottom: 1px solid #ddd; margin-top: 20px;"></div>
         </div>
     </div>
 

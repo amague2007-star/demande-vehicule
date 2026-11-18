@@ -12,10 +12,9 @@
             padding: 20px;
             color: #000;
         }
-        /* Conteneur principal de la page */
         .page {
             background: #fff;
-            width: 210mm; /* Format A4 */
+            width: 210mm;
             min-height: 297mm;
             margin: 0 auto 20px auto;
             padding: 20mm;
@@ -24,11 +23,11 @@
             position: relative;
         }
 
-        /* --- EN-TÊTE (Page 1) --- */
+        /* --- EN-TÊTE --- */
         .header { text-align: center; margin-bottom: 20px; }
         .logo { height: 80px; margin-bottom: 5px; }
         .ong-name {
-            color: #d68910; /* Couleur ocre/orange */
+            color: #d68910;
             font-size: 18px;
             font-weight: bold;
             text-transform: uppercase;
@@ -37,7 +36,7 @@
         }
         
         .bandeau-marron {
-            background-color: #8B4513; /* Marron */
+            background-color: #8B4513;
             color: white;
             text-align: center;
             padding: 8px;
@@ -47,7 +46,7 @@
             letter-spacing: 1px;
         }
         .bandeau-bleu {
-            background-color: #1e3c72; /* Bleu foncé */
+            background-color: #1e3c72;
             color: white;
             text-align: center;
             padding: 5px;
@@ -57,7 +56,7 @@
             margin-bottom: 0;
         }
         .bureau {
-            background-color: #d3d3d3; /* Gris clair */
+            background-color: #d3d3d3;
             text-align: left;
             font-size: 16px;
             font-weight: bold;
@@ -67,8 +66,8 @@
 
         /* --- CORPS DU DOCUMENT --- */
         .content { margin-left: 20px; font-size: 16px; line-height: 1.8; }
-        .content p { margin: 10px 0; }
-        .content strong { font-weight: bold; }
+        .content p { margin: 10px 0; display: flex; align-items: flex-end; gap: 5px; }
+        .content strong { font-weight: bold; white-space: nowrap; }
         .titre-autorisation {
             font-weight: bold;
             font-size: 18px;
@@ -76,16 +75,14 @@
             text-transform: uppercase;
         }
         
-        /* Lignes en pointillés pour les champs vides */
+        /* Ligne de pointillés qui prend l'espace restant */
         .dotted-line {
             border-bottom: 2px dotted #000;
-            display: inline-block;
-            width: 100%;
-            height: 1em;
-            margin-bottom: -2px;
+            flex-grow: 1;
+            height: 1.2em;
         }
 
-        /* --- SIGNATURE (Page 1) --- */
+        /* --- SIGNATURE --- */
         .signature-block { 
             margin-top: 50px; 
             text-align: center; 
@@ -96,29 +93,21 @@
         .underline { text-decoration: underline; }
 
         /* --- PAGE 2 (Visa) --- */
-        .page-2 {
-            page-break-before: always; /* Force la page 2 */
-        }
+        .page-2 { page-break-before: always; }
         .visa-content { margin-top: 50px; font-size: 16px; line-height: 2.5; }
         .visa-row { display: flex; gap: 10px; margin-bottom: 15px; align-items: flex-end; }
         .visa-label { white-space: nowrap; font-weight: bold; }
-        .visa-line { border-bottom: 2px dotted #000; flex-grow: 1; height: 1em; }
+        .visa-line { border-bottom: 2px dotted #000; flex-grow: 1; height: 1.2em; }
 
-        /* --- BOUTONS D'ACTION --- */
+        /* --- BOUTONS --- */
         .actions { text-align: center; margin-top: 20px; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); }
         .actions button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #1e3c72;
-            color: white;
-            border: none;
-            border-radius: 5px;
+            padding: 10px 20px; font-size: 16px; cursor: pointer;
+            background-color: #1e3c72; color: white; border: none; border-radius: 5px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
-        .actions button:hover { background-color: #2a5298; }
 
-        /* --- RÈGLES D'IMPRESSION --- */
+        /* --- IMPRESSION --- */
         @media print {
             body { background: #fff; padding: 0; margin: 0; }
             .page { box-shadow: none; width: 100%; margin: 0; padding: 15mm; min-height: auto; }
@@ -128,19 +117,16 @@
 </head>
 <body>
 
-    <!-- ================= PAGE 1 ================= -->
+    <!-- PAGE 1 -->
     <div class="page">
-        <!-- EN-TÊTE -->
         <div class="header">
-            <img src="https://amague2007-star.github.io/demande-vehicule/logo.png" alt="Logo ONG ADKOUL" class="logo" onerror="this.style.display='none'">
+            <img src="https://amague2007-star.github.io/demande-vehicule/logo.png" alt="Logo" class="logo" onerror="this.style.display='none'">
             <div class="ong-name">ONG ADKOUL</div>
-            
             <div class="bandeau-marron">ONG ADKOUL</div>
             <div class="bandeau-bleu" id="numeroOrdre">ORDRE DE MISSION N°...... /ADKOUL/2026</div>
             <div class="bureau">Bureau : <span id="bureauAgent">Tahoua</span></div>
         </div>
 
-        <!-- CORPS -->
         <div class="content">
             <div class="titre-autorisation">LE SECRETAIRE EXECUTIF DE L'ONG ADKOUL AUTORISE :</div>
             
@@ -160,7 +146,6 @@
             <p style="margin-top: 30px;"><strong>IMPUTATION BUDGETAIRE :</strong> <span id="imputation" class="dotted-line"></span></p>
         </div>
 
-        <!-- SIGNATURE -->
         <div class="signature-block">
             <p class="underline"><strong>DATE ET SIGNATURE :</strong></p>
             <p>Fait à Tahoua, le...... /....../2026</p>
@@ -168,14 +153,14 @@
         </div>
     </div>
 
-    <!-- ================= PAGE 2 (VISA) ================= -->
+    <!-- PAGE 2 -->
     <div class="page page-2">
         <div class="visa-content">
             <div class="visa-row">
                 <span class="visa-label">Date de départ :</span>
-                <span class="visa-line" style="max-width: 100px;"></span>
+                <span class="visa-line" style="max-width: 80px;"></span>
                 <span>/</span>
-                <span class="visa-line" style="max-width: 100px;"></span>
+                <span class="visa-line" style="max-width: 80px;"></span>
                 <span>/2026</span>
             </div>
             <div class="visa-row">
@@ -183,7 +168,7 @@
                 <span class="visa-line"></span>
             </div>
             <div class="visa-row" style="margin-bottom: 40px;">
-                <span class="visa-line" style="margin-left: 80px;"></span> <!-- Ligne vide en dessous de Autorité -->
+                <span class="visa-line" style="margin-left: 80px;"></span>
             </div>
 
             <div class="visa-row">
@@ -193,9 +178,9 @@
 
             <div class="visa-row" style="margin-top: 40px;">
                 <span class="visa-label">Date d'arrivée :</span>
-                <span class="visa-line" style="max-width: 100px;"></span>
+                <span class="visa-line" style="max-width: 80px;"></span>
                 <span>/</span>
-                <span class="visa-line" style="max-width: 100px;"></span>
+                <span class="visa-line" style="max-width: 80px;"></span>
                 <span>/2026</span>
             </div>
             <div class="visa-row">
@@ -203,7 +188,7 @@
                 <span class="visa-line"></span>
             </div>
             <div class="visa-row">
-                <span class="visa-line" style="margin-left: 80px;"></span> <!-- Ligne vide en dessous de Autorité -->
+                <span class="visa-line" style="margin-left: 80px;"></span>
             </div>
         </div>
     </div>
@@ -232,11 +217,9 @@
                 if (data && data.length > 0) {
                     const mission = data[0];
                     
-                    // Numéro d'ordre
                     document.getElementById('numeroOrdre').textContent = 
                         mission.message_admin ? `ORDRE DE MISSION N° ${mission.message_admin}` : 'ORDRE DE MISSION N°...... /ADKOUL/2026';
 
-                    // Informations
                     document.getElementById('bureauAgent').textContent = mission.bureau || 'Tahoua';
                     document.getElementById('nomAgent').textContent = mission.nom || '';
                     document.getElementById('posteAgent').textContent = mission.poste || '';
@@ -245,10 +228,8 @@
                     document.getElementById('objectif').textContent = mission.objectif || '';
                     document.getElementById('vehicule').textContent = mission.vehicule_assigne || '';
                     document.getElementById('chauffeur').textContent = mission.chauffeur_assigne || '';
-                    
                     document.getElementById('imputation').textContent = mission.imputation_budgetaire || 'CBM/ADKOUL';
 
-                    // Formatage des dates pour la page 1
                     const formatDate = (dateStr) => {
                         if (!dateStr) return '';
                         const d = new Date(dateStr);
@@ -257,7 +238,6 @@
                     document.getElementById('dateDepart').textContent = formatDate(mission.date_depart);
                     document.getElementById('dateRetour').textContent = formatDate(mission.date_retour);
 
-                    // Téléchargement automatique si demandé
                     if (urlParams.get('download') === 'true') {
                         setTimeout(() => { window.print(); }, 1000);
                     }

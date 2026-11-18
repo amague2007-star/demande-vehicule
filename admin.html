@@ -1033,8 +1033,9 @@
 
   async function notifierEmailAvecStatut(modele, email, donnees) {
     try {
+      let sujet = "Notification - ONG ADKOUL";
       let message = "";
-      
+
       if (modele === 'template_vehicule') {
         message = `Bonjour ${donnees.nom},\n\nVotre demande de véhicule a été validée.\n\n📍 Destination : ${donnees.destination}\n📅 Date : ${donnees.date} à ${donnees.heure}\n👤 Chauffeur : ${donnees.chauffeur}\n🚙 Véhicule : ${donnees.vehicule}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`;
       } 
@@ -1048,9 +1049,10 @@
         message = `Notification : ${donnees.message || 'Mise à jour de votre dossier.'}`;
       }
 
+      // Utilisation directe d'EmailJS avec les bonnes variables
       const response = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
         to_email: email,
-        subject: `Notification - ONG ADKOUL`,
+        subject: sujet,
         message: message
       });
 

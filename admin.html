@@ -7,7 +7,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="email-service.js"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
   body { background:#f0f2f5; min-height:100vh; }
@@ -653,11 +652,37 @@
 </div>
 
 <script>
-  // ✅ SÉCURITÉ : Définition de EMAIL_LOGISTIQUE en local pour éviter l'erreur "is not defined"
-  // si le fichier email-service.js ne la charge pas à temps.
-  if (typeof EMAIL_LOGISTIQUE === 'undefined') {
-    window.EMAIL_LOGISTIQUE = 'amague2007@gmail.com';
+  // ==========================================
+  // CONFIGURATION EMAILJS
+  // ==========================================
+  const EMAILJS_PUBLIC_KEY = 'SUbWMSdrTf7JugMrS'; 
+  const EMAILJS_SERVICE_ID = 'service_e6k2e76'; 
+  const EMAILJS_TEMPLATE_ID = 'c6oso9u'; 
+  const EMAIL_LOGISTIQUE = 'amague2007@gmail.com';
+
+  if (typeof emailjs !== 'undefined') {
+      emailjs.init(EMAILJS_PUBLIC_KEY);
   }
+
+  // Fonction d'envoi d'email adaptée
+  async function envoyerEmailAdmin(destinataire, sujet, message) {
+      try {
+          if (typeof emailjs === 'undefined') return { success: false, error: "EmailJS non chargé" };
+
+          const templateParams = {
+              to_email: destinataire,
+              subject: sujet,
+              message: message
+          };
+
+          const response = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+          return { success: response.status === 200 };
+      } catch (error) {
+          console.error('❌ Erreur EmailJS Admin:', error);
+          return { success: false, error: error.text || error.message };
+      }
+  }
+  // ==========================================
 
   const ADKOUL_ADMIN_SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const ADKOUL_ADMIN_SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
@@ -913,11 +938,9 @@
       if (!check || check.length === 0) { alert('❌ L\'ancien mot de passe est incorrect.'); return; }
       const hashNew = await hashPassword(newPwd);
       await apiCall(`/admins?id=eq.${adminId}`, { method: 'PATCH', body: JSON.stringify({ password_hash: hashNew }) });
-      envoyerEmail('template_demande_recue', adminEmail, {
-        nom: getAdminName(), prenom: '', type_demande: 'Changement de mot de passe (SÉCURITÉ)',
-        destination: '-', date: new Date().toLocaleDateString('fr-FR'), heure: new Date().toLocaleTimeString('fr-FR'),
-        motif: 'Si vous n\'êtes pas à l\'origine de ce changement, contactez immédiatement l\'administrateur.'
-      });
+      
+      envoyerEmailAdmin(adminEmail, "Sécurité - Changement de mot de passe", `Bonjour ${getAdminName()},\n\nVotre mot de passe a été modifié avec succès.\n\nSi vous n'êtes pas à l'origine de ce changement, contactez immédiatement l'administrateur.`);
+      
       fermerModal();
       alert('✅ Votre mot de passe a été modifié avec succès !');
     } catch (err) { alert('❌ Erreur : ' + err.message); }
@@ -1002,11 +1025,33 @@
   }
 
   async function notifierEmailAvecStatut(modele, email, donnees) {
-    if (typeof envoyerEmail !== 'function') { return { success: false, error: 'Service EmailJS indisponible' }; }
     try {
-      const resultat = await envoyerEmail(modele, email, donnees);
-      return resultat && resultat.success === true ? resultat : { success: false, error: (resultat && resultat.error) || 'Envoi non confirmé' };
-    } catch (erreur) { console.error('Erreur de notification :', erreur); return { success: false, error: String(erreur) }; }
+      let message = "";
+      
+      if (modele === 'template_vehicule') {
+        message = `Bonjour ${donnees.nom},\n\nVotre demande de véhicule a été validée.\n\n📍 Destination : ${donnees.destination}\n📅 Date : ${donnees.date} à ${donnees.heure}\n👤 Chauffeur : ${donnees.chauffeur}\n🚙 Véhicule : ${donnees.vehicule}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`;
+      } 
+      else if (modele === 'template_refus') {
+        message = `Bonjour ${donnees.nom},\n\nVotre demande pour la destination ${donnees.destination} a été refusée.\n\nMotif : ${donnees.motif_refus}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`;
+      }
+      else if (modele === 'template_ordre_attente_rh') {
+        message = `Nouvelle mission affectée en attente de validation RH.\n\n👤 Agent : ${donnees.agent}\n📍 Destination : ${donnees.destination}\n📅 Départ : ${donnees.date_depart}\n🚙 Véhicule : ${donnees.vehicule}\n\nMerci de vous connecter à l'administration.`;
+      }
+      else {
+        message = `Notification : ${donnees.message || 'Mise à jour de votre dossier.'}`;
+      }
+
+      const response = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_email: email,
+        subject: `Notification - ONG ADKOUL`,
+        message: message
+      });
+
+      return { success: response.status === 200 };
+    } catch (error) {
+      console.error('❌ Erreur EmailJS Admin:', error);
+      return { success: false, error: error.text || error.message };
+    }
   }
 
   async function confirmerAjoutUser() {
@@ -1040,10 +1085,12 @@
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok || result.success !== true) { throw new Error(result.error || 'Création refusée par le service sécurisé (HTTP ' + response.status + ').'); }
-      const notification = await notifierEmailAvecStatut('template_creation_user', email, { nom, email, role, lien_connexion: window.location.origin + '/admin.html' });
+      
+      await notifierEmailAvecStatut('template_creation_user', email, { nom, email, role, lien_connexion: window.location.origin + '/admin.html' });
+      
       fermerModal();
       await chargerUsers();
-      alert('✅ Compte "' + nom + '" créé.\n' + (notification.success ? 'Email de bienvenue accepté par EmailJS.\n' : '⚠️ Email de bienvenue non confirmé.\n') + 'Transmettez le mot de passe à l’agent par un canal privé, jamais par email.');
+      alert('✅ Compte "' + nom + '" créé.\nTransmettez le mot de passe à l’agent par un canal privé, jamais par email.');
     } catch (err) { console.error('Création de compte non confirmée :', err); alert('❌ ' + (err && err.message ? err.message : 'Erreur de création du compte.')); }
     finally { pwdInput.value = ''; pwd2Input.value = ''; adminPwdInput.value = ''; bouton.disabled = false; }
   }
@@ -1177,7 +1224,7 @@
       });
       fermerModal();
       await chargerDemandes();
-      alert('✅ Demande validée et véhicule affecté.\n' + (notification.success ? 'Notification acceptée par EmailJS pour le demandeur.' : '⚠️ Notification email non confirmée. La validation est enregistrée.'));
+      alert('✅ Demande validée et véhicule affecté.\n' + (notification.success ? 'Notification email envoyée.' : '⚠️ Notification email non confirmée. La validation est enregistrée.'));
     } catch (err) { alert('❌ ' + err.message); }
   }
 
@@ -1202,7 +1249,7 @@
       });
       fermerModal();
       await chargerDemandes();
-      alert('✅ Demande refusée.\n' + (notification.success ? 'Notification acceptée par EmailJS pour le demandeur.' : '⚠️ Notification email non confirmée. Le refus est enregistré.'));
+      alert('✅ Demande refusée.\n' + (notification.success ? 'Notification email envoyée.' : '⚠️ Notification email non confirmée. Le refus est enregistré.'));
     } catch (err) { alert('❌ ' + err.message); }
   }
 
@@ -1451,15 +1498,13 @@
         body: JSON.stringify({ statut: 'affecte_logistique', chauffeur_assigne: chauffeur, vehicule_assigne: vehiculeString, notes_internes: notes || null, affecte_par: getAdminName() })
       });
       if (!Array.isArray(sauvegarde) || sauvegarde.length !== 1) { alert('Aucune affectation enregistrée : demande déjà traitée ou non autorisée.'); await chargerOrdres(); return; }
-      const notification = await notifierEmailAvecStatut('template_ordre_attente_rh', EMAIL_LOGISTIQUE, {
-        agent: ordreEnCours.nom, poste: ordreEnCours.poste || '-', destination: ordreEnCours.destination, projet: ordreEnCours.projet || '-',
-        date_depart: ordreEnCours.date_depart ? formatNigerDateShort(ordreEnCours.date_depart) : '-',
-        date_retour: ordreEnCours.date_retour ? formatNigerDateShort(ordreEnCours.date_retour) : '-',
-        moyen: ordreEnCours.moyen_deplacement || '-', vehicule: vehiculeString || 'Aucun (Bus/Avion)'
-      });
+      
+      const msgLog = `Nouvelle mission affectée en attente de validation RH.\n\n👤 Agent : ${ordreEnCours.nom}\n📍 Destination : ${ordreEnCours.destination}\n📅 Départ : ${formatNigerDateShort(ordreEnCours.date_depart)}\n🚙 Véhicule : ${vehiculeString || 'Aucun (Bus/Avion)'}`;
+      const notification = await envoyerEmailAdmin(EMAIL_LOGISTIQUE, "Mission en attente RH", msgLog);
+      
       fermerModal();
       await chargerOrdres();
-      alert('✅ Affectation logistique enregistrée pour la suite du traitement RH.\n' + (notification.success ? 'Notification acceptée par EmailJS pour la boîte logistique.' : '⚠️ Notification email non confirmée. L’affectation est enregistrée.'));
+      alert('✅ Affectation logistique enregistrée pour la suite du traitement RH.\n' + (notification.success ? 'Notification email envoyée.' : '⚠️ Notification email non confirmée. L’affectation est enregistrée.'));
     } catch (err) { alert('❌ ' + err.message); }
   }
 
@@ -1508,19 +1553,13 @@
       
       // 6. Préparer et envoyer l'e-mail au demandeur
       const lienPdf = `https://amague2007-star.github.io/demande-vehicule/imprimer.html?id=${ordreEnCours.id}&download=true`;
+      const msgDemandeur = `Bonjour ${ordreEnCours.nom},\n\nVotre demande d'ordre de mission a été validée par le service RH.\n\n📄 Numéro d'ordre attribué : ${numOrdre}\n📍 Destination : ${ordreEnCours.destination}\n📅 Date de départ : ${formatNigerDateShort(ordreEnCours.date_depart)}\n🚙 Véhicule : ${ordreEnCours.vehicule_assigne || 'Aucun (Bus/Avion)'}\n\nPour télécharger et imprimer votre ordre de mission au format PDF, cliquez sur le lien ci-dessous :\n${lienPdf}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`;
       
-      try {
-        const result = await envoyerEmail('template_gd96rfl', ordreEnCours.email, {
-          nom: ordreEnCours.nom,
-          subject: `✅ Ordre de Mission Validé - N° ${numOrdre}`,
-          message: `Bonjour ${ordreEnCours.nom},\n\nVotre demande d'ordre de mission a été validée par le service RH.\n\n📄 Numéro d'ordre attribué : ${numOrdre}\n📍 Destination : ${ordreEnCours.destination}\n📅 Date de départ : ${formatNigerDateShort(ordreEnCours.date_depart)}\n🚙 Véhicule : ${ordreEnCours.vehicule_assigne || 'Aucun (Bus/Avion)'}\n\nPour télécharger et imprimer votre ordre de mission au format PDF, cliquez sur le lien ci-dessous :\n${lienPdf}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`
-        });
-        if (result.success) { 
-            alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\nUn e-mail a été envoyé au demandeur.`); 
-        } else { 
-            alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\n⚠️ L'e-mail n'a pas pu être envoyé.`); 
-        }
-      } catch (emailErr) { 
+      const result = await envoyerEmailAdmin(ordreEnCours.email, `✅ Ordre de Mission Validé - N° ${numOrdre}`, msgDemandeur);
+      
+      if (result.success) { 
+          alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\nUn e-mail a été envoyé au demandeur.`); 
+      } else { 
           alert(`✅ Ordre de mission validé !\nNuméro attribué : ${numOrdre}\n\n⚠️ L'e-mail n'a pas pu être envoyé.`); 
       }
       

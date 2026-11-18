@@ -669,11 +669,18 @@
       try {
           if (typeof emailjs === 'undefined') return { success: false, error: "EmailJS non chargé" };
 
+          if (!destinataire) {
+              console.error("Erreur : Aucun destinataire fourni.");
+              return { success: false, error: "Destinataire manquant" };
+          }
+
           const templateParams = {
               to_email: destinataire,
               subject: sujet,
               message: message
           };
+
+          console.log("Tentative d'envoi vers :", destinataire);
 
           const response = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
           return { success: response.status === 200 };

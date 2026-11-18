@@ -2626,9 +2626,13 @@ html
   // ==========================================
   // CONFIGURATION EMAILJS
   // ==========================================
-  const EMAILJS_PUBLIC_KEY = 'SUbWMSdrTf7JugMrS'; 
+ const EMAILJS_PUBLIC_KEY = 'SUbWMSdrTf7JugMrS'; 
   const EMAILJS_SERVICE_ID = 'service_e6k2e76'; 
-  const EMAILJS_TEMPLATE_ID = 'c6oso9u'; 
+  
+  // On déclare les deux templates qui existent réellement dans votre compte
+  const TEMPLATE_ID_NOTIF = 'template_gd96rfl'; // Le template "Contact Us" pour les notifications générales
+  const TEMPLATE_ID_VEHICULE = 'template_vehicule'; // Le template "Affectation Véhicule"
+  
   const EMAIL_LOGISTIQUE = 'amague2007@gmail.com';
 
   if (typeof emailjs !== 'undefined') {

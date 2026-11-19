@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADKOUL V9.27 — Gestion Logistique (test)</title>
+<title>ADKOUL V9.28 — Gestion Logistique (test)</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -1294,8 +1294,10 @@ body.assistant-location-mode .location-bell:focus-visible{outline:3px solid #f59
     document.getElementById('modalValider').classList.add('active');
   }
 
+  // V9.28 : ne notifier qu'après une affectation effectivement persistée.
+  let affectationVehiculeEnCours = false;
   async function confirmerValidation() {
-    if (getAdminRole() === 'assistant_logistique') return;
+    if (getAdminRole() === 'assistant_logistique' || affectationVehiculeEnCours) return;
     const sc = document.getElementById('selectChauffeur').value;
     const chauffeur = sc === 'AUTRE' ? document.getElementById('inputChauffeurAutre').value.trim() : sc;
     const type = document.getElementById('selectVehiculeType').value;
@@ -1303,18 +1305,53 @@ body.assistant-location-mode .location-bell:focus-visible{outline:3px solid #f59
     if (!chauffeur) { alert('⚠️ Sélectionnez ou saisissez le nom du chauffeur.'); return; }
     if (!type) { alert('⚠️ Choisissez PRADO, HARD-TOP ou AUTRE.'); return; }
     if (!vehiculeString) { alert('⚠️ Précisez le véhicule dans le champ de saisie manuelle.'); return; }
+    if (!demandeEnCours || !Number.isSafeInteger(Number(demandeEnCours.id))) {
+      alert('❌ Demande introuvable. Actualisez la liste.'); return;
+    }
+    const demande = demandeEnCours;
+    const bouton = document.querySelector('#modalValider .btn-valider');
+    affectationVehiculeEnCours = true;
+    if (bouton) { bouton.disabled = true; bouton.textContent = '⏳ Enregistrement...'; }
     try {
-      await apiCall('/demandes?id=eq.' + demandeEnCours.id, { method: 'PATCH', body: JSON.stringify({ statut: 'validee', chauffeur_assigne: chauffeur, vehicule_assigne: vehiculeString, date_validation: new Date().toISOString(), valide_par: getAdminName() }) });
-      const notification = await notifierEmailAvecStatut('template_vehicule', demandeEnCours.email, {
-        nom: demandeEnCours.prenom + ' ' + demandeEnCours.nom, chauffeur: chauffeur, vehicule: vehiculeString,
-        destination: demandeEnCours.destination,
-        date: (demandeEnCours.date_demande || demandeEnCours.date_sortie) ? formatNigerDateShort(demandeEnCours.date_demande || demandeEnCours.date_sortie) : '-',
-        heure: demandeEnCours.heure_depart || '-'
+      // Une réponse HTTP 2xx n'atteste PAS qu'une ligne a été modifiée.
+      // Le filtre sur statut évite d'écraser une demande déjà traitée.
+      const lignes = await apiCall('/demandes?id=eq.' + encodeURIComponent(demande.id) + '&statut=eq.en_attente&select=id,statut,chauffeur_assigne,vehicule_assigne,date_validation,valide_par', {
+        method: 'PATCH',
+        body: JSON.stringify({ statut: 'validee', chauffeur_assigne: chauffeur,
+          vehicule_assigne: vehiculeString, date_validation: new Date().toISOString(), valide_par: getAdminName() })
       });
+      if (!Array.isArray(lignes) || lignes.length !== 1 ||
+          Number(lignes[0].id) !== Number(demande.id) || lignes[0].statut !== 'validee' ||
+          lignes[0].chauffeur_assigne !== chauffeur || lignes[0].vehicule_assigne !== vehiculeString) {
+        throw new Error('Aucune affectation confirmée dans Supabase (0 ligne modifiée ou accès refusé). Aucun email envoyé. Vérifiez les autorisations UPDATE/RLS de demandes.');
+      }
+      // Deuxième lecture pour confirmer la persistance réelle.
+      const verification = await apiCall('/demandes?id=eq.' + encodeURIComponent(demande.id) + '&select=id,statut,chauffeur_assigne,vehicule_assigne');
+      if (!Array.isArray(verification) || verification.length !== 1 ||
+          verification[0].statut !== 'validee' || verification[0].chauffeur_assigne !== chauffeur ||
+          verification[0].vehicule_assigne !== vehiculeString) {
+        throw new Error('La modification n’a pas pu être vérifiée après écriture. Aucun email envoyé. Actualisez et vérifiez la demande avant toute nouvelle action.');
+      }
       fermerModal();
       await chargerDemandes();
-      alert('✅ Demande validée et véhicule affecté.\n' + (notification.success ? 'Notification email envoyée.' : '⚠️ Notification email non confirmée. La validation est enregistrée.'));
-    } catch (err) { alert('❌ ' + err.message); }
+      let notification = {success:false};
+      try {
+        notification = await notifierEmailAvecStatut('template_vehicule', demande.email, {
+          nom: demande.prenom + ' ' + demande.nom, chauffeur: chauffeur, vehicule: vehiculeString,
+          destination: demande.destination,
+          date: (demande.date_demande || demande.date_sortie) ? formatNigerDateShort(demande.date_demande || demande.date_sortie) : '-',
+          heure: demande.heure_depart || '-'
+        });
+      } catch (erreurMail) { console.warn('Affectation enregistrée ; email non confirmé', erreurMail); }
+      alert('✅ Affectation enregistrée et vérifiée dans Supabase.\n' +
+        (notification && notification.success ? 'Notification email envoyée.' : '⚠️ Notification email non confirmée. L’affectation reste enregistrée.'));
+    } catch (err) {
+      console.error('Affectation non confirmée :', err);
+      alert('❌ ' + (err && err.message ? err.message : 'Erreur d’affectation.'));
+    } finally {
+      affectationVehiculeEnCours = false;
+      if (bouton) { bouton.disabled = false; bouton.textContent = '✅ Enregistrer'; }
+    }
   }
 
   function ouvrirModalRefuser(id) {

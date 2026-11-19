@@ -5,7 +5,40 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ONG ADKOUL — Demande de Sortie Véhicule</title>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script src="email-service.js"></script>
+<script>
+// ADKOUL — notification EmailJS, modèle « Contact Us ».
+// Les variables de ce modèle sont : {{to_email}}, {{subject}}, {{message}}.
+const EMAILJS_PUBLIC_KEY = 'SUbWMSdrTf7JugMrS';
+const EMAILJS_SERVICE_ID = 'service_e6k2e76';
+const EMAILJS_TEMPLATE_ID = 'template_gd96rfl';
+const EMAIL_LOGISTIQUE = 'amague2007@gmail.com';
+
+async function envoyerEmail(_type, destinataire, donnees) {
+  try {
+    if (!window.emailjs) throw new Error('Bibliothèque EmailJS non chargée');
+    if (!destinataire || !String(destinataire).trim()) throw new Error('Destinataire manquant');
+    const sujet = donnees.type_demande?.includes('NOUVELLE')
+      ? 'Nouvelle demande de sortie de véhicule — ONG ADKOUL'
+      : 'Confirmation de réception — Sortie de véhicule ONG ADKOUL';
+    const message = [
+      'Bonjour ' + [donnees.prenom, donnees.nom].filter(Boolean).join(' ') + ',',
+      '', donnees.type_demande || 'Sortie de véhicule',
+      'Destination : ' + (donnees.destination || '-'),
+      'Date : ' + (donnees.date || '-'),
+      'Heure : ' + (donnees.heure || '-'),
+      'Motif : ' + (donnees.motif || '-'),
+      '', 'Service Logistique — ONG ADKOUL'
+    ].join('\n');
+    const reponse = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID,
+      { to_email: destinataire, subject: sujet, message },
+      { publicKey: EMAILJS_PUBLIC_KEY });
+    return { success: reponse.status === 200 };
+  } catch (erreur) {
+    console.error('EmailJS — notification non envoyée :', erreur);
+    return { success: false, error: erreur.text || erreur.message || String(erreur) };
+  }
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">

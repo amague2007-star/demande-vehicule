@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
+<head><meta name="referrer" content="no-referrer">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Impression Ordre de Mission - ONG ADKOUL</title>
@@ -60,47 +60,50 @@ body{margin:0;padding:16px;background:#eef0f4;font:12px Arial,Helvetica,sans-ser
   }
 
   async function consulter(){
-    if(!ordreId){refuser("Aucun identifiant fourni.");return;}
-
-    const limite = (promesse, duree = 10000) => Promise.race([
+    const accessToken = urlParams.get('access');
+    if (!accessToken && !ordreId) { refuser("Aucun identifiant fourni."); return; }
+    const limite = (promesse, duree = 12000) => Promise.race([
       promesse, new Promise((_, rejeter) => setTimeout(() => rejeter(new Error("Délai dépassé")), duree))
     ]);
-    let session;
-    try {
-      const cle = "sb-mvmzhdvkeromtljnvrow-auth-token";
-      let sauvegarde = null;
-      try { sauvegarde = JSON.parse(localStorage.getItem(cle) || "null"); } catch (_) {}
-      session = sauvegarde?.currentSession || sauvegarde;
-      if (!session?.access_token) {
-        refuser("Connexion Supabase Auth requise. Connectez-vous à admin.html puis réessayez.");
-        return;
-      }
-      const identite = await limite(fetch(SUPABASE_URL + '/auth/v1/user', {
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + session.access_token },
-        cache: 'no-store'
-      }));
-      if (!identite.ok) { refuser("Session expirée : reconnectez-vous à admin.html."); return; }
-      const user = await identite.json();
-      if (!user?.email) { refuser("Compte Supabase Auth non reconnu."); return; }
-      const profilResponse = await limite(fetch(SUPABASE_URL + '/rest/v1/admins?select=role&auth_id=eq.' + encodeURIComponent(user.id), {
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + session.access_token },
-        cache: 'no-store'
-      }));
-      if (!profilResponse.ok) { refuser("Impossible de vérifier les droits de ce compte."); return; }
-      const profils = await profilResponse.json();
-      if (!Array.isArray(profils) || profils.length !== 1 ||
-          !["rh","directeur_logistique","logistique"].includes(String(profils[0].role || "").toLowerCase())) {
-        refuser("Accès refusé : profil RH ou Logistique autorisé requis."); return;
-      }
-    } catch (err) {
-      refuser("Chargement interrompu : " + (err?.message || "Erreur réseau") + ". Réessayez après reconnexion.");
-      return;
+    let request;
+    if (accessToken) {
+      if (!/^[0-9a-f]{64}$/.test(accessToken)) { refuser("Lien de consultation invalide."); return; }
+      // Retirer le jeton de la barre d'adresse après lecture pour limiter son exposition.
+      try { history.replaceState(null, "", location.pathname); } catch (_) {}
+      request = limite(fetch(SUPABASE_URL + '/functions/v1/mission-access-link', {
+        method: 'POST', headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'read', token: accessToken }), cache: 'no-store'
+      })).then(async res => {
+        const json = await res.json();
+        if (!res.ok) throw Error(json.error || "Lien refusé.");
+        return [json.mission];
+      });
+    } else {
+      request = (async () => {
+        const cle = "sb-mvmzhdvkeromtljnvrow-auth-token";
+        let sauvegarde = null;
+        try { sauvegarde = JSON.parse(localStorage.getItem(cle) || "null"); } catch (_) {}
+        const session = sauvegarde?.currentSession || sauvegarde;
+        if (!session?.access_token) throw Error("Connexion administrateur requise.");
+        const identite = await limite(fetch(SUPABASE_URL + '/auth/v1/user', {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + session.access_token }, cache: 'no-store'
+        }));
+        if (!identite.ok) throw Error("Session expirée.");
+        const user = await identite.json();
+        const profilResponse = await limite(fetch(SUPABASE_URL + '/rest/v1/admins?select=role&auth_id=eq.' + encodeURIComponent(user.id), {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + session.access_token }, cache: 'no-store'
+        }));
+        if (!profilResponse.ok) throw Error("Droits administrateur indisponibles.");
+        const profils = await profilResponse.json();
+        if (!Array.isArray(profils) || profils.length !== 1 || !["rh","directeur_logistique","logistique"].includes(String(profils[0].role || "").toLowerCase())) throw Error("Accès refusé.");
+        const response = await limite(fetch(SUPABASE_URL + '/rest/v1/missions_2?id=eq.' + encodeURIComponent(ordreId) + '&select=' + encodeURIComponent('id,nom,poste,accompagnateurs,destination,objectif,moyen_deplacement,chauffeur_assigne,vehicule_assigne,date_depart,date_retour,imputation_budgetaire,bureau,statut,message_admin'), {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + session.access_token }, cache: 'no-store'
+        }));
+        if (!response.ok) throw Error("Accès à la mission refusé.");
+        return response.json();
+      })();
     }
-    limite(fetch(SUPABASE_URL + '/rest/v1/missions_2?id=eq.' + encodeURIComponent(ordreId) + '&select=' + encodeURIComponent('id,nom,poste,accompagnateurs,destination,objectif,moyen_deplacement,chauffeur_assigne,vehicule_assigne,date_depart,date_retour,imputation_budgetaire,bureau,statut,message_admin'), {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + session.access_token },
-      cache: "no-store"
-    }), 12000)
-    .then(res => {if(!res.ok)throw Error("Accès à la demande refusé.");return res.json();})
+    request
     .then(data => {
       if (data && data.length > 0) {
         const d = data[0];

@@ -15,11 +15,11 @@ body{margin:0;padding:16px;background:#eef0f4;font:12px Arial,Helvetica,sans-ser
 .om-number{text-align:center;color:#fff;background:#203c70;font-size:14px;font-weight:700;padding:1.5mm;margin-top:5mm}
 .om-office{background:#c7c7c7;font-weight:bold;font-size:13px;padding:1.5mm 0;margin-top:5mm}
 .om-intro{font-weight:bold;margin-top:19mm;margin-bottom:8mm;font-size:13px}
-.om-line{display:flex;align-items:baseline;margin-bottom:6mm;line-height:1.35;break-inside:avoid}
-.om-label{font-weight:bold;flex:0 0 49mm;max-width:49mm}
-.om-value{flex:1;min-width:0;overflow-wrap:anywhere;white-space:pre-wrap}
-.om-wide{display:block}.om-wide .om-label{display:block;max-width:none;margin-bottom:2mm}
-.om-wide .om-value{display:block;min-height:9mm}
+.om-line{display:grid;grid-template-columns:49mm minmax(0,1fr);align-items:start;margin-bottom:5mm;line-height:1.4;break-inside:avoid;column-gap:1mm}
+.om-label{font-weight:bold;min-width:0}
+.om-value{min-width:0;overflow-wrap:break-word;white-space:pre-wrap}
+.om-wide{display:grid}.om-wide .om-label{display:block;max-width:none;margin-bottom:0}
+.om-wide .om-value{display:block;min-height:0}
 .om-sign{text-align:center;margin-top:7mm;font-size:12px}
 .om-sign p{margin:3mm 0}
 .om-sign-title{text-decoration:underline;font-weight:normal}

@@ -113,11 +113,11 @@ body{margin:0;padding:16px;background:#eef0f4;font:12px Arial,Helvetica,sans-ser
           return;
         }
         const numero = String(d.message_admin || '').trim();
-        if (!/^\\d+\\s*\\/ADKOUL\\/\\d{4}$/i.test(numero)) {
+        if (!/^[0-9]+[ ]*\/ADKOUL\/[0-9]{4}$/i.test(numero)) {
           refuser("Numéro officiel absent : demandez la finalisation de la numérotation avant impression.");
           return;
         }
-        const annee = (numero.match(/\\d{4}$/) || [new Date().getFullYear().toString()])[0];
+        const annee = (numero.match(/[0-9]{4}$/) || [new Date().getFullYear().toString()])[0];
         const bureau = d.bureau || 'Tahoua';
         const visa = Array.from({length:4}, () => `
           <div class="om-visa">

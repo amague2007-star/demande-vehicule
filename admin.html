@@ -1690,34 +1690,18 @@ body.assistant-location-mode .location-bell:focus-visible{outline:3px solid #f59
     if (btnAction) { btnAction.disabled = true; btnAction.textContent = "⏳ Génération..."; }
     
     try {
-      // 1. Chercher le dernier numéro de mission validée
-      const dernieresMissions = await apiCall('/missions_2?message_admin=not.is.null&order=created_at.desc&limit=1&select=message_admin');
-      let maxNum = 0;
-      
-      if (dernieresMissions && dernieresMissions.length > 0) {
-        const dernierNum = dernieresMissions[0].message_admin;
-        // 2. Extraire uniquement les chiffres au début (ex: "332 /ADKOUL/2026" -> 332)
-        const match = dernierNum.match(/^(\d+)/);
-        if (match) {
-          const num = parseInt(match[1], 10);
-          if (!isNaN(num) && num > maxNum) { maxNum = num; }
-        }
-      }
-      
-      // 3. Incrémenter de 1 pour le nouveau numéro
-      const prochainNum = maxNum + 1;
-      
-      // 4. Formater le numéro (ex: 333 /ADKOUL/2026)
-      const annee = new Date().getFullYear();
-      const numOrdre = String(prochainNum).padStart(3, '0') + ' /ADKOUL/' + annee;
-
-      // 5. Enregistrer dans la base de données Supabase
-      await apiCall('/missions_2?id=eq.' + ordreEnCours.id, { 
-        method: 'PATCH', 
-        body: JSON.stringify({ statut: 'validee', message_admin: numOrdre, valide_par: getAdminName() }) 
+      // Numéro attribué atomiquement par Supabase, jamais par le navigateur.
+      const validation = await apiCall('/missions_2?id=eq.' + encodeURIComponent(ordreEnCours.id) + '&select=id,statut,message_admin', {
+        method: 'PATCH',
+        body: JSON.stringify({ statut: 'validee', valide_par: getAdminName() })
       });
-      
-      // 6. Préparer et envoyer l'e-mail au demandeur
+      if (!Array.isArray(validation) || validation.length !== 1 ||
+          validation[0].statut !== 'validee' ||
+          !/^[0-9]+\s*\/ADKOUL\/[0-9]{4}$/.test(String(validation[0].message_admin || ''))) {
+        throw new Error('Validation ou numéro officiel non confirmé par Supabase.');
+      }
+      const numOrdre = validation[0].message_admin;
+
       const { data: sessionPourLien, error: erreurSessionLien } = await adkoulAuth.auth.getSession();
       const jetonAdmin = sessionPourLien?.session?.access_token;
       if (erreurSessionLien || !jetonAdmin) {

@@ -62,17 +62,42 @@ body{margin:0;padding:16px;background:#eef0f4;font:12px Arial,Helvetica,sans-ser
   async function consulter(){
     if(!ordreId){refuser("Aucun identifiant fourni.");return;}
     if(!client){refuser("Authentification indisponible.");return;}
-    const {data:identite,error:authError}=await client.auth.getUser();
-    const user=identite?.user;
-    if(authError||!user?.email){refuser("Connexion requise : ouvrez la page admin.html.");return;}
-    const {data:profil,error:roleError}=await client.from("admins").select("role").ilike("email",user.email).maybeSingle();
-    if(roleError||!["rh","directeur_logistique","logistique"].includes(String(profil?.role||"").toLowerCase())){refuser("Accès refusé.");return;}
-    const {data:session,error:sessionError}=await client.auth.getSession();
-    if(sessionError||!session?.session?.access_token){refuser("Session expirée.");return;}
-    fetch(SUPABASE_URL + '/rest/v1/missions_2?id=eq.' + encodeURIComponent(ordreId) + '&select=' + encodeURIComponent('id,nom,poste,accompagnateurs,destination,objectif,moyen_deplacement,chauffeur_assigne,vehicule_assigne,date_depart,date_retour,imputation_budgetaire,bureau,statut,message_admin'), {
+    const limite = (promesse, duree = 10000) => Promise.race([
+      promesse, new Promise((_, rejeter) => setTimeout(() => rejeter(new Error("Délai dépassé")), duree))
+    ]);
+    let session;
+    try {
+      const resultat = await limite(client.auth.getSession());
+      session = resultat?.data?.session;
+      if (resultat?.error || !session?.access_token) {
+        refuser("Connexion Supabase Auth requise. Connectez-vous à admin.html puis réessayez.");
+        return;
+      }
+      const identite = await limite(fetch(SUPABASE_URL + '/auth/v1/user', {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + session.access_token },
+        cache: 'no-store'
+      }));
+      if (!identite.ok) { refuser("Session expirée : reconnectez-vous à admin.html."); return; }
+      const user = await identite.json();
+      if (!user?.email) { refuser("Compte Supabase Auth non reconnu."); return; }
+      const profilResponse = await limite(fetch(SUPABASE_URL + '/rest/v1/admins?select=role&auth_id=eq.' + encodeURIComponent(user.id), {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + session.access_token },
+        cache: 'no-store'
+      }));
+      if (!profilResponse.ok) { refuser("Impossible de vérifier les droits de ce compte."); return; }
+      const profils = await profilResponse.json();
+      if (!Array.isArray(profils) || profils.length !== 1 ||
+          !["rh","directeur_logistique","logistique"].includes(String(profils[0].role || "").toLowerCase())) {
+        refuser("Accès refusé : profil RH ou Logistique autorisé requis."); return;
+      }
+    } catch (err) {
+      refuser("Chargement interrompu : " + (err?.message || "Erreur réseau") + ". Réessayez après reconnexion.");
+      return;
+    }
+    limite(fetch(SUPABASE_URL + '/rest/v1/missions_2?id=eq.' + encodeURIComponent(ordreId) + '&select=' + encodeURIComponent('id,nom,poste,accompagnateurs,destination,objectif,moyen_deplacement,chauffeur_assigne,vehicule_assigne,date_depart,date_retour,imputation_budgetaire,bureau,statut,message_admin'), {
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + session.session.access_token },
       cache: "no-store"
-    })
+    }), 12000)
     .then(res => {if(!res.ok)throw Error("Accès à la demande refusé.");return res.json();})
     .then(data => {
       if (data && data.length > 0) {

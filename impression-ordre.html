@@ -42,12 +42,12 @@ body{margin:0;padding:16px;background:#eef0f4;font:12px Arial,Helvetica,sans-ser
 
 <button class="btn-print" id="btnPrint" style="display: none;" onclick="window.print()">🖨️ Imprimer le document</button>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
 <script>
   const SUPABASE_URL = "https://mvmzhdvkeromtljnvrow.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Wd7mDCVh2xZd-mjUxWFxPQ_tjJkdsdh";
 
-  const client=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY);
+  // Lecture de la session existante sans dépendance CDN ni verrou supabase-js.
   const contenu=document.getElementById("documentContent");
   const escapeHtml=value=>String(value??"—").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   function refuser(texte){contenu.textContent=texte;document.getElementById("btnPrint").style.display="none";}
@@ -61,15 +61,17 @@ body{margin:0;padding:16px;background:#eef0f4;font:12px Arial,Helvetica,sans-ser
 
   async function consulter(){
     if(!ordreId){refuser("Aucun identifiant fourni.");return;}
-    if(!client){refuser("Authentification indisponible.");return;}
+
     const limite = (promesse, duree = 10000) => Promise.race([
       promesse, new Promise((_, rejeter) => setTimeout(() => rejeter(new Error("Délai dépassé")), duree))
     ]);
     let session;
     try {
-      const resultat = await limite(client.auth.getSession());
-      session = resultat?.data?.session;
-      if (resultat?.error || !session?.access_token) {
+      const cle = "sb-mvmzhdvkeromtljnvrow-auth-token";
+      let sauvegarde = null;
+      try { sauvegarde = JSON.parse(localStorage.getItem(cle) || "null"); } catch (_) {}
+      session = sauvegarde?.currentSession || sauvegarde;
+      if (!session?.access_token) {
         refuser("Connexion Supabase Auth requise. Connectez-vous à admin.html puis réessayez.");
         return;
       }
@@ -95,7 +97,7 @@ body{margin:0;padding:16px;background:#eef0f4;font:12px Arial,Helvetica,sans-ser
       return;
     }
     limite(fetch(SUPABASE_URL + '/rest/v1/missions_2?id=eq.' + encodeURIComponent(ordreId) + '&select=' + encodeURIComponent('id,nom,poste,accompagnateurs,destination,objectif,moyen_deplacement,chauffeur_assigne,vehicule_assigne,date_depart,date_retour,imputation_budgetaire,bureau,statut,message_admin'), {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + session.session.access_token },
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + session.access_token },
       cache: "no-store"
     }), 12000)
     .then(res => {if(!res.ok)throw Error("Accès à la demande refusé.");return res.json();})

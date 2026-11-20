@@ -1718,8 +1718,23 @@ body.assistant-location-mode .location-bell:focus-visible{outline:3px solid #f59
       });
       
       // 6. Préparer et envoyer l'e-mail au demandeur
-      const lienPdf = `https://amague2007-star.github.io/demande-vehicule/imprimer.html?id=${ordreEnCours.id}&download=true`;
-      const msgDemandeur = `Bonjour ${ordreEnCours.nom},\n\nVotre demande d'ordre de mission a été validée par le service RH.\n\n📄 Numéro d'ordre attribué : ${numOrdre}\n📍 Destination : ${ordreEnCours.destination}\n📅 Date de départ : ${formatNigerDateShort(ordreEnCours.date_depart)}\n🚙 Véhicule : ${ordreEnCours.vehicule_assigne || 'Aucun (Bus/Avion)'}\n\nPour télécharger et imprimer votre ordre de mission au format PDF, cliquez sur le lien ci-dessous :\n${lienPdf}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`;
+      const { data: sessionPourLien, error: erreurSessionLien } = await adkoulAuth.auth.getSession();
+      const jetonAdmin = sessionPourLien?.session?.access_token;
+      if (erreurSessionLien || !jetonAdmin) {
+        throw new Error('Mission validée, mais session Supabase Auth absente : lien sécurisé non généré, e-mail non envoyé.');
+      }
+      const reponseLien = await fetch(ADKOUL_ADMIN_SUPABASE_URL + '/functions/v1/mission-access-link', {
+        method: 'POST',
+        headers: { 'apikey': ADKOUL_ADMIN_SUPABASE_KEY, 'Authorization': 'Bearer ' + jetonAdmin, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'issue', id: Number(ordreEnCours.id) }),
+        cache: 'no-store'
+      });
+      const resultatLien = await reponseLien.json().catch(() => ({}));
+      if (!reponseLien.ok || !resultatLien.url) {
+        throw new Error('Mission validée, mais lien sécurisé indisponible : ' + (resultatLien.error || reponseLien.status) + '. Aucun e-mail envoyé.');
+      }
+      const lienPdf = resultatLien.url;
+      const msgDemandeur = `Bonjour ${ordreEnCours.nom},\n\nVotre demande d'ordre de mission a été validée par le service RH.\n\n📄 Numéro d'ordre attribué : ${numOrdre}\n📍 Destination : ${ordreEnCours.destination}\n📅 Date de départ : ${formatNigerDateShort(ordreEnCours.date_depart)}\n🚙 Véhicule : ${ordreEnCours.vehicule_assigne || 'Aucun (Bus/Avion)'}\n\nPour consulter et imprimer votre ordre de mission (lien personnel valable 30 jours), cliquez sur le lien ci-dessous :\n${lienPdf}\n\nCordialement,\nLe Service Logistique - ONG ADKOUL`;
       
       const result = await envoyerEmailAdmin(ordreEnCours.email, `✅ Ordre de Mission Validé - N° ${numOrdre}`, msgDemandeur);
       

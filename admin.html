@@ -1086,7 +1086,7 @@ body.assistant-location-mode .location-bell:focus-visible{outline:3px solid #f59
           </div>
           <div class="user-actions">
             <button class="btn-edit-user" disabled title="Réinitialisation sécurisée non disponible">🔒 Mot de passe</button>
-            <button class="btn-del-user" disabled title="Suppression sécurisée non disponible">🔒 Supprimer</button>
+            <button class="btn-del-user" ${canDelete && getAdminRole() === 'logistique' && Number(myId) === 13 ? `onclick="supprimerUser(${u.id})"` : 'disabled'} title="${canDelete ? 'Supprimer ce compte après confirmation' : 'Compte protégé'}">🗑️ Supprimer</button>
           </div>
         </div>`;
     }).join('');
@@ -1189,7 +1189,46 @@ body.assistant-location-mode .location-bell:focus-visible{outline:3px solid #f59
     finally { pwdInput.value = ''; pwd2Input.value = ''; adminPwdInput.value = ''; bouton.disabled = false; }
   }
 
-  async function supprimerUser() { alert('Suppression désactivée : service sécurisé requis.'); }
+  async function supprimerUser(id) {
+    if (getAdminRole() !== 'logistique' || Number(getAdminId()) !== 13 ||
+        (sessionStorage.getItem('admin_email') || '').toLowerCase() !== 'abdoul.aziz@adkoul.org') {
+      alert('⛔ Suppression réservée à l’administrateur principal.'); return;
+    }
+    if (window.location.origin !== 'https://amague2007-star.github.io') {
+      alert('⛔ Ouvrez la version officielle hébergée sur GitHub Pages.'); return;
+    }
+    const cible = tousLesUsers.find(u => Number(u.id) === Number(id));
+    if (!cible || Number(id) === Number(getAdminId()) || cible.email.toLowerCase() === 'abdoul.aziz@adkoul.org') {
+      alert('⛔ Compte protégé ou introuvable.'); return;
+    }
+    if (!confirm('Supprimer définitivement le compte de ' + cible.nom + ' (' + cible.email + ') ?\\nSon accès Supabase Auth sera supprimé. Les demandes et missions resteront conservées.')) return;
+    const confirmation = prompt('Pour confirmer, saisissez exactement l’adresse email du compte à supprimer :');
+    if (confirmation === null || confirmation.trim().toLowerCase() !== cible.email.trim().toLowerCase()) {
+      alert('Suppression annulée : confirmation incorrecte.'); return;
+    }
+    const adminPwd = prompt('Saisissez votre mot de passe Supabase Auth administrateur pour autoriser la suppression :');
+    if (!adminPwd) return;
+    try {
+      const connexion = await fetch(ADKOUL_ADMIN_SUPABASE_URL + '/auth/v1/token?grant_type=password', {
+        method: 'POST', headers: { 'apikey': ADKOUL_ADMIN_SUPABASE_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'abdoul.aziz@adkoul.org', password: adminPwd }), cache: 'no-store'
+      });
+      const identite = await connexion.json().catch(() => ({}));
+      if (!connexion.ok || !identite.access_token) throw new Error('Mot de passe Supabase Auth incorrect.');
+      const response = await fetch(ADKOUL_ADMIN_SUPABASE_URL + '/functions/v1/secure-admin-users', {
+        method: 'POST',
+        headers: { 'apikey': ADKOUL_ADMIN_SUPABASE_KEY, 'Authorization': 'Bearer ' + identite.access_token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', id: Number(cible.id), email: cible.email }), cache: 'no-store'
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || result.success !== true) throw new Error(result.error || 'Suppression refusée (HTTP ' + response.status + ').');
+      await chargerUsers();
+      alert('✅ Compte supprimé : ' + cible.nom + '. Les historiques sont conservés.');
+    } catch (err) {
+      alert('❌ ' + (err && err.message ? err.message : 'Suppression non confirmée.'));
+      await chargerUsers();
+    }
+  }
 
   async function chargerDemandes() {
     if (getAdminRole() === 'assistant_logistique') return;

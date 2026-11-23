@@ -1426,15 +1426,71 @@ body.assistant-location-mode .location-bell:focus-visible{outline:3px solid #f59
     catch (err) { alert('❌ Erreur lors de la suppression : ' + err.message); }
   }
 
+  // WhatsApp : texte Unicode encodé une seule fois, sans échappement des astérisques.
+  function ouvrirNotificationChauffeur(nomChauffeur, message) {
+    const nom = String(nomChauffeur || '').trim();
+    if (!nom) { alert('Aucun chauffeur affecté.'); return; }
+    let tel = CHAUFFEURS[nom] || CHAUFFEURS[nom.toUpperCase()] || '';
+    if (!tel) tel = prompt('Numéro WhatsApp du chauffeur ' + nom + ' (ex : 227XXXXXXXX) :', '') || '';
+    const numero = String(tel).replace(/\D/g, '');
+    if (!numero || numero.length < 8 || numero.length > 15) {
+      alert('Numéro WhatsApp invalide. Aucun message ouvert.'); return;
+    }
+    const lien = 'https://wa.me/' + numero + '?text=' + encodeURIComponent(message.normalize('NFC'));
+    const fenetre = window.open(lien, '_blank', 'noopener,noreferrer');
+    if (!fenetre) window.location.href = lien;
+  }
+
+  function texteNotificationSortie({chauffeur,agent,date,heure,destination,duree,passagers,vehicule,motif}) {
+    const valeur = v => String(v ?? '').trim() || 'Non précisé';
+    const heureLisible = valeur(heure);
+    return [
+      '🚗 *ONG ADKOUL — NOUVELLE MISSION VALIDÉE*',
+      '',
+      'Bonjour ' + valeur(chauffeur) + ',',
+      '',
+      '📋 *DÉTAILS DE LA SORTIE*',
+      '━━━━━━━━━━━━━━━━━━━━━━',
+      '📅 *Date :* ' + valeur(date),
+      '🕒 *Heure de départ :* ' + heureLisible,
+      '📍 *Destination :* ' + valeur(destination),
+      '⏱️ *Durée estimée :* ' + valeur(duree),
+      '👥 *Passagers :* ' + valeur(passagers),
+      '',
+      '🚙 *VÉHICULE ASSIGNÉ*',
+      valeur(vehicule),
+      '',
+      '📝 *MOTIF*',
+      valeur(motif),
+      '',
+      '👤 *AGENT*',
+      valeur(agent),
+      '',
+      '⚠️ *CONSIGNE AU CHAUFFEUR*',
+      'Merci de vous présenter au garage 10 minutes avant l’heure de départ.',
+      'Merci de confirmer votre disponibilité.',
+      '',
+      '*Message préparé par le Service Logistique — ONG ADKOUL*'
+    ].join('\n');
+  }
+
   function notifierWhatsAppDemande(id) {
     if (getAdminRole() === 'assistant_logistique') return;
-    const d = toutesLesDemandes.find(d => d.id === id);
-    if (!d) return;
-    let tel = CHAUFFEURS[d.chauffeur_assigne] || "";
-    if (!tel && d.chauffeur_assigne) { tel = prompt(`Entrez le numéro WhatsApp de ${d.chauffeur_assigne} (ex: 227XXXXXXXX) :`, ""); }
-    const message = `Bonjour, vous avez une affectation de véhicule :\n👤 Agent : *${d.prenom} ${d.nom}*\n📍 Destination : ${d.destination}\n📅 Date : ${formatNigerDateShort(d.date_demande || d.date_sortie)} ${d.heure_depart ? 'à ' + d.heure_depart : ''}\n🚙 Véhicule : ${d.vehicule_assigne}\n\nMerci de confirmer votre disponibilité.`;
-    const url = tel ? `https://wa.me/${tel.replace(/\D/g,'')}?text=${encodeURIComponent(message)}` : `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
+    const d = toutesLesDemandes.find(x => String(x.id) === String(id));
+    if (!d) { alert('Demande introuvable.'); return; }
+    if (d.statut !== 'validee') { alert('La demande doit être validée avant notification du chauffeur.'); return; }
+    const chauffeur = String(d.chauffeur_assigne || '').trim();
+    const date = d.date_sortie || d.date_demande;
+    const passagers = d.passagers || (Array.isArray(d.accompagnateurs) ? d.accompagnateurs.length + 1 : 'Non précisé');
+    const message = texteNotificationSortie({
+      chauffeur, agent: [d.prenom,d.nom].filter(Boolean).join(' '),
+      date: date ? formatNigerDateShort(date) : '',
+      heure: d.heure_depart, destination: d.destination,
+      duree: d.duree ? String(d.duree) + ' minutes' : '',
+      passagers, vehicule: d.vehicule_assigne,
+      motif: d.motif
+    });
+    ouvrirNotificationChauffeur(chauffeur, message);
   }
 
   function changerTypeOrdre(type, btn) {
@@ -1754,13 +1810,20 @@ body.assistant-location-mode .location-bell:focus-visible{outline:3px solid #f59
 
   function notifierWhatsAppMission(id) {
     if (getAdminRole() === 'assistant_logistique') return;
-    const o = tousLesOrdres.find(o => o.id === id);
-    if (!o) return;
-    let tel = CHAUFFEURS[o.chauffeur_assigne] || "";
-    if (!tel && o.chauffeur_assigne) { tel = prompt(`Entrez le numéro WhatsApp de ${o.chauffeur_assigne} (ex: 227XXXXXXXX) :`, ""); }
-    const message = `Bonjour, voici l'ordre de mission pour *${o.nom}*.\n📍 Destination : ${o.destination}\n📅 Départ : ${formatNigerDateShort(o.date_depart)}\n🚙 Véhicule : ${o.vehicule_assigne || 'Aucun (Bus/Avion)'}\n\nMerci de consulter le document officiel.`;
-    const url = tel ? `https://wa.me/${tel.replace(/\D/g,'')}?text=${encodeURIComponent(message)}` : `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
+    const o = tousLesOrdres.find(x => String(x.id) === String(id));
+    if (!o) { alert('Mission introuvable.'); return; }
+    if (o.statut !== 'validee') { alert('La mission doit être validée avant notification du chauffeur.'); return; }
+    const chauffeur = String(o.chauffeur_assigne || '').trim();
+    const date = o.date_depart ? formatNigerDateShort(o.date_depart) : '';
+    const heure = o.heure_depart || (o.date_depart && String(o.date_depart).includes('T') ? String(o.date_depart).split('T')[1].slice(0,5) : '');
+    const message = texteNotificationSortie({
+      chauffeur, agent: o.nom, date, heure,
+      destination: o.destination, duree: o.duree ? String(o.duree) + ' minutes' : 'Non précisée',
+      passagers: o.passagers || 'Non précisé',
+      vehicule: o.vehicule_assigne || o.moyen_deplacement,
+      motif: o.objectif || o.motif
+    });
+    ouvrirNotificationChauffeur(chauffeur, message);
   }
 
   function exporterCSV(type) {
